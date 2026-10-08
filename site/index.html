@@ -1,0 +1,1203 @@
+<meta charset="utf-8">
+<title>World Extraction Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<style>
+/* Layout: full-bleed map with an HTML label layer; one control sheet (left on desktop, bottom on phones); detail card top-right */
+:root {
+  --ocean: #c9d8de;
+  --land: #efeee8;
+  --border: #8f8d84;
+  --border-soft: #bdbbb1;
+  --water: #a9c7d4;
+  --river: #4f8fb0;
+  --ice: #fafcfc;
+  --ice-line: #c5d3d8;
+  --disputed: #b0473a;
+  --panel: #fbfbf8;
+  --panel-line: #dddcd4;
+  --ink: #1c1f1f;
+  --ink-2: #545750;
+  --ink-3: #7c7f78;
+  --sea-ink: #4a7387;
+  --oil: #eb6834;
+  --coal: #4a3aa7;
+  --iron: #1baf7a;
+  --foot: #3b3d39;
+  --power: #eda100;
+  --crit: #008300;
+  --stress: #a63a2b;
+  --gw: #2f6f9a;
+  --steel: #2a78d6;
+  --chem: #e87ba4;
+  --cement: #8a7f72;
+  --rail: #3d3f3b;
+  --rail-tie: #efeee8;
+  --road: #b3925f;
+  --lane: #5f8aa0;
+  --mark-ring: #ffffff;
+  --focus: #2a78d6;
+  --halo: rgb(239 238 232 / .85);
+  --f-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ocean: #0f1519; --land: #23272a; --border: #7a8186; --border-soft: #3f464a; --water: #1f3a4a; --river: #4b8aae;
+    --ice: #3b4248; --ice-line: #4d575e; --disputed: #e07a6c;
+    --panel: #1a1e20; --panel-line: #33393c; --ink: #eceeea; --ink-2: #b4b8b1; --ink-3: #868b84; --sea-ink: #6f9db3;
+    --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --focus: #6aa8f0; --halo: rgb(15 21 25 / .8);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ocean: #0f1519; --land: #23272a; --border: #7a8186; --border-soft: #3f464a; --water: #1f3a4a; --river: #4b8aae;
+  --ice: #3b4248; --ice-line: #4d575e; --disputed: #e07a6c;
+  --panel: #1a1e20; --panel-line: #33393c; --ink: #eceeea; --ink-2: #b4b8b1; --ink-3: #868b84; --sea-ink: #6f9db3;
+  --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --focus: #6aa8f0; --halo: rgb(15 21 25 / .8);
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+[hidden] { display: none !important; }
+.maplibregl-marker { z-index: 2; }
+body { background: var(--ocean); color: var(--ink); font-family: var(--f-body); font-size: 14px; overflow: hidden; }
+#app { position: fixed; inset: 0; }
+#map { position: absolute; inset: 0; }
+
+/* --- labels (HTML, so no glyph server is needed) --- */
+#labels { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+.lbl { position: absolute; left: 0; top: 0; white-space: nowrap; will-change: transform; text-shadow: 0 0 3px var(--halo), 0 0 3px var(--halo), 0 0 6px var(--halo); }
+.lbl-c { font-family: var(--f-display); font-stretch: 82%; font-weight: 700; color: var(--ink-2); letter-spacing: .04em; font-size: 11px; text-transform: uppercase; }
+.lbl-c.big { font-size: 12.5px; letter-spacing: .09em; }
+.lbl-m { font-family: var(--f-body); font-style: italic; color: var(--sea-ink); font-size: 11.5px; letter-spacing: .03em; }
+.lbl-m.big { font-size: 13px; letter-spacing: .2em; text-transform: uppercase; font-style: normal; font-weight: 500; }
+.lbl-g { font-family: var(--f-body); font-style: italic; color: var(--ink-3); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+.lbl-p { font-family: var(--f-body); color: var(--ink); font-size: 11px; display: flex; align-items: center; gap: 4px; }
+.lbl-p::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 1.5px var(--land); }
+
+/* --- chokepoints --- */
+.choke { display: flex; align-items: center; gap: 6px; cursor: pointer; background: none; border: 0; padding: 0; font: inherit; color: var(--ink); }
+.choke .gem { width: 11px; height: 11px; transform: rotate(45deg); background: var(--ink); border: 2px solid var(--panel); box-shadow: 0 0 0 1px var(--ink); flex: none; }
+.choke .txt { background: var(--panel); border: 1px solid var(--panel-line); border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1.25; box-shadow: 0 1px 4px rgb(0 0 0 / .15); text-align: left; }
+.choke .txt b { font-family: var(--f-display); font-stretch: 85%; font-weight: 700; display: block; font-size: 11.5px; }
+.choke .txt span { font-family: var(--f-mono); color: var(--ink-2); font-size: 10.5px; }
+.choke.compact .txt span { display: none; }
+
+/* --- control sheet --- */
+.sheet {
+  position: absolute; z-index: 4; top: 16px; left: 16px; width: 330px; max-height: calc(100% - 32px);
+  display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--panel-line);
+  border-radius: 6px; box-shadow: 0 6px 24px rgb(0 0 0 / .12); overflow: hidden;
+}
+.sheet-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--panel-line); }
+.eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+h1 { margin: 4px 0 6px; font-family: var(--f-display); font-stretch: 78%; font-weight: 800; font-size: 26px; line-height: 1.05; letter-spacing: -.01em; text-wrap: balance; }
+.lede { margin: 0; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+.sheet-body { overflow-y: auto; padding: 10px 18px 16px; display: flex; flex-direction: column; gap: 16px; }
+.toggle-sheet { display: none; }
+
+.group-title { font-family: var(--f-display); font-stretch: 85%; font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 4px; }
+.layers { display: flex; flex-direction: column; }
+.layer { display: grid; grid-template-columns: 16px 18px 1fr auto; align-items: center; gap: 8px; padding: 5px 6px; border-radius: 4px; cursor: pointer; }
+.layer:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.layer input { margin: 0; accent-color: var(--ink); width: 14px; height: 14px; }
+.layer .name { font-weight: 500; font-size: 13px; min-width: 0; line-height: 1.3; }
+.layer .name small { display: block; font-weight: 400; color: var(--ink-3); font-size: 11.5px; }
+.layer select { grid-column: 3 / -1; margin-top: 2px; font-size: 12px; padding: 4px 6px; }
+.layer .count { font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.sw { width: 14px; height: 14px; display: block; }
+
+.seg { display: flex; border: 1px solid var(--panel-line); border-radius: 5px; overflow: hidden; }
+.seg button { flex: 1; font: inherit; font-size: 12.5px; padding: 6px 8px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--panel-line); }
+.seg.views { flex-wrap: wrap; }
+.seg.views button { flex: 1 0 auto; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); font-weight: 600; }
+
+select, .search input { width: 100%; box-sizing: border-box; font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); }
+.choro-legend { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.choro-legend .bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+.choro-legend .bar i { height: 10px; border-radius: 1px; }
+.choro-legend .ticks { display: grid; grid-template-columns: repeat(5, 1fr); font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.choro-legend .note { font-size: 11.5px; color: var(--ink-3); }
+.results { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; max-height: 180px; overflow-y: auto; }
+.results button { width: 100%; text-align: left; font: inherit; font-size: 12.5px; background: none; border: 0; padding: 6px 4px; color: var(--ink); cursor: pointer; display: grid; grid-template-columns: 10px 1fr; gap: 8px; align-items: baseline; border-radius: 3px; }
+.results button:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.results .dot { width: 8px; height: 8px; border-radius: 50%; }
+.results small { color: var(--ink-3); }
+
+.sizes { display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--ink-2); }
+.sizes .row { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 10px; }
+.sizes .lab { line-height: 1.35; font-family: var(--f-mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+.sizes .lab b { font-family: var(--f-body); font-weight: 500; color: var(--ink); display: block; font-size: 11.5px; }
+.sizes .hint { color: var(--ink-3); font-size: 11.5px; line-height: 1.45; }
+
+.notes { font-size: 11.5px; line-height: 1.5; color: var(--ink-3); display: flex; flex-direction: column; gap: 6px; }
+.notes p { margin: 0; }
+.notes a { color: var(--ink-2); }
+
+/* --- detail card + tooltip --- */
+.detail {
+  position: absolute; z-index: 5; top: 16px; right: 16px; width: 310px; max-height: calc(100% - 120px); overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--panel-line); border-radius: 6px; box-shadow: 0 6px 24px rgb(0 0 0 / .14);
+}
+.detail-head { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 14px 16px 10px; border-bottom: 1px solid var(--panel-line); }
+.detail-head .kind { display: flex; align-items: center; gap: 6px; }
+.detail-head .kind i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.detail h2 { margin: 4px 0 0; font-family: var(--f-display); font-stretch: 85%; font-weight: 700; font-size: 18px; line-height: 1.15; text-wrap: balance; }
+.close { font: inherit; font-size: 18px; line-height: 1; width: 28px; height: 28px; border: 0; border-radius: 4px; background: transparent; color: var(--ink-2); cursor: pointer; }
+.close:hover { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.kv { margin: 0; padding: 10px 16px 14px; display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; font-size: 12.5px; }
+.kv dt { color: var(--ink-3); }
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.kv dd.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.kv .rank { color: var(--ink-3); font-size: 11px; }
+.kv .sec { grid-column: 1 / -1; font-family: var(--f-display); font-stretch: 85%; font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); padding-top: 6px; border-top: 1px solid var(--panel-line); margin-top: 2px; }
+.kv .sec:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.detail .foot { padding: 0 16px 14px; font-size: 11.5px; color: var(--ink-3); line-height: 1.45; }
+.detail .foot a { color: var(--ink-2); }
+.tip { position: absolute; z-index: 6; pointer-events: none; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 4px; padding: 6px 8px; font-size: 12px; line-height: 1.35; box-shadow: 0 3px 12px rgb(0 0 0 / .15); max-width: 260px; }
+.tip b { font-weight: 600; }
+.tip .m { font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.maplibregl-ctrl-group { background: var(--panel) !important; border: 1px solid var(--panel-line); }
+.maplibregl-ctrl-group button + button { border-top-color: var(--panel-line) !important; }
+:root[data-theme="dark"] .maplibregl-ctrl-icon { filter: invert(1); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .maplibregl-ctrl-icon { filter: invert(1); } }
+.maplibregl-ctrl-scale { background: color-mix(in srgb, var(--panel) 80%, transparent) !important; color: var(--ink-2) !important; border-color: var(--ink-3) !important; font-family: var(--f-mono); }
+.err { position: absolute; inset: 0; display: grid; place-items: center; padding-inline: 24px; text-align: center; color: var(--ink-2); }
+
+@media (max-width: 720px) {
+  .sheet { top: auto; bottom: 0; left: 0; right: 0; width: auto; max-height: 60%; border-radius: 10px 10px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .sheet.collapsed .sheet-body { display: none; }
+  .sheet-head { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 8px; padding: 12px 16px 10px; }
+  h1 { font-size: 21px; }
+  .lede { display: none; }
+  .toggle-sheet { display: block; font: inherit; font-size: 12px; padding: 6px 10px; border: 1px solid var(--panel-line); border-radius: 5px; background: transparent; color: var(--ink); cursor: pointer; }
+  .sheet-body { padding-inline: 16px; }
+  .detail { top: 12px; left: 12px; right: 12px; width: auto; max-height: 38%; }
+  .maplibregl-ctrl-bottom-right { bottom: 70px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+/* glyph key: where each resource sits inside a grid cell */
+.gkey { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px 2px; margin-top: 2px; }
+.gkey .slot { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; color: var(--ink-3); text-align: center; line-height: 1.15; }
+.gkey .slot i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--mark-ring); box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 25%, transparent); }
+.gkey .slot.off { opacity: .28; }
+.gkey .slot.ring i { background: transparent !important; border: 2.5px solid var(--oil); box-shadow: none; }
+.base-legend { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.base-legend .bar { display: grid; gap: 2px; }
+.base-legend .bar i { height: 10px; border-radius: 1px; }
+.base-legend .ticks { display: grid; font-size: 10.5px; color: var(--ink-2); line-height: 1.2; }
+.base-legend .note { font-size: 11.5px; color: var(--ink-3); line-height: 1.4; }
+.detail .zoom-btn { margin: 0 16px 14px; font: inherit; font-size: 12.5px; padding: 6px 10px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
+</style>
+
+<div id="app">
+  <div id="map" role="region" aria-label="World map of resources, industry, water and infrastructure"></div>
+  <div id="labels" aria-hidden="true"></div>
+
+  <aside class="sheet" id="sheet">
+    <div class="sheet-head">
+      <div>
+        <div class="eyebrow">Site-level · 2026 data</div>
+        <h1>World Extraction Atlas</h1>
+        <p class="lede">Oil, gas, coal, ore, critical minerals, industry, power and water, with the borders, pipelines and sea lanes that connect them. At world scale, sites are summed into a grid with one circle per resource in a fixed spot; zoom in and every site sits at its true location.</p>
+      </div>
+      <button class="toggle-sheet" id="toggleSheet" aria-expanded="true">Hide</button>
+    </div>
+    <div class="sheet-body">
+      <section>
+        <h3 class="group-title">View</h3>
+        <div class="seg views" role="group" aria-label="Choose a view">
+          <button type="button" data-view="overview" aria-pressed="true">Overview</button>
+          <button type="button" data-view="resources" aria-pressed="false">Resources</button>
+          <button type="button" data-view="industry" aria-pressed="false">Industry</button>
+          <button type="button" data-view="transport" aria-pressed="false">Transport</button>
+          <button type="button" data-view="water" aria-pressed="false">Water</button>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="group-title">Grid key (world view)</h3>
+        <div class="gkey" id="gkey"></div>
+      </section>
+
+      <section>
+        <h3 class="group-title">Resources <small style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-3)">· top row</small></h3>
+        <div class="layers">
+          <label class="layer"><input type="checkbox" id="lyr-oilgas"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--oil)" stroke="var(--mark-ring)"/></svg><span class="name">Oil &amp; gas fields<small>production, M boe/yr</small></span><span class="count" id="n-oilgas"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-coal"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--coal)" stroke="var(--mark-ring)"/></svg><span class="name">Coal mines<small>capacity, Mt/yr</small></span><span class="count" id="n-coal"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-crit"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--crit)" stroke="var(--mark-ring)"/></svg><span class="name">Critical mineral deposits<small>count of known deposits</small></span><span class="count" id="n-crit"></span></label>
+          <label class="layer" for="mineral"><span></span><span></span><select id="mineral" aria-label="Critical mineral"></select></label>
+          <label class="layer"><input type="checkbox" id="lyr-iron"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--iron)" stroke="var(--mark-ring)"/></svg><span class="name">Iron ore mines<small>production, Mt/yr</small></span><span class="count" id="n-iron"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-foot"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--foot)" fill-opacity=".55"/></svg><span class="name">Mined land, all minerals<small>satellite-mapped area, km²</small></span><span class="count" id="n-foot"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-outlines"><svg class="sw" viewBox="0 0 14 14"><rect x="1.5" y="2.5" width="11" height="9" fill="var(--oil)" fill-opacity=".25" stroke="var(--oil)"/></svg><span class="name">Field &amp; mine boundaries<small>zoom 5+</small></span><span class="count" id="n-outlines"></span></label>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="group-title">Industry, power &amp; LNG <small style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-3)">· bottom row</small></h3>
+        <div class="layers">
+          <label class="layer"><input type="checkbox" id="lyr-power"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--power)" stroke="var(--mark-ring)"/></svg><span class="name">Power plants<small>capacity, GW</small></span><span class="count" id="n-power"></span></label>
+          <label class="layer" for="fuel"><span></span><span></span><select id="fuel" aria-label="Power plant fuel">
+            <option value="">All fuels</option><option value="coal">Coal</option><option value="gas,oil">Gas &amp; oil</option><option value="nuclear">Nuclear</option>
+            <option value="hydro">Hydro</option><option value="solar,wind">Solar &amp; wind</option><option value="geothermal,bioenergy,storage,other">Other</option>
+          </select></label>
+          <label class="layer"><input type="checkbox" id="lyr-steel"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--steel)" stroke="var(--mark-ring)"/></svg><span class="name">Steel plants<small>crude steel capacity, Mt/yr</small></span><span class="count" id="n-steel"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-cement"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--cement)" stroke="var(--mark-ring)"/></svg><span class="name">Cement plants<small>capacity, Mt/yr</small></span><span class="count" id="n-cement"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-chem"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--chem)" stroke="var(--mark-ring)"/></svg><span class="name">Chemical plants<small>ammonia, olefins, methanol; count</small></span><span class="count" id="n-chem"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-lng"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--oil)" stroke-width="2.5"/></svg><span class="name">LNG terminals<small>capacity, Mt/yr</small></span><span class="count" id="n-lng"></span></label>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="group-title">Lines &amp; routes</h3>
+        <div class="layers">
+          <label class="layer"><input type="checkbox" id="lyr-pipes"><svg class="sw" viewBox="0 0 14 14"><path d="M1 4h12" stroke="var(--oil)" stroke-width="2"/><path d="M1 10h12" stroke="var(--oil)" stroke-width="2" stroke-dasharray="3 2"/></svg><span class="name">Pipelines<small>oil solid, gas dashed; width = capacity</small></span><span class="count" id="n-pipes"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-lanes"><svg class="sw" viewBox="0 0 14 14"><path d="M1 9c4-5 8-5 12-2" fill="none" stroke="var(--lane)" stroke-width="2" stroke-dasharray="3 2"/></svg><span class="name">Shipping lanes</span><span class="count" id="n-lanes"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-ports"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="4.5" fill="var(--panel)" stroke="var(--lane)" stroke-width="2"/></svg><span class="name">Seaports</span><span class="count" id="n-ports"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-rail"><svg class="sw" viewBox="0 0 14 14"><path d="M1 7h12" stroke="var(--rail)" stroke-width="3"/><path d="M1 7h12" stroke="var(--rail-tie)" stroke-width="1.2" stroke-dasharray="2 2"/></svg><span class="name">Railways<small>zoom 3+</small></span><span class="count" id="n-rail"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-roads"><svg class="sw" viewBox="0 0 14 14"><path d="M1 7h12" stroke="var(--road)" stroke-width="2.2"/></svg><span class="name">Major roads<small>zoom 3+</small></span><span class="count" id="n-roads"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-choke"><svg class="sw" viewBox="0 0 14 14"><rect x="3.5" y="3.5" width="7" height="7" transform="rotate(45 7 7)" fill="var(--ink)"/></svg><span class="name">Shipping chokepoints<small>oil &amp; LNG flow, 1H 2025</small></span><span class="count">8</span></label>
+          <label class="layer"><input type="checkbox" id="lyr-rivers"><svg class="sw" viewBox="0 0 14 14"><path d="M1 10c3-6 6 2 12-6" fill="none" stroke="var(--river)" stroke-width="2"/></svg><span class="name">Rivers<small>width by river size</small></span><span class="count" id="n-rivers"></span></label>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="group-title"><label for="base">Background shading</label></h3>
+        <select id="base">
+          <option value="">None</option>
+          <optgroup label="Water">
+            <option value="w:ws">Water stress today</option>
+            <option value="w:f50">Water stress 2050 (business as usual)</option>
+            <option value="w:gw">Groundwater decline</option>
+            <option value="w:dr">Drought risk</option>
+            <option value="g:recharge">Aquifers &amp; groundwater recharge</option>
+          </optgroup>
+          <optgroup label="Countries by: resources">
+            <option value="c:og">Oil &amp; gas production</option>
+            <option value="c:coal">Coal mine capacity</option>
+            <option value="c:iron">Iron ore production</option>
+            <option value="c:crit_n">Critical mineral deposits</option>
+            <option value="c:mine_km2">Mined land area</option>
+          </optgroup>
+          <optgroup label="Countries by: industry &amp; trade">
+            <option value="c:pw_gw">Power capacity, all fuels</option>
+            <option value="c:pw_nuclear">Nuclear capacity</option>
+            <option value="c:pw_hydro">Hydro capacity</option>
+            <option value="c:steel">Steel capacity</option>
+            <option value="c:cement">Cement capacity</option>
+            <option value="c:chem_n">Chemical plants</option>
+            <option value="c:lng_exp">LNG export capacity</option>
+            <option value="c:lng_imp">LNG import capacity</option>
+            <option value="c:ports">Seaports</option>
+          </optgroup>
+          <optgroup label="Countries by: water">
+            <option value="c:bws">Average water stress</option>
+            <option value="c:fresh_km2">Lake &amp; reservoir area</option>
+            <option value="c:gw_basin_km2">Area over major aquifers</option>
+          </optgroup>
+        </select>
+        <div class="base-legend" id="baseLegend" hidden></div>
+      </section>
+
+      <section>
+        <h3 class="group-title">Geography &amp; borders</h3>
+        <div class="layers">
+          <label class="layer"><input type="checkbox" id="lyr-lakes"><svg class="sw" viewBox="0 0 14 14"><path d="M2 8c0-4 4-6 7-5s4 4 2 7-9 3-9-2z" fill="var(--water)" stroke="var(--river)"/></svg><span class="name">Lakes &amp; reservoirs</span><span class="count" id="n-lakes"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-ice"><svg class="sw" viewBox="0 0 14 14"><rect x="1.5" y="2.5" width="11" height="9" fill="var(--ice)" stroke="var(--ice-line)"/></svg><span class="name">Glaciers &amp; ice sheets</span><span class="count" id="n-ice"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-names" checked><svg class="sw" viewBox="0 0 14 14"><path d="M1 3h5v4h7" fill="none" stroke="var(--border)" stroke-width="1.5"/><text x="2" y="13" font-size="7" font-weight="700" fill="var(--ink-2)">AB</text></svg><span class="name">Borders &amp; place names</span></label>
+          <label class="layer"><input type="checkbox" id="lyr-disputed" checked><svg class="sw" viewBox="0 0 14 14"><defs><pattern id="hp" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0v4" stroke="var(--disputed)" stroke-width="1.5"/></pattern></defs><rect x="1" y="2" width="12" height="10" fill="url(#hp)" stroke="var(--disputed)" stroke-dasharray="2 1.5"/></svg><span class="name">Disputed territories</span><span class="count" id="n-disputed"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-maritime" checked><svg class="sw" viewBox="0 0 14 14"><path d="M1 7h12" stroke="var(--sea-ink)" stroke-width="1.5" stroke-dasharray="1 2.5" stroke-linecap="round"/></svg><span class="name">Maritime boundaries</span></label>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="group-title">Status</h3>
+        <div class="seg" role="group" aria-label="Filter sites by status">
+          <button type="button" id="st-all" aria-pressed="true">All active</button>
+          <button type="button" id="st-op" aria-pressed="false">Operating</button>
+          <button type="button" id="st-plan" aria-pressed="false">Planned</button>
+        </div>
+      </section>
+
+      <section class="search">
+        <h3 class="group-title"><label for="q">Find a site or country</label></h3>
+        <input id="q" type="search" placeholder="e.g. Rumaila, Mountain Pass, Three Gorges, Chile" autocomplete="off">
+        <ul class="results" id="results"></ul>
+      </section>
+
+      <section>
+        <h3 class="group-title">Circle size</h3>
+        <div class="sizes" id="sizes"></div>
+      </section>
+
+      <section class="notes">
+        <p><strong>Sources.</strong> Global Energy Monitor trackers (CC BY 4.0): oil &amp; gas extraction (Mar 2026), coal mines (Aug 2026), iron ore mines (Sep 2026), coal plants (Jul 2026), oil &amp; gas plants (Aug 2026), iron &amp; steel (Sep 2026), cement (Jul 2026), chemicals (Nov 2025), oil/NGL pipelines (Jul 2026), gas pipelines (Nov 2025), LNG terminals (Sep 2025), coal mine boundaries v1.0.2. Other power plants: WRI Global Power Plant Database v1.3 (2021). Critical minerals: USGS global deposits of critical minerals (Labay et al. 2017) and USGS critical mineral deposits of the United States v3.0 (2026). Water risk: WRI Aqueduct 4.0 (2023). Groundwater: BGR/UNESCO WHYMAP. Mined land: Maus et al. 2022 (<a href="https://doi.org/10.1594/PANGAEA.942325" target="_blank" rel="noopener">PANGAEA</a>, CC BY-SA 4.0). Shipping lanes: Benden 2022, after the CIA <i>Map of the World's Oceans</i>. Chokepoints: <a href="https://www.eia.gov/international/content/analysis/special_topics/World_Oil_Transit_Chokepoints" target="_blank" rel="noopener">US EIA</a>, Mar 2026. Water, borders, disputed areas, roads, railways, ports, names: Natural Earth.</p>
+        <p><strong>Read with care.</strong> Totals add up only what each site reports; many large oil fields, including Saudi Arabia's, publish no production. The US critical-mineral set is far more detailed than the global one, so the US shows many more deposits. Solar, wind, hydro and nuclear come from a 2021 database. Oil refineries aren't included yet. Gas is converted at 6,000 cf per barrel of oil equivalent. Country totals count operating sites only; offshore sites go to the nearest country. Country water stress is an area-weighted average of Aqueduct basin scores. Borders follow Natural Earth's de facto lines and don't imply endorsement.</p>
+      </section>
+    </div>
+  </aside>
+
+  <article class="detail" id="detail" hidden aria-live="polite"></article>
+  <div class="tip" id="tip" hidden></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const fmt = (v, d = 0) => v == null ? "–" : Number(v).toLocaleString("en-US", { maximumFractionDigits: d });
+  const smart = v => v == null ? "–" : v >= 100 ? fmt(v) : v >= 10 ? fmt(v, 1) : v >= 1 ? fmt(v, 2) : fmt(v, 3);
+  const cap = s => s ? String(s).charAt(0).toUpperCase() + String(s).slice(1) : s;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const empty = { type: "FeatureCollection", features: [] };
+
+  const gl = (() => { try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; } })();
+  if (!window.maplibregl || !gl) { $("map").innerHTML = '<div class="err">This map needs WebGL, which isn\'t available in this browser.</div>'; return; }
+
+  // ---------- point layers. Zoomed out they are summed into a screen grid; each layer has a fixed slot in the cell ----------
+  const Q = {
+    oilgas: { label: "Oil & gas field", plural: "fields", short: "Oil & gas", color: "--oil", k: 0.36, unit: "M boe/yr", slot: [0, 0] },
+    coal:   { label: "Coal mine", plural: "mines", short: "Coal", color: "--coal", k: 0.7, unit: "Mt/yr", slot: [1, 0] },
+    crit:   { label: "Critical mineral deposit", plural: "deposits", short: "Critical minerals", color: "--crit", k: 3, unit: "deposits", slot: [2, 0], count: true },
+    iron:   { label: "Iron ore mine", plural: "mines", short: "Iron ore", color: "--iron", k: 0.7, unit: "Mt/yr", slot: [3, 0] },
+    foot:   { label: "Mined land", plural: "mine areas", short: "Mined land", color: "--foot", k: 0.55, unit: "km²", slot: [4, 0] },
+    power:  { label: "Power plant", plural: "plants", short: "Power", color: "--power", k: 1.1, unit: "GW", slot: [0, 1] },
+    steel:  { label: "Steel plant", plural: "plants", short: "Steel", color: "--steel", k: 1.3, unit: "Mt/yr", slot: [1, 1] },
+    cement: { label: "Cement plant", plural: "plants", short: "Cement", color: "--cement", k: 1.0, unit: "Mt/yr", slot: [2, 1] },
+    chem:   { label: "Chemical plant", plural: "plants", short: "Chemicals", color: "--chem", k: 3, unit: "plants", slot: [3, 1], count: true },
+    lng:    { label: "LNG terminal", plural: "terminals", short: "LNG", color: "--oil", k: 2.0, unit: "Mt/yr", slot: [4, 1], ring: true }
+  };
+  const PTS = Object.keys(Q);
+  const AGG_MAX = 2.5;                     // below this zoom (world view) show grid tiles; above it, sites at their true positions
+  const SP = 15, MAXR = 7.5;              // slot spacing and largest glyph radius (px)
+  const CW = SP * 5 + 18, CH = SP * 2 + 20; // grid cell size in screen px
+  const slotXY = s => [(s[0] - 2) * SP, (s[1] - 0.5) * SP];
+  const ZF = [2.5, 0.7, 6, 1, 9, 2.6, 12, 5, 15, 9];
+  const zf = z => { if (z <= ZF[0]) return ZF[1]; for (let i = 2; i < ZF.length; i += 2) if (z <= ZF[i]) return ZF[i - 1] + (ZF[i + 1] - ZF[i - 1]) * (z - ZF[i - 2]) / (ZF[i] - ZF[i - 2]); return ZF[ZF.length - 1]; };
+  const R = k => { const base = ["max", 2.5, ["*", k, ["sqrt", ["coalesce", ["get", "q"], 0]]]]; return ["interpolate", ["linear"], ["zoom"], ...ZF.flatMap((v, i) => i % 2 ? [] : [v, ["*", base, ZF[i + 1]]])]; };
+
+  // capped version used for sites and merged groups, so a merged circle never swallows the view
+  const RC = k => { const base = ["min", 26, ["max", 2.5, ["*", k, ["sqrt", ["coalesce", ["get", "q"], 0]]]]]; return ["interpolate", ["linear"], ["zoom"], ...ZF.flatMap((v, i) => i % 2 ? [] : [v, ["*", base, ZF[i + 1]]])]; };
+  const STATUS = {
+    all: s => !["cancelled", "retired", "abandoned", "decommissioning", "closed"].includes(s),
+    op: s => s === "operating",
+    plan: s => ["proposed", "discovered", "in-development", "construction", "exploration", "shelved"].includes(s)
+  };
+  let statusMode = "all", fuelFilter = "", mineralFilter = "";
+
+  const GROUPS = {
+    oilgas: { layers: ["g-oilgas", "oilgas-pts"], data: ["oilgas"] }, coal: { layers: ["g-coal", "coal-pts"], data: ["coal"] },
+    crit: { layers: ["g-crit", "crit-pts"], data: ["crit"] }, iron: { layers: ["g-iron", "iron-pts"], data: ["iron"] },
+    foot: { layers: ["g-foot", "foot-pts", "foot_w-fill", "foot_w-line", "foot_c-fill", "foot_c-line", "foot_e-fill", "foot_e-line"], data: ["foot"] },
+    power: { layers: ["g-power", "power-pts"], data: ["power"] }, steel: { layers: ["g-steel", "steel-pts"], data: ["steel"] },
+    cement: { layers: ["g-cement", "cement-pts"], data: ["cement"] }, chem: { layers: ["g-chem", "chem-pts"], data: ["chem"] },
+    lng: { layers: ["g-lng", "lng-pts"], data: ["lng"] },
+    outlines: { layers: ["og-outline", "og-outline-line", "cb-fill", "cb-line"], data: ["oilgas_outlines", "coal_boundaries"] },
+    pipes: { layers: ["pipes-oil", "pipes-gas"], data: ["pipelines"] }, lanes: { layers: ["lanes"], data: ["shipping"] },
+    ports: { layers: ["ports-pts"], data: ["ports"] }, rail: { layers: ["rail", "rail-ties"], data: ["rail"] }, roads: { layers: ["roads"], data: ["roads"] },
+    choke: { layers: [], data: ["chokepoints"] }, rivers: { layers: ["rivers"], data: ["rivers"] },
+    lakes: { layers: ["lakes", "lakes-line"], data: ["lakes"] }, ice: { layers: ["glaciers"], data: ["glaciers"] },
+    names: { layers: ["borders"], data: [] }, disputed: { layers: ["disputed", "disputed-lines"], data: [] }, maritime: { layers: ["maritime"], data: [] }
+  };
+  const VIEWS = {
+    overview: { on: ["oilgas", "coal", "crit", "iron", "power", "steel", "lng", "pipes", "lanes", "choke", "lakes", "ice"], fuel: "", base: "" },
+    resources: { on: ["oilgas", "coal", "crit", "iron", "foot", "outlines", "rivers", "lakes", "ice"], fuel: "", base: "" },
+    industry: { on: ["power", "steel", "cement", "chem", "lng", "lakes", "ice"], fuel: "", base: "" },
+    transport: { on: ["pipes", "lng", "lanes", "ports", "rail", "roads", "choke", "lakes", "ice"], fuel: "", base: "" },
+    water: { on: ["rivers", "lakes", "ice", "power"], fuel: "hydro", base: "w:ws" }
+  };
+  const VIEW_KEYS = ["oilgas", "coal", "crit", "iron", "foot", "outlines", "power", "steel", "cement", "chem", "lng", "pipes", "lanes", "ports", "rail", "roads", "choke", "rivers", "lakes", "ice"];
+
+  // ---------- data loading ----------
+  const FILES = {
+    oilgas: "oilgas.geojson", coal: "coal.geojson", iron: "iron.geojson", lng: "lng.geojson", power: "power.geojson", steel: "steel.geojson", cement: "cement.geojson",
+    chem: "chemicals.geojson", crit: "critical_minerals.geojson", foot: "mining_points.json", oilgas_outlines: "oilgas_outlines.geojson", coal_boundaries: "coal_boundaries.geojson",
+    pipelines: "pipelines.geojson", shipping: "shipping.geojson", ports: "ports.geojson", rail: "rail.geojson", roads: "roads.geojson", chokepoints: "chokepoints.geojson",
+    rivers: "rivers.geojson", lakes: "lakes.geojson", glaciers: "glaciers.geojson", water_risk: "water_risk.geojson", groundwater: "groundwater.geojson",
+    saline_gw: "saline_gw.geojson", gw_mining: "gw_mining.geojson"
+  };
+  const COUNT_ID = { oilgas: "n-oilgas", coal: "n-coal", iron: "n-iron", lng: "n-lng", power: "n-power", steel: "n-steel", cement: "n-cement", chem: "n-chem", crit: "n-crit",
+    foot: "n-foot", pipelines: "n-pipes", shipping: "n-lanes", ports: "n-ports", rail: "n-rail", roads: "n-roads", rivers: "n-rivers", lakes: "n-lakes", glaciers: "n-ice" };
+  const DATA = {}, loading = {};
+  const get = f => fetch("data/" + f).then(r => { if (!r.ok) throw new Error(f); return r.json(); });
+  const setCount = (id, n) => { const el = $(id); if (el) el.textContent = fmt(n); };
+  function ensure(src) {
+    if (DATA[src]) return Promise.resolve(DATA[src]);
+    if (loading[src]) return loading[src];
+    loading[src] = get(FILES[src]).then(j => {
+      if (src === "foot") j = { type: "FeatureCollection", features: j.map(a => ({ type: "Feature", geometry: { type: "Point", coordinates: [a[0], a[1]] }, properties: { q: a[2], s: "operating" } })) };
+      DATA[src] = j; delete loading[src];
+      if (COUNT_ID[src]) setCount(COUNT_ID[src], j.features.length);
+      if (src === "chokepoints") initChokepoints(j);
+      else pushData(src);
+      if (src === "oilgas_outlines" || src === "coal_boundaries") setCount("n-outlines", (DATA.oilgas_outlines || empty).features.length + (DATA.coal_boundaries || empty).features.length);
+      return j;
+    }).catch(() => { delete loading[src]; });
+    return loading[src];
+  }
+  function filtered(src) {
+    const d = DATA[src]; if (!d) return [];
+    const ok = STATUS[statusMode];
+    const fuels = src === "power" && fuelFilter ? fuelFilter.split(",") : null;
+    const mins = src === "crit" && mineralFilter ? mineralFilter.split(",") : null;
+    return d.features.filter(f => {
+      const p = f.properties;
+      if (src !== "foot" && src !== "crit" && !ok(String(p.s || "").toLowerCase())) return false;
+      if (fuels && !fuels.includes(p.f)) return false;
+      if (mins && !mins.some(m => ("|" + p.m + "|").includes("|" + m + "|"))) return false;
+      return true;
+    });
+  }
+  function pushData(src) {
+    if (!map || !DATA[src]) return;
+    if (PTS.includes(src)) { map.getSource(src).setData({ type: "FeatureCollection", features: filtered(src) }); aggCache[src] = {}; refreshAgg(src); return; }
+    if (src === "pipelines") { const ok = STATUS[statusMode]; map.getSource(src).setData({ type: "FeatureCollection", features: DATA[src].features.filter(f => ok(String(f.properties.s || ""))) }); return; }
+    if (map.getSource(src)) map.getSource(src).setData(DATA[src]);
+  }
+
+  // ---------- grid aggregation (Web Mercator pixel grid at whole zoom levels) ----------
+  const aggCache = {}, kCache = {};
+  const merc = ([lng, lat]) => { const s = Math.sin(Math.max(-85, Math.min(85, lat)) * Math.PI / 180); return [(lng + 180) / 360, 0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)]; };
+  const unmerc = (x, y) => [x * 360 - 180, Math.atan(Math.sinh(Math.PI * (1 - 2 * y))) * 180 / Math.PI];
+  const binOf = z => Math.max(0, Math.min(AGG_MAX - 0.25, Math.round(z * 4) / 4)); // regrid every quarter zoom level
+  function cells(features, bin) {
+    const ws = 512 * Math.pow(2, bin), out = new Map();
+    for (const f of features) {
+      const [x, y] = merc(f.geometry.coordinates);
+      const key = Math.floor(x * ws / CW) + ":" + Math.floor(y * ws / CH);
+      let c = out.get(key); if (!c) out.set(key, c = { q: 0, n: 0, nq: 0 });
+      const q = +f.properties.q || 0; c.q += q; c.n += 1; if (q > 0) c.nq += 1;
+    }
+    return out;
+  }
+  function scale(src, bin) {
+    // largest cell anywhere (all statuses, no filters) fills the slot, so sizes stay comparable as filters change
+    // the 90th-percentile cell fills the slot; the few bigger cells are capped and get a dark ring
+    const key = src + bin; if (kCache[key]) return kCache[key];
+    const qs = []; cells(DATA[src].features, bin).forEach(c => { if (c.q > 0) qs.push(c.q); });
+    qs.sort((a, b) => a - b);
+    const max = qs.length ? qs[Math.min(qs.length - 1, Math.floor(qs.length * 0.9))] : 1;
+    return (kCache[key] = { k: MAXR / Math.sqrt(max || 1), max });
+  }
+  function aggFor(src, bin) {
+    aggCache[src] = aggCache[src] || {};
+    if (!aggCache[src][bin]) aggCache[src][bin] = cells(filtered(src), bin);
+    return aggCache[src][bin];
+  }
+  let curBin = -1;
+  function refreshAgg(only) {
+    if (!map) return;
+    const bin = binOf(map.getZoom()); curBin = bin;
+    const ws = 512 * Math.pow(2, bin);
+    (only ? [only] : PTS).forEach(src => {
+      if (!DATA[src] || !$("lyr-" + src).checked) return;
+      const { k, max } = scale(src, bin), feats = [];
+      aggFor(src, bin).forEach((c, key) => {
+        const [cx, cy] = key.split(":").map(Number);
+        feats.push({ type: "Feature", geometry: { type: "Point", coordinates: unmerc((cx + 0.5) * CW / ws, (cy + 0.5) * CH / ws) },
+          properties: { q: c.q, n: c.n, nq: c.nq, key, r: c.q > 0 ? Math.min(MAXR, Math.max(2.4, k * Math.sqrt(c.q))) : 2, z: c.q > 0 ? 1 : 0, o: c.q > max ? 1 : 0 } });
+      });
+      map.getSource("g-" + src).setData({ type: "FeatureCollection", features: feats });
+    });
+    drawPlates(bin);
+    renderSizes();
+  }
+
+
+  // the tile behind each cell's circles is an icon, so it stays a fixed screen size like the circles do
+  let plateKey = "";
+  function setPlateImage(w, h, force) {
+    const dpr = window.devicePixelRatio || 1, key = w + "x" + h + "@" + dpr;
+    if (key === plateKey && !force) return;
+    const c = document.createElement("canvas"); c.width = Math.ceil(w * dpr); c.height = Math.ceil(h * dpr);
+    const x = c.getContext("2d"); x.scale(dpr, dpr);
+    const r = 5; x.beginPath(); x.moveTo(r, 0); x.arcTo(w, 0, w, h, r); x.arcTo(w, h, 0, h, r); x.arcTo(0, h, 0, 0, r); x.arcTo(0, 0, w, 0, r); x.closePath();
+    x.globalAlpha = 0.55; x.fillStyle = css("--panel"); x.fill();
+    x.globalAlpha = 0.9; x.lineWidth = 1; x.strokeStyle = css("--panel-line"); x.stroke();
+    const img = { width: c.width, height: c.height, data: new Uint8Array(x.getImageData(0, 0, c.width, c.height).data.buffer) };
+    if (map.hasImage("plate")) map.removeImage("plate");
+    map.addImage("plate", img, { pixelRatio: dpr });
+    plateKey = key;
+  }
+  function drawPlates(bin) {
+    if (!map || !map.getSource("g-plates")) return;
+    const act = PTS.filter(s => $("lyr-" + s).checked && DATA[s]);
+    if (!act.length) { map.getSource("g-plates").setData(empty); return; }
+    const xs = act.map(s => slotXY(Q[s].slot)[0]), ys = act.map(s => slotXY(Q[s].slot)[1]), pad = MAXR + 2;
+    const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad;
+    setPlateImage(x1 - x0, y1 - y0);
+    map.setLayoutProperty("g-plates", "icon-offset", [(x0 + x1) / 2, (y0 + y1) / 2]);
+    const ws = 512 * Math.pow(2, bin), counts = new Map();
+    act.forEach(s => aggFor(s, bin).forEach((c, key) => counts.set(key, (counts.get(key) || 0) + 1)));
+    const feats = [];
+    counts.forEach((n, key) => {
+      if (n < 2) return; // a lone circle needs no tile
+
+      const [cx, cy] = key.split(":").map(Number);
+      feats.push({ type: "Feature", geometry: { type: "Point", coordinates: unmerc((cx + 0.5) * CW / ws, (cy + 0.5) * CH / ws) }, properties: { key } });
+    });
+    map.getSource("g-plates").setData({ type: "FeatureCollection", features: feats });
+  }
+
+  // ---------- map ----------
+  let map;
+  const wide = () => innerWidth > 720;
+  function initialCamera() {
+    const el = $("map"), W = el.clientWidth || innerWidth, avail = wide() ? W - 370 : W;
+    const z = Math.max(0.3, Math.min(2.2, Math.log2(avail / 500)));
+    const pxPerDeg = 512 * Math.pow(2, z) / 360;
+    return { center: [wide() ? 15 - 185 / pxPerDeg : 25, 22], zoom: z };
+  }
+  function whenSized(el, cb) {
+    if (el.clientWidth > 0 && el.clientHeight > 0) return cb();
+    const ro = new ResizeObserver(() => { if (el.clientWidth > 0 && el.clientHeight > 0) { ro.disconnect(); cb(); } });
+    ro.observe(el);
+  }
+  whenSized($("map"), start);
+
+  function start() {
+    map = new maplibregl.Map({
+      container: "map",
+      style: { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": css("--ocean") } }] },
+      ...initialCamera(), minZoom: 0.3, maxZoom: 15, attributionControl: false, dragRotate: false, pixelRatio: window.devicePixelRatio || 1
+    });
+    map.touchZoomRotate.disableRotation();
+    if (location.hash === "#debug") window.__atlasMap = map; // used by tools/screenshot.py
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+    map.addControl(new maplibregl.ScaleControl({ maxWidth: 110, unit: "metric" }), "bottom-right");
+    keepCanvasInSync();
+    map.on("load", onLoad);
+  }
+
+  // The viewer can resize the frame or change pixel density after load; keep the GL canvas matched to its box.
+  function keepCanvasInSync() {
+    let touched = false, jumping = false;
+    map.on("movestart", () => { if (!jumping) touched = true; });
+    const sync = () => {
+      const dpr = window.devicePixelRatio || 1;
+      if (typeof map.getPixelRatio === "function" && Math.abs(map.getPixelRatio() - dpr) > 0.01) map.setPixelRatio(dpr);
+      const c = map.getCanvas(), el = $("map");
+      if (Math.abs(c.clientWidth - el.clientWidth) > 1 || Math.abs(c.clientHeight - el.clientHeight) > 1 || Math.abs(c.width - Math.round(el.clientWidth * dpr)) > 2) map.resize();
+      if (!touched) { jumping = true; map.jumpTo(initialCamera()); jumping = false; }
+      requestAnimationFrame(placeLabels);
+    };
+    new ResizeObserver(sync).observe($("map"));
+    window.addEventListener("resize", sync);
+    let mq;
+    const watchDpr = () => { try { mq && mq.removeEventListener("change", onDpr); mq = matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`); mq.addEventListener("change", onDpr); } catch (e) {} };
+    const onDpr = () => { sync(); watchDpr(); };
+    watchDpr();
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) sync(); });
+    setTimeout(sync, 300); setTimeout(sync, 1500);
+  }
+
+  function hatch(color, alpha = .7) {
+    const c = document.createElement("canvas"); c.width = c.height = 12;
+    const x = c.getContext("2d"); x.strokeStyle = color; x.lineWidth = 1.6; x.globalAlpha = alpha;
+    for (let i = -12; i <= 24; i += 6) { x.beginPath(); x.moveTo(i, 12); x.lineTo(i + 12, 0); x.stroke(); }
+    return x.getImageData(0, 0, 12, 12);
+  }
+
+  async function onLoad() {
+    const add = (id, opts = {}) => map.addSource(id, { type: "geojson", data: empty, ...opts });
+    ["land", "countries", "glaciers", "lakes", "rivers", "borders", "disputed", "disputed_lines", "maritime", "pipelines", "oilgas_outlines", "coal_boundaries",
+      "shipping", "rail", "roads", "ports", "sel", "foot_w", "foot_c", "foot_e", "water_risk", "groundwater", "saline_gw", "gw_mining"].forEach(id => add(id));
+    PTS.forEach(id => {
+      add(id, { cluster: true, clusterMaxZoom: 6, clusterRadius: 26,
+        clusterProperties: { q: ["+", ["coalesce", ["get", "q"], 0]], nq: ["+", ["case", ["has", "q"], 1, 0]] } });
+      add("g-" + id);
+    });
+    add("g-plates");
+    map.addImage("hatch", hatch(css("--disputed")));
+    map.addImage("hatch-salt", hatch(css("--stress"), .55));
+
+    const L = o => map.addLayer(o);
+    const hidden = { visibility: "none" };
+    // 1. ground + one exclusive background fill
+    L({ id: "land", type: "fill", source: "land", paint: { "fill-color": css("--land") } });
+    L({ id: "countries-fill", type: "fill", source: "countries", paint: { "fill-color": css("--land"), "fill-opacity": ["case", ["has", "c"], 1, 0] } });
+    L({ id: "water-fill", type: "fill", source: "water_risk", layout: hidden, paint: { "fill-color": css("--land"), "fill-opacity": 0.92 } });
+    L({ id: "gw-fill", type: "fill", source: "groundwater", layout: hidden, paint: { "fill-color": css("--land"), "fill-opacity": 0.9 } });
+    L({ id: "gw-major", type: "line", source: "groundwater", filter: ["==", ["get", "t"], "m"], layout: hidden, paint: { "line-color": css("--gw"), "line-width": 0.8, "line-opacity": 0.7 } });
+    L({ id: "saline", type: "fill", source: "saline_gw", layout: hidden, paint: { "fill-pattern": "hatch-salt" } });
+    // 2. physical geography
+    L({ id: "glaciers", type: "fill", source: "glaciers", layout: hidden, paint: { "fill-color": css("--ice"), "fill-outline-color": css("--ice-line") } });
+    L({ id: "lakes", type: "fill", source: "lakes", layout: hidden, paint: { "fill-color": css("--water"), "fill-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", ["<=", ["get", "sr"], 2], 1, 0.6], 4, 1] } });
+    L({ id: "lakes-line", type: "line", source: "lakes", minzoom: 3, layout: hidden, paint: { "line-color": css("--river"), "line-width": ["case", ["has", "res"], 1.2, 0.5], "line-opacity": 0.7 } });
+    L({ id: "rivers", type: "line", source: "rivers", layout: { ...hidden, "line-cap": "round", "line-join": "round" }, paint: {
+      "line-color": css("--river"),
+      "line-width": ["interpolate", ["linear"], ["zoom"], 1, ["max", 0.25, ["-", 1.4, ["*", 0.18, ["get", "sr"]]]], 6, ["max", 0.6, ["-", 3, ["*", 0.25, ["get", "sr"]]]], 10, ["max", 1, ["-", 4.5, ["*", 0.3, ["get", "sr"]]]]],
+      "line-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", ["<=", ["get", "sr"], 3], 0.75, 0], 3.5, ["case", ["<=", ["get", "sr"], 6], 0.8, 0], 5.5, 0.9] } });
+    // 3. borders
+    L({ id: "disputed", type: "fill", source: "disputed", paint: { "fill-pattern": "hatch" } });
+    L({ id: "maritime", type: "line", source: "maritime", layout: { "line-cap": "round" }, paint: { "line-color": css("--sea-ink"), "line-width": 1.1, "line-dasharray": [0.2, 2.5], "line-opacity": 0.8 } });
+    L({ id: "borders", type: "line", source: "borders", layout: { "line-join": "round" }, paint: { "line-color": css("--border"), "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.5, 6, 1.1, 10, 1.6] } });
+    L({ id: "disputed-lines", type: "line", source: "disputed_lines", paint: { "line-color": css("--disputed"), "line-width": 1.1, "line-dasharray": [3, 2] } });
+    L({ id: "country-sel", type: "line", source: "countries", filter: ["==", ["get", "k"], "__none__"], paint: { "line-color": css("--ink"), "line-width": 2 } });
+    // 4. routes: kept thin and quiet when zoomed out so the glyphs stay readable
+    const quiet = (e, lo, hi) => ["interpolate", ["linear"], ["zoom"], 1, ["*", e, lo], 4, ["*", e, lo], 6, ["*", e, hi]];
+    L({ id: "lanes", type: "line", source: "shipping", layout: hidden, paint: { "line-color": css("--lane"),
+      "line-width": ["match", ["get", "t"], "Major", 1.8, "Middle", 1.1, 0.7], "line-opacity": quiet(["match", ["get", "t"], "Major", 0.9, "Middle", 0.7, 0.5], 0.65, 1), "line-dasharray": [3, 2] } });
+    L({ id: "roads", type: "line", source: "roads", minzoom: 3, layout: { ...hidden, "line-join": "round", "line-cap": "round" }, paint: { "line-color": css("--road"),
+      "line-width": ["interpolate", ["linear"], ["zoom"], 3, ["case", ["has", "x"], 0.5, 0.3], 6, ["case", ["has", "x"], 1.4, 0.8], 10, ["case", ["has", "x"], 3, 1.6]],
+      "line-opacity": ["interpolate", ["linear"], ["zoom"], 3, ["case", ["<=", ["get", "sr"], 5], 0.6, 0], 5, 0.85] } });
+    L({ id: "rail", type: "line", source: "rail", minzoom: 3, layout: { ...hidden, "line-join": "round" }, paint: { "line-color": css("--rail"),
+      "line-width": ["interpolate", ["linear"], ["zoom"], 3, 0.6, 6, 1.6, 10, 3.2],
+      "line-opacity": ["interpolate", ["linear"], ["zoom"], 3, ["case", ["<=", ["get", "sr"], 7], 0.6, 0], 5.5, 0.85] } });
+    L({ id: "rail-ties", type: "line", source: "rail", minzoom: 5, layout: hidden, paint: { "line-color": css("--rail-tie"), "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 10, 1.4], "line-dasharray": [2, 2] } });
+    const pw = ["interpolate", ["linear"], ["coalesce", ["get", "q"], 0], 0, 0.5, 0.2, 1.1, 1, 2.2, 3, 3.6];
+    const pwz = ["interpolate", ["linear"], ["zoom"], 1, ["*", pw, 0.6], 6, pw, 10, ["*", pw, 1.6]];
+    const pipeOpacity = quiet(["case", ["==", ["get", "s"], "operating"], ["case", ["==", ["get", "x"], 1], 0.95, 0.7], 0.45], 0.55, 1);
+    L({ id: "pipes-oil", type: "line", source: "pipelines", filter: ["==", ["get", "f"], "oil"], layout: { ...hidden, "line-join": "round", "line-cap": "round" }, paint: { "line-color": css("--oil"), "line-width": pwz, "line-opacity": pipeOpacity } });
+    L({ id: "pipes-gas", type: "line", source: "pipelines", filter: ["==", ["get", "f"], "gas"], layout: { ...hidden, "line-join": "round" }, paint: { "line-color": css("--oil"), "line-width": pwz, "line-opacity": pipeOpacity, "line-dasharray": [2.2, 1.4] } });
+    // 5. areas of extraction (zoomed in)
+    ["foot_w", "foot_c", "foot_e"].forEach(id => {
+      L({ id: id + "-fill", type: "fill", source: id, minzoom: 7, layout: hidden, paint: { "fill-color": css("--foot"), "fill-opacity": 0.32 } });
+      L({ id: id + "-line", type: "line", source: id, minzoom: 9, layout: hidden, paint: { "line-color": css("--foot"), "line-width": 0.6, "line-opacity": 0.7 } });
+    });
+    L({ id: "og-outline", type: "fill", source: "oilgas_outlines", minzoom: 5, layout: hidden, paint: { "fill-color": css("--oil"), "fill-opacity": 0.16 } });
+    L({ id: "og-outline-line", type: "line", source: "oilgas_outlines", minzoom: 5, layout: hidden, paint: { "line-color": css("--oil"), "line-width": 1, "line-opacity": 0.8 } });
+    L({ id: "cb-fill", type: "fill", source: "coal_boundaries", minzoom: 5, layout: hidden, paint: { "fill-color": css("--coal"), "fill-opacity": 0.18 } });
+    L({ id: "cb-line", type: "line", source: "coal_boundaries", minzoom: 5, layout: hidden, paint: { "line-color": css("--coal"), "line-width": 1, "line-opacity": 0.85 } });
+    L({ id: "ports-pts", type: "circle", source: "ports", layout: hidden, paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["interpolate", ["linear"], ["get", "sr"], 3, 2.6, 8, 1], 6, ["interpolate", ["linear"], ["get", "sr"], 3, 5, 8, 2.5], 10, ["interpolate", ["linear"], ["get", "sr"], 3, 8, 8, 4.5]],
+      "circle-color": css("--panel"), "circle-stroke-color": css("--lane"), "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 1, 1, 6, 2],
+      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", ["<=", ["get", "sr"], 4], 1, 0], 3, ["case", ["<=", ["get", "sr"], 6], 1, 0], 4.5, 1],
+      "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", ["<=", ["get", "sr"], 4], 1, 0], 3, ["case", ["<=", ["get", "sr"], 6], 1, 0], 4.5, 1] } });
+    L({ id: "gw-mining", type: "circle", source: "gw_mining", layout: hidden, paint: { "circle-radius": 4, "circle-color": css("--panel"), "circle-stroke-color": css("--stress"), "circle-stroke-width": 2 } });
+
+    // 6. sites: grid glyphs below AGG_MAX, individual sites above it; a small tile groups each cell's circles
+    L({ id: "g-plates", type: "symbol", source: "g-plates", maxzoom: AGG_MAX, layout: { "icon-image": "plate", "icon-allow-overlap": true, "icon-ignore-placement": true, "icon-offset": [0, 0] } });
+    PTS.forEach(src => {
+      const Qk = Q[src], [dx, dy] = slotXY(Qk.slot);
+      L({ id: "g-" + src, type: "circle", source: "g-" + src, maxzoom: AGG_MAX, layout: hidden, paint: Qk.ring ? {
+          "circle-radius": ["get", "r"], "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": css(Qk.color), "circle-stroke-width": 2.2, "circle-translate": [dx, dy] } : {
+          "circle-radius": ["get", "r"], "circle-color": css(Qk.color), "circle-opacity": ["case", ["==", ["get", "z"], 1], 0.92, 0.35],
+          "circle-stroke-color": ["case", ["==", ["get", "o"], 1], css("--ink"), css("--mark-ring")], "circle-stroke-width": ["case", ["==", ["get", "o"], 1], 1.6, 1], "circle-translate": [dx, dy] } });
+    });
+    const order = ["foot", "cement", "chem", "power", "steel", "crit", "iron", "coal", "oilgas", "lng"];
+    order.forEach(src => {
+      const Qk = Q[src];
+      if (src === "foot") {
+        L({ id: "foot-pts", type: "circle", source: "foot", minzoom: AGG_MAX, layout: hidden, paint: { "circle-color": css("--foot"), "circle-radius": RC(Qk.k), "circle-opacity": ["interpolate", ["linear"], ["zoom"], 2.5, 0.5, 7.5, 0.25, 9, 0] } });
+      } else if (Qk.ring) {
+        L({ id: "lng-pts", type: "circle", source: "lng", minzoom: AGG_MAX, layout: hidden, paint: { "circle-color": "rgba(0,0,0,0)", "circle-radius": RC(Qk.k), "circle-stroke-color": css("--oil"), "circle-stroke-width": 2,
+          "circle-stroke-opacity": ["case", ["==", ["get", "s"], "operating"], 1, 0.55] } });
+      } else {
+        const countR = ["interpolate", ["linear"], ["zoom"], 2.5, ["min", 16, ["+", 2.5, ["*", 1.4, ["sqrt", ["coalesce", ["get", "point_count"], 1]]]]], 10, ["min", 20, ["+", 4, ["*", 1.6, ["sqrt", ["coalesce", ["get", "point_count"], 1]]]]]];
+        L({ id: src + "-pts", type: "circle", source: src, minzoom: AGG_MAX, layout: { ...hidden, "circle-sort-key": ["*", -1, ["coalesce", ["get", "q"], 0]] }, paint: {
+          "circle-color": css(Qk.color), "circle-radius": Qk.count ? countR : RC(Qk.k),
+          "circle-opacity": ["case", ["has", "point_count"], 0.7, ["==", ["get", "s"], "operating"], 0.88, 0.5],
+          "circle-stroke-color": ["case", ["has", "point_count"], css("--ink"), css("--mark-ring")], "circle-stroke-width": ["case", ["has", "point_count"], 1, 0.8],
+          "circle-stroke-opacity": ["case", ["has", "point_count"], 0.45, 1] } });
+      }
+    });
+    L({ id: "sel", type: "circle", source: "sel", filter: ["==", ["geometry-type"], "Point"], paint: {
+      "circle-radius": ["coalesce", ["get", "_r"], 10], "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": css("--ink"), "circle-stroke-width": 2 } });
+    L({ id: "sel-line", type: "line", source: "sel", filter: ["!=", ["geometry-type"], "Point"], paint: { "line-color": css("--ink"), "line-width": 2, "line-dasharray": [1, 1] } });
+
+    const base = ["land", "countries", "borders", "disputed", "disputed_lines", "maritime"];
+    const baseData = await Promise.all(base.map(b => get(b + ".geojson")));
+    base.forEach((b, i) => map.getSource(b).setData(baseData[i]));
+    DATA.countries = baseData[1];
+    setCount("n-disputed", baseData[3].features.length);
+    get("labels.json").then(initLabels);
+    get("country_totals.json").then(t => { DATA.totals = t; Object.values(t).forEach(c => c.fresh_km2 = (c.lake_km2 || 0) + (c.res_km2 || 0) || undefined); computeRanks(); });
+    get("crit_commodities.json").then(fillMinerals);
+
+    bindControls();
+    setView("overview");
+    map.on("zoomend", () => { if (binOf(map.getZoom()) !== curBin) refreshAgg(); else renderSizes(); });
+    map.on("zoom", () => { if (map.getZoom() < AGG_MAX && Math.abs(map.getZoom() - curBin) > 0.9) refreshAgg(); });
+  }
+
+  // ---------- visibility ----------
+  function applyGroup(k) {
+    const on = $("lyr-" + k).checked, g = GROUPS[k];
+    if (on) g.data.forEach(ensure);
+    g.layers.forEach(id => map.getLayer(id) && map.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
+    if (k === "foot") maybeLoadPolys();
+    if (k === "names") { $("labels").hidden = !on; if (on) requestAnimationFrame(placeLabels); }
+    if (k === "choke") chokeMarkers.forEach(m => m.getElement().hidden = !on);
+    if (PTS.includes(k)) { if (on && DATA[k]) refreshAgg(k); else drawPlates(binOf(map.getZoom())); }
+    renderKey(); renderSizes();
+  }
+  function setView(v) {
+    const conf = VIEWS[v];
+    document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
+    VIEW_KEYS.forEach(k => { $("lyr-" + k).checked = conf.on.includes(k); });
+    if ($("fuel").value !== conf.fuel) { $("fuel").value = conf.fuel; fuelFilter = conf.fuel; if (DATA.power) pushData("power"); }
+    Object.keys(GROUPS).forEach(applyGroup);
+    $("base").value = conf.base; applyBase();
+  }
+
+  const bands = { foot_w: [-180, -30], foot_c: [-30, 60], foot_e: [60, 180] }, loadedBand = {};
+  function maybeLoadPolys() {
+    if (!map || map.getZoom() < 6.5 || !$("lyr-foot").checked) return;
+    const b = map.getBounds();
+    Object.entries(bands).forEach(([id, [w, e]]) => {
+      if (loadedBand[id] || b.getEast() < w || b.getWest() > e) return;
+      loadedBand[id] = true;
+      get(`mining_polygons_${id.slice(-1)}.geojson`).then(j => map.getSource(id).setData(j)).catch(() => { loadedBand[id] = false; });
+    });
+  }
+
+  function fillMinerals(list) {
+    const sel = $("mineral");
+    const groups = [["Battery metals", "lithium,cobalt,nickel,graphite,manganese"], ["Rare earths", "REE"], ["Platinum-group metals", "PGE"], ["Copper", "copper"], ["Uranium", "uranium"]];
+    let html = '<option value="">All critical minerals</option><optgroup label="Groups">' + groups.map(([l, v]) => `<option value="${v}">${l}</option>`).join("") + '</optgroup><optgroup label="Single commodity">';
+    html += Object.entries(list).filter(([, n]) => n >= 10).map(([m, n]) => `<option value="${esc(m)}">${esc(m.length <= 3 ? m : cap(m))} (${n})</option>`).join("") + "</optgroup>";
+    sel.innerHTML = html;
+  }
+
+  // ---------- controls ----------
+  function bindControls() {
+    Object.keys(GROUPS).forEach(k => $("lyr-" + k).addEventListener("change", () => {
+      applyGroup(k);
+      if (VIEW_KEYS.includes(k)) document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", "false"));
+    }));
+    document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
+    $("fuel").addEventListener("change", e => {
+      fuelFilter = e.target.value;
+      if (!$("lyr-power").checked) { $("lyr-power").checked = true; applyGroup("power"); }
+      ensure("power").then(() => pushData("power"));
+    });
+    $("mineral").addEventListener("change", e => {
+      mineralFilter = e.target.value;
+      if (!$("lyr-crit").checked) { $("lyr-crit").checked = true; applyGroup("crit"); }
+      ensure("crit").then(() => pushData("crit"));
+    });
+    $("base").addEventListener("change", applyBase);
+    map.on("moveend", maybeLoadPolys);
+
+    const stBtns = { all: "st-all", op: "st-op", plan: "st-plan" };
+    Object.entries(stBtns).forEach(([k, id]) => $(id).addEventListener("click", () => {
+      Object.values(stBtns).forEach(b => $(b).setAttribute("aria-pressed", String(b === id)));
+      statusMode = k; PTS.concat(["pipelines"]).forEach(pushData);
+    }));
+
+    const glyphLayers = PTS.map(s => "g-" + s);
+    const pointLayers = PTS.map(s => s + "-pts").concat(["ports-pts", "gw-mining"]);
+    const lineLayers = ["pipes-oil", "pipes-gas", "lanes", "rail", "roads"];
+    const visible = ls => ls.filter(l => map.getLayer(l) && map.getLayoutProperty(l, "visibility") !== "none");
+    const tip = $("tip");
+    map.on("mousemove", e => {
+      const box = [[e.point.x - 2, e.point.y - 2], [e.point.x + 2, e.point.y + 2]];
+      let f = map.queryRenderedFeatures(e.point, { layers: visible(glyphLayers.concat(pointLayers)) })[0]
+        || map.queryRenderedFeatures(box, { layers: visible(lineLayers.concat(["lakes", "water-fill", "gw-fill"])) })[0];
+      map.getCanvas().style.cursor = f && !["water-fill", "gw-fill"].includes(f.layer.id) ? "pointer" : "";
+      if (!f) { tip.hidden = true; return; }
+      tip.innerHTML = tipHTML(f); tip.hidden = false;
+      const { x, y } = e.point, w = tip.offsetWidth, h = tip.offsetHeight, W = map.getCanvas().clientWidth;
+      tip.style.left = Math.min(x + 14, W - w - 8) + "px"; tip.style.top = Math.max(8, y - h - 10) + "px";
+    });
+    map.getCanvas().addEventListener("mouseleave", () => tip.hidden = true);
+
+    map.on("click", e => {
+      const box = [[e.point.x - 3, e.point.y - 3], [e.point.x + 3, e.point.y + 3]];
+      const g = map.queryRenderedFeatures(box, { layers: visible(glyphLayers.concat(["g-plates"])) })[0];
+      if (g) { showCell(g.properties.key, [e.lngLat.lng, e.lngLat.lat]); return; }
+      const hits = map.queryRenderedFeatures(box, { layers: visible(pointLayers) });
+      const f = hits.find(h => h.layer.id !== "foot-pts") || hits[0] || map.queryRenderedFeatures(box, { layers: visible(["pipes-oil", "pipes-gas"]) })[0];
+      if (f && f.properties.cluster) {
+        map.getSource(f.source).getClusterExpansionZoom(f.properties.cluster_id).then(z => map.easeTo({ center: f.geometry.coordinates, zoom: Math.min(z + 0.2, 9) }));
+        return;
+      }
+      if (f) { showFeature(f); return; }
+      const lake = $("lyr-lakes").checked && map.queryRenderedFeatures(e.point, { layers: ["lakes"] })[0];
+      if (lake && lake.properties.n) { showLake(lake); return; }
+      const wr = map.queryRenderedFeatures(e.point, { layers: visible(["water-fill"]) })[0];
+      const c = map.queryRenderedFeatures(e.point, { layers: ["countries-fill"] })[0];
+      if (c) showCountry(c.properties.k, wr && wr.properties);
+    });
+
+    const q = $("q"), results = $("results");
+    q.addEventListener("input", () => {
+      const s = q.value.trim().toLowerCase(); results.innerHTML = "";
+      if (s.length < 2) return;
+      const hits = [];
+      if (DATA.totals) Object.entries(DATA.totals).forEach(([k, c]) => { if (hits.length < 3 && c.n.toLowerCase().includes(s)) hits.push(["country", k, c]); });
+      outer: for (const k of ["oilgas", "coal", "crit", "iron", "lng", "pipelines", "power", "steel", "cement", "chem", "ports"]) {
+        for (const f of (DATA[k] || empty).features) {
+          if ((f.properties.n || "").toLowerCase().includes(s)) { hits.push([k, f]); if (hits.length >= 16) break outer; }
+        }
+      }
+      if (!hits.length) { results.innerHTML = '<li><small>Nothing by that name in the layers loaded so far.</small></li>'; return; }
+      hits.forEach(h => {
+        const li = document.createElement("li"), b = document.createElement("button"); b.type = "button";
+        if (h[0] === "country") {
+          b.innerHTML = `<span class="dot" style="background:var(--border)"></span><span>${esc(h[2].n)} <small>country</small></span>`;
+          b.onclick = () => { zoomToCountry(h[1]); showCountry(h[1]); };
+        } else {
+          const [k, f] = h, color = k === "pipelines" ? "--oil" : k === "ports" ? "--lane" : Q[k].color;
+          const sub = f.properties.c || (k === "pipelines" ? "pipeline" : k === "ports" ? "port" : "");
+          b.innerHTML = `<span class="dot" style="background:var(${color})"></span><span>${esc(f.properties.n)} <small>${esc(sub)}</small></span>`;
+          b.onclick = () => {
+            const g = f.geometry; const c = g.type === "Point" ? g.coordinates : g.type === "LineString" ? g.coordinates[Math.floor(g.coordinates.length / 2)] : g.coordinates[0][0];
+            const grp = k === "pipelines" ? "pipes" : k;
+            if (!$("lyr-" + grp).checked) { $("lyr-" + grp).checked = true; applyGroup(grp); }
+            map.flyTo({ center: c, zoom: k === "pipelines" ? 5 : 8, speed: 1.6 });
+            showFeature({ source: k, properties: f.properties, geometry: g });
+          };
+        }
+        li.appendChild(b); results.appendChild(li);
+      });
+    });
+
+    const sheet = $("sheet"), tg = $("toggleSheet");
+    const setSheet = c => { sheet.classList.toggle("collapsed", c); tg.textContent = c ? "Layers" : "Hide"; tg.setAttribute("aria-expanded", String(!c)); };
+    tg.addEventListener("click", () => setSheet(!sheet.classList.contains("collapsed")));
+    if (!wide()) setSheet(true);
+  }
+
+  // ---------- glyph key + size legend ----------
+  function renderKey() {
+    const slots = Array(10).fill(null);
+    PTS.forEach(s => { const [c, r] = Q[s].slot; slots[r * 5 + c] = s; });
+    $("gkey").innerHTML = slots.map(s => {
+      const on = $("lyr-" + s).checked, Qk = Q[s];
+      return `<div class="slot${on ? "" : " off"}${Qk.ring ? " ring" : ""}"><i style="background:var(${Qk.color})"></i>${esc(Qk.short)}</div>`;
+    }).join("");
+  }
+  function renderSizes() {
+    if (!map) return;
+    const z = map.getZoom(), keys = PTS.filter(k => $("lyr-" + k).checked);
+    let html = "";
+    if (z < AGG_MAX) {
+      const bin = curBin >= 0 ? curBin : binOf(z);
+      keys.forEach(k => {
+        if (!DATA[k]) return;
+        const Qk = Q[k], { k: kk, max } = scale(k, bin);
+        const vals = [max, max / 4, max / 25].map(v => Qk.count ? Math.max(1, Math.round(v)) : v);
+        vals[0] = vals[0];
+        const rs = vals.map(v => Math.max(2.2, kk * Math.sqrt(v)));
+        let x = 1, svg = "";
+        rs.forEach(r => { x += r; svg += Qk.ring ? `<circle cx="${x}" cy="${MAXR + 1}" r="${r - 1}" fill="none" stroke="var(${Qk.color})" stroke-width="2"/>` : `<circle cx="${x}" cy="${MAXR + 1}" r="${r}" fill="var(${Qk.color})" stroke="var(--mark-ring)"/>`; x += r + 4; });
+        html += `<div class="row"><svg width="${Math.ceil(x)}" height="${MAXR * 2 + 2}" aria-hidden="true">${svg}</svg><span class="lab"><b>${Qk.short}</b>${vals.map(v => smart(v)).join(" · ")} ${Qk.unit}</span></div>`;
+      });
+      html += `<div class="hint">Each tile sums the sites in its grid cell; circle area is proportional to the total. A full-size circle means the top 10% of cells for that resource, and a dark ring marks cells above that. Compare one resource across tiles, not resources against each other. Click a tile for its totals.</div>`;
+    } else {
+      const f = zf(z), nice = v => { const e = Math.pow(10, Math.floor(Math.log10(v))); const m = v / e; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * e; };
+      keys.filter(k => !Q[k].count).forEach(k => {
+        const Qk = Q[k], vals = [6, 12, 22].map(r => Math.max(0.01, nice(Math.pow(r / (Qk.k * f), 2)))), rs = vals.map(v => Math.max(2.5, Qk.k * Math.sqrt(v)) * f);
+        const h = Math.ceil(rs[2] * 2 + 2); let x = 1, svg = "";
+        rs.forEach(r => { x += r; svg += Qk.ring ? `<circle cx="${x}" cy="${h - r - 1}" r="${r - 1}" fill="none" stroke="var(${Qk.color})" stroke-width="2"/>` : `<circle cx="${x}" cy="${h - r - 1}" r="${r}" fill="var(${Qk.color})" fill-opacity=".85" stroke="var(--mark-ring)"/>`; x += r + 4; });
+        html += `<div class="row"><svg width="${Math.ceil(x)}" height="${h}" aria-hidden="true">${svg}</svg><span class="lab"><b>${Qk.short}</b>${vals.map(v => smart(v)).join(" · ")} ${Qk.unit}</span></div>`;
+      });
+      html += `<div class="hint">Circles sit at the sites' true locations. Up to zoom 6, sites very close together merge into one circle at their centre, sized by their combined total (dark edge); click it to split it. Faint circles aren't operating yet. Critical-mineral deposits and chemical plants are sized by count.</div>`;
+    }
+    $("sizes").innerHTML = html;
+  }
+
+  // ---------- tooltips / details ----------
+  const FUEL = { coal: "Coal", gas: "Gas", oil: "Oil", nuclear: "Nuclear", hydro: "Hydro", solar: "Solar", wind: "Wind", geothermal: "Geothermal", bioenergy: "Bioenergy & waste", storage: "Storage", other: "Other" };
+  const WS = ["Low (<10%)", "Low–medium (10–20%)", "Medium–high (20–40%)", "High (40–80%)", "Extremely high (>80%)"];
+  const CAT5 = ["Low", "Low–medium", "Medium–high", "High", "Extremely high"];
+  const RCH = ["Very low (<2 mm/yr)", "Low (2–20 mm/yr)", "Medium (20–100 mm/yr)", "High (100–300 mm/yr)", "Very high (>300 mm/yr)"];
+  const catLabel = (v, labels) => v == null ? "No data" : v === -1 ? "Arid & low water use" : v < 0 ? "No data" : labels[v] || "–";
+  function tipHTML(f) {
+    const p = f.properties, src = f.source, lid = f.layer.id;
+    if (lid.startsWith("g-")) {
+      const k = lid.slice(2), Qk = Q[k];
+      if (Qk.count) return `<b>${fmt(p.n)} ${Qk.plural}</b><div class="m">${Qk.short} in this cell · click for all totals</div>`;
+      return `<b>${Qk.short}: ${smart(p.q)} ${Qk.unit}</b><div class="m">${fmt(p.n)} ${Qk.plural}${k !== "foot" ? `, ${fmt(p.nq)} with a figure` : ""} · click for all totals</div>`;
+    }
+    if (lid === "water-fill") { const fld = baseField(); return `<b>${baseLabel()}</b><div class="m">${catLabel(p[fld], fld === "ws" || fld.startsWith("f") ? WS : CAT5)}</div>`; }
+    if (lid === "gw-fill") return `<b>${p.t === "m" ? "Major groundwater basin" : p.t === "c" ? "Complex aquifer structures" : "Local & shallow aquifers"}</b><div class="m">Recharge: ${RCH[p.r] || p.rl}</div>`;
+    if (lid === "lakes") return `<b>${esc(p.n || "Lake")}</b><div class="m">${fmt(p.km2)} km²${p.res ? " · reservoir" : ""}${p.sal ? " · saline" : ""}</div>`;
+    if (lid === "gw-mining") return `<b>${esc(p.n || "Groundwater well field")}</b><div class="m">${p.x === 2 ? "Pumping non-renewable (fossil) groundwater" : "Intensive groundwater pumping"}</div>`;
+    if (src === "pipelines") return `<b>${esc(p.n)}</b><div class="m">${cap(p.f)} pipeline · ${esc(p.cs || "")}${p.q ? ` · ${smart(p.q * 1000)} k boe/d` : ""}</div>`;
+    if (src === "shipping") return `<b>${esc(p.t)} shipping lane</b>`;
+    if (src === "rail") return `<b>Railway</b>${p.e ? '<div class="m">electrified</div>' : ""}`;
+    if (src === "roads") return `<b>${p.x ? "Highway" : "Major road"}</b>`;
+    if (src === "ports") return `<b>${esc(p.n)}</b><div class="m">seaport</div>`;
+    const Qk = Q[src];
+    if (p.cluster) return Qk.count ? `<b>${fmt(p.point_count)} ${Qk.plural}</b><div class="m">${Qk.short} close together · click to split</div>`
+      : `<b>${Qk.short}: ${smart(p.q)} ${Qk.unit}</b><div class="m">${fmt(p.point_count)} ${Qk.plural} close together${src !== "foot" ? `, ${fmt(p.nq)} with a figure` : ""} · click to split</div>`;
+    if (src === "foot") return `<b>Mined land</b><div class="m">${fmt(p.q, 2)} km²</div>`;
+    if (src === "chem") return `<b>${esc(p.n)}</b><div class="m">${esc(p.pp || "")}${p.c ? " · " + esc(p.c) : ""}</div>`;
+    if (src === "crit") return `<b>${esc(p.n)}</b><div class="m">${esc((p.m || "").split("|").join(", "))}${p.c ? " · " + esc(p.c) : ""}</div>`;
+    const extra = src === "power" ? ` · ${FUEL[p.f] || p.f}` : "";
+    return `<b>${esc(p.n || Qk.label)}</b><div class="m">${p.q != null ? smart(p.q) + " " + Qk.unit : "no reported figure"}${extra}${p.c ? " · " + esc(p.c) : ""}</div>`;
+  }
+
+  const detail = $("detail");
+  const row = (k, v, num) => v == null || v === "" ? "" : `<dt>${k}</dt><dd${num ? ' class="num"' : ""}>${v}</dd>`;
+  function openDetail(kindLabel, color, title, rows, foot, extra) {
+    detail.innerHTML = `<div class="detail-head"><div><div class="kind eyebrow"><i style="background:${color}"></i>${esc(kindLabel)}</div><h2>${esc(title)}</h2></div><button class="close" id="closeDetail" aria-label="Close details">×</button></div><dl class="kv">${rows}</dl>${extra || ""}${foot ? `<div class="foot">${foot}</div>` : ""}`;
+    detail.hidden = false;
+    $("closeDetail").onclick = closeDetail;
+  }
+  function closeDetail() { detail.hidden = true; map.getSource("sel").setData(empty); selectCountry(null); }
+  const wiki = p => p.w ? `<a href="${esc(p.w)}" target="_blank" rel="noopener">GEM wiki page ↗</a>` : "";
+  const T = v => v ? esc(v) : null;
+
+  function showCell(key, coords) {
+    const bin = curBin, ws = 512 * Math.pow(2, bin);
+    const [cx, cy] = key.split(":").map(Number);
+    let rows = "";
+    PTS.forEach(s => {
+      if (!$("lyr-" + s).checked || !DATA[s]) return;
+      const c = aggFor(s, bin).get(key); if (!c) return;
+      const Qk = Q[s];
+      rows += row(`<span style="display:inline-flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(${Qk.color});display:inline-block"></i>${Qk.short}</span>`,
+        Qk.count ? `${fmt(c.n)} ${Qk.plural}` : `${smart(c.q)} ${Qk.unit} <span class="rank">${fmt(c.n)} ${Qk.plural}</span>`, true);
+    });
+    const sw = unmerc(cx * CW / ws, (cy + 1) * CH / ws), ne = unmerc((cx + 1) * CW / ws, cy * CH / ws);
+    map.getSource("sel").setData({ type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Polygon", coordinates: [[sw, [ne[0], sw[1]], ne, [sw[0], ne[1]], sw]] }, properties: {} }] });
+    selectCountry(null);
+    openDetail("Grid cell", "var(--ink)", `Around ${Math.abs(coords[1]).toFixed(1)}°${coords[1] >= 0 ? "N" : "S"}, ${Math.abs(coords[0]).toFixed(1)}°${coords[0] >= 0 ? "E" : "W"}`, rows || row("Sites", "None in the layers shown"),
+      "Totals of the sites inside the dashed box, for the layers and filters currently on.", '<button class="zoom-btn" id="zoomCell">Zoom in to these sites</button>');
+    $("zoomCell").onclick = () => map.fitBounds([sw, ne], { padding: 40, maxZoom: AGG_MAX + 2 });
+  }
+
+  function showFeature(f) {
+    const p = f.properties, k = f.source, g = f.geometry;
+    selectCountry(null);
+    let rows = "";
+    if (k === "pipelines") {
+      rows += row("Fuel", cap(p.f)) + row("Status", cap(p.s)) + row("Countries", T(p.cs)) + row("Crosses borders", p.x ? "Yes" : "No")
+        + row("Capacity", p.q ? fmt(p.q * 1000, 0) + " k boe/d" : null, true) + row("Gas capacity", p.cap ? fmt(p.cap, 1) + " bcm/yr" : null, true)
+        + row("Length", p.km ? fmt(p.km) + " km" : null, true) + row("Segment", T(p.sg)) + row("Owner", T(p.o));
+      map.getSource("sel").setData({ type: "FeatureCollection", features: [{ type: "Feature", geometry: g, properties: {} }] });
+      openDetail(p.f === "gas" ? "Gas pipeline" : "Oil / NGL pipeline", "var(--oil)", p.n, rows, wiki(p)); return;
+    }
+    if (k === "ports") {
+      map.getSource("sel").setData(empty);
+      openDetail("Seaport", "var(--lane)", p.n, row("Importance", `Natural Earth rank ${p.sr} (3 = largest)`) + row("Coordinates", `${(+g.coordinates[1]).toFixed(3)}, ${(+g.coordinates[0]).toFixed(3)}`, true), "Natural Earth doesn't include cargo volumes."); return;
+    }
+    if (k === "gw_mining") {
+      map.getSource("sel").setData(empty);
+      openDetail("Groundwater hotspot", "var(--stress)", p.n || "Intensive groundwater use", row("Type", p.x === 2 ? "Mining non-renewable (fossil) groundwater" : "Intensive abstraction of renewable groundwater") + row("Source", T(p.src)), "From WHYMAP (BGR/UNESCO)."); return;
+    }
+    const Qk = Q[k];
+    if (k === "oilgas") {
+      rows += row("Country", T(p.c)) + row("Fuel", cap(p.f)) + row("Status", cap(p.s)) + row("Setting", cap(p.sh)) + row("Basin", T(p.b)) + row("Operator", T(p.o)) + row("Discovered", p.dy, true) + row("First production", p.py, true);
+      if (p.pt != null) rows += row(`Production${p.pyr ? " (" + p.pyr + ")" : ""}`, smart(p.pt) + " M boe/yr", true);
+      if (p.po != null) rows += row("· oil &amp; liquids", smart(p.po) + " M bbl/yr", true);
+      if (p.pg != null) rows += row("· gas", smart(p.pg) + " M m³/yr", true);
+      if (p.rt != null) rows += row(`Reserves${p.ry ? " (" + p.ry + ")" : ""}`, smart(p.rt) + " M boe", true) + row("· as reported", T(p.rc));
+    } else if (k === "coal") {
+      rows += row("Country", T(p.c)) + row("Status", p.s) + row("Coal type", p.ct) + row("Grade", p.cg) + row("Mine type", p.mt) + row("Coalfield", T(p.cf)) + row("Owner", T(p.o))
+        + row("Capacity", p.cap != null ? smart(p.cap) + " Mt/yr" : null, true) + row(`Production${p.pry ? " (" + p.pry + ")" : ""}`, p.pr != null ? smart(p.pr) + " Mt/yr" : null, true)
+        + row("Reserves (P&amp;P)", p.rs != null ? smart(p.rs) + " Mt" : null, true) + row("Resources", p.rsc != null ? smart(p.rsc) + " Mt" : null, true);
+    } else if (k === "iron") {
+      rows += row("Country", T(p.c)) + row("Status", cap(p.s)) + row("Owner", T(p.o)) + row(`Production${p.pry ? " (" + p.pry + ")" : ""}`, p.pr != null ? smart(p.pr) + " Mt/yr" : null, true)
+        + row("Design capacity", p.cap != null ? smart(p.cap) + " Mt/yr" : null, true) + row("Reserves (P&amp;P)", p.rs != null ? smart(p.rs) + " Mt" : null, true);
+    } else if (k === "crit") {
+      rows += row("Country", T(p.c)) + row("Region", T(p.cd)) + row("Minerals", esc((p.m || "").split("|").map(m => m.length <= 3 ? m : cap(m)).join(", "))) + row("Deposit type", T(p.dt))
+        + row("Mineral system", T(p.ms)) + row("Status", T(p.cat)) + row("Production", T(p.pr)) + row("Resources", T(p.rs));
+    } else if (k === "lng") {
+      rows += row("Country", T(p.c)) + row("Direction", p.ft === "export" ? "Export (liquefaction)" : "Import (regasification)") + row("Status", cap(p.s))
+        + row("Capacity", p.q != null ? smart(p.q) + " Mt/yr" : null, true) + row("≈ gas", p.q != null ? fmt(p.q * 1.36, 1) + " bcm/yr" : null, true)
+        + row("Floating", p.fl ? "Yes (FSRU / FLNG)" : null) + row("Start year", p.sy, true) + row("Owner", T(p.o));
+    } else if (k === "power") {
+      rows += row("Country", T(p.c)) + row("Fuel", FUEL[p.f] || p.f) + row("Status", cap(p.s)) + row("Capacity", p.mw != null ? fmt(p.mw) + " MW" : null, true) + row("Start year", p.sy ? Math.round(p.sy) : null, true) + row("Owner", T(p.o));
+    } else if (k === "steel") {
+      rows += row("Country", T(p.c)) + row("Status", cap(p.s)) + row("Crude steel", p.q != null ? smart(p.q) + " Mt/yr" : null, true) + row("Iron making", p.ir != null ? smart(p.ir) + " Mt/yr" : null, true)
+        + row("Equipment", T(p.eq)) + row("Products", T(p.prod)) + row("Owner", T(p.o));
+    } else if (k === "cement") {
+      rows += row("Country", T(p.c)) + row("Status", cap(p.s)) + row("Cement", p.q != null ? smart(p.q) + " Mt/yr" : null, true) + row("Clinker", p.ck != null ? smart(p.ck) + " Mt/yr" : null, true) + row("Plant type", T(p.pt)) + row("Owner", T(p.o));
+    } else if (k === "chem") {
+      rows += row("Country", T(p.c)) + row("Main products", T(p.pp)) + row("Other products", T(p.sp)) + row("Feedstock", T(p.fs)) + row("Owner", T(p.o));
+    } else {
+      rows += row("Mapped area", fmt(p.q, 3) + " km²", true) + row("Includes", "Pits, tailings, waste dumps, ponds, plant");
+    }
+    const c = g.coordinates;
+    rows += row("Coordinates", `${(+c[1]).toFixed(3)}, ${(+c[0]).toFixed(3)}`, true);
+    if (p.acc) rows += row("Location", cap(p.acc));
+    const r = (Qk.count ? 6 : Math.max(2.5, Qk.k * Math.sqrt(p.q || 0)) * zf(map.getZoom())) + 4;
+    map.getSource("sel").setData({ type: "FeatureCollection", features: [{ type: "Feature", geometry: g, properties: { _r: r } }] });
+    const foot = k === "power" && p.r ? "From the WRI Global Power Plant Database (2021)." : k === "crit" ? (p.lk ? `<a href="${esc(p.lk)}" target="_blank" rel="noopener">USGS record ↗</a>` : "USGS global critical-minerals compilation (2017).") : wiki(p);
+    openDetail(Qk.label, `var(${Qk.color})`, k === "foot" ? "Mined land" : (p.n || "Unnamed"), rows, foot);
+  }
+
+  function showLake(f) {
+    const p = f.properties;
+    openDetail(p.res ? "Reservoir" : "Lake", "var(--water)", p.n, row("Surface area", fmt(p.km2) + " km²", true) + row("Water", p.sal ? "Saline" : "Fresh") + row("Type", p.res ? "Reservoir (dammed)" : "Natural lake"),
+      "Surface area from Natural Earth outlines. Volume isn't in this dataset.");
+  }
+
+  // ---------- countries ----------
+  const RANK_FIELDS = ["og", "coal", "iron", "crit_n", "mine_km2", "lng_exp", "lng_imp", "fresh_km2", "ice_km2", "pw_gw", "pw_coal", "pw_gas", "pw_nuclear", "pw_hydro", "pw_solar", "pw_wind", "steel", "cement", "chem_n", "ports", "bws", "gw_basin_km2"];
+  const ranks = {};
+  function computeRanks() {
+    RANK_FIELDS.forEach(f => {
+      const list = Object.entries(DATA.totals).filter(([, c]) => c[f] > 0).sort((a, b) => b[1][f] - a[1][f]);
+      ranks[f] = { n: list.length }; list.forEach(([k], i) => ranks[f][k] = i + 1);
+    });
+  }
+  function selectCountry(key) { if (map.getLayer("country-sel")) map.setFilter("country-sel", ["==", ["get", "k"], key || "__none__"]); }
+  function zoomToCountry(key) {
+    const f = DATA.countries.features.find(f => f.properties.k === key); if (!f) return;
+    const b = new maplibregl.LngLatBounds();
+    const walk = c => typeof c[0] === "number" ? b.extend(c) : c.forEach(walk); walk(f.geometry.coordinates);
+    map.fitBounds(b, { padding: { top: 40, bottom: 40, left: wide() ? 370 : 20, right: wide() ? 340 : 20 }, maxZoom: 6 });
+  }
+  function showCountry(key, basin) {
+    const c = DATA.totals && DATA.totals[key]; if (!c) return;
+    map.getSource("sel").setData(empty); selectCountry(key);
+    const rk = f => ranks[f] && ranks[f][key] ? ` <span class="rank">#${ranks[f][key]} of ${ranks[f].n}</span>` : "";
+    const v = (f, unit, d) => c[f] ? `${d != null ? fmt(c[f], d) : smart(c[f])} ${unit}${rk(f)}` : null;
+    const sec = (title, body) => body.includes("<dt>") ? `<div class="sec">${title}</div>${body}` : "";
+    const topMin = c.crit_m ? Object.entries(c.crit_m).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([m, n]) => `${m.length <= 3 ? m : cap(m)} ${n}`).join(", ") : null;
+    const bwsL = c.bws != null ? `${CAT5[Math.min(4, Math.floor(c.bws))]} (${fmt(c.bws, 1)} of 5)${rk("bws")}` : null;
+    let rows = sec("Resources (operating sites)", row("Oil &amp; gas", v("og", "M boe/yr"), true) + row("Coal mines", v("coal", "Mt/yr"), true) + row("Iron ore", v("iron", "Mt/yr"), true)
+        + row("Critical-mineral deposits", v("crit_n", "", 0), true) + row("· most common", topMin) + row("Mined land", v("mine_km2", "km²")))
+      + sec("Power (operating)", row("All fuels", v("pw_gw", "GW"), true) + row("Coal", v("pw_coal", "GW"), true) + row("Gas", v("pw_gas", "GW"), true)
+        + row("Nuclear", v("pw_nuclear", "GW"), true) + row("Hydro", v("pw_hydro", "GW"), true) + row("Solar", v("pw_solar", "GW"), true) + row("Wind", v("pw_wind", "GW"), true))
+      + sec("Heavy industry", row("Steel", v("steel", "Mt/yr"), true) + row("Cement", v("cement", "Mt/yr"), true) + row("Chemical plants", v("chem_n", "", 0), true) + row("· making ammonia", c.ammonia_n ? fmt(c.ammonia_n) : null, true))
+      + sec("Trade", row("LNG export", v("lng_exp", "Mt/yr"), true) + row("LNG import", v("lng_imp", "Mt/yr"), true) + row("Seaports", v("ports", "", 0), true))
+      + sec("Water", row("Water stress", bwsL) + row("Land under high stress", c.bws_hi != null ? fmt(c.bws_hi, 0) + "%" : null, true)
+        + row("Over major aquifers", v("gw_basin_km2", "km²", 0), true) + row("Lakes + reservoirs", v("fresh_km2", "km²", 0), true) + row("Glaciers &amp; ice", v("ice_km2", "km²", 0), true)
+        + (basin ? row("This basin, stress today", catLabel(basin.ws, WS)) + row("This basin, 2050", catLabel(basin.f50, WS)) + row("This basin, groundwater", catLabel(basin.gw, CAT5)) : ""))
+      + sec("People", row("Population", c.pop ? fmt(c.pop) : null, true));
+    if (!rows) rows = row("Tracked resources", "None in these datasets");
+    openDetail("Country", "var(--border)", c.n, rows, "Sums of sites in these datasets, not official national statistics. Sites that don't report a figure add nothing to the totals. Water stress is WRI Aqueduct 4.0, averaged over the country's area.");
+  }
+
+  // ---------- background shading (only one at a time) ----------
+  const CHORO = { og: ["--oil", "M boe/yr"], coal: ["--coal", "Mt/yr"], iron: ["--iron", "Mt/yr"], crit_n: ["--crit", "deposits"], mine_km2: ["--foot", "km²"], lng_exp: ["--oil", "Mt/yr"], lng_imp: ["--oil", "Mt/yr"],
+    fresh_km2: ["--river", "km²"], gw_basin_km2: ["--gw", "km²"], bws: ["--stress", "score 0–5"], pw_gw: ["--power", "GW"], pw_nuclear: ["--power", "GW"], pw_hydro: ["--river", "GW"],
+    steel: ["--steel", "Mt/yr"], cement: ["--cement", "Mt/yr"], chem_n: ["--chem", "plants"], ports: ["--lane", "ports"] };
+  const hex = h => { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map(x => x + x).join(""); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
+  const mix = (a, b, t) => "rgb(" + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t)).join(",") + ")";
+  const ramp = tok => [0.14, 0.32, 0.52, 0.74, 0.97].map(t => mix(css("--land"), css(tok), t));
+  const baseField = () => ($("base").value || "").split(":")[1];
+  const baseLabel = () => { const o = $("base").selectedOptions[0]; return o ? o.textContent : ""; };
+  function applyBase() {
+    if (!map || !map.getLayer("water-fill")) return;
+    const [kind, field] = ($("base").value || "").split(":");
+    const lg = $("baseLegend");
+    ["water-fill", "gw-fill", "gw-major", "saline", "gw-mining"].forEach(l => map.setLayoutProperty(l, "visibility", "none"));
+    map.setPaintProperty("countries-fill", "fill-color", css("--land"));
+    if (DATA.countries) map.getSource("countries").setData(DATA.countries);
+    lg.hidden = true;
+    if (!kind) return;
+    const legend = (colors, ticks, note, extraSw) => {
+      lg.innerHTML = `<div class="bar" style="grid-template-columns:repeat(${colors.length},1fr)">${colors.map(c => `<i style="background:${c}"></i>`).join("")}</div>
+        <div class="ticks" style="grid-template-columns:repeat(${ticks.length},1fr)">${ticks.map(t => `<span>${t}</span>`).join("")}</div>${extraSw || ""}<div class="note">${note}</div>`;
+      lg.hidden = false;
+    };
+    if (kind === "w") {
+      ensure("water_risk");
+      const colors = ramp("--stress"), arid = mix(css("--land"), css("--ink"), 0.1);
+      map.setPaintProperty("water-fill", "fill-color", ["match", ["coalesce", ["get", field], -9], 0, colors[0], 1, colors[1], 2, colors[2], 3, colors[3], 4, colors[4], -1, arid, "rgba(0,0,0,0)"]);
+      map.setLayoutProperty("water-fill", "visibility", "visible");
+      const ws = field === "ws" || field === "f50";
+      legend(colors, ws ? ["<10%", "10–20", "20–40", "40–80", ">80%"] : CAT5,
+        ws ? `Share of available surface and groundwater withdrawn each year, by river basin. Grey: arid with little water use.${field === "f50" ? " 2050 projection under a business-as-usual scenario." : ""} WRI Aqueduct 4.0.`
+           : field === "gw" ? "How fast the water table has been falling, by basin (low to extremely high). WRI Aqueduct 4.0." : "Likelihood of drought, by basin. WRI Aqueduct 4.0.");
+    } else if (kind === "g") {
+      ensure("groundwater"); ensure("saline_gw"); ensure("gw_mining");
+      const colors = ramp("--gw");
+      map.setPaintProperty("gw-fill", "fill-color", ["match", ["get", "r"], 0, colors[0], 1, colors[1], 2, colors[2], 3, colors[3], 4, colors[4], colors[2]]);
+      ["gw-fill", "gw-major", "saline", "gw-mining"].forEach(l => map.setLayoutProperty(l, "visibility", "visible"));
+      legend(colors, ["<2", "2–20", "20–100", "100–300", ">300 mm/yr"], "Groundwater recharge. Outlined areas are major aquifer basins; hatched areas hold saline groundwater; ringed dots are well fields pumping intensively or drawing down fossil water. BGR/UNESCO WHYMAP.");
+    } else if (kind === "c" && DATA.totals && DATA.countries) {
+      const [tok, unit] = CHORO[field];
+      const vals = Object.values(DATA.totals).map(c => c[field]).filter(v => v > 0).sort((a, b) => a - b);
+      const qs = [0.2, 0.4, 0.6, 0.8].map(p => vals[Math.min(vals.length - 1, Math.floor(p * vals.length))]);
+      const colors = ramp(tok);
+      map.setPaintProperty("countries-fill", "fill-color", ["step", ["coalesce", ["get", "c"], 0], colors[0], 1, colors[1], 2, colors[2], 3, colors[3], 4, colors[4]]);
+      map.getSource("countries").setData({ type: "FeatureCollection", features: DATA.countries.features.map(f => {
+        const c = DATA.totals[f.properties.k], v = c && c[field];
+        return v > 0 ? { ...f, properties: { ...f.properties, c: qs.filter(q => v > q).length } } : f;
+      }) });
+      const short = v => v >= 1e6 ? fmt(v / 1e6, 1) + "M" : v >= 1e4 ? fmt(v / 1e3, 0) + "k" : v >= 100 ? fmt(v) : v >= 1 ? fmt(v, 1) : fmt(v, 2);
+      legend(colors, ["&gt;0"].concat(qs.map(short)), `${unit}; five equal-count classes across ${vals.length} countries. Countries left plain have none in the data.`);
+    }
+  }
+
+  // ---------- chokepoints ----------
+  const chokeMarkers = [];
+  function initChokepoints(fc) {
+    if (chokeMarkers.length) return;
+    fc.features.forEach(f => {
+      const p = f.properties, el = document.createElement("button");
+      el.type = "button"; el.className = "choke"; el.setAttribute("aria-label", p.n);
+      el.innerHTML = `<span class="gem"></span><span class="txt"><b>${esc(p.n)}</b><span>${fmt(p.q, 1)} M b/d oil${p.lng != null ? ` · ${fmt(p.lng, 1)} Bcf/d LNG` : ""}</span></span>`;
+      el.addEventListener("click", ev => {
+        ev.stopPropagation(); selectCountry(null); map.getSource("sel").setData(empty);
+        openDetail("Shipping chokepoint", "var(--ink)", p.n,
+          row("Oil &amp; products", fmt(p.q, 1) + " M b/d (1H 2025)", true) + row("LNG", p.lng != null ? fmt(p.lng, 1) + " Bcf/d" : "Not reported", true)
+          + row("Recent peak", fmt(p.pk, 1) + ` M b/d (${p.pky})`, true) + row("Share of world oil use", "≈" + fmt(p.q / 104 * 100, 0) + "%", true),
+          `US EIA, World Oil Transit Chokepoints (updated Mar 2026). ${p.n === "Cape of Good Hope" ? "Not a chokepoint; the long route ships take when the Red Sea is avoided." : ""} ${p.n === "Bab el-Mandeb" || p.n === "Suez Canal & SUMED" ? "Flows fell by about half after Red Sea shipping attacks began in late 2023." : ""}`);
+      });
+      el.hidden = !$("lyr-choke").checked;
+      chokeMarkers.push(new maplibregl.Marker({ element: el, anchor: "left", offset: [-6, 0] }).setLngLat(f.geometry.coordinates).addTo(map));
+    });
+    const compact = () => chokeMarkers.forEach(m => m.getElement().classList.toggle("compact", map.getZoom() < 3));
+    map.on("zoom", compact); compact();
+  }
+
+  // ---------- HTML labels with simple collision ----------
+  let LABELS = [];
+  function initLabels(list) {
+    const host = $("labels"), order = { m: 0, c: 1, g: 2, p: 3 };
+    LABELS = list.map(l => { const el = document.createElement("div"); el.className = "lbl lbl-" + l.t; el.textContent = l.n; el.hidden = true; host.appendChild(el); return { ...l, el, w: 0, h: 0 }; })
+      .sort((a, b) => (a.z - b.z) || (order[a.t] - order[b.t]));
+    const draw = () => requestAnimationFrame(placeLabels);
+    map.on("move", draw); map.on("resize", draw); draw();
+    if (document.fonts) document.fonts.ready.then(() => { LABELS.forEach(l => l.w = 0); draw(); });
+  }
+  function placeLabels() {
+    if (!map || $("labels").hidden) return;
+    const z = map.getZoom(), W = map.getCanvas().clientWidth, H = map.getCanvas().clientHeight, boxes = [], mr = $("map").getBoundingClientRect();
+    if ($("lyr-choke").checked) chokeMarkers.forEach(m => { const r = m.getElement().getBoundingClientRect(); boxes.push([r.left - mr.left, r.top - mr.top, r.right - mr.left, r.bottom - mr.top]); });
+    for (const l of LABELS) {
+      const show = l.t === "c" ? l.z <= z + 2.2 : l.t === "m" ? l.z <= z + 1.6 && (l.z >= z - 3.5) : l.t === "g" ? l.z <= z + 0.6 : l.z <= z + 0.4;
+      if (!show) { if (!l.el.hidden) l.el.hidden = true; continue; }
+      const big = (l.t === "c" && l.z <= 2.5 && z < 4) || (l.t === "m" && l.z <= 1.5);
+      l.el.classList.toggle("big", big);
+      const p = map.project([l.x, l.y]);
+      if (!isFinite(p.x) || p.x < -50 || p.y < -20 || p.x > W + 50 || p.y > H + 20) { l.el.hidden = true; continue; }
+      if (l.el.hidden) l.el.hidden = false;
+      if (!l.w || l.big !== big) { l.w = l.el.offsetWidth; l.h = l.el.offsetHeight; l.big = big; }
+      const ox = l.t === "p" ? 0 : l.w / 2, oy = l.h / 2;
+      const b = [p.x - ox - 3, p.y - oy - 1, p.x - ox + l.w + 3, p.y - oy + l.h + 1];
+      if (boxes.some(o => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])) { l.el.hidden = true; continue; }
+      boxes.push(b);
+      l.el.style.transform = `translate(${Math.round(p.x - ox)}px, ${Math.round(p.y - oy)}px)`;
+    }
+  }
+
+  // ---------- theme changes ----------
+  const repaint = () => {
+    if (!map || !map.isStyleLoaded() || !map.getLayer("land")) return;
+    const set = (l, p, v) => map.getLayer(l) && map.setPaintProperty(l, p, v);
+    set("bg", "background-color", css("--ocean")); set("land", "fill-color", css("--land"));
+    if (plateKey) { const [w, h] = plateKey.split("@")[0].split("x").map(Number); setPlateImage(w, h, true); }
+    set("glaciers", "fill-color", css("--ice")); set("glaciers", "fill-outline-color", css("--ice-line"));
+    set("lakes", "fill-color", css("--water")); set("lakes-line", "line-color", css("--river")); set("rivers", "line-color", css("--river"));
+    set("maritime", "line-color", css("--sea-ink")); set("borders", "line-color", css("--border")); set("disputed-lines", "line-color", css("--disputed"));
+    set("lanes", "line-color", css("--lane")); set("roads", "line-color", css("--road")); set("rail", "line-color", css("--rail")); set("rail-ties", "line-color", css("--rail-tie"));
+    set("ports-pts", "circle-color", css("--panel")); set("ports-pts", "circle-stroke-color", css("--lane"));
+    set("gw-major", "line-color", css("--gw")); set("gw-mining", "circle-color", css("--panel")); set("gw-mining", "circle-stroke-color", css("--stress"));
+    set("country-sel", "line-color", css("--ink")); set("sel", "circle-stroke-color", css("--ink")); set("sel-line", "line-color", css("--ink"));
+    map.updateImage("hatch", hatch(css("--disputed"))); map.updateImage("hatch-salt", hatch(css("--stress"), .55));
+    PTS.forEach(s => {
+      const col = css(Q[s].color);
+      if (Q[s].ring) { set("g-" + s, "circle-stroke-color", col); set("lng-pts", "circle-stroke-color", col); return; }
+      set("g-" + s, "circle-color", col); set("g-" + s, "circle-stroke-color", css("--mark-ring"));
+      set(s + "-pts", "circle-color", col); set(s + "-pts", "circle-stroke-color", css("--mark-ring"));
+    });
+    ["pipes-oil", "pipes-gas", "og-outline-line"].forEach(l => set(l, "line-color", css("--oil"))); set("og-outline", "fill-color", css("--oil"));
+    set("cb-fill", "fill-color", css("--coal")); set("cb-line", "line-color", css("--coal"));
+    ["foot_w", "foot_c", "foot_e"].forEach(id => { set(id + "-fill", "fill-color", css("--foot")); set(id + "-line", "line-color", css("--foot")); });
+    applyBase();
+  };
+  try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", repaint); } catch (e) {}
+  new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
