@@ -59,6 +59,7 @@ python3 -I pipeline/live/fetch_live.py               # all live feeds into site/
 python3 -I pipeline/live/fetch_live.py --only fires,aircraft
 python3 -I pipeline/live/fetch_live.py --only navy,story
 AISSTREAM_API_KEY=… python3 -I pipeline/live/fetch_live.py --only ships   # needs `pip install websockets`
+gh run download -n live-data -D site/data/live          # or copy the latest CI snapshots, global ships included (kept 3 days)
 ```
 
 Each live feed is independent: if one fails, its previous output and manifest entry stay. `site/data/live/manifest.json` records each feed's `updated` time, count, source and any error; the sidebar reads it to show "· 2 h ago" and turns red when a feed is missing or more than 12 h old.
