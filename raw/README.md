@@ -38,6 +38,32 @@ raw/
 
 The GEM file names change with each release. If you download a newer version, update the file names in the step scripts; search them for `.xlsx`.
 
+## raw/infra/ — step 5 (downloaded automatically)
+
+`pipeline/step5_defense_infra.py` downloads these itself and caches them here. Run it with `--offline` to rebuild from the cache. Other flags: `--no-osm` skips Overpass, and `--with-peeringdb` adds PeeringDB facilities (off by default; see the licence note below). `_fetch.json` records each file's URL and retrieval time.
+
+```
+raw/infra/
+  airports.csv, runways.csv     OurAirports (public domain)       davidmegginson.github.io/ourairports-data/
+  UpdatedPub150.csv             NGA World Port Index, Pub 150     msi.nga.mil/Publications/WPI (public domain, US Gov)
+  peeringdb_fac.json            PeeringDB facilities              www.peeringdb.com/api/fac?depth=0 (PeeringDB AUP)
+  osm_datacenters.json          OSM telecom=data_center           overpass-api.de (ODbL); best effort, Overpass often returns 504
+  osm_military.json             OSM military=base|airfield|naval_base   overpass-api.de (ODbL); merged into bases, skipped with --no-osm
+  cable-geo.json                TeleGeography cable routes        www.submarinecablemap.com/api/v3/cable/cable-geo.json (CC BY-NC-SA 3.0)
+  landing-point-geo.json        TeleGeography landing points      www.submarinecablemap.com/api/v3/landing-point/landing-point-geo.json
+  cables/<id>.json              per-cable details (owners, length, ready-for-service year), refetched after 30 days
+  wd_cls_*.json, wd_items_*.json, wd_labels*.json
+                                Wikidata SPARQL results: military-base subclass trees and items (CC0)
+```
+
+Outputs: `site/data/bases.geojson`, `airports.geojson`, `ports_wpi.geojson`, `datacenters.geojson`, `cables.geojson`, `landings.geojson`, and `infra_meta.json`, which holds counts, sources and retrieval times.
+
+Licence note: PeeringDB data is not openly licensed. Its AUP (peeringdb.com/aup) forbids reproducing the data or passing it on in bulk without PeeringDB's permission, except for approved "Internet operational purposes". So the default build is OSM-only. Only use `--with-peeringdb` for local work, or once PeeringDB has given permission to publish (`src:"p"` marks those points).
+
+## raw/live_cache/ — live feeds (downloaded automatically)
+
+`pipeline/live/fetch_live.py` keeps its downloads here so reruns only fetch what's new: `gdelt/` (GDELT 2.0 15-minute event files, used for conflict reports and the day/week storyboard), `gdelt1/` (GDELT 1.0 daily files, used for the month storyboard), `firms/` and `ais_static.json`. The farmland and land-cover layers have no raw files: the browser loads them as tiles from NASA GIBS.
+
 ## Suggested additions (not wired in yet)
 
 - **GEM Global Integrated Power Tracker** (solar, wind and every other fuel; Sep 2026). Use it to replace the WRI 2021 plants in step 3. globalenergymonitor.org/download-data

@@ -12,5 +12,6 @@ $PY step3_industry_power_transport.py
 $PY postprocess.py power
 $PY step4_water_risk_minerals.py
 $PY postprocess.py water
+$PY step5_defense_infra.py   # downloads into ../raw/infra; add --offline to reuse the cache
 $PY postprocess.py clean
 echo "done → ../site/data"

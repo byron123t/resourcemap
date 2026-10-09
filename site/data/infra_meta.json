@@ -1,0 +1,132 @@
+{
+ "airports.geojson": {
+  "count": 29433,
+  "bytes": 4910105,
+  "sources": [
+   {
+    "url": "https://davidmegginson.github.io/ourairports-data/airports.csv",
+    "retrieved": "2026-10-09T02:18:12Z",
+    "version": "Fri, 09 Oct 2026 01:53:57 GMT",
+    "licence": "Public domain"
+   },
+   {
+    "url": "https://davidmegginson.github.io/ourairports-data/runways.csv",
+    "retrieved": "2026-10-09T02:18:17Z",
+    "version": "Fri, 09 Oct 2026 01:53:57 GMT",
+    "licence": "Public domain"
+   }
+  ],
+  "pruned_small_no_runway": 18651,
+  "per_type": {
+   "L": 1175,
+   "M": 4105,
+   "S": 24153
+  },
+  "military_flagged": 870
+ },
+ "ports_wpi.geojson": {
+  "count": 3807,
+  "bytes": 715139,
+  "sources": [
+   {
+    "url": "https://msi.nga.mil/api/publications/download?type=view&key=16920959/SFH00000/UpdatedPub150.csv",
+    "retrieved": "2026-10-09T02:18:32Z",
+    "licence": "Public domain (US Government work)",
+    "edition": "Pub 150"
+   }
+  ],
+  "per_size": {
+   "L": 174,
+   "M": 376,
+   "S": 1021,
+   "V": 2109
+  }
+ },
+ "datacenters.geojson": {
+  "count": 4694,
+  "bytes": 780776,
+  "sources": [
+   {
+    "url": "https://overpass-api.de/api/interpreter",
+    "retrieved": "2026-10-09T02:19:29Z",
+    "version": "2026-10-09T02:17:21Z",
+    "licence": "ODbL 1.0, © OpenStreetMap contributors",
+    "query": "[out:json][timeout:180];nwr[\"telecom\"=\"data_center\"];out center tags;"
+   }
+  ],
+  "peeringdb": 0,
+  "osm": 4694,
+  "osm_skipped_near_peeringdb": 0
+ },
+ "cables.geojson": {
+  "count": 733,
+  "bytes": 417637,
+  "sources": [
+   {
+    "url": "https://www.submarinecablemap.com/api/v3/cable/cable-geo.json",
+    "retrieved": "2026-10-09T02:19:31Z",
+    "version": "Fri, 02 Oct 2026 18:48:50 GMT",
+    "licence": "CC BY-NC-SA 3.0, TeleGeography"
+   },
+   {
+    "url": "https://www.submarinecablemap.com/api/v3/landing-point/landing-point-geo.json",
+    "retrieved": "2026-10-09T02:19:34Z",
+    "version": "Fri, 02 Oct 2026 18:48:50 GMT",
+    "licence": "CC BY-NC-SA 3.0, TeleGeography"
+   }
+  ],
+  "planned": 105,
+  "with_details": 712
+ },
+ "landings.geojson": {
+  "count": 1926,
+  "bytes": 383275,
+  "sources": [
+   {
+    "url": "https://www.submarinecablemap.com/api/v3/cable/cable-geo.json",
+    "retrieved": "2026-10-09T02:19:31Z",
+    "version": "Fri, 02 Oct 2026 18:48:50 GMT",
+    "licence": "CC BY-NC-SA 3.0, TeleGeography"
+   },
+   {
+    "url": "https://www.submarinecablemap.com/api/v3/landing-point/landing-point-geo.json",
+    "retrieved": "2026-10-09T02:19:34Z",
+    "version": "Fri, 02 Oct 2026 18:48:50 GMT",
+    "licence": "CC BY-NC-SA 3.0, TeleGeography"
+   }
+  ]
+ },
+ "bases.geojson": {
+  "count": 11741,
+  "bytes": 2022312,
+  "sources": [
+   {
+    "url": "https://query.wikidata.org/sparql",
+    "retrieved": "2026-10-09T02:22:16Z",
+    "version": "live Wikidata query",
+    "licence": "CC0 1.0"
+   },
+   {
+    "url": "https://overpass-api.de/api/interpreter",
+    "retrieved": "2026-10-09T02:23:18Z",
+    "version": "2026-10-09T02:21:15Z",
+    "licence": "ODbL 1.0, © OpenStreetMap contributors",
+    "query": "[out:json][timeout:240];nwr[\"military\"~\"^(base|airfield|naval_base)$\"];out center tags;"
+   }
+  ],
+  "per_type": {
+   "missile": 128,
+   "air": 3532,
+   "naval": 922,
+   "army": 4083,
+   "other": 3076
+  },
+  "dropped_closed": 1437,
+  "wikidata": 7004,
+  "osm": 4737,
+  "osm_dup_wikidata": 2838,
+  "osm_dropped_disused": 224,
+  "osm_dropped_police": 55
+ },
+ "_generated": "2026-10-09T02:23:18Z"
+}

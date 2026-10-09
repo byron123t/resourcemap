@@ -1,0 +1,9 @@
+# Live feeds: generated at deploy time by pipeline/live/fetch_live.py, not committed
+site/data/live/
+raw/live_cache/
+raw/infra/
+
+# Local output
+__pycache__/
+tools/shots/
+dist/

@@ -1,0 +1,69 @@
+# Publishes site/ to GitHub Pages and refreshes the live snapshots (fires, conflict
+# reports, storyboard, ships, US Navy tracker, aircraft) every 3 hours. Static layers in site/data/ are committed;
+# site/data/live/ is generated here and never committed.
+#
+# One-time setup: Settings → Pages → Source: "GitHub Actions".
+# Optional: Settings → Secrets and variables → Actions → AISSTREAM_API_KEY (free key from
+# aisstream.io) for worldwide ships; without it the ships layer falls back to the Baltic
+# feed. Warship positions (USNI) are global and need no key.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */3 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install websockets
+
+      # GDELT 15-minute files and the previous snapshots, so each run only downloads what's new
+      - uses: actions/cache@v4
+        with:
+          path: |
+            raw/live_cache
+            site/data/live
+          key: live-${{ github.run_id }}
+          restore-keys: live-
+
+      - name: Fetch live snapshots
+        continue-on-error: true
+        env:
+          AISSTREAM_API_KEY: ${{ secrets.AISSTREAM_API_KEY }}
+        run: python3 -I pipeline/live/fetch_live.py
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

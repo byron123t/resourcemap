@@ -1,4 +1,8 @@
+<!doctype html>
+<html lang="en">
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Site-level world map of oil, gas, coal, ore, critical minerals, industry, power, water, military bases, airports, ports, data centres, undersea cables and farmland, with live satellite imagery, fire detections, conflict reports, warships and aircraft, and a storyboard of recent surges in conflict news.">
 <title>World Extraction Atlas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,6 +42,17 @@
   --road: #b3925f;
   --lane: #5f8aa0;
   --mark-ring: #ffffff;
+  --fire: #f0590e;
+  --fire-ind: #9a9089;
+  --conflict: #b3122e;
+  --mil: #4f6228;
+  --air: #5b5f97;
+  --dc: #7b3fa0;
+  --tanker: #a0522d;
+  --cargo: #1f8a8a;
+  --navy: #1f2a44;
+  --vessel: #6d7f8a;
+  --cable: #b5338a;
   --focus: #2a78d6;
   --halo: rgb(239 238 232 / .85);
   --f-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
@@ -49,7 +64,7 @@
     --ocean: #0f1519; --land: #23272a; --border: #7a8186; --border-soft: #3f464a; --water: #1f3a4a; --river: #4b8aae;
     --ice: #3b4248; --ice-line: #4d575e; --disputed: #e07a6c;
     --panel: #1a1e20; --panel-line: #33393c; --ink: #eceeea; --ink-2: #b4b8b1; --ink-3: #868b84; --sea-ink: #6f9db3;
-    --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --focus: #6aa8f0; --halo: rgb(15 21 25 / .8);
+    --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --fire: #ff7a2e; --fire-ind: #8d847c; --conflict: #ff4d6a; --mil: #a9bf6e; --air: #9ea3e0; --dc: #c18be0; --tanker: #e0915a; --cargo: #4cc0c0; --navy: #e8ecf5; --vessel: #9fb0ba; --cable: #e57ac0; --focus: #6aa8f0; --halo: rgb(15 21 25 / .8);
     color-scheme: dark;
   }
 }
@@ -57,7 +72,7 @@
   --ocean: #0f1519; --land: #23272a; --border: #7a8186; --border-soft: #3f464a; --water: #1f3a4a; --river: #4b8aae;
   --ice: #3b4248; --ice-line: #4d575e; --disputed: #e07a6c;
   --panel: #1a1e20; --panel-line: #33393c; --ink: #eceeea; --ink-2: #b4b8b1; --ink-3: #868b84; --sea-ink: #6f9db3;
-  --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --focus: #6aa8f0; --halo: rgb(15 21 25 / .8);
+  --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --fire: #ff7a2e; --fire-ind: #8d847c; --conflict: #ff4d6a; --mil: #a9bf6e; --air: #9ea3e0; --dc: #c18be0; --tanker: #e0915a; --cargo: #4cc0c0; --navy: #e8ecf5; --vessel: #9fb0ba; --cable: #e57ac0; --focus: #6aa8f0; --halo: rgb(15 21 25 / .8);
   color-scheme: dark;
 }
 html, body { height: 100%; }
@@ -173,7 +188,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 
 @media (max-width: 720px) {
   .sheet { top: auto; bottom: 0; left: 0; right: 0; width: auto; max-height: 60%; border-radius: 10px 10px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
-  .sheet.collapsed .sheet-body { display: none; }
+  .sheet.collapsed .sheet-body, .sheet.collapsed .story { display: none; }
+  .seg.mode { grid-column: 1 / -1; margin-top: 4px; }
   .sheet-head { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 8px; padding: 12px 16px 10px; }
   h1 { font-size: 21px; }
   .lede { display: none; }
@@ -184,17 +200,66 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 
-/* glyph key: where each resource sits inside a grid cell */
-.gkey { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px 2px; margin-top: 2px; }
-.gkey .slot { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; color: var(--ink-3); text-align: center; line-height: 1.15; }
-.gkey .slot i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--mark-ring); box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 25%, transparent); }
-.gkey .slot.off { opacity: .28; }
-.gkey .slot.ring i { background: transparent !important; border: 2.5px solid var(--oil); box-shadow: none; }
 .base-legend { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
 .base-legend .bar { display: grid; gap: 2px; }
 .base-legend .bar i { height: 10px; border-radius: 1px; }
 .base-legend .ticks { display: grid; font-size: 10.5px; color: var(--ink-2); line-height: 1.2; }
 .base-legend .note { font-size: 11.5px; color: var(--ink-3); line-height: 1.4; }
+.layer .name small.live { font-family: var(--f-mono); font-size: 10.5px; }
+.layer .name small.live.bad { color: var(--disputed); }
+.imagery { display: flex; flex-direction: column; gap: 6px; }
+.imagery .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; font-size: 12px; color: var(--ink-2); }
+.imagery .row2 label { display: flex; flex-direction: column; gap: 2px; }
+.imagery input[type="date"] { font: inherit; font-size: 12.5px; padding: 5px 6px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); }
+.imagery input[type="range"] { width: 100%; accent-color: var(--ink); }
+.imagery .note { font-size: 11.5px; color: var(--ink-3); line-height: 1.4; }
+.imagery .note a { color: var(--ink-2); }
+.srcs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.srcs li { line-height: 1.4; }
+.srcs b { color: var(--ink-2); font-weight: 600; }
+.srcs .m { font-family: var(--f-mono); font-size: 10.5px; }
+.news { padding: 0 16px 14px; }
+.news h3 { margin: 0 0 6px; padding-top: 8px; border-top: 1px solid var(--panel-line); font-family: var(--f-display); font-stretch: 85%; font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.news ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.news li a { display: grid; grid-template-columns: 56px 1fr; gap: 8px; text-decoration: none; color: var(--ink); font-size: 12px; line-height: 1.35; }
+.news li a.noimg { grid-template-columns: 1fr; }
+.news img { width: 56px; height: 40px; object-fit: cover; border-radius: 2px; background: var(--panel-line); }
+.news small { display: block; color: var(--ink-3); font-family: var(--f-mono); font-size: 10.5px; margin-top: 2px; }
+.news .msg { font-size: 11.5px; color: var(--ink-3); }
+.news button { font: inherit; font-size: 12px; padding: 5px 10px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
+.detail .links { margin: 0; padding: 0 16px 12px; list-style: none; display: flex; flex-direction: column; gap: 3px; font-size: 12px; }
+.detail .links a { color: var(--ink-2); overflow-wrap: anywhere; }
+.maplibregl-ctrl-attrib { background: color-mix(in srgb, var(--panel) 85%, transparent) !important; color: var(--ink-2) !important; font-size: 10.5px; }
+.maplibregl-ctrl-attrib a { color: var(--ink-2) !important; }
+:root[data-theme="dark"] .maplibregl-ctrl-attrib-button { filter: invert(1); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .maplibregl-ctrl-attrib-button { filter: invert(1); } }
+.seg.mode { margin-top: 12px; }
+.story { overflow-y: auto; padding: 12px 18px 16px; display: flex; flex-direction: column; gap: 10px; }
+.story > * { flex-shrink: 0; }
+.story .sum { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); }
+.story .sum.small { font-size: 11.5px; color: var(--ink-3); }
+.story .chart svg { display: block; width: 100%; height: 56px; }
+.story .chart .axis { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 10px; color: var(--ink-3); margin-top: 2px; }
+.stepper { display: flex; gap: 6px; align-items: center; }
+.stepper button { font: inherit; font-size: 12px; padding: 5px 9px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
+.stepper button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.stepper .pos { margin-left: auto; font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); }
+.cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cards button { width: 100%; text-align: left; font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--panel-line); border-left: 3px solid var(--panel-line); border-radius: 4px; padding: 7px 9px; cursor: pointer; display: grid; grid-template-columns: 22px 1fr 64px; gap: 2px 8px; align-items: start; }
+.cards button:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+.cards button[aria-current="true"] { border-left-color: var(--conflict); background: color-mix(in srgb, var(--conflict) 7%, transparent); }
+.cards .no { grid-row: span 3; width: 20px; height: 20px; border-radius: 50%; background: var(--conflict); color: #fff; font-family: var(--f-mono); font-size: 10.5px; display: grid; place-items: center; margin-top: 1px; }
+.cards .when { font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); grid-column: 2; }
+.cards .ttl { font-weight: 600; font-size: 12.5px; line-height: 1.3; grid-column: 2; }
+.cards .plc { font-size: 11.5px; color: var(--ink-2); grid-column: 2; }
+.cards svg { grid-column: 3; grid-row: 1 / span 3; width: 64px; height: 30px; align-self: center; }
+.cards .st { grid-column: 2 / -1; font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); }
+.story-mk { width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1.5px solid var(--panel); background: var(--conflict); color: #fff; font: 600 10.5px/1 var(--f-mono); cursor: pointer; box-shadow: 0 1px 3px rgb(0 0 0 / .35); }
+.story-mk.on { width: 26px; height: 26px; font-size: 12px; border-color: var(--ink); z-index: 2; }
+.story-spark { padding: 4px 18px 0; } .story-spark svg { display: block; width: 100%; height: 40px; }
+.lc-key { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; font-size: 11px; color: var(--ink-2); line-height: 1.3; }
+.lc-key i { display: inline-block; width: 9px; height: 10px; vertical-align: -1px; box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .25); }
+.lc-key i:last-of-type { margin-right: 5px; }
 .detail .zoom-btn { margin: 0 16px 14px; font: inherit; font-size: 12.5px; padding: 6px 10px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
 </style>
 
@@ -207,11 +272,32 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       <div>
         <div class="eyebrow">Site-level · 2026 data</div>
         <h1>World Extraction Atlas</h1>
-        <p class="lede">Oil, gas, coal, ore, critical minerals, industry, power and water, with the borders, pipelines and sea lanes that connect them. At world scale, sites are summed into a grid with one circle per resource in a fixed spot; zoom in and every site sits at its true location.</p>
+        <p class="lede">Oil, gas, coal, ore, critical minerals, industry, power and water, with the borders, pipelines, cables and sea lanes that connect them. Every site is drawn at its true location at every zoom, with live satellite imagery, fire detections, conflict events, warships and aircraft on top.</p>
       </div>
       <button class="toggle-sheet" id="toggleSheet" aria-expanded="true">Hide</button>
+      <div class="seg mode" role="group" aria-label="Choose a mode">
+        <button type="button" data-mode="map" aria-pressed="true">Map layers</button>
+        <button type="button" data-mode="story" aria-pressed="false">Storyboard</button>
+      </div>
     </div>
-    <div class="sheet-body">
+    <div class="story" id="story" hidden>
+      <div class="seg" role="group" aria-label="Storyboard window">
+        <button type="button" data-win="day" aria-pressed="false">Past day</button>
+        <button type="button" data-win="week" aria-pressed="true">Past week</button>
+        <button type="button" data-win="month" aria-pressed="false">Past month</button>
+      </div>
+      <p class="sum" id="storySum">Loading the storyboard…</p>
+      <div class="chart" id="storyChart"></div>
+      <div class="stepper">
+        <button type="button" id="storyPrev" aria-label="Previous story">← Prev</button>
+        <button type="button" id="storyPlay" aria-pressed="false">Play</button>
+        <button type="button" id="storyNext" aria-label="Next story">Next →</button>
+        <span class="pos" id="storyPos"></span>
+      </div>
+      <ol class="cards" id="storyCards"></ol>
+      <p class="sum small">Each card is a place where conflict reports (assaults, fighting, mass violence) jumped well above that place's own usual level in that hour, day or three days. Picked from GDELT, which codes events from news articles automatically, so read the linked articles. The headline comes from the most-cited article and can be about a different event in the same place.</p>
+    </div>
+    <div class="sheet-body" id="sheetBody">
       <section>
         <h3 class="group-title">View</h3>
         <div class="seg views" role="group" aria-label="Choose a view">
@@ -220,16 +306,51 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
           <button type="button" data-view="industry" aria-pressed="false">Industry</button>
           <button type="button" data-view="transport" aria-pressed="false">Transport</button>
           <button type="button" data-view="water" aria-pressed="false">Water</button>
+          <button type="button" data-view="security" aria-pressed="false">Security</button>
         </div>
       </section>
 
       <section>
-        <h3 class="group-title">Grid key (world view)</h3>
-        <div class="gkey" id="gkey"></div>
+        <h3 class="group-title">Live</h3>
+        <div class="layers">
+          <label class="layer"><input type="checkbox" id="lyr-fires"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="var(--fire)" stroke="var(--conflict)" stroke-width="1.5"/></svg><span class="name">Fires &amp; heat<small class="live" id="st-fires">NASA FIRMS VIIRS, last 24 h</small></span><span class="count" id="n-fires"></span></label>
+          <label class="layer" for="fireMode"><span></span><span></span><select id="fireMode" aria-label="Which fire detections">
+            <option value="">All detections (size = fire power)</option><option value="noind">Leave out industrial heat sources</option><option value="cf">Only near conflict reports (72 h)</option>
+          </select></label>
+          <label class="layer"><input type="checkbox" id="lyr-events"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--conflict)" fill-opacity=".75" stroke="var(--mark-ring)"/></svg><span class="name">Conflict reports<small class="live" id="st-events">GDELT, last 14 days</small></span><span class="count" id="n-events"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-ships"><svg class="sw" viewBox="0 0 14 14"><path d="M7 1l4 5v7H3V6z" fill="var(--tanker)" stroke="var(--mark-ring)"/></svg><span class="name">Large ships<small class="live" id="st-ships">AIS</small></span><span class="count" id="n-ships"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-navy"><svg class="sw" viewBox="0 0 14 14"><path d="M7 .5l4 5v8H3v-8z" fill="var(--navy)" stroke="var(--mark-ring)"/></svg><span class="name">US Navy warships &amp; carriers<small class="live" id="st-navy">USNI fleet tracker</small></span><span class="count" id="n-navy"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-aircraft"><svg class="sw" viewBox="0 0 14 14"><path d="M7 1l1.2 4.5 5 2.5v1.3l-5-1.3-.4 3.4 1.7 1.2V14L7 13.2 4.5 14v-1.4l1.7-1.2-.4-3.4-5 1.3V8l5-2.5z" fill="var(--air)"/></svg><span class="name">Military aircraft<small class="live" id="st-aircraft">ADS-B</small></span><span class="count" id="n-aircraft"></span></label>
+        </div>
+      </section>
+
+      <section class="imagery">
+        <h3 class="group-title"><label for="imagery">Satellite imagery</label></h3>
+        <select id="imagery"></select>
+        <div class="row2" id="imgCtl" hidden>
+          <label id="imgDateWrap">Day (UTC)<input type="date" id="imgDate"></label>
+          <label>Opacity<input type="range" id="imgOpacity" min="10" max="100" step="5" value="100"></label>
+        </div>
+        <div class="note" id="imgNote" hidden></div>
+      </section>
+
+      <section class="imagery">
+        <h3 class="group-title"><label for="agri">Farmland &amp; land cover</label></h3>
+        <select id="agri">
+          <option value="">None</option>
+          <option value="crop">Cropland share of land (2000)</option>
+          <option value="past">Pasture share of land (2000)</option>
+          <option value="lc">Land cover type, MODIS (pick a year)</option>
+        </select>
+        <div class="row2" id="agriCtl" hidden>
+          <label id="agriYearWrap">Year<select id="agriYear"></select></label>
+          <label>Opacity<input type="range" id="agriOpacity" min="10" max="100" step="5" value="70"></label>
+        </div>
+        <div class="base-legend" id="agriLegend" hidden></div>
       </section>
 
       <section>
-        <h3 class="group-title">Resources <small style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-3)">· top row</small></h3>
+        <h3 class="group-title">Resources</h3>
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-oilgas"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--oil)" stroke="var(--mark-ring)"/></svg><span class="name">Oil &amp; gas fields<small>production, M boe/yr</small></span><span class="count" id="n-oilgas"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-coal"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--coal)" stroke="var(--mark-ring)"/></svg><span class="name">Coal mines<small>capacity, Mt/yr</small></span><span class="count" id="n-coal"></span></label>
@@ -242,7 +363,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       </section>
 
       <section>
-        <h3 class="group-title">Industry, power &amp; LNG <small style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-3)">· bottom row</small></h3>
+        <h3 class="group-title">Industry, power &amp; LNG</h3>
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-power"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--power)" stroke="var(--mark-ring)"/></svg><span class="name">Power plants<small>capacity, GW</small></span><span class="count" id="n-power"></span></label>
           <label class="layer" for="fuel"><span></span><span></span><select id="fuel" aria-label="Power plant fuel">
@@ -261,11 +382,27 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-pipes"><svg class="sw" viewBox="0 0 14 14"><path d="M1 4h12" stroke="var(--oil)" stroke-width="2"/><path d="M1 10h12" stroke="var(--oil)" stroke-width="2" stroke-dasharray="3 2"/></svg><span class="name">Pipelines<small>oil solid, gas dashed; width = capacity</small></span><span class="count" id="n-pipes"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-lanes"><svg class="sw" viewBox="0 0 14 14"><path d="M1 9c4-5 8-5 12-2" fill="none" stroke="var(--lane)" stroke-width="2" stroke-dasharray="3 2"/></svg><span class="name">Shipping lanes</span><span class="count" id="n-lanes"></span></label>
-          <label class="layer"><input type="checkbox" id="lyr-ports"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="4.5" fill="var(--panel)" stroke="var(--lane)" stroke-width="2"/></svg><span class="name">Seaports</span><span class="count" id="n-ports"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-cables"><svg class="sw" viewBox="0 0 14 14"><path d="M1 5c4 4 8-3 12 0" fill="none" stroke="var(--cable)" stroke-width="1.6"/><path d="M1 10h12" stroke="var(--cable)" stroke-width="1.4" stroke-dasharray="2 2"/></svg><span class="name">Undersea internet cables<small>landing points from zoom 2.5; dashed = planned</small></span><span class="count" id="n-cables"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-ports"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="4.5" fill="var(--panel)" stroke="var(--lane)" stroke-width="2"/></svg><span class="name">Seaports<small>World Port Index; size = harbour size</small></span><span class="count" id="n-ports"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-rail"><svg class="sw" viewBox="0 0 14 14"><path d="M1 7h12" stroke="var(--rail)" stroke-width="3"/><path d="M1 7h12" stroke="var(--rail-tie)" stroke-width="1.2" stroke-dasharray="2 2"/></svg><span class="name">Railways<small>zoom 3+</small></span><span class="count" id="n-rail"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-roads"><svg class="sw" viewBox="0 0 14 14"><path d="M1 7h12" stroke="var(--road)" stroke-width="2.2"/></svg><span class="name">Major roads<small>zoom 3+</small></span><span class="count" id="n-roads"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-choke"><svg class="sw" viewBox="0 0 14 14"><rect x="3.5" y="3.5" width="7" height="7" transform="rotate(45 7 7)" fill="var(--ink)"/></svg><span class="name">Shipping chokepoints<small>oil &amp; LNG flow, 1H 2025</small></span><span class="count">8</span></label>
           <label class="layer"><input type="checkbox" id="lyr-rivers"><svg class="sw" viewBox="0 0 14 14"><path d="M1 10c3-6 6 2 12-6" fill="none" stroke="var(--river)" stroke-width="2"/></svg><span class="name">Rivers<small>width by river size</small></span><span class="count" id="n-rivers"></span></label>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="group-title">Defence &amp; infrastructure</h3>
+        <div class="layers">
+          <label class="layer"><input type="checkbox" id="lyr-bases"><svg class="sw" viewBox="0 0 14 14"><rect x="2.5" y="2.5" width="9" height="9" fill="var(--mil)" stroke="var(--mark-ring)"/></svg><span class="name">Military bases<small>Wikidata + OpenStreetMap</small></span><span class="count" id="n-bases"></span></label>
+          <label class="layer" for="baseType"><span></span><span></span><select id="baseType" aria-label="Base type">
+            <option value="">All bases</option><option value="air">Air bases</option><option value="naval">Naval bases</option><option value="army">Army bases &amp; barracks</option><option value="missile">Missile &amp; launch sites</option><option value="other">Other (radar, ranges, depots)</option>
+          </select></label>
+          <label class="layer"><input type="checkbox" id="lyr-airports"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="var(--panel)" stroke="var(--air)" stroke-width="2"/><path d="M7 3.5v7M3.5 7h7" stroke="var(--air)" stroke-width="1.4"/></svg><span class="name">Airports &amp; airstrips<small>OurAirports; ringed = military</small></span><span class="count" id="n-airports"></span></label>
+          <label class="layer" for="airMode"><span></span><span></span><select id="airMode" aria-label="Which airports">
+            <option value="LM">Large &amp; medium airports</option><option value="">All, including small strips</option><option value="mil">Military airfields only</option><option value="L">Large airports only</option>
+          </select></label>
+          <label class="layer"><input type="checkbox" id="lyr-dc"><svg class="sw" viewBox="0 0 14 14"><rect x="3" y="3" width="8" height="8" rx="1" fill="var(--dc)" stroke="var(--mark-ring)"/></svg><span class="name">Data centres<small>OpenStreetMap</small></span><span class="count" id="n-dc"></span></label>
         </div>
       </section>
 
@@ -339,8 +476,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       </section>
 
       <section class="notes">
-        <p><strong>Sources.</strong> Global Energy Monitor trackers (CC BY 4.0): oil &amp; gas extraction (Mar 2026), coal mines (Aug 2026), iron ore mines (Sep 2026), coal plants (Jul 2026), oil &amp; gas plants (Aug 2026), iron &amp; steel (Sep 2026), cement (Jul 2026), chemicals (Nov 2025), oil/NGL pipelines (Jul 2026), gas pipelines (Nov 2025), LNG terminals (Sep 2025), coal mine boundaries v1.0.2. Other power plants: WRI Global Power Plant Database v1.3 (2021). Critical minerals: USGS global deposits of critical minerals (Labay et al. 2017) and USGS critical mineral deposits of the United States v3.0 (2026). Water risk: WRI Aqueduct 4.0 (2023). Groundwater: BGR/UNESCO WHYMAP. Mined land: Maus et al. 2022 (<a href="https://doi.org/10.1594/PANGAEA.942325" target="_blank" rel="noopener">PANGAEA</a>, CC BY-SA 4.0). Shipping lanes: Benden 2022, after the CIA <i>Map of the World's Oceans</i>. Chokepoints: <a href="https://www.eia.gov/international/content/analysis/special_topics/World_Oil_Transit_Chokepoints" target="_blank" rel="noopener">US EIA</a>, Mar 2026. Water, borders, disputed areas, roads, railways, ports, names: Natural Earth.</p>
+        <h3 class="group-title">Sources</h3>
+        <ul class="srcs" id="sources"></ul>
         <p><strong>Read with care.</strong> Totals add up only what each site reports; many large oil fields, including Saudi Arabia's, publish no production. The US critical-mineral set is far more detailed than the global one, so the US shows many more deposits. Solar, wind, hydro and nuclear come from a 2021 database. Oil refineries aren't included yet. Gas is converted at 6,000 cf per barrel of oil equivalent. Country totals count operating sites only; offshore sites go to the nearest country. Country water stress is an area-weighted average of Aqueduct basin scores. Borders follow Natural Earth's de facto lines and don't imply endorsement.</p>
+        <p><strong>Live layers.</strong> Fires, conflict reports, ships and aircraft are snapshots refreshed every few hours by the site's build, not a live stream; each layer shows when it was taken. Conflict reports are machine-coded from news articles and are often duplicated, misplaced (to a country's centre, say) or wrong; open the linked articles before relying on one. A fire next to a conflict report isn't proof of an attack. Warship positions come from USNI News's weekly fleet tracker, which names a port or sea area rather than coordinates, so they're approximate and only cover publicly reported US Navy ships; other navies rarely publish positions and their warships usually switch AIS off. Worldwide merchant ships need an aisstream.io key in the build; without one the ship layer shows the Baltic, live. Military bases combine Wikidata and OpenStreetMap and are still incomplete, so a gap doesn't mean there's no base. Cable routes are schematic.</p>
       </section>
     </div>
   </aside>
@@ -364,29 +503,25 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   const gl = (() => { try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; } })();
   if (!window.maplibregl || !gl) { $("map").innerHTML = '<div class="err">This map needs WebGL, which isn\'t available in this browser.</div>'; return; }
 
-  // ---------- point layers. Zoomed out they are summed into a screen grid; each layer has a fixed slot in the cell ----------
+  // ---------- point layers: every site is drawn at its true position at all zooms ----------
   const Q = {
-    oilgas: { label: "Oil & gas field", plural: "fields", short: "Oil & gas", color: "--oil", k: 0.36, unit: "M boe/yr", slot: [0, 0] },
-    coal:   { label: "Coal mine", plural: "mines", short: "Coal", color: "--coal", k: 0.7, unit: "Mt/yr", slot: [1, 0] },
-    crit:   { label: "Critical mineral deposit", plural: "deposits", short: "Critical minerals", color: "--crit", k: 3, unit: "deposits", slot: [2, 0], count: true },
-    iron:   { label: "Iron ore mine", plural: "mines", short: "Iron ore", color: "--iron", k: 0.7, unit: "Mt/yr", slot: [3, 0] },
-    foot:   { label: "Mined land", plural: "mine areas", short: "Mined land", color: "--foot", k: 0.55, unit: "km²", slot: [4, 0] },
-    power:  { label: "Power plant", plural: "plants", short: "Power", color: "--power", k: 1.1, unit: "GW", slot: [0, 1] },
-    steel:  { label: "Steel plant", plural: "plants", short: "Steel", color: "--steel", k: 1.3, unit: "Mt/yr", slot: [1, 1] },
-    cement: { label: "Cement plant", plural: "plants", short: "Cement", color: "--cement", k: 1.0, unit: "Mt/yr", slot: [2, 1] },
-    chem:   { label: "Chemical plant", plural: "plants", short: "Chemicals", color: "--chem", k: 3, unit: "plants", slot: [3, 1], count: true },
-    lng:    { label: "LNG terminal", plural: "terminals", short: "LNG", color: "--oil", k: 2.0, unit: "Mt/yr", slot: [4, 1], ring: true }
+    oilgas: { label: "Oil & gas field", plural: "fields", short: "Oil & gas", color: "--oil", k: 0.36, unit: "M boe/yr" },
+    coal:   { label: "Coal mine", plural: "mines", short: "Coal", color: "--coal", k: 0.7, unit: "Mt/yr" },
+    crit:   { label: "Critical mineral deposit", plural: "deposits", short: "Critical minerals", color: "--crit", k: 3, unit: "deposits", count: true },
+    iron:   { label: "Iron ore mine", plural: "mines", short: "Iron ore", color: "--iron", k: 0.7, unit: "Mt/yr" },
+    foot:   { label: "Mined land", plural: "mine areas", short: "Mined land", color: "--foot", k: 0.55, unit: "km²" },
+    power:  { label: "Power plant", plural: "plants", short: "Power", color: "--power", k: 1.1, unit: "GW" },
+    steel:  { label: "Steel plant", plural: "plants", short: "Steel", color: "--steel", k: 1.3, unit: "Mt/yr" },
+    cement: { label: "Cement plant", plural: "plants", short: "Cement", color: "--cement", k: 1.0, unit: "Mt/yr" },
+    chem:   { label: "Chemical plant", plural: "plants", short: "Chemicals", color: "--chem", k: 3, unit: "plants", count: true },
+    lng:    { label: "LNG terminal", plural: "terminals", short: "LNG", color: "--oil", k: 2.0, unit: "Mt/yr", ring: true }
   };
   const PTS = Object.keys(Q);
-  const AGG_MAX = 2.5;                     // below this zoom (world view) show grid tiles; above it, sites at their true positions
-  const SP = 15, MAXR = 7.5;              // slot spacing and largest glyph radius (px)
-  const CW = SP * 5 + 18, CH = SP * 2 + 20; // grid cell size in screen px
-  const slotXY = s => [(s[0] - 2) * SP, (s[1] - 0.5) * SP];
-  const ZF = [2.5, 0.7, 6, 1, 9, 2.6, 12, 5, 15, 9];
+  const ZF = [1, 0.55, 3, 0.7, 6, 1, 9, 2.6, 12, 5, 15, 9];
   const zf = z => { if (z <= ZF[0]) return ZF[1]; for (let i = 2; i < ZF.length; i += 2) if (z <= ZF[i]) return ZF[i - 1] + (ZF[i + 1] - ZF[i - 1]) * (z - ZF[i - 2]) / (ZF[i] - ZF[i - 2]); return ZF[ZF.length - 1]; };
   const R = k => { const base = ["max", 2.5, ["*", k, ["sqrt", ["coalesce", ["get", "q"], 0]]]]; return ["interpolate", ["linear"], ["zoom"], ...ZF.flatMap((v, i) => i % 2 ? [] : [v, ["*", base, ZF[i + 1]]])]; };
 
-  // capped version used for sites and merged groups, so a merged circle never swallows the view
+  // capped so one giant site never swallows the view
   const RC = k => { const base = ["min", 26, ["max", 2.5, ["*", k, ["sqrt", ["coalesce", ["get", "q"], 0]]]]]; return ["interpolate", ["linear"], ["zoom"], ...ZF.flatMap((v, i) => i % 2 ? [] : [v, ["*", base, ZF[i + 1]]])]; };
   const STATUS = {
     all: s => !["cancelled", "retired", "abandoned", "decommissioning", "closed"].includes(s),
@@ -396,54 +531,130 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   let statusMode = "all", fuelFilter = "", mineralFilter = "";
 
   const GROUPS = {
-    oilgas: { layers: ["g-oilgas", "oilgas-pts"], data: ["oilgas"] }, coal: { layers: ["g-coal", "coal-pts"], data: ["coal"] },
-    crit: { layers: ["g-crit", "crit-pts"], data: ["crit"] }, iron: { layers: ["g-iron", "iron-pts"], data: ["iron"] },
-    foot: { layers: ["g-foot", "foot-pts", "foot_w-fill", "foot_w-line", "foot_c-fill", "foot_c-line", "foot_e-fill", "foot_e-line"], data: ["foot"] },
-    power: { layers: ["g-power", "power-pts"], data: ["power"] }, steel: { layers: ["g-steel", "steel-pts"], data: ["steel"] },
-    cement: { layers: ["g-cement", "cement-pts"], data: ["cement"] }, chem: { layers: ["g-chem", "chem-pts"], data: ["chem"] },
-    lng: { layers: ["g-lng", "lng-pts"], data: ["lng"] },
+    oilgas: { layers: ["oilgas-pts"], data: ["oilgas"] }, coal: { layers: ["coal-pts"], data: ["coal"] },
+    crit: { layers: ["crit-pts"], data: ["crit"] }, iron: { layers: ["iron-pts"], data: ["iron"] },
+    foot: { layers: ["foot-pts", "foot_w-fill", "foot_w-line", "foot_c-fill", "foot_c-line", "foot_e-fill", "foot_e-line"], data: ["foot"] },
+    power: { layers: ["power-pts"], data: ["power"] }, steel: { layers: ["steel-pts"], data: ["steel"] },
+    cement: { layers: ["cement-pts"], data: ["cement"] }, chem: { layers: ["chem-pts"], data: ["chem"] },
+    lng: { layers: ["lng-pts"], data: ["lng"] },
     outlines: { layers: ["og-outline", "og-outline-line", "cb-fill", "cb-line"], data: ["oilgas_outlines", "coal_boundaries"] },
     pipes: { layers: ["pipes-oil", "pipes-gas"], data: ["pipelines"] }, lanes: { layers: ["lanes"], data: ["shipping"] },
     ports: { layers: ["ports-pts"], data: ["ports"] }, rail: { layers: ["rail", "rail-ties"], data: ["rail"] }, roads: { layers: ["roads"], data: ["roads"] },
     choke: { layers: [], data: ["chokepoints"] }, rivers: { layers: ["rivers"], data: ["rivers"] },
     lakes: { layers: ["lakes", "lakes-line"], data: ["lakes"] }, ice: { layers: ["glaciers"], data: ["glaciers"] },
-    names: { layers: ["borders"], data: [] }, disputed: { layers: ["disputed", "disputed-lines"], data: [] }, maritime: { layers: ["maritime"], data: [] }
+    names: { layers: ["borders"], data: [] }, disputed: { layers: ["disputed", "disputed-lines"], data: [] }, maritime: { layers: ["maritime"], data: [] },
+    fires: { layers: ["fires-pts"], data: ["fires"] }, events: { layers: ["events-pts"], data: ["events"] },
+    ships: { layers: ["ships-pts"], data: ["ships"] }, aircraft: { layers: ["aircraft-pts"], data: ["aircraft"] }, navy: { layers: ["navy-pts"], data: ["navy"] },
+    cables: { layers: ["cables", "cables-plan", "landings-pts"], data: ["cables", "landings"] },
+    bases: { layers: ["bases-pts"], data: ["bases"] }, airports: { layers: ["airports-l", "airports-m", "airports-s"], data: ["airports"] }, dc: { layers: ["dc-pts"], data: ["dc"] }
   };
   const VIEWS = {
     overview: { on: ["oilgas", "coal", "crit", "iron", "power", "steel", "lng", "pipes", "lanes", "choke", "lakes", "ice"], fuel: "", base: "" },
     resources: { on: ["oilgas", "coal", "crit", "iron", "foot", "outlines", "rivers", "lakes", "ice"], fuel: "", base: "" },
-    industry: { on: ["power", "steel", "cement", "chem", "lng", "lakes", "ice"], fuel: "", base: "" },
-    transport: { on: ["pipes", "lng", "lanes", "ports", "rail", "roads", "choke", "lakes", "ice"], fuel: "", base: "" },
-    water: { on: ["rivers", "lakes", "ice", "power"], fuel: "hydro", base: "w:ws" }
+    industry: { on: ["power", "steel", "cement", "chem", "lng", "dc", "cables", "lakes", "ice"], fuel: "", base: "" },
+    transport: { on: ["pipes", "lng", "lanes", "cables", "ports", "rail", "roads", "choke", "airports", "lakes", "ice"], fuel: "", base: "" },
+    water: { on: ["rivers", "lakes", "ice", "power"], fuel: "hydro", base: "w:ws" },
+    security: { on: ["bases", "airports", "ports", "events", "fires", "aircraft", "ships", "navy", "cables", "choke", "lanes", "lakes", "ice"], fuel: "", base: "" }
   };
-  const VIEW_KEYS = ["oilgas", "coal", "crit", "iron", "foot", "outlines", "power", "steel", "cement", "chem", "lng", "pipes", "lanes", "ports", "rail", "roads", "choke", "rivers", "lakes", "ice"];
+  const VIEW_KEYS = ["oilgas", "coal", "crit", "iron", "foot", "outlines", "power", "steel", "cement", "chem", "lng", "pipes", "lanes", "ports", "rail", "roads", "choke", "rivers", "lakes", "ice",
+    "fires", "events", "ships", "aircraft", "navy", "bases", "airports", "dc", "cables"];
 
   // ---------- data loading ----------
   const FILES = {
     oilgas: "oilgas.geojson", coal: "coal.geojson", iron: "iron.geojson", lng: "lng.geojson", power: "power.geojson", steel: "steel.geojson", cement: "cement.geojson",
     chem: "chemicals.geojson", crit: "critical_minerals.geojson", foot: "mining_points.json", oilgas_outlines: "oilgas_outlines.geojson", coal_boundaries: "coal_boundaries.geojson",
-    pipelines: "pipelines.geojson", shipping: "shipping.geojson", ports: "ports.geojson", rail: "rail.geojson", roads: "roads.geojson", chokepoints: "chokepoints.geojson",
+    pipelines: "pipelines.geojson", shipping: "shipping.geojson", ports: "ports_wpi.geojson", rail: "rail.geojson", roads: "roads.geojson", chokepoints: "chokepoints.geojson",
     rivers: "rivers.geojson", lakes: "lakes.geojson", glaciers: "glaciers.geojson", water_risk: "water_risk.geojson", groundwater: "groundwater.geojson",
-    saline_gw: "saline_gw.geojson", gw_mining: "gw_mining.geojson"
+    saline_gw: "saline_gw.geojson", gw_mining: "gw_mining.geojson",
+    bases: "bases.geojson", airports: "airports.geojson", dc: "datacenters.geojson", cables: "cables.geojson", landings: "landings.geojson"
   };
   const COUNT_ID = { oilgas: "n-oilgas", coal: "n-coal", iron: "n-iron", lng: "n-lng", power: "n-power", steel: "n-steel", cement: "n-cement", chem: "n-chem", crit: "n-crit",
-    foot: "n-foot", pipelines: "n-pipes", shipping: "n-lanes", ports: "n-ports", rail: "n-rail", roads: "n-roads", rivers: "n-rivers", lakes: "n-lakes", glaciers: "n-ice" };
+    foot: "n-foot", pipelines: "n-pipes", shipping: "n-lanes", ports: "n-ports", rail: "n-rail", roads: "n-roads", rivers: "n-rivers", lakes: "n-lakes", glaciers: "n-ice",
+    fires: "n-fires", events: "n-events", ships: "n-ships", aircraft: "n-aircraft", bases: "n-bases", airports: "n-airports", dc: "n-dc", navy: "n-navy", cables: "n-cables" };
   const DATA = {}, loading = {};
   const get = f => fetch("data/" + f).then(r => { if (!r.ok) throw new Error(f); return r.json(); });
   const setCount = (id, n) => { const el = $(id); if (el) el.textContent = fmt(n); };
+
+  // Live snapshots are rewritten by the Pages build every few hours; the manifest's timestamp busts caches.
+  const LIVE = ["fires", "events", "ships", "aircraft", "navy"];
+  const manifestP = fetch("data/live/manifest.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
+  const getLive = f => manifestP.then(m => get("live/" + f + "?v=" + encodeURIComponent((m && m.generated) || "0")));
+  let shipMode = "";
+  const LOADERS = {
+    fires: () => getLive("fires.json").then(j => {
+      const ix = Object.fromEntries(j.cols.map((c, i) => [c, i]));
+      return { type: "FeatureCollection", updated: j.updated, features: j.rows.map(r => ({ type: "Feature", geometry: { type: "Point", coordinates: [r[ix.lon], r[ix.lat]] },
+        properties: { frp: r[ix.frp], ti4: r[ix.ti4], t: r[ix.t], dn: r[ix.dn], nd: r[ix.nd], ind: r[ix.ind], cf: r[ix.cf] } })) };
+    }),
+    events: () => getLive("events.geojson"),
+    aircraft: () => getLive("aircraft.geojson"),
+    navy: () => getLive("navy.geojson"),
+    story: () => getLive("story.json"),
+    // Global AIS needs the build's aisstream.io key; without it, fall back to Finland's open feed (Baltic only), polled from the browser.
+    ships: () => manifestP.then(m => {
+      if (m && m.feeds && m.feeds.ships && m.feeds.ships.updated) return getLive("ships.geojson").then(j => { shipMode = "ais"; return j; });
+      shipMode = "baltic"; return digitraffic();
+    })
+  };
   function ensure(src) {
     if (DATA[src]) return Promise.resolve(DATA[src]);
     if (loading[src]) return loading[src];
-    loading[src] = get(FILES[src]).then(j => {
+    loading[src] = (LOADERS[src] ? LOADERS[src]() : get(FILES[src])).then(j => {
       if (src === "foot") j = { type: "FeatureCollection", features: j.map(a => ({ type: "Feature", geometry: { type: "Point", coordinates: [a[0], a[1]] }, properties: { q: a[2], s: "operating" } })) };
       DATA[src] = j; delete loading[src];
-      if (COUNT_ID[src]) setCount(COUNT_ID[src], j.features.length);
+      if (COUNT_ID[src] && j.features) setCount(COUNT_ID[src], j.features.length);
       if (src === "chokepoints") initChokepoints(j);
       else pushData(src);
       if (src === "oilgas_outlines" || src === "coal_boundaries") setCount("n-outlines", (DATA.oilgas_outlines || empty).features.length + (DATA.coal_boundaries || empty).features.length);
+      if (src === "ships") { shipStatus(); pollShips(); }
       return j;
-    }).catch(() => { delete loading[src]; });
+    }).catch(() => {
+      delete loading[src];
+      if (LIVE.includes(src)) { const el = $("st-" + src); el.textContent = "couldn't load this snapshot"; el.classList.add("bad"); }
+      if (src === "story") $("storySum").textContent = "Couldn't load the storyboard snapshot. Run pipeline/live/fetch_live.py, or wait for the next build.";
+    });
     return loading[src];
+  }
+
+  // filters for the defence and live layers (no status field)
+  let fireMode = "", baseType = "", airMode = "LM";
+  const FILTERS = {
+    fires: p => !fireMode || (fireMode === "noind" ? !p.ind : !!p.cf),
+    bases: p => !baseType || p.t === baseType,
+    airports: p => airMode === "" || (airMode === "mil" ? !!p.mil : airMode === "L" ? p.t === "L" : p.t !== "S" || !!p.mil)
+  };
+
+  // ---------- ships: Digitraffic fallback (Fintraffic, CC BY 4.0) ----------
+  const DT = "https://meri.digitraffic.fi/api/ais/v1/", DTH = { headers: { Accept: "application/json" } };
+  let dtVessels = null, dtTimer = null;
+  // mirrors classify_ship() in pipeline/live/fetch_live.py, minus the name-based navy matching
+  function shipClass(ty, len) {
+    ty = ty || 0;
+    if (ty === 35) return "military";
+    if (ty === 55) return "law";
+    if (ty >= 80 && ty <= 89) return "tanker";
+    if (ty >= 70 && ty <= 79) return "cargo";
+    if (ty >= 60 && ty <= 69) return (len || 0) >= 150 ? "passenger" : null;
+    return (len || 0) >= 200 ? "other" : null;
+  }
+  async function digitraffic() {
+    if (!dtVessels) dtVessels = fetch(DT + "vessels", DTH).then(r => r.json()).then(a => new Map(a.map(v => [v.mmsi, v]))).catch(() => { dtVessels = null; return new Map(); });
+    const [loc, ves] = await Promise.all([fetch(DT + "locations", DTH).then(r => { if (!r.ok) throw new Error("digitraffic " + r.status); return r.json(); }), dtVessels]);
+    const features = [];
+    loc.features.forEach(f => {
+      const p = f.properties, v = ves.get(p.mmsi) || {}, len = (v.referencePointA || 0) + (v.referencePointB || 0) || null;
+      const cl = shipClass(v.shipType, len); if (!cl) return;
+      const props = { mmsi: p.mmsi, n: v.name, cl, ty: v.shipType, sog: p.sog < 102.3 ? p.sog : null, cog: p.cog < 360 ? p.cog : null, hd: p.heading < 360 ? p.heading : null,
+        dest: v.destination || null, len, imo: v.imo || null, t: p.timestampExternal ? new Date(p.timestampExternal).toISOString().slice(0, 16) + "Z" : null };
+      Object.keys(props).forEach(k => props[k] == null && delete props[k]);
+      features.push({ type: "Feature", geometry: f.geometry, properties: props });
+    });
+    return { type: "FeatureCollection", updated: loc.dataUpdatedTime, features };
+  }
+  function pollShips() {
+    clearInterval(dtTimer); dtTimer = null;
+    if (shipMode !== "baltic" || !$("lyr-ships").checked) return;
+    dtTimer = setInterval(() => digitraffic().then(j => { DATA.ships = j; setCount("n-ships", j.features.length); pushData("ships"); shipStatus(); }).catch(() => {}), 60000);
   }
   function filtered(src) {
     const d = DATA[src]; if (!d) return [];
@@ -460,93 +671,11 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   }
   function pushData(src) {
     if (!map || !DATA[src]) return;
-    if (PTS.includes(src)) { map.getSource(src).setData({ type: "FeatureCollection", features: filtered(src) }); aggCache[src] = {}; refreshAgg(src); return; }
+    if (PTS.includes(src)) { map.getSource(src).setData({ type: "FeatureCollection", features: filtered(src) }); return; }
+    if (FILTERS[src]) { const fs = DATA[src].features.filter(f => FILTERS[src](f.properties)); map.getSource(src).setData({ type: "FeatureCollection", features: fs }); setCount(COUNT_ID[src], fs.length); return; }
     if (src === "pipelines") { const ok = STATUS[statusMode]; map.getSource(src).setData({ type: "FeatureCollection", features: DATA[src].features.filter(f => ok(String(f.properties.s || ""))) }); return; }
-    if (map.getSource(src)) map.getSource(src).setData(DATA[src]);
-  }
-
-  // ---------- grid aggregation (Web Mercator pixel grid at whole zoom levels) ----------
-  const aggCache = {}, kCache = {};
-  const merc = ([lng, lat]) => { const s = Math.sin(Math.max(-85, Math.min(85, lat)) * Math.PI / 180); return [(lng + 180) / 360, 0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)]; };
-  const unmerc = (x, y) => [x * 360 - 180, Math.atan(Math.sinh(Math.PI * (1 - 2 * y))) * 180 / Math.PI];
-  const binOf = z => Math.max(0, Math.min(AGG_MAX - 0.25, Math.round(z * 4) / 4)); // regrid every quarter zoom level
-  function cells(features, bin) {
-    const ws = 512 * Math.pow(2, bin), out = new Map();
-    for (const f of features) {
-      const [x, y] = merc(f.geometry.coordinates);
-      const key = Math.floor(x * ws / CW) + ":" + Math.floor(y * ws / CH);
-      let c = out.get(key); if (!c) out.set(key, c = { q: 0, n: 0, nq: 0 });
-      const q = +f.properties.q || 0; c.q += q; c.n += 1; if (q > 0) c.nq += 1;
-    }
-    return out;
-  }
-  function scale(src, bin) {
-    // largest cell anywhere (all statuses, no filters) fills the slot, so sizes stay comparable as filters change
-    // the 90th-percentile cell fills the slot; the few bigger cells are capped and get a dark ring
-    const key = src + bin; if (kCache[key]) return kCache[key];
-    const qs = []; cells(DATA[src].features, bin).forEach(c => { if (c.q > 0) qs.push(c.q); });
-    qs.sort((a, b) => a - b);
-    const max = qs.length ? qs[Math.min(qs.length - 1, Math.floor(qs.length * 0.9))] : 1;
-    return (kCache[key] = { k: MAXR / Math.sqrt(max || 1), max });
-  }
-  function aggFor(src, bin) {
-    aggCache[src] = aggCache[src] || {};
-    if (!aggCache[src][bin]) aggCache[src][bin] = cells(filtered(src), bin);
-    return aggCache[src][bin];
-  }
-  let curBin = -1;
-  function refreshAgg(only) {
-    if (!map) return;
-    const bin = binOf(map.getZoom()); curBin = bin;
-    const ws = 512 * Math.pow(2, bin);
-    (only ? [only] : PTS).forEach(src => {
-      if (!DATA[src] || !$("lyr-" + src).checked) return;
-      const { k, max } = scale(src, bin), feats = [];
-      aggFor(src, bin).forEach((c, key) => {
-        const [cx, cy] = key.split(":").map(Number);
-        feats.push({ type: "Feature", geometry: { type: "Point", coordinates: unmerc((cx + 0.5) * CW / ws, (cy + 0.5) * CH / ws) },
-          properties: { q: c.q, n: c.n, nq: c.nq, key, r: c.q > 0 ? Math.min(MAXR, Math.max(2.4, k * Math.sqrt(c.q))) : 2, z: c.q > 0 ? 1 : 0, o: c.q > max ? 1 : 0 } });
-      });
-      map.getSource("g-" + src).setData({ type: "FeatureCollection", features: feats });
-    });
-    drawPlates(bin);
-    renderSizes();
-  }
-
-
-  // the tile behind each cell's circles is an icon, so it stays a fixed screen size like the circles do
-  let plateKey = "";
-  function setPlateImage(w, h, force) {
-    const dpr = window.devicePixelRatio || 1, key = w + "x" + h + "@" + dpr;
-    if (key === plateKey && !force) return;
-    const c = document.createElement("canvas"); c.width = Math.ceil(w * dpr); c.height = Math.ceil(h * dpr);
-    const x = c.getContext("2d"); x.scale(dpr, dpr);
-    const r = 5; x.beginPath(); x.moveTo(r, 0); x.arcTo(w, 0, w, h, r); x.arcTo(w, h, 0, h, r); x.arcTo(0, h, 0, 0, r); x.arcTo(0, 0, w, 0, r); x.closePath();
-    x.globalAlpha = 0.55; x.fillStyle = css("--panel"); x.fill();
-    x.globalAlpha = 0.9; x.lineWidth = 1; x.strokeStyle = css("--panel-line"); x.stroke();
-    const img = { width: c.width, height: c.height, data: new Uint8Array(x.getImageData(0, 0, c.width, c.height).data.buffer) };
-    if (map.hasImage("plate")) map.removeImage("plate");
-    map.addImage("plate", img, { pixelRatio: dpr });
-    plateKey = key;
-  }
-  function drawPlates(bin) {
-    if (!map || !map.getSource("g-plates")) return;
-    const act = PTS.filter(s => $("lyr-" + s).checked && DATA[s]);
-    if (!act.length) { map.getSource("g-plates").setData(empty); return; }
-    const xs = act.map(s => slotXY(Q[s].slot)[0]), ys = act.map(s => slotXY(Q[s].slot)[1]), pad = MAXR + 2;
-    const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad;
-    setPlateImage(x1 - x0, y1 - y0);
-    map.setLayoutProperty("g-plates", "icon-offset", [(x0 + x1) / 2, (y0 + y1) / 2]);
-    const ws = 512 * Math.pow(2, bin), counts = new Map();
-    act.forEach(s => aggFor(s, bin).forEach((c, key) => counts.set(key, (counts.get(key) || 0) + 1)));
-    const feats = [];
-    counts.forEach((n, key) => {
-      if (n < 2) return; // a lone circle needs no tile
-
-      const [cx, cy] = key.split(":").map(Number);
-      feats.push({ type: "Feature", geometry: { type: "Point", coordinates: unmerc((cx + 0.5) * CW / ws, (cy + 0.5) * CH / ws) }, properties: { key } });
-    });
-    map.getSource("g-plates").setData({ type: "FeatureCollection", features: feats });
+    // story.json isn't GeoJSON; storyRender() fills the "story" source itself
+    if (map.getSource(src) && src !== "story") map.getSource(src).setData(DATA[src]);
   }
 
   // ---------- map ----------
@@ -572,9 +701,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       ...initialCamera(), minZoom: 0.3, maxZoom: 15, attributionControl: false, dragRotate: false, pixelRatio: window.devicePixelRatio || 1
     });
     map.touchZoomRotate.disableRotation();
-    if (location.hash === "#debug") window.__atlasMap = map; // used by tools/screenshot.py
+    if (/debug/.test(location.hash)) window.__atlasMap = map; // used by tools/screenshot.py
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 110, unit: "metric" }), "bottom-right");
+    map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: "Data: GEM, WRI, USGS, Natural Earth and others; see Sources in the sidebar" }), "bottom-right");
     keepCanvasInSync();
     map.on("load", onLoad);
   }
@@ -607,19 +737,37 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     for (let i = -12; i <= 24; i += 6) { x.beginPath(); x.moveTo(i, 12); x.lineTo(i + 12, 0); x.stroke(); }
     return x.getImageData(0, 0, 12, 12);
   }
+  // No glyph server, so ship, aircraft and base markers are drawn on a canvas (2x, pointing north) and rotated by MapLibre.
+  const ICONS = { "i-plane": ["plane", "--air"], "i-tanker": ["ship", "--tanker"], "i-cargo": ["ship", "--cargo"], "i-navy": ["ship", "--navy"], "i-carrier": ["carrier", "--navy"], "i-vessel": ["ship", "--vessel"], "i-base": ["base", "--mil"] };
+  const SHAPES = {
+    plane: [[16, 2], [18.4, 11], [29, 16.5], [29, 19.5], [18.4, 16.5], [17.8, 24.5], [21.5, 27.5], [21.5, 30], [16, 28.6], [10.5, 30], [10.5, 27.5], [14.2, 24.5], [13.6, 16.5], [3, 19.5], [3, 16.5], [13.6, 11]],
+    ship: [[16, 2], [22, 11], [22, 29], [10, 29], [10, 11]],
+    carrier: [[12, 2], [20, 2], [25, 8], [25, 30], [7, 30], [7, 8]],
+    base: [[7, 7], [25, 7], [25, 25], [7, 25]]
+  };
+  function icon(shape, color) {
+    const c = document.createElement("canvas"); c.width = c.height = 32;
+    const x = c.getContext("2d"); x.beginPath();
+    SHAPES[shape].forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.closePath();
+    x.lineJoin = "round"; x.lineWidth = 3; x.strokeStyle = css("--mark-ring"); x.stroke();
+    x.fillStyle = color; x.fill();
+    if (shape === "carrier") { x.fillStyle = css("--mark-ring"); x.fillRect(14.5, 8, 3, 18); }
+    if (shape === "base") { x.fillStyle = css("--mark-ring"); x.fillRect(14, 10, 4, 12); x.fillRect(10, 14, 12, 4); }
+    return x.getImageData(0, 0, 32, 32);
+  }
+  // live-layer radii: area tracks article count (conflict reports) or fire radiative power (fires), capped
+  const EV_R = ["min", 20, ["max", 2.5, ["*", 0.5, ["sqrt", ["get", "a"]]]]];
+  const FIRE_R = ["min", 10, ["max", 1.2, ["*", 0.35, ["sqrt", ["get", "frp"]]]]];
 
   async function onLoad() {
     const add = (id, opts = {}) => map.addSource(id, { type: "geojson", data: empty, ...opts });
     ["land", "countries", "glaciers", "lakes", "rivers", "borders", "disputed", "disputed_lines", "maritime", "pipelines", "oilgas_outlines", "coal_boundaries",
-      "shipping", "rail", "roads", "ports", "sel", "foot_w", "foot_c", "foot_e", "water_risk", "groundwater", "saline_gw", "gw_mining"].forEach(id => add(id));
-    PTS.forEach(id => {
-      add(id, { cluster: true, clusterMaxZoom: 6, clusterRadius: 26,
-        clusterProperties: { q: ["+", ["coalesce", ["get", "q"], 0]], nq: ["+", ["case", ["has", "q"], 1, 0]] } });
-      add("g-" + id);
-    });
-    add("g-plates");
+      "shipping", "rail", "roads", "ports", "sel", "foot_w", "foot_c", "foot_e", "water_risk", "groundwater", "saline_gw", "gw_mining",
+      "fires", "events", "ships", "aircraft", "navy", "bases", "airports", "dc", "cables", "landings", "hover", "story"].forEach(id => add(id));
+    PTS.forEach(id => add(id));
     map.addImage("hatch", hatch(css("--disputed")));
     map.addImage("hatch-salt", hatch(css("--stress"), .55));
+    Object.entries(ICONS).forEach(([id, [shape, tok]]) => map.addImage(id, icon(shape, css(tok)), { pixelRatio: 2 }));
 
     const L = o => map.addLayer(o);
     const hidden = { visibility: "none" };
@@ -648,6 +796,12 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     const quiet = (e, lo, hi) => ["interpolate", ["linear"], ["zoom"], 1, ["*", e, lo], 4, ["*", e, lo], 6, ["*", e, hi]];
     L({ id: "lanes", type: "line", source: "shipping", layout: hidden, paint: { "line-color": css("--lane"),
       "line-width": ["match", ["get", "t"], "Major", 1.8, "Middle", 1.1, 0.7], "line-opacity": quiet(["match", ["get", "t"], "Major", 0.9, "Middle", 0.7, 0.5], 0.65, 1), "line-dasharray": [3, 2] } });
+    // cable routes are schematic, so they stay thin; planned systems are dashed (dasharray can't be data-driven, hence two layers)
+    const cableW = ["interpolate", ["linear"], ["zoom"], 1, 0.6, 4, 1, 8, 1.8];
+    L({ id: "cables", type: "line", source: "cables", filter: ["!", ["has", "pl"]], layout: { ...hidden, "line-join": "round", "line-cap": "round" }, paint: { "line-color": css("--cable"),
+      "line-width": cableW, "line-opacity": ["interpolate", ["linear"], ["zoom"], 1, 0.5, 4, 0.7, 7, 0.9] } });
+    L({ id: "cables-plan", type: "line", source: "cables", filter: ["has", "pl"], layout: { ...hidden, "line-join": "round" }, paint: { "line-color": css("--cable"),
+      "line-width": cableW, "line-opacity": ["interpolate", ["linear"], ["zoom"], 1, 0.4, 4, 0.6, 7, 0.8], "line-dasharray": [2, 2] } });
     L({ id: "roads", type: "line", source: "roads", minzoom: 3, layout: { ...hidden, "line-join": "round", "line-cap": "round" }, paint: { "line-color": css("--road"),
       "line-width": ["interpolate", ["linear"], ["zoom"], 3, ["case", ["has", "x"], 0.5, 0.3], 6, ["case", ["has", "x"], 1.4, 0.8], 10, ["case", ["has", "x"], 3, 1.6]],
       "line-opacity": ["interpolate", ["linear"], ["zoom"], 3, ["case", ["<=", ["get", "sr"], 5], 0.6, 0], 5, 0.85] } });
@@ -669,39 +823,83 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     L({ id: "og-outline-line", type: "line", source: "oilgas_outlines", minzoom: 5, layout: hidden, paint: { "line-color": css("--oil"), "line-width": 1, "line-opacity": 0.8 } });
     L({ id: "cb-fill", type: "fill", source: "coal_boundaries", minzoom: 5, layout: hidden, paint: { "fill-color": css("--coal"), "fill-opacity": 0.18 } });
     L({ id: "cb-line", type: "line", source: "coal_boundaries", minzoom: 5, layout: hidden, paint: { "line-color": css("--coal"), "line-width": 1, "line-opacity": 0.85 } });
-    L({ id: "ports-pts", type: "circle", source: "ports", layout: hidden, paint: {
-      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["interpolate", ["linear"], ["get", "sr"], 3, 2.6, 8, 1], 6, ["interpolate", ["linear"], ["get", "sr"], 3, 5, 8, 2.5], 10, ["interpolate", ["linear"], ["get", "sr"], 3, 8, 8, 4.5]],
+    // WPI harbour size q: 4 large … 1 very small; smaller harbours fade in as you zoom
+    const portVis = ["interpolate", ["linear"], ["zoom"], 1, ["case", [">=", ["get", "q"], 4], 1, 0], 3, ["case", [">=", ["get", "q"], 3], 1, 0], 4.5, ["case", [">=", ["get", "q"], 2], 1, 0], 6, 1];
+    L({ id: "ports-pts", type: "circle", source: "ports", layout: { ...hidden, "circle-sort-key": ["-", 0, ["get", "q"]] }, paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["interpolate", ["linear"], ["get", "q"], 1, 1, 4, 2.6], 6, ["interpolate", ["linear"], ["get", "q"], 1, 2, 4, 5], 10, ["interpolate", ["linear"], ["get", "q"], 1, 3.5, 4, 8]],
       "circle-color": css("--panel"), "circle-stroke-color": css("--lane"), "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 1, 1, 6, 2],
-      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", ["<=", ["get", "sr"], 4], 1, 0], 3, ["case", ["<=", ["get", "sr"], 6], 1, 0], 4.5, 1],
-      "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", ["<=", ["get", "sr"], 4], 1, 0], 3, ["case", ["<=", ["get", "sr"], 6], 1, 0], 4.5, 1] } });
+      "circle-opacity": portVis, "circle-stroke-opacity": portVis } });
+    // cable landing stations; k = number of cables landing there
+    L({ id: "landings-pts", type: "circle", source: "landings", minzoom: 2.5, layout: { ...hidden, "circle-sort-key": ["get", "k"] }, paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 2.5, ["min", 4, ["+", 1.4, ["*", 0.4, ["get", "k"]]]], 8, ["min", 8, ["+", 2.5, ["*", 0.7, ["get", "k"]]]]],
+      "circle-color": css("--panel"), "circle-stroke-color": css("--cable"), "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 2.5, 1, 6, 1.8],
+      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 2.5, 0, 3, 1], "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 2.5, 0, 3, 1] } });
     L({ id: "gw-mining", type: "circle", source: "gw_mining", layout: hidden, paint: { "circle-radius": 4, "circle-color": css("--panel"), "circle-stroke-color": css("--stress"), "circle-stroke-width": 2 } });
+    // conflict reports sit under the sites so their big translucent discs never block a click
+    L({ id: "events-pts", type: "circle", source: "events", layout: { ...hidden, "circle-sort-key": ["-", 0, ["get", "a"]] }, paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["*", EV_R, 0.7], 4, EV_R, 8, ["*", EV_R, 1.5], 12, ["*", EV_R, 2.2]],
+      "circle-color": css("--conflict"), "circle-opacity": ["case", [">", ["get", "e3"], 0], 0.5, 0.22],
+      "circle-stroke-color": css("--conflict"), "circle-stroke-width": ["case", [">", ["get", "e3"], 0], 1, 0.5], "circle-stroke-opacity": 0.8 } });
 
-    // 6. sites: grid glyphs below AGG_MAX, individual sites above it; a small tile groups each cell's circles
-    L({ id: "g-plates", type: "symbol", source: "g-plates", maxzoom: AGG_MAX, layout: { "icon-image": "plate", "icon-allow-overlap": true, "icon-ignore-placement": true, "icon-offset": [0, 0] } });
-    PTS.forEach(src => {
-      const Qk = Q[src], [dx, dy] = slotXY(Qk.slot);
-      L({ id: "g-" + src, type: "circle", source: "g-" + src, maxzoom: AGG_MAX, layout: hidden, paint: Qk.ring ? {
-          "circle-radius": ["get", "r"], "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": css(Qk.color), "circle-stroke-width": 2.2, "circle-translate": [dx, dy] } : {
-          "circle-radius": ["get", "r"], "circle-color": css(Qk.color), "circle-opacity": ["case", ["==", ["get", "z"], 1], 0.92, 0.35],
-          "circle-stroke-color": ["case", ["==", ["get", "o"], 1], css("--ink"), css("--mark-ring")], "circle-stroke-width": ["case", ["==", ["get", "o"], 1], 1.6, 1], "circle-translate": [dx, dy] } });
-    });
+    // 6. sites, all at their true positions; big sites draw underneath small ones so nothing is hidden
     const order = ["foot", "cement", "chem", "power", "steel", "crit", "iron", "coal", "oilgas", "lng"];
     order.forEach(src => {
       const Qk = Q[src];
       if (src === "foot") {
-        L({ id: "foot-pts", type: "circle", source: "foot", minzoom: AGG_MAX, layout: hidden, paint: { "circle-color": css("--foot"), "circle-radius": RC(Qk.k), "circle-opacity": ["interpolate", ["linear"], ["zoom"], 2.5, 0.5, 7.5, 0.25, 9, 0] } });
+        L({ id: "foot-pts", type: "circle", source: "foot", layout: hidden, paint: { "circle-color": css("--foot"), "circle-radius": RC(Qk.k), "circle-opacity": ["interpolate", ["linear"], ["zoom"], 1, 0.35, 4, 0.5, 7.5, 0.25, 9, 0] } });
       } else if (Qk.ring) {
-        L({ id: "lng-pts", type: "circle", source: "lng", minzoom: AGG_MAX, layout: hidden, paint: { "circle-color": "rgba(0,0,0,0)", "circle-radius": RC(Qk.k), "circle-stroke-color": css("--oil"), "circle-stroke-width": 2,
+        L({ id: "lng-pts", type: "circle", source: "lng", layout: { ...hidden, "circle-sort-key": ["*", -1, ["coalesce", ["get", "q"], 0]] }, paint: { "circle-color": "rgba(0,0,0,0)", "circle-radius": RC(Qk.k), "circle-stroke-color": css("--oil"), "circle-stroke-width": 2,
           "circle-stroke-opacity": ["case", ["==", ["get", "s"], "operating"], 1, 0.55] } });
       } else {
-        const countR = ["interpolate", ["linear"], ["zoom"], 2.5, ["min", 16, ["+", 2.5, ["*", 1.4, ["sqrt", ["coalesce", ["get", "point_count"], 1]]]]], 10, ["min", 20, ["+", 4, ["*", 1.6, ["sqrt", ["coalesce", ["get", "point_count"], 1]]]]]];
-        L({ id: src + "-pts", type: "circle", source: src, minzoom: AGG_MAX, layout: { ...hidden, "circle-sort-key": ["*", -1, ["coalesce", ["get", "q"], 0]] }, paint: {
+        // zoomed out, thousands of sites overlap: thinner rings, and sites too small to size (at the minimum radius) fade back
+        const tiny = Qk.count ? ["==", 1, 0] : ["<", ["*", Qk.k, ["sqrt", ["coalesce", ["get", "q"], 0]]], 2.5];
+        const countR = ["interpolate", ["linear"], ["zoom"], 1, 1.8, 4, 2.6, 8, 4, 12, 6];
+        L({ id: src + "-pts", type: "circle", source: src, layout: { ...hidden, "circle-sort-key": ["*", -1, ["coalesce", ["get", "q"], 0]] }, paint: {
           "circle-color": css(Qk.color), "circle-radius": Qk.count ? countR : RC(Qk.k),
-          "circle-opacity": ["case", ["has", "point_count"], 0.7, ["==", ["get", "s"], "operating"], 0.88, 0.5],
-          "circle-stroke-color": ["case", ["has", "point_count"], css("--ink"), css("--mark-ring")], "circle-stroke-width": ["case", ["has", "point_count"], 1, 0.8],
-          "circle-stroke-opacity": ["case", ["has", "point_count"], 0.45, 1] } });
+          "circle-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", tiny, 0.28, ["==", ["get", "s"], "operating"], 0.8, 0.4], 4, ["case", tiny, 0.55, ["==", ["get", "s"], "operating"], 0.85, 0.45], 6, ["case", ["==", ["get", "s"], "operating"], 0.88, 0.5]],
+          "circle-stroke-color": css("--mark-ring"), "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 1, 0.35, 4, 0.6, 7, 0.8] } });
       }
     });
+    // 7. defence & infrastructure
+    L({ id: "dc-pts", type: "circle", source: "dc", layout: hidden, paint: { "circle-color": css("--dc"), "circle-stroke-color": css("--mark-ring"),
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 1.6, 6, 3.5, 10, 5.5], "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 1, 0.3, 6, 0.8],
+      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 1, 0.6, 5, 0.9] } });
+    // military airfields are drawn as rings
+    const airPaint = (r, op) => ({ "circle-radius": r, "circle-opacity": op, "circle-stroke-opacity": op,
+      "circle-color": ["case", ["has", "mil"], css("--panel"), css("--air")], "circle-stroke-color": ["case", ["has", "mil"], css("--air"), css("--mark-ring")],
+      "circle-stroke-width": ["case", ["has", "mil"], 2, 0.6] });
+    L({ id: "airports-s", type: "circle", source: "airports", minzoom: 6, filter: ["==", ["get", "t"], "S"], layout: hidden,
+      paint: airPaint(["interpolate", ["linear"], ["zoom"], 6, 1.8, 10, 3.5], ["interpolate", ["linear"], ["zoom"], 6, 0.5, 7.5, 0.9]) });
+    L({ id: "airports-m", type: "circle", source: "airports", filter: ["==", ["get", "t"], "M"], layout: hidden,
+      paint: airPaint(["interpolate", ["linear"], ["zoom"], 1, 1.3, 6, 3, 10, 5], ["interpolate", ["linear"], ["zoom"], 1, 0.45, 4, 0.7, 6, 0.95]) });
+    L({ id: "airports-l", type: "circle", source: "airports", filter: ["==", ["get", "t"], "L"], layout: hidden,
+      paint: airPaint(["interpolate", ["linear"], ["zoom"], 1, 2.2, 6, 4.5, 10, 7], 0.95) });
+    L({ id: "bases-pts", type: "symbol", source: "bases", layout: { ...hidden, "icon-image": "i-base", "icon-allow-overlap": true, "icon-ignore-placement": true,
+      "icon-size": ["interpolate", ["linear"], ["zoom"], 1, 0.45, 4, 0.65, 8, 1, 12, 1.3] }, paint: { "icon-opacity": ["interpolate", ["linear"], ["zoom"], 1, 0.7, 4, 0.95] } });
+    // 8. live layers on top
+    L({ id: "fires-pts", type: "circle", source: "fires", layout: { ...hidden, "circle-sort-key": ["get", "frp"] }, paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["*", FIRE_R, 0.55], 4, ["*", FIRE_R, 0.85], 8, ["*", FIRE_R, 1.6], 12, ["*", FIRE_R, 3]],
+      "circle-color": ["case", ["==", ["get", "ind"], 1], css("--fire-ind"), css("--fire")],
+      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", ["<", ["get", "frp"], 20], 0.35, 0.85], 5, 0.85],
+      "circle-stroke-color": css("--conflict"), "circle-stroke-width": ["case", ["==", ["get", "cf"], 1], 1.2, 0] } });
+    L({ id: "ships-pts", type: "symbol", source: "ships", layout: { ...hidden, "icon-allow-overlap": true, "icon-ignore-placement": true, "icon-rotation-alignment": "map",
+      "icon-image": ["match", ["get", "cl"], "carrier", "i-carrier", ["military", "law"], "i-navy", "tanker", "i-tanker", "cargo", "i-cargo", "i-vessel"],
+      "icon-rotate": ["coalesce", ["get", "hd"], ["get", "cog"], 0], "symbol-sort-key": ["match", ["get", "cl"], "carrier", 9, "military", 8, "law", 7, 1],
+      "icon-size": ["interpolate", ["linear"], ["zoom"], 1, ["match", ["get", "cl"], "carrier", 0.8, 0.45], 5, ["match", ["get", "cl"], "carrier", 1.1, 0.7], 10, ["match", ["get", "cl"], "carrier", 1.6, 1.1]] } });
+    // USNI positions name a port or sea area, so no heading: icons point north; carriers draw largest, ships in port fade a little
+    L({ id: "navy-pts", type: "symbol", source: "navy", layout: { ...hidden, "icon-image": ["match", ["get", "cl"], "carrier", "i-carrier", "i-navy"], "icon-allow-overlap": true, "icon-ignore-placement": true,
+      "symbol-sort-key": ["match", ["get", "cl"], "carrier", 9, "amphib", 8, 5],
+      "icon-size": ["interpolate", ["linear"], ["zoom"], 1, ["match", ["get", "cl"], "carrier", 0.95, "amphib", 0.75, 0.6], 5, ["match", ["get", "cl"], "carrier", 1.3, "amphib", 1.05, 0.85], 10, ["match", ["get", "cl"], "carrier", 1.8, "amphib", 1.4, 1.15]] },
+      paint: { "icon-opacity": ["case", ["has", "port"], 0.75, 1] } });
+    L({ id: "aircraft-pts", type: "symbol", source: "aircraft", layout: { ...hidden, "icon-image": "i-plane", "icon-allow-overlap": true, "icon-ignore-placement": true,
+      "icon-rotation-alignment": "map", "icon-rotate": ["coalesce", ["get", "trk"], 0], "icon-size": ["interpolate", ["linear"], ["zoom"], 1, 0.55, 5, 0.8, 10, 1.1] },
+      paint: { "icon-opacity": ["case", ["has", "gnd"], 0.5, 1] } });
+    L({ id: "hover-line", type: "line", source: "hover", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": css("--ink"), "line-width": 3.5, "line-opacity": 0.35 } });
+    // storyboard: a soft disc per surge (area = articles), numbered HTML markers on top
+    L({ id: "story-halo", type: "circle", source: "story", layout: { ...hidden, "circle-sort-key": ["get", "a"] }, paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["min", 26, ["max", 7, ["*", 0.5, ["sqrt", ["get", "a"]]]]], 6, ["min", 60, ["max", 14, ["*", 1.1, ["sqrt", ["get", "a"]]]]]],
+      "circle-color": css("--conflict"), "circle-opacity": ["case", ["boolean", ["get", "on"], false], 0.3, 0.12],
+      "circle-stroke-color": css("--conflict"), "circle-stroke-width": ["case", ["boolean", ["get", "on"], false], 2, 0.8], "circle-stroke-opacity": 0.7 } });
     L({ id: "sel", type: "circle", source: "sel", filter: ["==", ["geometry-type"], "Point"], paint: {
       "circle-radius": ["coalesce", ["get", "_r"], 10], "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": css("--ink"), "circle-stroke-width": 2 } });
     L({ id: "sel-line", type: "line", source: "sel", filter: ["!=", ["geometry-type"], "Point"], paint: { "line-color": css("--ink"), "line-width": 2, "line-dasharray": [1, 1] } });
@@ -716,9 +914,11 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     get("crit_commodities.json").then(fillMinerals);
 
     bindControls();
+    bindImagery();
+    bindAgri();
+    bindStory();
     setView("overview");
-    map.on("zoomend", () => { if (binOf(map.getZoom()) !== curBin) refreshAgg(); else renderSizes(); });
-    map.on("zoom", () => { if (map.getZoom() < AGG_MAX && Math.abs(map.getZoom() - curBin) > 0.9) refreshAgg(); });
+    map.on("zoomend", renderSizes);
   }
 
   // ---------- visibility ----------
@@ -729,8 +929,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     if (k === "foot") maybeLoadPolys();
     if (k === "names") { $("labels").hidden = !on; if (on) requestAnimationFrame(placeLabels); }
     if (k === "choke") chokeMarkers.forEach(m => m.getElement().hidden = !on);
-    if (PTS.includes(k)) { if (on && DATA[k]) refreshAgg(k); else drawPlates(binOf(map.getZoom())); }
-    renderKey(); renderSizes();
+    if (k === "ships" && DATA.ships) pollShips();
+    renderSizes();
   }
   function setView(v) {
     const conf = VIEWS[v];
@@ -779,6 +979,13 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     });
     $("base").addEventListener("change", applyBase);
     map.on("moveend", maybeLoadPolys);
+    // sub-filters switch their layer on, like the fuel and mineral menus
+    [["fireMode", "fires", v => fireMode = v], ["baseType", "bases", v => baseType = v], ["airMode", "airports", v => airMode = v]].forEach(([id, k, set]) =>
+      $(id).addEventListener("change", e => {
+        set(e.target.value);
+        if (!$("lyr-" + k).checked) { $("lyr-" + k).checked = true; applyGroup(k); }
+        ensure(k).then(() => pushData(k));
+      }));
 
     const stBtns = { all: "st-all", op: "st-op", plan: "st-plan" };
     Object.entries(stBtns).forEach(([k, id]) => $(id).addEventListener("click", () => {
@@ -786,33 +993,38 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       statusMode = k; PTS.concat(["pipelines"]).forEach(pushData);
     }));
 
-    const glyphLayers = PTS.map(s => "g-" + s);
-    const pointLayers = PTS.map(s => s + "-pts").concat(["ports-pts", "gw-mining"]);
-    const lineLayers = ["pipes-oil", "pipes-gas", "lanes", "rail", "roads"];
+    // topmost first: queryRenderedFeatures returns features in draw order, top down
+    const pointLayers = ["story-halo", "navy-pts", "aircraft-pts", "ships-pts", "fires-pts", "bases-pts", "airports-l", "airports-m", "airports-s", "dc-pts"].concat(PTS.map(s => s + "-pts"), ["landings-pts", "ports-pts", "gw-mining", "events-pts"]);
+    const lineLayers = ["pipes-oil", "pipes-gas", "cables", "cables-plan", "lanes", "rail", "roads"];
+    // hovering a pipeline or cable outlines the whole route
+    let hoverKey = null;
+    const hoverLine = f => {
+      const k = f && ["pipelines", "cables"].includes(f.source) ? f.source + ":" + (f.properties.id || f.properties.n) : null;
+      if (k === hoverKey) return; hoverKey = k;
+      if (!k) { map.getSource("hover").setData(empty); return; }
+      const key = f.source === "cables" ? "id" : "n";
+      map.getSource("hover").setData({ type: "FeatureCollection", features: DATA[f.source].features.filter(g => g.properties[key] === f.properties[key]) });
+    };
     const visible = ls => ls.filter(l => map.getLayer(l) && map.getLayoutProperty(l, "visibility") !== "none");
     const tip = $("tip");
     map.on("mousemove", e => {
       const box = [[e.point.x - 2, e.point.y - 2], [e.point.x + 2, e.point.y + 2]];
-      let f = map.queryRenderedFeatures(e.point, { layers: visible(glyphLayers.concat(pointLayers)) })[0]
+      let f = map.queryRenderedFeatures(e.point, { layers: visible(pointLayers) })[0]
         || map.queryRenderedFeatures(box, { layers: visible(lineLayers.concat(["lakes", "water-fill", "gw-fill"])) })[0];
       map.getCanvas().style.cursor = f && !["water-fill", "gw-fill"].includes(f.layer.id) ? "pointer" : "";
+      hoverLine(f);
       if (!f) { tip.hidden = true; return; }
       tip.innerHTML = tipHTML(f); tip.hidden = false;
       const { x, y } = e.point, w = tip.offsetWidth, h = tip.offsetHeight, W = map.getCanvas().clientWidth;
       tip.style.left = Math.min(x + 14, W - w - 8) + "px"; tip.style.top = Math.max(8, y - h - 10) + "px";
     });
-    map.getCanvas().addEventListener("mouseleave", () => tip.hidden = true);
+    map.getCanvas().addEventListener("mouseleave", () => { tip.hidden = true; hoverLine(null); });
 
     map.on("click", e => {
       const box = [[e.point.x - 3, e.point.y - 3], [e.point.x + 3, e.point.y + 3]];
-      const g = map.queryRenderedFeatures(box, { layers: visible(glyphLayers.concat(["g-plates"])) })[0];
-      if (g) { showCell(g.properties.key, [e.lngLat.lng, e.lngLat.lat]); return; }
       const hits = map.queryRenderedFeatures(box, { layers: visible(pointLayers) });
-      const f = hits.find(h => h.layer.id !== "foot-pts") || hits[0] || map.queryRenderedFeatures(box, { layers: visible(["pipes-oil", "pipes-gas"]) })[0];
-      if (f && f.properties.cluster) {
-        map.getSource(f.source).getClusterExpansionZoom(f.properties.cluster_id).then(z => map.easeTo({ center: f.geometry.coordinates, zoom: Math.min(z + 0.2, 9) }));
-        return;
-      }
+      const f = hits.find(h => !["foot-pts", "events-pts", "story-halo"].includes(h.layer.id)) || hits[0] || map.queryRenderedFeatures(box, { layers: visible(["pipes-oil", "pipes-gas", "cables", "cables-plan"]) })[0];
+      if (f && f.source === "story") { storyGo(f.properties.i, true); return; }
       if (f) { showFeature(f); return; }
       const lake = $("lyr-lakes").checked && map.queryRenderedFeatures(e.point, { layers: ["lakes"] })[0];
       if (lake && lake.properties.n) { showLake(lake); return; }
@@ -827,9 +1039,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       if (s.length < 2) return;
       const hits = [];
       if (DATA.totals) Object.entries(DATA.totals).forEach(([k, c]) => { if (hits.length < 3 && c.n.toLowerCase().includes(s)) hits.push(["country", k, c]); });
-      outer: for (const k of ["oilgas", "coal", "crit", "iron", "lng", "pipelines", "power", "steel", "cement", "chem", "ports"]) {
+      outer: for (const k of ["oilgas", "coal", "crit", "iron", "lng", "pipelines", "power", "steel", "cement", "chem", "ports", "bases", "airports", "dc", "cables", "landings", "navy", "events", "ships", "aircraft"]) {
         for (const f of (DATA[k] || empty).features) {
-          if ((f.properties.n || "").toLowerCase().includes(s)) { hits.push([k, f]); if (hits.length >= 16) break outer; }
+          const p = f.properties, keys = [p.n, p.i, p.ia, p.f, p.r, p.lo, p.h];
+          if (keys.some(v => v && String(v).toLowerCase().includes(s))) { hits.push([k, f]); if (hits.length >= 16) break outer; }
         }
       }
       if (!hits.length) { results.innerHTML = '<li><small>Nothing by that name in the layers loaded so far.</small></li>'; return; }
@@ -839,14 +1052,16 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
           b.innerHTML = `<span class="dot" style="background:var(--border)"></span><span>${esc(h[2].n)} <small>country</small></span>`;
           b.onclick = () => { zoomToCountry(h[1]); showCountry(h[1]); };
         } else {
-          const [k, f] = h, color = k === "pipelines" ? "--oil" : k === "ports" ? "--lane" : Q[k].color;
-          const sub = f.properties.c || (k === "pipelines" ? "pipeline" : k === "ports" ? "port" : "");
-          b.innerHTML = `<span class="dot" style="background:var(${color})"></span><span>${esc(f.properties.n)} <small>${esc(sub)}</small></span>`;
+          const [k, f] = h, X = EXTRA[k], color = k === "pipelines" ? "--oil" : X ? X.color : Q[k].color;
+          const sub = f.properties.c || (k === "pipelines" ? "pipeline" : k === "navy" ? f.properties.h + " · " + (f.properties.loc || "") : X ? X.label.toLowerCase() : "");
+          b.innerHTML = `<span class="dot" style="background:var(${color})"></span><span>${esc(f.properties.n || f.properties.f || f.properties.r || f.properties.hex || "")} <small>${esc(sub)}</small></span>`;
           b.onclick = () => {
-            const g = f.geometry; const c = g.type === "Point" ? g.coordinates : g.type === "LineString" ? g.coordinates[Math.floor(g.coordinates.length / 2)] : g.coordinates[0][0];
-            const grp = k === "pipelines" ? "pipes" : k;
+            const g = f.geometry; const c = g.type === "Point" ? g.coordinates : g.type === "LineString" ? g.coordinates[Math.floor(g.coordinates.length / 2)] : g.coordinates[0][Math.floor(g.coordinates[0].length / 2)];
+            const grp = k === "pipelines" ? "pipes" : k === "landings" ? "cables" : k;
+            if (FILTERS[k] && !FILTERS[k](f.properties)) { const sel = { bases: "baseType", airports: "airMode", fires: "fireMode" }[k]; $(sel).value = ""; $(sel).dispatchEvent(new Event("change")); }
             if (!$("lyr-" + grp).checked) { $("lyr-" + grp).checked = true; applyGroup(grp); }
-            map.flyTo({ center: c, zoom: k === "pipelines" ? 5 : 8, speed: 1.6 });
+            if (k === "cables") fitCable(f.properties.id);
+            else map.flyTo({ center: c, zoom: k === "pipelines" ? 5 : k === "navy" ? 6 : 8, speed: 1.6 });
             showFeature({ source: k, properties: f.properties, geometry: g });
           };
         }
@@ -860,42 +1075,24 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     if (!wide()) setSheet(true);
   }
 
-  // ---------- glyph key + size legend ----------
-  function renderKey() {
-    const slots = Array(10).fill(null);
-    PTS.forEach(s => { const [c, r] = Q[s].slot; slots[r * 5 + c] = s; });
-    $("gkey").innerHTML = slots.map(s => {
-      const on = $("lyr-" + s).checked, Qk = Q[s];
-      return `<div class="slot${on ? "" : " off"}${Qk.ring ? " ring" : ""}"><i style="background:var(${Qk.color})"></i>${esc(Qk.short)}</div>`;
-    }).join("");
-  }
+  // ---------- size legend ----------
   function renderSizes() {
     if (!map) return;
     const z = map.getZoom(), keys = PTS.filter(k => $("lyr-" + k).checked);
     let html = "";
-    if (z < AGG_MAX) {
-      const bin = curBin >= 0 ? curBin : binOf(z);
-      keys.forEach(k => {
-        if (!DATA[k]) return;
-        const Qk = Q[k], { k: kk, max } = scale(k, bin);
-        const vals = [max, max / 4, max / 25].map(v => Qk.count ? Math.max(1, Math.round(v)) : v);
-        vals[0] = vals[0];
-        const rs = vals.map(v => Math.max(2.2, kk * Math.sqrt(v)));
-        let x = 1, svg = "";
-        rs.forEach(r => { x += r; svg += Qk.ring ? `<circle cx="${x}" cy="${MAXR + 1}" r="${r - 1}" fill="none" stroke="var(${Qk.color})" stroke-width="2"/>` : `<circle cx="${x}" cy="${MAXR + 1}" r="${r}" fill="var(${Qk.color})" stroke="var(--mark-ring)"/>`; x += r + 4; });
-        html += `<div class="row"><svg width="${Math.ceil(x)}" height="${MAXR * 2 + 2}" aria-hidden="true">${svg}</svg><span class="lab"><b>${Qk.short}</b>${vals.map(v => smart(v)).join(" · ")} ${Qk.unit}</span></div>`;
-      });
-      html += `<div class="hint">Each tile sums the sites in its grid cell; circle area is proportional to the total. A full-size circle means the top 10% of cells for that resource, and a dark ring marks cells above that. Compare one resource across tiles, not resources against each other. Click a tile for its totals.</div>`;
-    } else {
-      const f = zf(z), nice = v => { const e = Math.pow(10, Math.floor(Math.log10(v))); const m = v / e; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * e; };
-      keys.filter(k => !Q[k].count).forEach(k => {
-        const Qk = Q[k], vals = [6, 12, 22].map(r => Math.max(0.01, nice(Math.pow(r / (Qk.k * f), 2)))), rs = vals.map(v => Math.max(2.5, Qk.k * Math.sqrt(v)) * f);
-        const h = Math.ceil(rs[2] * 2 + 2); let x = 1, svg = "";
-        rs.forEach(r => { x += r; svg += Qk.ring ? `<circle cx="${x}" cy="${h - r - 1}" r="${r - 1}" fill="none" stroke="var(${Qk.color})" stroke-width="2"/>` : `<circle cx="${x}" cy="${h - r - 1}" r="${r}" fill="var(${Qk.color})" fill-opacity=".85" stroke="var(--mark-ring)"/>`; x += r + 4; });
-        html += `<div class="row"><svg width="${Math.ceil(x)}" height="${h}" aria-hidden="true">${svg}</svg><span class="lab"><b>${Qk.short}</b>${vals.map(v => smart(v)).join(" · ")} ${Qk.unit}</span></div>`;
-      });
-      html += `<div class="hint">Circles sit at the sites' true locations. Up to zoom 6, sites very close together merge into one circle at their centre, sized by their combined total (dark edge); click it to split it. Faint circles aren't operating yet. Critical-mineral deposits and chemical plants are sized by count.</div>`;
-    }
+    const f = zf(z), nice = v => { const e = Math.pow(10, Math.floor(Math.log10(v))); const m = v / e; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * e; };
+    keys.filter(k => !Q[k].count).forEach(k => {
+      const Qk = Q[k], vals = [6, 12, 22].map(r => Math.max(0.01, nice(Math.pow(r / (Qk.k * f), 2)))), rs = vals.map(v => Math.max(2.5, Qk.k * Math.sqrt(v)) * f);
+      const h = Math.ceil(rs[2] * 2 + 2); let x = 1, svg = "";
+      rs.forEach(r => { x += r; svg += Qk.ring ? `<circle cx="${x}" cy="${h - r - 1}" r="${r - 1}" fill="none" stroke="var(${Qk.color})" stroke-width="2"/>` : `<circle cx="${x}" cy="${h - r - 1}" r="${r}" fill="var(${Qk.color})" fill-opacity=".85" stroke="var(--mark-ring)"/>`; x += r + 4; });
+      html += `<div class="row"><svg width="${Math.ceil(x)}" height="${h}" aria-hidden="true">${svg}</svg><span class="lab"><b>${Qk.short}</b>${vals.map(v => smart(v)).join(" · ")} ${Qk.unit}</span></div>`;
+    });
+    if ($("lyr-fires").checked) html += `<div class="hint"><b>Fires:</b> dot area follows fire radiative power (MW). Darker dots sit at industrial sites (flares, steel works); a red ring means a conflict report within 30 km in the last 72 h.</div>`;
+    if ($("lyr-events").checked) html += `<div class="hint"><b>Conflict reports:</b> disc area follows the number of news articles; stronger discs had reports in the last 72 h.</div>`;
+    if ($("lyr-ships").checked || $("lyr-aircraft").checked) html += `<div class="hint"><b>Ships &amp; aircraft</b> point along their heading; carriers draw larger.</div>`;
+    if ($("lyr-navy").checked) html += `<div class="hint"><b>US Navy:</b> flat-decked icons are carriers, then amphibious ships, then smaller warships. Positions are the port or sea area named in the weekly USNI tracker; faded icons are in port.</div>`;
+    if ($("lyr-cables").checked) html += `<div class="hint"><b>Cables:</b> hover to trace a whole system, click for owners and landing points. Dashed routes are planned. Ringed dots are landing stations, larger where more cables land.</div>`;
+    html += `<div class="hint">Every circle sits at its site's true location at every zoom; nothing is merged or snapped to a grid. Circle area is proportional to the site's figure, and big sites draw underneath small ones. Faint circles aren't operating yet. Critical-mineral deposits and chemical plants are drawn at one size.</div>`;
     $("sizes").innerHTML = html;
   }
 
@@ -905,13 +1102,41 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   const CAT5 = ["Low", "Low–medium", "Medium–high", "High", "Extremely high"];
   const RCH = ["Very low (<2 mm/yr)", "Low (2–20 mm/yr)", "Medium (20–100 mm/yr)", "High (100–300 mm/yr)", "Very high (>300 mm/yr)"];
   const catLabel = (v, labels) => v == null ? "No data" : v === -1 ? "Arid & low water use" : v < 0 ? "No data" : labels[v] || "–";
+  // layers outside Q: label and colour token for the detail card and search
+  const EXTRA = {
+    ports: { label: "Seaport", color: "--lane" }, bases: { label: "Military base", color: "--mil" }, airports: { label: "Airport", color: "--air" },
+    dc: { label: "Data centre", color: "--dc" }, events: { label: "Conflict reports", color: "--conflict" }, fires: { label: "Fire / heat detection", color: "--fire" },
+    ships: { label: "Ship", color: "--vessel" }, aircraft: { label: "Military aircraft", color: "--air" }, navy: { label: "US Navy ship", color: "--navy" },
+    cables: { label: "Submarine cable", color: "--cable" }, landings: { label: "Cable landing station", color: "--cable" }
+  };
+  const NAVY_T = { carrier: "Aircraft carrier", amphib: "Amphibious warship", surface: "Surface combatant", sub: "Submarine", aux: "Support ship" };
+  const BASE_T = { air: "Air base", naval: "Naval base", army: "Army base", missile: "Missile / launch site", other: "Military site" };
+  const AIR_T = { L: "Large airport", M: "Medium airport", S: "Small airport / airstrip" };
+  const HS_T = { L: "Large", M: "Medium", S: "Small", V: "Very small" };
+  const HT_T = { CN: "Coastal (natural)", CB: "Coastal (breakwater)", CT: "Coastal (tide gates)", RN: "River (natural)", RB: "River (basins)", RT: "River (tide gates)", LC: "Canal or lake", OR: "Open roadstead", TH: "Typhoon harbour" };
+  const SHIP_T = { carrier: "Aircraft carrier", military: "Military vessel", law: "Law enforcement", tanker: "Tanker", cargo: "Cargo ship", passenger: "Passenger ship", other: "Large vessel" };
+  const SHIP_C = { carrier: "--navy", military: "--navy", law: "--navy", tanker: "--tanker", cargo: "--cargo" };
+  // "2026-10-08T21:48:17Z" or "2026-10-08 21:45" → "3 h ago"
+  const parseT = t => { const s = String(t).replace(" ", "T"); return Date.parse(/(Z|[+-]\d\d:?\d\d)$/i.test(s) ? s : s + "Z"); };
+  const ago = t => {
+    if (!t) return ""; const ms = Date.now() - parseT(t);
+    if (!isFinite(ms)) return esc(t); const m = Math.max(0, Math.round(ms / 60000));
+    return m < 60 ? m + " min ago" : m < 2880 ? Math.round(m / 60) + " h ago" : Math.round(m / 1440) + " days ago";
+  };
+  const feet = v => v == null ? null : fmt(v) + " ft";
   function tipHTML(f) {
     const p = f.properties, src = f.source, lid = f.layer.id;
-    if (lid.startsWith("g-")) {
-      const k = lid.slice(2), Qk = Q[k];
-      if (Qk.count) return `<b>${fmt(p.n)} ${Qk.plural}</b><div class="m">${Qk.short} in this cell · click for all totals</div>`;
-      return `<b>${Qk.short}: ${smart(p.q)} ${Qk.unit}</b><div class="m">${fmt(p.n)} ${Qk.plural}${k !== "foot" ? `, ${fmt(p.nq)} with a figure` : ""} · click for all totals</div>`;
-    }
+    if (src === "fires") return `<b>${p.ind ? "Heat at an industrial site" : "Fire / heat"}</b><div class="m">${fmt(p.frp, 1)} MW · ${ago(p.t)}${p.cf ? " · near conflict report" : ""}</div>`;
+    if (src === "events") return `<b>${esc(p.n)}</b><div class="m">${fmt(p.e)} reports · ${fmt(p.a)} articles · last ${ago(p.d)}</div>`;
+    if (src === "ships") return `<b>${esc(p.n || "MMSI " + p.mmsi)}</b><div class="m">${SHIP_T[p.cl] || "Ship"}${p.len ? " · " + fmt(p.len) + " m" : ""}${p.sog != null ? " · " + fmt(p.sog, 1) + " kn" : ""}</div>`;
+    if (src === "navy") return `<b>${esc(p.n)}</b> <span class="m">${esc(p.h)}</span><div class="m">${NAVY_T[p.cl] || "Warship"} · ${p.port ? "in port, " : ""}${esc(p.loc || "")}</div>`;
+    if (src === "cables") return `<b>${esc(p.n)}</b><div class="m">${p.pl ? "Planned" : "Submarine cable"}${p.rfs ? " · " + (p.pl ? "due " : "since ") + p.rfs : ""}${p.km ? " · " + fmt(p.km) + " km" : ""}</div>`;
+    if (src === "landings") return `<b>${esc(p.n)}</b><div class="m">${p.k} cable${p.k === 1 ? "" : "s"} land here</div>`;
+    if (src === "story") return `<b>${esc(p.title || p.n)}</b><div class="m">${esc(p.n)} · ${fmt(p.e)} reports</div>`;
+    if (src === "aircraft") return `<b>${esc(p.f || p.r || p.hex)}</b><div class="m">${esc(p.ty || "")}${p.gnd ? " · on ground" : p.alt != null ? " · " + feet(p.alt) : ""}</div>`;
+    if (src === "bases") return `<b>${esc(p.n)}</b><div class="m">${BASE_T[p.t] || "Military site"}${p.c ? " · " + esc(p.c) : ""}</div>`;
+    if (src === "airports") return `<b>${esc(p.n)}</b><div class="m">${p.mil ? "Military · " : ""}${AIR_T[p.t]}${p.ia || p.i ? " · " + esc(p.ia || p.i) : ""}</div>`;
+    if (src === "dc") return `<b>${esc(p.n || "Data centre")}</b><div class="m">${p.o ? esc(p.o) : "data centre"}</div>`;
     if (lid === "water-fill") { const fld = baseField(); return `<b>${baseLabel()}</b><div class="m">${catLabel(p[fld], fld === "ws" || fld.startsWith("f") ? WS : CAT5)}</div>`; }
     if (lid === "gw-fill") return `<b>${p.t === "m" ? "Major groundwater basin" : p.t === "c" ? "Complex aquifer structures" : "Local & shallow aquifers"}</b><div class="m">Recharge: ${RCH[p.r] || p.rl}</div>`;
     if (lid === "lakes") return `<b>${esc(p.n || "Lake")}</b><div class="m">${fmt(p.km2)} km²${p.res ? " · reservoir" : ""}${p.sal ? " · saline" : ""}</div>`;
@@ -920,10 +1145,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     if (src === "shipping") return `<b>${esc(p.t)} shipping lane</b>`;
     if (src === "rail") return `<b>Railway</b>${p.e ? '<div class="m">electrified</div>' : ""}`;
     if (src === "roads") return `<b>${p.x ? "Highway" : "Major road"}</b>`;
-    if (src === "ports") return `<b>${esc(p.n)}</b><div class="m">seaport</div>`;
+    if (src === "ports") return `<b>${esc(p.n)}</b><div class="m">${HS_T[p.hs] || ""} seaport${p.c ? " · " + esc(p.c) : ""}</div>`;
     const Qk = Q[src];
-    if (p.cluster) return Qk.count ? `<b>${fmt(p.point_count)} ${Qk.plural}</b><div class="m">${Qk.short} close together · click to split</div>`
-      : `<b>${Qk.short}: ${smart(p.q)} ${Qk.unit}</b><div class="m">${fmt(p.point_count)} ${Qk.plural} close together${src !== "foot" ? `, ${fmt(p.nq)} with a figure` : ""} · click to split</div>`;
     if (src === "foot") return `<b>Mined land</b><div class="m">${fmt(p.q, 2)} km²</div>`;
     if (src === "chem") return `<b>${esc(p.n)}</b><div class="m">${esc(p.pp || "")}${p.c ? " · " + esc(p.c) : ""}</div>`;
     if (src === "crit") return `<b>${esc(p.n)}</b><div class="m">${esc((p.m || "").split("|").join(", "))}${p.c ? " · " + esc(p.c) : ""}</div>`;
@@ -935,31 +1158,12 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   const row = (k, v, num) => v == null || v === "" ? "" : `<dt>${k}</dt><dd${num ? ' class="num"' : ""}>${v}</dd>`;
   function openDetail(kindLabel, color, title, rows, foot, extra) {
     detail.innerHTML = `<div class="detail-head"><div><div class="kind eyebrow"><i style="background:${color}"></i>${esc(kindLabel)}</div><h2>${esc(title)}</h2></div><button class="close" id="closeDetail" aria-label="Close details">×</button></div><dl class="kv">${rows}</dl>${extra || ""}${foot ? `<div class="foot">${foot}</div>` : ""}`;
-    detail.hidden = false;
+    detail.hidden = false; delete detail.dataset.story;
     $("closeDetail").onclick = closeDetail;
   }
-  function closeDetail() { detail.hidden = true; map.getSource("sel").setData(empty); selectCountry(null); }
+  function closeDetail() { detail.hidden = true; delete detail.dataset.story; map.getSource("sel").setData(empty); selectCountry(null); }
   const wiki = p => p.w ? `<a href="${esc(p.w)}" target="_blank" rel="noopener">GEM wiki page ↗</a>` : "";
   const T = v => v ? esc(v) : null;
-
-  function showCell(key, coords) {
-    const bin = curBin, ws = 512 * Math.pow(2, bin);
-    const [cx, cy] = key.split(":").map(Number);
-    let rows = "";
-    PTS.forEach(s => {
-      if (!$("lyr-" + s).checked || !DATA[s]) return;
-      const c = aggFor(s, bin).get(key); if (!c) return;
-      const Qk = Q[s];
-      rows += row(`<span style="display:inline-flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(${Qk.color});display:inline-block"></i>${Qk.short}</span>`,
-        Qk.count ? `${fmt(c.n)} ${Qk.plural}` : `${smart(c.q)} ${Qk.unit} <span class="rank">${fmt(c.n)} ${Qk.plural}</span>`, true);
-    });
-    const sw = unmerc(cx * CW / ws, (cy + 1) * CH / ws), ne = unmerc((cx + 1) * CW / ws, cy * CH / ws);
-    map.getSource("sel").setData({ type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Polygon", coordinates: [[sw, [ne[0], sw[1]], ne, [sw[0], ne[1]], sw]] }, properties: {} }] });
-    selectCountry(null);
-    openDetail("Grid cell", "var(--ink)", `Around ${Math.abs(coords[1]).toFixed(1)}°${coords[1] >= 0 ? "N" : "S"}, ${Math.abs(coords[0]).toFixed(1)}°${coords[0] >= 0 ? "E" : "W"}`, rows || row("Sites", "None in the layers shown"),
-      "Totals of the sites inside the dashed box, for the layers and filters currently on.", '<button class="zoom-btn" id="zoomCell">Zoom in to these sites</button>');
-    $("zoomCell").onclick = () => map.fitBounds([sw, ne], { padding: 40, maxZoom: AGG_MAX + 2 });
-  }
 
   function showFeature(f) {
     const p = f.properties, k = f.source, g = f.geometry;
@@ -972,10 +1176,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       map.getSource("sel").setData({ type: "FeatureCollection", features: [{ type: "Feature", geometry: g, properties: {} }] });
       openDetail(p.f === "gas" ? "Gas pipeline" : "Oil / NGL pipeline", "var(--oil)", p.n, rows, wiki(p)); return;
     }
-    if (k === "ports") {
-      map.getSource("sel").setData(empty);
-      openDetail("Seaport", "var(--lane)", p.n, row("Importance", `Natural Earth rank ${p.sr} (3 = largest)`) + row("Coordinates", `${(+g.coordinates[1]).toFixed(3)}, ${(+g.coordinates[0]).toFixed(3)}`, true), "Natural Earth doesn't include cargo volumes."); return;
-    }
+    if (EXTRA[k]) { showExtra(k, p, g); return; }
     if (k === "gw_mining") {
       map.getSource("sel").setData(empty);
       openDetail("Groundwater hotspot", "var(--stress)", p.n || "Intensive groundwater use", row("Type", p.x === 2 ? "Mining non-renewable (fossil) groundwater" : "Intensive abstraction of renewable groundwater") + row("Source", T(p.src)), "From WHYMAP (BGR/UNESCO)."); return;
@@ -1022,6 +1223,126 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     openDetail(Qk.label, `var(${Qk.color})`, k === "foot" ? "Mined land" : (p.n || "Unnamed"), rows, foot);
   }
 
+  const link = (href, text) => `<li><a href="${esc(href)}" target="_blank" rel="noopener">${esc(text)} ↗</a></li>`;
+  const coordRow = g => row("Coordinates", `${(+g.coordinates[1]).toFixed(3)}, ${(+g.coordinates[0]).toFixed(3)}`, true);
+  function showExtra(k, p, g) {
+    const X = EXTRA[k], c = g.coordinates;
+    map.getSource("sel").setData({ type: "FeatureCollection", features: [{ type: "Feature", geometry: g, properties: { _r: k === "events" ? 14 : 10 } }] });
+    let rows = "", links = "", foot = "", title = p.n, kind = X.label, color = `var(${X.color})`, news = null, extra = "";
+    if (k === "ports") {
+      rows = row("Country", T(p.c)) + row("Harbour size", HS_T[p.hs]) + row("Harbour type", HT_T[p.ht]) + row("Max vessel length", p.mv ? fmt(p.mv) + " m" : null, true)
+        + row("Channel depth", p.cd ? fmt(p.cd, 1) + " m" : null, true) + row("Oil terminal depth", p.od ? fmt(p.od, 1) + " m" : null, true) + row("UN/LOCODE", T(p.lo)) + row("WPI number", p.wpi, true);
+      foot = "NGA World Port Index (Pub. 150). Harbour size is NGA's rating, not cargo volume.";
+    } else if (k === "bases") {
+      kind = BASE_T[p.t] || X.label;
+      rows = row("Country", T(p.c)) + row("Type", BASE_T[p.t]) + row("Operator", T(p.op));
+      if (p.w) links = link("https://www.wikidata.org/wiki/" + p.w, "Wikidata " + p.w);
+      if (p.osm) links += link(`https://www.openstreetmap.org/${{ n: "node", w: "way", r: "relation" }[p.osm[0]]}/${p.osm.slice(1)}`, "OpenStreetMap feature");
+      foot = p.src === "o" ? "From OpenStreetMap (military=*), © OpenStreetMap contributors, ODbL. Mapping is uneven; absence here doesn't mean there's no base."
+        : "From Wikidata. Bases combine Wikidata and OpenStreetMap and are still incomplete; absence here doesn't mean there's no base.";
+    } else if (k === "airports") {
+      kind = (p.mil ? "Military " : "") + AIR_T[p.t].toLowerCase();
+      rows = row("Country", T(p.c)) + row("ICAO", T(p.i)) + row("IATA", T(p.ia)) + row("Longest runway", p.rw ? fmt(p.rw) + " m" + (p.p ? ", paved" : ", unpaved") : null, true) + row("Military use", p.mil ? "Yes (OurAirports)" : null);
+      if (p.i) links = link("https://ourairports.com/airports/" + p.i + "/", "OurAirports record");
+      foot = "OurAirports (public domain), updated nightly by volunteers.";
+    } else if (k === "dc") {
+      title = p.n || "Data centre";
+      rows = row("Operator", T(p.o));
+      if (p.osm) links = link(`https://www.openstreetmap.org/${{ n: "node", w: "way", r: "relation" }[p.osm[0]]}/${p.osm.slice(1)}`, "OpenStreetMap feature");
+      foot = "OpenStreetMap (telecom=data_center), © OpenStreetMap contributors, ODbL. Coverage is uneven and many facilities are unmapped.";
+    } else if (k === "events") {
+      rows = row("Reports (events)", fmt(p.e), true) + row("News articles", fmt(p.a), true) + row("In the last 72 h", fmt(p.e3), true)
+        + row("· assaults (CAMEO 18)", fmt(p.r18), true) + row("· fighting (19)", fmt(p.r19), true) + row("· mass violence (20)", fmt(p.r20), true)
+        + row("Tone (Goldstein avg)", fmt(p.g, 1), true) + row("First seen", esc(p.d0) + " UTC", true) + row("Last seen", esc(p.d) + " UTC", true);
+      links = (p.u || []).map((u, i) => { let h = u; try { h = new URL(u).hostname.replace(/^www\./, ""); } catch (e) {} return link(u, h); }).join("");
+      foot = "GDELT machine-codes these from news articles over the last 14 days. Many are duplicates or are placed at a city or country centre; read the sources.";
+      news = p.n.split(",")[0];
+    } else if (k === "fires") {
+      title = p.ind ? "Heat at an industrial site" : p.cf ? "Fire near conflict reports" : "Fire / heat detection";
+      rows = row("Fire radiative power", fmt(p.frp, 1) + " MW", true) + row("Brightness (I4)", p.ti4 ? fmt(p.ti4) + " K" : null, true) + row("Detected", `${esc(p.t)} (${ago(p.t)})`, true)
+        + row("Pass", p.dn === "N" ? "Night" : "Day") + row("Detections merged", p.nd > 1 ? fmt(p.nd) : null, true)
+        + row("Industrial site within 2.5 km", p.ind ? "Yes" : "No") + row("Conflict report within 30 km (72 h)", p.cf ? "Yes" : "No");
+      links = link(`https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@${(+c[0]).toFixed(3)},${(+c[1]).toFixed(3)},11.0z`, "FIRMS map at this spot");
+      foot = "NASA FIRMS VIIRS 375 m active fire product. A detection is any pixel much hotter than its surroundings: wildfire, crop burning, gas flare, industry or shelling.";
+    } else if (k === "ships") {
+      kind = SHIP_T[p.cl] || "Ship"; color = `var(${SHIP_C[p.cl] || "--vessel"})`; title = p.n || "MMSI " + p.mmsi;
+      rows = row("Type", SHIP_T[p.cl]) + row("Length", p.len ? fmt(p.len) + " m" : null, true) + row("Speed", p.sog != null ? fmt(p.sog, 1) + " kn" : null, true)
+        + row("Course", p.cog != null ? fmt(p.cog) + "°" : null, true) + row("Destination", T(p.dest)) + row("MMSI", p.mmsi, true) + row("IMO", p.imo, true) + row("Position time", p.t ? `${esc(p.t)} (${ago(p.t)})` : null, true);
+      links = link("https://www.marinetraffic.com/en/ais/details/ships/mmsi:" + p.mmsi, "MarineTraffic (current position)");
+      foot = shipMode === "baltic" ? "Fintraffic Digitraffic AIS (CC BY 4.0), Finnish coastal stations; refreshed every minute. Turn on US Navy warships for publicly reported warship positions." : "aisstream.io terrestrial AIS snapshot. Warships often switch AIS off; see the US Navy warships layer for reported positions.";
+    } else if (k === "navy") {
+      kind = NAVY_T[p.cl] || X.label;
+      rows = row("Hull number", T(p.h)) + row("Type", NAVY_T[p.cl]) + row("Reported at", T(p.loc)) + row("Status", p.port ? "In port" : "Under way")
+        + row("Group", T(p.grp)) + row("Tracker date", T(p.d), true);
+      extra = p.s ? `<p class="foot" style="padding-top:0">“${esc(p.s)}”</p>` : "";
+      links = link(p.u, "USNI News fleet tracker") + link("https://en.wikipedia.org/wiki/Special:Search?search=" + encodeURIComponent(p.n + " " + p.h), "Wikipedia");
+      foot = "USNI News Fleet and Marine Tracker, published weekly from public sources. The marker sits at the named port or sea area (ships sharing a place are fanned out), not at a precise position.";
+      news = p.n;
+    } else if (k === "cables") {
+      title = p.n; kind = p.pl ? "Planned submarine cable" : X.label;
+      const segs = DATA.cables.features.filter(f => f.properties.id === p.id);
+      map.getSource("sel").setData({ type: "FeatureCollection", features: segs.map(f => ({ type: "Feature", geometry: f.geometry, properties: {} })) });
+      rows = row("Ready for service", p.rfs ? (p.pl ? "Planned " : "") + p.rfs : null, true) + row("Length", p.km ? fmt(p.km) + " km" : null, true) + row("Landing points", p.lp, true)
+        + row("Owners", T(p.own)) + row("Suppliers", T(p.sup));
+      links = link("https://www.submarinecablemap.com/submarine-cable/" + p.id, "TeleGeography Submarine Cable Map") + (p.url ? link(p.url, "System website") : "");
+      foot = "TeleGeography Submarine Cable Map (CC BY-NC-SA 3.0). Routes are schematic, not surveyed positions.";
+      rows += `<dt></dt><dd><button type="button" class="zoom-btn" id="fitCable" style="margin:0">Show whole route</button></dd>`;
+      openDetail(kind, color, title, rows, foot, `<ul class="links">${links}</ul>`);
+      $("fitCable").onclick = () => fitCable(p.id);
+      return;
+    } else if (k === "landings") {
+      rows = row("Cables landing", p.k, true) + row("Systems", T(p.cs)) + row("Planned", p.tbd ? "Yes" : null);
+      links = link("https://www.submarinecablemap.com/landing-point/" + p.id, "TeleGeography landing point");
+      foot = "TeleGeography Submarine Cable Map (CC BY-NC-SA 3.0).";
+    } else if (k === "aircraft") {
+      title = p.f || p.r || p.hex;
+      rows = row("Type", T(p.ty)) + row("Registration", T(p.r)) + row("Callsign", T(p.f)) + row("Altitude", p.gnd ? "On ground" : feet(p.alt), true)
+        + row("Ground speed", p.gs != null ? fmt(p.gs) + " kn" : null, true) + row("Track", p.trk != null ? fmt(p.trk) + "°" : null, true) + row("Squawk", T(p.sq)) + row("ICAO hex", T(p.hex));
+      links = link("https://globe.adsb.lol/?icao=" + p.hex, "adsb.lol (live track)");
+      foot = "adsb.lol military feed (ODbL). Only aircraft broadcasting ADS-B or MLAT near a volunteer receiver appear.";
+    }
+    rows += coordRow(g);
+    openDetail(kind, color, title || X.label, rows, foot, extra + (links ? `<ul class="links">${links}</ul>` : "") + (news ? newsBlock() : ""));
+    if (news) loadNews(news, k === "navy" ? "(navy OR warship OR deployed OR strike group)" : undefined);
+  }
+
+  // ---------- recent news (GDELT DOC 2.0; one request per 5 s) ----------
+  const NEWS_Q = "(attack OR strike OR drone OR missile OR shelling OR clashes OR killed)";
+  let newsNext = 0, newsSeq = 0;
+  const newsCache = {};
+  const NEWS_LOADING = `<h3>News, last 14 days</h3><div class="msg">Loading articles from GDELT…</div>`;
+  const newsBlock = () => `<div class="news" id="news">${NEWS_LOADING}</div>`;
+  async function loadNews(place, topic) {
+    const seq = ++newsSeq, key = place + "|" + (topic || "");
+    const box = () => seq === newsSeq && $("news");
+    const render = list => {
+      const b = box(); if (!b) return;
+      if (!list.length) { b.innerHTML = `<h3>News, last 14 days</h3><div class="msg">No matching articles found.</div>`; return; }
+      b.innerHTML = `<h3>News, last 14 days</h3><ul>${list.map(a => {
+        const d = a.seendate ? `${a.seendate.slice(0, 4)}-${a.seendate.slice(4, 6)}-${a.seendate.slice(6, 8)}` : "";
+        const img = /^https:\/\//.test(a.socialimage || "") ? `<img src="${esc(a.socialimage)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove();">` : "";
+        return `<li><a href="${esc(a.url)}" target="_blank" rel="noopener"${img ? "" : ' class="noimg"'}>${img}<span>${esc(a.title || a.url)}<small>${esc(a.domain || "")} · ${d}</small></span></a></li>`;
+      }).join("")}</ul>`;
+    };
+    if (newsCache[key]) return render(newsCache[key]);
+    const wait = Math.max(0, newsNext - Date.now()); newsNext = Date.now() + wait + 5500;
+    if (wait) await new Promise(r => setTimeout(r, wait));
+    if (seq !== newsSeq) return;
+    const q = `"${place.replace(/"/g, "")}" ${topic || NEWS_Q}`;
+    try {
+      const r = await fetch("https://api.gdeltproject.org/api/v2/doc/doc?" + new URLSearchParams({ query: q, mode: "artlist", format: "json", timespan: "14d", maxrecords: "12", sort: "datedesc" }));
+      const txt = await r.text();
+      let j; try { j = JSON.parse(txt); } catch (e) { throw new Error(/limit requests/i.test(txt) ? "GDELT is rate-limiting; try again in a few seconds." : "GDELT returned an error."); }
+      newsCache[key] = j.articles || []; render(newsCache[key]);
+    } catch (e) {
+      const b = box(); if (!b) return;
+      // GDELT's rate-limit replies carry no CORS header, so they surface as a TypeError
+      const msg = e instanceof TypeError ? "Couldn't reach GDELT (it may be rate-limiting); try again in a few seconds." : e.message;
+      b.innerHTML = `<h3>News, last 14 days</h3><div class="msg">${esc(msg || "Couldn't reach GDELT.")}</div><button type="button">Try again</button>`;
+      b.querySelector("button").onclick = () => { b.innerHTML = NEWS_LOADING; loadNews(place, topic); };
+    }
+  }
+
   function showLake(f) {
     const p = f.properties;
     openDetail(p.res ? "Reservoir" : "Lake", "var(--water)", p.n, row("Surface area", fmt(p.km2) + " km²", true) + row("Water", p.sal ? "Saline" : "Fresh") + row("Type", p.res ? "Reservoir (dammed)" : "Natural lake"),
@@ -1038,6 +1359,14 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     });
   }
   function selectCountry(key) { if (map.getLayer("country-sel")) map.setFilter("country-sel", ["==", ["get", "k"], key || "__none__"]); }
+  // cables arrive split at the antimeridian; shift the western pieces east when a system spans it so the view doesn't cover the whole world
+  function fitCable(id) {
+    const pts = DATA.cables.features.filter(f => f.properties.id === id).flatMap(f => f.geometry.type === "LineString" ? f.geometry.coordinates : f.geometry.coordinates.flat());
+    if (!pts.length) return;
+    const lons = pts.map(p => p[0]), wrap = Math.max(...lons) - Math.min(...lons) > 180;
+    const b = new maplibregl.LngLatBounds(); pts.forEach(([x, y]) => b.extend([wrap && x < 0 ? x + 360 : x, y]));
+    map.fitBounds(b, { padding: { top: 40, bottom: 40, left: wide() ? 370 : 20, right: wide() ? 340 : 20 }, maxZoom: 6 });
+  }
   function zoomToCountry(key) {
     const f = DATA.countries.features.find(f => f.properties.k === key); if (!f) return;
     const b = new maplibregl.LngLatBounds();
@@ -1063,7 +1392,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         + (basin ? row("This basin, stress today", catLabel(basin.ws, WS)) + row("This basin, 2050", catLabel(basin.f50, WS)) + row("This basin, groundwater", catLabel(basin.gw, CAT5)) : ""))
       + sec("People", row("Population", c.pop ? fmt(c.pop) : null, true));
     if (!rows) rows = row("Tracked resources", "None in these datasets");
-    openDetail("Country", "var(--border)", c.n, rows, "Sums of sites in these datasets, not official national statistics. Sites that don't report a figure add nothing to the totals. Water stress is WRI Aqueduct 4.0, averaged over the country's area.");
+    openDetail("Country", "var(--border)", c.n, rows, "Sums of sites in these datasets, not official national statistics. Sites that don't report a figure add nothing to the totals. Water stress is WRI Aqueduct 4.0, averaged over the country's area.", newsBlock());
+    loadNews(c.n);
   }
 
   // ---------- background shading (only one at a time) ----------
@@ -1172,12 +1502,332 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     }
   }
 
+  // ---------- live feed status (from data/live/manifest.json) ----------
+  const LIVE_SHORT = { fires: "FIRMS VIIRS, 24 h", events: "GDELT, 14 days", ships: "aisstream.io AIS", aircraft: "adsb.lol", navy: "USNI fleet tracker" };
+  const STALE_MS = 12 * 3600e3; // the build runs every 3 h, so older than this means it has been failing
+  function setLive(src, f) {
+    const el = $("st-" + src); if (!el) return;
+    if (!f) { el.textContent = LIVE_SHORT[src] + " · no snapshot yet"; el.title = ""; el.classList.add("bad"); return; }
+    const old = f.updated && Date.now() - parseT(f.updated) > STALE_MS;
+    el.textContent = (f.as_of ? `${LIVE_SHORT[src]} of ${f.as_of}` : LIVE_SHORT[src]) + " · " + (f.updated ? (f.as_of ? "checked " : "") + ago(f.updated) + (old ? ", stale" : "") : f.status || f.error || "not available");
+    el.title = (f.source || "") + (f.updated ? " · snapshot taken " + f.updated : "");
+    el.classList.toggle("bad", !f.updated || !!old || !!f.error || !!f.stale);
+  }
+  function shipStatus() {
+    manifestP.then(m => {
+      const f = m && m.feeds && m.feeds.ships;
+      if (f && f.updated) return setLive("ships", f);
+      const el = $("st-ships"), t = shipMode === "baltic" && DATA.ships && DATA.ships.updated;
+      el.textContent = "Baltic only (Digitraffic), live" + (t ? " · " + ago(t) : "");
+      el.title = "The build has no aisstream.io key, so ships come from Fintraffic's open AIS feed, refreshed every minute while this layer is on.";
+      el.classList.remove("bad");
+    });
+  }
+  function liveLabels() { manifestP.then(m => LIVE.forEach(src => src === "ships" ? shipStatus() : setLive(src, m && m.feeds && m.feeds[src]))); }
+  liveLabels(); setInterval(liveLabels, 60000);
+
+  // ---------- satellite imagery ----------
+  // kind: base = fixed mosaic; day = one image per UTC day; hls = like day, opens on the newest day; now = geostationary, refreshed every 10 min
+  const GIBS = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/";
+  const EUM = "https://view.eumetsat.int/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&styles=&format=image/png&transparent=true&crs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}&layers=";
+  const A_GIBS = '<a href="https://nasa-gibs.github.io/gibs-api-docs/" target="_blank" rel="noopener">NASA EOSDIS GIBS</a>';
+  const A_EUM = '© <a href="https://view.eumetsat.int/" target="_blank" rel="noopener">EUMETSAT</a>';
+  const gb = (id, lvl, ext, kind, label, res, by) => ({ src: "gibs", id, lvl, ext, kind, label, res, max: lvl, attr: A_GIBS + (by ? " · " + by : "") });
+  const eu = (id, label, res) => ({ src: "eum", id, kind: "now", label, res, max: 8, attr: A_EUM });
+  const IMAGERY = [
+    ["Sharp mosaics (not current)", {
+      esri: { src: "xyz", kind: "base", label: "Esri World Imagery (sharpest, 1–5 years old)", max: 18, tiles: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        res: "Up to about 0.5 m in cities, coarser elsewhere; stitched from images taken in different years.", attr: "Imagery © Esri, Maxar, Earthstar Geographics, and the GIS User Community" },
+      eox: { src: "xyz", kind: "base", label: "Sentinel-2 cloudless 2024 (EOX)", max: 14, tiles: "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+        res: "10 m, cloud-free mosaic of 2024.", attr: '<a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless 2024</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2024), CC BY-NC-SA 4.0' }
+    }],
+    ["Daily true colour (pick a day)", {
+      v20: gb("VIIRS_NOAA20_CorrectedReflectance_TrueColor", 9, "jpg", "day", "NOAA-20 VIIRS", "About 250–375 m; one pass a day, early afternoon local time.", "NOAA/NASA"),
+      v21: gb("VIIRS_NOAA21_CorrectedReflectance_TrueColor", 9, "jpg", "day", "NOAA-21 VIIRS", "About 250–375 m; one pass a day, early afternoon local time.", "NOAA/NASA"),
+      vnpp: gb("VIIRS_SNPP_CorrectedReflectance_TrueColor", 9, "jpg", "day", "Suomi NPP VIIRS", "About 250–375 m; one pass a day, early afternoon local time.", "NOAA/NASA"),
+      terra: gb("MODIS_Terra_CorrectedReflectance_TrueColor", 9, "jpg", "day", "Terra MODIS (morning)", "250 m; one pass a day, about 10:30 local time.", "NASA"),
+      aqua: gb("MODIS_Aqua_CorrectedReflectance_TrueColor", 9, "jpg", "day", "Aqua MODIS (afternoon)", "250 m; one pass a day, about 13:30 local time.", "NASA")
+    }],
+    ["False colour: burn scars & active fire", {
+      t721: gb("MODIS_Terra_CorrectedReflectance_Bands721", 9, "jpg", "day", "Terra MODIS bands 7-2-1", "250–500 m, daily. Burn scars show red-brown, active fires bright orange, vegetation green.", "NASA"),
+      vm11: gb("VIIRS_NOAA20_CorrectedReflectance_BandsM11-I2-I1", 9, "jpg", "day", "NOAA-20 VIIRS M11-I2-I1", "375–750 m, daily. Hot spots glow orange-red; burned land is dark brown.", "NOAA/NASA")
+    }],
+    ["30 m Landsat & Sentinel-2 (every few days)", {
+      hlss: gb("HLS_S30_Nadir_BRDF_Adjusted_Reflectance", 12, "png", "hls", "Sentinel-2 HLS, 30 m", "30 m. One day covers only a few strips, so try nearby days; zoom past 7 for detail.", "Copernicus Sentinel-2 via NASA HLS"),
+      hlsl: gb("HLS_L30_Nadir_BRDF_Adjusted_Reflectance", 12, "png", "hls", "Landsat HLS, 30 m", "30 m. One day covers only a few strips, so try nearby days; zoom past 7 for detail.", "USGS/NASA Landsat via NASA HLS")
+    }],
+    ["Geostationary, every 10 min", {
+      goese: gb("GOES-East_ABI_GeoColor", 7, "png", "now", "GOES-East GeoColor (Americas, Atlantic)", "1–2 km.", "NOAA GOES"),
+      goesw: gb("GOES-West_ABI_GeoColor", 7, "png", "now", "GOES-West GeoColor (Pacific)", "1–2 km.", "NOAA GOES"),
+      mtg: eu("mtg_fd:rgb_geocolour", "Meteosat MTG GeoColour (Europe, Africa, Middle East)", "1–2 km."),
+      hima: gb("Himawari_AHI_Band3_Red_Visible_1km", 7, "png", "now", "Himawari visible (Asia, Australia; daylight)", "1 km.", "JMA Himawari")
+    }],
+    ["Thermal infrared, every 10 min (day & night)", {
+      ir_e: gb("GOES-East_ABI_Band13_Clean_Infrared", 6, "png", "now", "GOES-East infrared 10.3 µm", "2 km. Cold cloud tops are bright; warm ground dark.", "NOAA GOES"),
+      ir_w: gb("GOES-West_ABI_Band13_Clean_Infrared", 6, "png", "now", "GOES-West infrared 10.3 µm", "2 km. Cold cloud tops are bright; warm ground dark.", "NOAA GOES"),
+      ir_mtg: eu("mtg_fd:ir105_hrfi", "Meteosat MTG infrared 10.5 µm (Europe, Africa)", "1 km."),
+      ir_iodc: eu("msg_iodc:ir108", "Meteosat IODC infrared (Indian Ocean, Middle East, S Asia)", "3 km, every 15 min."),
+      ir_h: gb("Himawari_AHI_Band13_Clean_Infrared", 6, "png", "now", "Himawari infrared 10.4 µm (Asia, Australia)", "2 km.", "JMA Himawari")
+    }],
+    ["Fire temperature, every 10 min", {
+      ft_e: gb("GOES-East_ABI_FireTemp", 7, "png", "now", "GOES-East fire temperature", "2 km. Fires show yellow to white as they get hotter.", "NOAA GOES"),
+      ft_w: gb("GOES-West_ABI_FireTemp", 7, "png", "now", "GOES-West fire temperature", "2 km. Fires show yellow to white as they get hotter.", "NOAA GOES"),
+      ft_mtg: eu("mtg_fd:rgb_firetemperature", "Meteosat MTG fire temperature (Europe, Africa, Middle East)", "1–2 km. Fires show yellow to white as they get hotter.")
+    }],
+    ["Thermal & night lights, daily (pick a day)", {
+      b31n: gb("MODIS_Terra_Brightness_Temp_Band31_Night", 7, "png", "day", "Terra MODIS surface temperature, night", "1 km brightness temperature at 11 µm, night pass.", "NASA"),
+      b31d: gb("MODIS_Terra_Brightness_Temp_Band31_Day", 7, "png", "day", "Terra MODIS surface temperature, day", "1 km brightness temperature at 11 µm, day pass.", "NASA"),
+      dnb: gb("VIIRS_SNPP_DayNightBand", 7, "png", "day", "Suomi NPP night lights", "750 m low-light band: city lights, gas flares, fires and blackouts.", "NOAA/NASA"),
+      dnb20: gb("VIIRS_NOAA20_DayNightBand", 7, "png", "day", "NOAA-20 night lights", "750 m low-light band: city lights, gas flares, fires and blackouts.", "NOAA/NASA")
+    }]
+  ];
+  const IMG = Object.assign({}, ...IMAGERY.map(([, o]) => o));
+  const utcDay = d => new Date(Date.now() - d * 864e5).toISOString().slice(0, 10);
+  let imgSeq = 0, imgTimer = null, imgDay = "", imgTime = null;
+  // GIBS edge caches disagree about "default" for a minute or two after each update, so ask once and pin the explicit time
+  const gibsLatest = I => fetch(`${GIBS}${I.id}/default/default/GoogleMapsCompatible_Level${I.lvl}/0/0/0.${I.ext}`, { cache: "no-store" })
+    .then(r => r.headers.get("layer-time-actual")).catch(() => null);
+  function imgTiles(I, time) {
+    if (I.src === "xyz") return [I.tiles];
+    if (I.src === "eum") return [EUM + I.id + "&_=" + Math.floor(Date.now() / 6e5)];
+    return [`${GIBS}${I.id}/default/${time || "default"}/GoogleMapsCompatible_Level${I.lvl}/{z}/{y}/{x}.${I.ext}`];
+  }
+  function imgNote(I, time) {
+    let when = "";
+    if (I.kind === "now") when = I.src === "gibs" && time ? `Image time ${time.slice(11, 16)} UTC, ${time.slice(0, 10)} (${ago(time)}); updates every 10 min.` : "Latest image; updates every 10 min.";
+    else if (I.kind === "day" || I.kind === "hls") when = `Passes on ${time} (UTC day). Black or empty areas are gaps between orbits or not yet processed.`;
+    $("imgNote").innerHTML = `${I.res} ${when}<br>${I.attr}`; $("imgNote").hidden = false;
+  }
+  async function applyImagery(fromPicker) {
+    const I = IMG[$("imagery").value], seq = ++imgSeq;
+    clearInterval(imgTimer); imgTimer = null;
+    if (map.getLayer("imagery")) map.removeLayer("imagery");
+    if (map.getSource("imagery")) map.removeSource("imagery");
+    $("imgCtl").hidden = $("imgNote").hidden = !I;
+    if (!I) return;
+    const daily = I.kind === "day" || I.kind === "hls", pick = $("imgDate");
+    $("imgDateWrap").hidden = !daily; pick.max = utcDay(0);
+    let time = null;
+    if (I.kind === "day") { if (fromPicker) imgDay = pick.value; time = pick.value = imgDay || utcDay(1); }
+    else if (I.kind === "hls") time = fromPicker && pick.value ? pick.value : pick.value = ((await gibsLatest(I)) || utcDay(3)).slice(0, 10);
+    else if (I.src === "gibs") time = await gibsLatest(I);
+    if (seq !== imgSeq) return;
+    imgTime = time;
+    map.addSource("imagery", { type: "raster", tiles: imgTiles(I, time), tileSize: 256, maxzoom: I.max, attribution: I.attr });
+    map.addLayer({ id: "imagery", type: "raster", source: "imagery", paint: { "raster-opacity": +$("imgOpacity").value / 100, "raster-fade-duration": 150 } }, map.getLayer("agri") ? "agri" : "disputed");
+    imgNote(I, time);
+    if (I.kind === "now") imgTimer = setInterval(async () => {
+      if (document.hidden) return;
+      const t = I.src === "gibs" ? await gibsLatest(I) : null;
+      if (seq !== imgSeq || !map.getSource("imagery")) return;
+      if (I.src === "gibs" && (!t || t === imgTime)) return;
+      imgTime = t; map.getSource("imagery").setTiles(imgTiles(I, t)); imgNote(I, t);
+    }, 6e5);
+  }
+  function bindImagery() {
+    $("imagery").innerHTML = '<option value="">None (map only)</option>' + IMAGERY.map(([g, o]) =>
+      `<optgroup label="${esc(g)}">${Object.entries(o).map(([k, I]) => `<option value="${k}">${esc(I.label)}</option>`).join("")}</optgroup>`).join("");
+    $("imagery").addEventListener("change", () => applyImagery(false));
+    $("imgDate").addEventListener("change", () => $("imgDate").value && applyImagery(true));
+    $("imgOpacity").addEventListener("input", e => map.getLayer("imagery") && map.setPaintProperty("imagery", "raster-opacity", +e.target.value / 100));
+  }
+
+  // ---------- storyboard: surges in conflict reports by day, week and month ----------
+  let storyWin = "week", storyCur = -1, storyTimer = null, storyMarkers = [], storyOn = false, storyFC = empty, storySaved = null;
+  // the storyboard quiets the map to a few context layers and puts the map layers back on exit
+  const STORY_LAYERS = ["lakes", "ice", "choke", "lanes"];
+  const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const hhmm = d => String(d.getUTCHours()).padStart(2, "0") + ":00";
+  const md = d => `${MON[d.getUTCMonth()]} ${d.getUTCDate()}`;
+  function when(t, t1, win) {
+    const a = new Date(t), b = new Date(new Date(t1) - 1);
+    if (win === "day") return `${md(a)}, ${hhmm(a)}–${hhmm(new Date(t1))} UTC`;
+    if (win === "week") return `${DOW[a.getUTCDay()]} ${md(a)}`;
+    return a.getUTCMonth() === b.getUTCMonth() ? `${md(a)}–${b.getUTCDate()}` : `${md(a)} – ${md(b)}`;
+  }
+  // bar sparkline; `hi` marks one bucket in the conflict colour
+  function spark(xs, w, h, hi) {
+    const m = Math.max(1, ...xs), bw = w / xs.length;
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">${xs.map((x, i) => {
+      const bh = Math.max(x ? 1.5 : 0.5, (x / m) * (h - 1));
+      return `<rect x="${(i * bw + bw * 0.12).toFixed(2)}" y="${(h - bh).toFixed(2)}" width="${(bw * 0.76).toFixed(2)}" height="${bh.toFixed(2)}" fill="var(${i === hi ? "--conflict" : "--ink-3"})" opacity="${i === hi ? 1 : 0.45}"/>`;
+    }).join("")}</svg>`;
+  }
+  const storyItems = () => (DATA.story && DATA.story.windows[storyWin] || { items: [] }).items;
+  const storyLabel = it => it.title || it.n.split(",")[0];
+  function storyClear() {
+    storyMarkers.forEach(m => m.remove()); storyMarkers = [];
+    storyFC = empty; if (map.getSource("story")) map.getSource("story").setData(empty);
+  }
+  function storyStop() { clearInterval(storyTimer); storyTimer = null; $("storyPlay").setAttribute("aria-pressed", "false"); $("storyPlay").textContent = "Play"; }
+  function storyRender() {
+    const S = DATA.story; if (!S || !storyOn) return;
+    const W = S.windows[storyWin], items = W.items;
+    storyStop(); storyClear(); storyCur = -1;
+    const top = items.reduce((m, it) => !m || it.z > m.z ? it : m, null), ev = items.reduce((s, it) => s + it.e, 0);
+    $("storySum").innerHTML = items.length
+      ? `<b>${items.length} surges</b> in the past ${storyWin}, ${fmt(ev)} conflict reports between them. Biggest jump: <b>${esc(top.n.split(",")[0])}</b>, ${when(top.t, top.t1, storyWin)}. Snapshot updated ${ago(S.updated)}.`
+      : `No surges stood out in the past ${storyWin}.`;
+    const B = W.buckets;
+    $("storyChart").innerHTML = `<div id="storyBars">${spark(W.total, 300, 56, -1)}</div><div class="axis"><span>${when(B[0], B[1] || B[0], storyWin)}</span><span>all conflict reports per ${storyWin === "day" ? "hour" : storyWin === "week" ? "day" : "3 days"}</span><span>${storyWin === "day" ? "now" : md(new Date(B[B.length - 1]))}</span></div>`;
+    $("storyCards").innerHTML = items.map((it, i) => {
+      const peak = it.x[B.indexOf(it.t)] || Math.max(...it.x);
+      return `<li><button type="button" data-i="${i}"><span class="no">${i + 1}</span><span class="when">${when(it.t, it.t1, storyWin)}</span><span class="ttl">${esc(storyLabel(it))}</span>
+        <span class="plc">${esc(it.n)}</span>${spark(it.x, 64, 30, B.indexOf(it.t))}<span class="st">${fmt(it.e)} reports · ${fmt(it.a)} articles · ${it.base ? "×" + fmt(peak / it.base, peak / it.base < 10 ? 1 : 0) + " usual" : "new"}</span></button></li>`;
+    }).join("");
+    $("storyPos").textContent = items.length ? `– / ${items.length}` : "";
+    map.getSource("story").setData(storyFC = { type: "FeatureCollection", features: items.map((it, i) => ({ type: "Feature", geometry: { type: "Point", coordinates: [it.lon, it.lat] }, properties: { i, n: it.n, title: storyLabel(it), e: it.e, a: it.a, on: false } })) });
+    storyMarkers = items.map((it, i) => {
+      const el = document.createElement("button");
+      el.type = "button"; el.className = "story-mk"; el.textContent = i + 1; el.setAttribute("aria-label", `Story ${i + 1}: ${storyLabel(it)}`);
+      el.addEventListener("click", ev => { ev.stopPropagation(); storyGo(i, true); });
+      return new maplibregl.Marker({ element: el }).setLngLat([it.lon, it.lat]).addTo(map);
+    });
+    if (items.length) {
+      const b = new maplibregl.LngLatBounds(); items.forEach(it => b.extend([it.lon, it.lat]));
+      map.fitBounds(b, { padding: { top: 60, bottom: 60, left: wide() ? 400 : 30, right: wide() ? 60 : 30 }, maxZoom: 4, duration: 800 });
+    }
+  }
+  function storyGo(i, fly) {
+    const items = storyItems(), it = items[i]; if (!it) return;
+    storyCur = i;
+    document.querySelectorAll("#storyCards button").forEach(b => b.setAttribute("aria-current", +b.dataset.i === i ? "true" : "false"));
+    const card = document.querySelector(`#storyCards button[data-i="${i}"]`); if (card) card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    storyMarkers.forEach((m, j) => m.getElement().classList.toggle("on", j === i));
+    storyFC.features.forEach(f => f.properties.on = f.properties.i === i); map.getSource("story").setData(storyFC);
+    $("storyPos").textContent = `${i + 1} / ${items.length}`;
+    if (fly) map.flyTo({ center: [it.lon, it.lat], zoom: Math.max(4.5, Math.min(map.getZoom(), 6)), padding: { left: wide() ? 370 : 0, right: wide() ? 340 : 0, top: 0, bottom: wide() ? 0 : innerHeight * 0.4 }, speed: 1.4 });
+    const W = DATA.story.windows[storyWin], B = W.buckets, peak = it.x[B.indexOf(it.t)] || 0;
+    $("storyBars").innerHTML = spark(W.total, 300, 56, B.indexOf(it.t));
+    const rows = row("When", when(it.t, it.t1, storyWin), true) + row("Place", esc(it.n)) + row("Conflict reports", fmt(it.e), true) + row("News articles", fmt(it.a), true)
+      + row("· assaults (CAMEO 18)", fmt(it.r[0]), true) + row("· fighting (19)", fmt(it.r[1]), true) + row("· mass violence (20)", fmt(it.r[2]), true)
+      + row("Usual level", it.base ? `${fmt(it.base, 1)} per ${storyWin === "day" ? "hour" : storyWin === "week" ? "day" : "3 days"} (×${fmt(peak / it.base, 1)} here)` : "None reported before", true)
+      + row("Main actors", it.act ? esc(it.act.map(a => cap(a.toLowerCase())).join(", ")) : null);
+    const links = (it.u || []).map(u => { let h = u; try { h = new URL(u).hostname.replace(/^www\./, ""); } catch (e) {} return link(u, h); }).join("");
+    openDetail(`Storyboard · ${i + 1} of ${items.length}`, "var(--conflict)", storyLabel(it), rows,
+      "GDELT codes events from news articles automatically. The headline is the most-cited article's title and may describe a different event in the same place.",
+      `<div class="sec" style="margin:10px 18px 0">This place over the past ${storyWin}</div><div class="story-spark">${spark(it.x, 300, 40, B.indexOf(it.t))}</div>` + (links ? `<ul class="links">${links}</ul>` : "") + newsBlock());
+    detail.dataset.story = "1";
+    loadNews(it.n.split(",")[0]);
+  }
+  function storyStep(d) {
+    const n = storyItems().length; if (!n) return;
+    storyGo(storyCur < 0 ? (d > 0 ? 0 : n - 1) : (storyCur + d + n) % n, true);
+  }
+  function setMode(mode) {
+    storyOn = mode === "story";
+    document.querySelectorAll(".seg.mode button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode ? "true" : "false"));
+    if (storyOn === !!storySaved) return;
+    $("sheetBody").hidden = storyOn; $("story").hidden = !storyOn;
+    map.setLayoutProperty("story-halo", "visibility", storyOn ? "visible" : "none");
+    if (storyOn) storySaved = Object.fromEntries(VIEW_KEYS.map(k => [k, $("lyr-" + k).checked]));
+    VIEW_KEYS.forEach(k => { $("lyr-" + k).checked = storyOn ? STORY_LAYERS.includes(k) : storySaved[k]; applyGroup(k); });
+    if (storyOn) { ensure("story").then(storyRender); return; }
+    storySaved = null; storyStop(); storyClear();
+    if (detail.dataset.story) closeDetail();
+  }
+  function bindStory() {
+    document.querySelectorAll(".seg.mode button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+    document.querySelectorAll("[data-win]").forEach(b => b.addEventListener("click", () => {
+      storyWin = b.dataset.win;
+      document.querySelectorAll("[data-win]").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+      if (detail.dataset.story) closeDetail();
+      storyRender();
+    }));
+    $("storyCards").addEventListener("click", e => { const b = e.target.closest("button[data-i]"); if (b) { storyStop(); storyGo(+b.dataset.i, true); } });
+    $("storyPrev").onclick = () => { storyStop(); storyStep(-1); };
+    $("storyNext").onclick = () => { storyStop(); storyStep(1); };
+    $("storyPlay").onclick = () => {
+      if (storyTimer) { storyStop(); return; }
+      if (!storyItems().length) return;
+      $("storyPlay").setAttribute("aria-pressed", "true"); $("storyPlay").textContent = "Pause";
+      storyStep(1); storyTimer = setInterval(() => storyStep(1), 6500);
+    };
+  }
+
+  // ---------- farmland & land cover (GIBS rasters, drawn above any satellite imagery) ----------
+  const LC = [["Forest", "#218a21 #31cc31 #98cc31 #96fa96 #8dba8d"], ["Shrubland", "#ba8d8d #f5deb3"], ["Savanna", "#daeb9d #ffd500"], ["Grassland", "#f0b967"], ["Cropland", "#faef73"],
+    ["Cropland & natural mosaic", "#999356"], ["Wetland", "#4783b5"], ["Urban", "#ff0000"], ["Snow & ice", "#ffffff"], ["Barren", "#bfbfbd"], ["Water", "#86cae3"]];
+  const AGRI = {
+    crop: { id: "Agricultural_Lands_Croplands_2000", lvl: 7, colors: ["rgb(254,244,221)", "rgb(252,205,151)", "rgb(247,136,58)", "rgb(214,86,15)", "rgb(156,54,2)"],
+      note: "Share of each ~10 km cell used for crops around 2000, from farm census and satellite land cover. Ramankutty et al. 2010, NASA SEDAC, via GIBS.",
+      attr: 'Croplands 2000: Ramankutty et al., <a href="https://doi.org/10.7927/H4C8276G" target="_blank" rel="noopener">NASA SEDAC</a>, CC BY 4.0, via ' + A_GIBS },
+    past: { id: "Agricultural_Lands_Pastures_2000", lvl: 7, colors: ["rgb(247,252,245)", "rgb(195,228,188)", "rgb(111,190,119)", "rgb(50,145,74)", "rgb(14,99,43)"],
+      note: "Share of each ~10 km cell used as pasture for livestock around 2000. Ramankutty et al. 2010, NASA SEDAC, via GIBS.",
+      attr: 'Pastures 2000: Ramankutty et al., <a href="https://doi.org/10.7927/H47H1GGR" target="_blank" rel="noopener">NASA SEDAC</a>, CC BY 4.0, via ' + A_GIBS },
+    lc: { id: "MODIS_Combined_L3_IGBP_Land_Cover_Type_Annual", lvl: 8, years: [2001, 2024],
+      note: "Dominant land cover in each 500 m cell for the year (IGBP classes), from Terra and Aqua MODIS. MCD12Q1 v061.",
+      attr: 'MODIS land cover <a href="https://doi.org/10.5067/MODIS/MCD12Q1.061" target="_blank" rel="noopener">MCD12Q1 v061</a>, NASA, via ' + A_GIBS }
+  };
+  function applyAgri() {
+    const A = AGRI[$("agri").value], lg = $("agriLegend");
+    if (map.getLayer("agri")) map.removeLayer("agri");
+    if (map.getSource("agri")) map.removeSource("agri");
+    $("agriCtl").hidden = lg.hidden = !A;
+    if (!A) return;
+    $("agriYearWrap").hidden = !A.years;
+    const time = A.years ? $("agriYear").value + "-01-01" : "default";
+    map.addSource("agri", { type: "raster", tiles: [`${GIBS}${A.id}/default/${time}/GoogleMapsCompatible_Level${A.lvl}/{z}/{y}/{x}.png`], tileSize: 256, maxzoom: A.lvl, attribution: A.attr });
+    map.addLayer({ id: "agri", type: "raster", source: "agri", paint: { "raster-opacity": +$("agriOpacity").value / 100, "raster-fade-duration": 150 } }, "disputed");
+    lg.innerHTML = A.colors
+      ? `<div class="bar" style="grid-template-columns:repeat(5,1fr)">${A.colors.map(c => `<i style="background:${c}"></i>`).join("")}</div>
+         <div class="ticks" style="grid-template-columns:repeat(5,1fr)"><span>&lt;10%</span><span>25%</span><span>45%</span><span>65%</span><span>85%+</span></div><div class="note">${A.note}</div>`
+      : `<div class="lc-key">${LC.map(([n, c]) => `<span>${c.split(" ").map(x => `<i style="background:${x}"></i>`).join("")}${n}</span>`).join("")}</div><div class="note">${A.note}</div>`;
+    lg.hidden = false;
+  }
+  function bindAgri() {
+    const [y0, y1] = AGRI.lc.years;
+    $("agriYear").innerHTML = Array.from({ length: y1 - y0 + 1 }, (_, i) => y1 - i).map(y => `<option>${y}</option>`).join("");
+    $("agri").addEventListener("change", applyAgri);
+    $("agriYear").addEventListener("change", applyAgri);
+    $("agriOpacity").addEventListener("input", e => map.getLayer("agri") && map.setPaintProperty("agri", "raster-opacity", +e.target.value / 100));
+  }
+
+  // ---------- sources (sidebar) ----------
+  // meta: a file in infra_meta.json or a live feed in the manifest, for the "retrieved" date
+  const SOURCES = [
+    ["Global Energy Monitor trackers", "https://globalenergymonitor.org/download-data", "oil & gas fields, coal & iron mines, mine boundaries, steel, cement, chemicals, pipelines, LNG terminals", "CC BY 4.0", "releases Sep 2025 – Sep 2026"],
+    ["Maus et al. 2022, mining polygons v2", "https://doi.org/10.1594/PANGAEA.942325", "mined land", "CC BY-SA 4.0", "2022"],
+    ["USGS critical minerals", "https://doi.org/10.5066/P9K1HBNT", "global deposits (2017) and US deposits v3", "public domain", "2017 & 2026"],
+    ["WRI Global Power Plant Database", "https://datasets.wri.org/dataset/globalpowerplantdatabase", "power plants", "CC BY 4.0", "v1.3, 2021"],
+    ["WRI Aqueduct 4.0", "https://www.wri.org/data/aqueduct-global-maps-40-data", "water stress, drought, groundwater decline", "CC BY 4.0", "2023"],
+    ["BGR/UNESCO WHYMAP", "https://www.whymap.org/", "aquifers, recharge, saline groundwater", "© BGR & UNESCO", ""],
+    ["Benden 2022, Global Shipping Lanes", "https://doi.org/10.5281/zenodo.6361763", "shipping lanes", "CC BY 4.0", "2022"],
+    ["US EIA, World Oil Transit Chokepoints", "https://www.eia.gov/international/analysis/special-topics/World_Oil_Transit_Chokepoints", "chokepoint flows", "public domain", "Mar 2026"],
+    ["Natural Earth", "https://www.naturalearthdata.com/", "land, borders, rivers, lakes, roads, rail, place names", "public domain", "v5"],
+    ["Wikidata", "https://www.wikidata.org/", "military bases", "CC0", "", "bases.geojson"],
+    ["TeleGeography Submarine Cable Map", "https://www.submarinecablemap.com/", "undersea cables & landing stations", "CC BY-NC-SA 3.0", "", "cables.geojson"],
+    ["OurAirports", "https://ourairports.com/data/", "airports & airstrips", "public domain", "", "airports.geojson"],
+    ["NGA World Port Index (Pub. 150)", "https://msi.nga.mil/Publications/WPI", "seaports", "public domain", "", "ports_wpi.geojson"],
+    ["OpenStreetMap", "https://www.openstreetmap.org/copyright", "data centres, military bases", "ODbL, © OpenStreetMap contributors", "", "datacenters.geojson"],
+    ["NASA FIRMS", "https://firms.modaps.eosdis.nasa.gov/", "fires & heat (VIIRS 375 m)", "NASA open data", "", "live:fires"],
+    ["GDELT Project", "https://www.gdeltproject.org/", "conflict reports; news panel (DOC API, live)", "free with citation", "", "live:events"],
+    ["GDELT 1.0 & 2.0 event files", "https://www.gdeltproject.org/data.html", "storyboard: surges by day, week and month", "free with citation", "", "live:story"],
+    ["USNI News Fleet and Marine Tracker", "https://news.usni.org/category/fleet-tracker", "US Navy warship & carrier positions (weekly, approximate)", "© U.S. Naval Institute; summarised with links to each post", "", "live:navy"],
+    ["adsb.lol", "https://adsb.lol/", "military aircraft", "ODbL", "", "live:aircraft"],
+    ["aisstream.io", "https://aisstream.io/", "ships worldwide (needs the build's API key)", "aisstream.io terms", "", "live:ships"],
+    ["Fintraffic Digitraffic", "https://www.digitraffic.fi/en/marine-traffic/", "ships in the Baltic, live in the browser", "CC BY 4.0", "every minute"],
+    ["NASA EOSDIS GIBS", "https://nasa-gibs.github.io/gibs-api-docs/", "VIIRS, MODIS, HLS, GOES (NOAA) and Himawari (JMA) imagery", "NASA open data", "daily to every 10 min"],
+    ["EUMETSAT View", "https://view.eumetsat.int/", "Meteosat imagery", "© EUMETSAT, data policy applies", "every 10–15 min"],
+    ["EOX Sentinel-2 cloudless", "https://s2maps.eu/", "2024 mosaic", "CC BY-NC-SA 4.0", "2024"],
+    ["Ramankutty et al. 2010, Global Croplands 2000 (NASA SEDAC)", "https://doi.org/10.7927/H4C8276G", "cropland share, via GIBS", "CC BY 4.0", "2000"],
+    ["Ramankutty et al. 2010, Global Pastures 2000 (NASA SEDAC)", "https://doi.org/10.7927/H47H1GGR", "pasture share, via GIBS", "CC BY 4.0", "2000"],
+    ["NASA MODIS Land Cover (MCD12Q1 v061)", "https://doi.org/10.5067/MODIS/MCD12Q1.061", "land cover type, yearly, via GIBS", "NASA open data", "2001–2024"],
+    ["Esri World Imagery", "https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9", "sharp base imagery", "Esri terms of use", "mixed dates"]
+  ];
+  Promise.all([get("infra_meta.json").catch(() => ({})), manifestP]).then(([meta, man]) => {
+    $("sources").innerHTML = SOURCES.map(([n, url, what, lic, when, key]) => {
+      if (key && key.startsWith("live:")) { const f = man && man.feeds && man.feeds[key.slice(5)]; when = f ? (f.updated ? "snapshot " + f.updated.slice(0, 16).replace("T", " ") + " UTC, every 3 h" : f.status || "no snapshot") : "no snapshot"; }
+      else if (key) { const s = meta[key] && meta[key].sources && meta[key].sources[0]; when = s && s.retrieved ? "retrieved " + s.retrieved.slice(0, 10) : when; }
+      return `<li><b><a href="${esc(url)}" target="_blank" rel="noopener">${esc(n)}</a></b>: ${esc(what)}<div class="m">${esc(lic)}${when ? " · " + esc(when) : ""}</div></li>`;
+    }).join("") + `<li class="m">Static layers rebuild with <code>pipeline/run_all.sh</code>; live snapshots with <code>pipeline/live/fetch_live.py</code>, run every 3 h by the site's GitHub Action.</li>`;
+  });
+
   // ---------- theme changes ----------
   const repaint = () => {
     if (!map || !map.isStyleLoaded() || !map.getLayer("land")) return;
     const set = (l, p, v) => map.getLayer(l) && map.setPaintProperty(l, p, v);
     set("bg", "background-color", css("--ocean")); set("land", "fill-color", css("--land"));
-    if (plateKey) { const [w, h] = plateKey.split("@")[0].split("x").map(Number); setPlateImage(w, h, true); }
     set("glaciers", "fill-color", css("--ice")); set("glaciers", "fill-outline-color", css("--ice-line"));
     set("lakes", "fill-color", css("--water")); set("lakes-line", "line-color", css("--river")); set("rivers", "line-color", css("--river"));
     set("maritime", "line-color", css("--sea-ink")); set("borders", "line-color", css("--border")); set("disputed-lines", "line-color", css("--disputed"));
@@ -1188,13 +1838,22 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     map.updateImage("hatch", hatch(css("--disputed"))); map.updateImage("hatch-salt", hatch(css("--stress"), .55));
     PTS.forEach(s => {
       const col = css(Q[s].color);
-      if (Q[s].ring) { set("g-" + s, "circle-stroke-color", col); set("lng-pts", "circle-stroke-color", col); return; }
-      set("g-" + s, "circle-color", col); set("g-" + s, "circle-stroke-color", css("--mark-ring"));
+      if (Q[s].ring) { set("lng-pts", "circle-stroke-color", col); return; }
       set(s + "-pts", "circle-color", col); set(s + "-pts", "circle-stroke-color", css("--mark-ring"));
     });
     ["pipes-oil", "pipes-gas", "og-outline-line"].forEach(l => set(l, "line-color", css("--oil"))); set("og-outline", "fill-color", css("--oil"));
     set("cb-fill", "fill-color", css("--coal")); set("cb-line", "line-color", css("--coal"));
     ["foot_w", "foot_c", "foot_e"].forEach(id => { set(id + "-fill", "fill-color", css("--foot")); set(id + "-line", "line-color", css("--foot")); });
+    Object.entries(ICONS).forEach(([id, [shape, tok]]) => map.updateImage(id, icon(shape, css(tok))));
+    set("events-pts", "circle-color", css("--conflict")); set("events-pts", "circle-stroke-color", css("--conflict"));
+    set("fires-pts", "circle-color", ["case", ["==", ["get", "ind"], 1], css("--fire-ind"), css("--fire")]); set("fires-pts", "circle-stroke-color", css("--conflict"));
+    set("dc-pts", "circle-color", css("--dc")); set("dc-pts", "circle-stroke-color", css("--mark-ring"));
+    set("cables", "line-color", css("--cable")); set("cables-plan", "line-color", css("--cable"));
+    set("landings-pts", "circle-color", css("--panel")); set("landings-pts", "circle-stroke-color", css("--cable"));
+    set("hover-line", "line-color", css("--ink")); set("story-halo", "circle-color", css("--conflict")); set("story-halo", "circle-stroke-color", css("--conflict"));
+    ["airports-l", "airports-m", "airports-s"].forEach(l => {
+      set(l, "circle-color", ["case", ["has", "mil"], css("--panel"), css("--air")]); set(l, "circle-stroke-color", ["case", ["has", "mil"], css("--air"), css("--mark-ring")]);
+    });
     applyBase();
   };
   try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", repaint); } catch (e) {}
