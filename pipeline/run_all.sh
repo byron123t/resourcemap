@@ -7,6 +7,7 @@ PY="python3 -I"
 $PY step1_extraction.py
 $PY postprocess.py mining
 $PY step2_water_geo_pipelines.py
+$PY labels.py                 # place names; needs only raw/naturalearth
 $PY postprocess.py pipelines
 $PY step3_industry_power_transport.py
 $PY postprocess.py power

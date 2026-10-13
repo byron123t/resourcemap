@@ -1,5 +1,7 @@
 # Publishes site/ to GitHub Pages and refreshes the live snapshots (fires, conflict
-# reports, storyboard, ships, US Navy tracker, aircraft) every 3 hours. Static layers in site/data/ are committed;
+# reports, storyboard, ships, US Navy tracker, military aircraft, business jets, airliners) every 30 minutes. GitHub delays or
+# drops scheduled runs under load, so expect gaps of an hour or more now and then. A run takes ~14 min
+# (ships listen 4 min, business jets take 3, airliners 6), so this is ~20,000 Actions minutes a month: free on a public repo, too much for a private one. Static layers in site/data/ are committed;
 # site/data/live/ is generated here and never committed.
 #
 # One-time setup: Settings → Pages → Source: "GitHub Actions".
@@ -13,7 +15,7 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: "17 */3 * * *"
+    - cron: "7,37 * * * *"
 
 permissions:
   contents: read

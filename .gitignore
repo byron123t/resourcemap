@@ -3,6 +3,10 @@ site/data/live/
 raw/live_cache/
 raw/infra/
 
+# Raw downloads (see raw/README.md); only the README is committed
+raw/*
+!raw/README.md
+
 # Local output
 __pycache__/
 tools/shots/

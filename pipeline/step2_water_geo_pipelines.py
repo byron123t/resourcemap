@@ -192,30 +192,6 @@ dump("disputed_lines", [{"type": "Feature", "geometry": rc(g, 3), "properties": 
 MI = gpd.read_file(f"{NE}/ne_10m_admin_0_boundary_lines_maritime_indicator.geojson"); MI["geometry"] = MI.geometry.simplify(0.01)
 dump("maritime", [{"type": "Feature", "geometry": rc(g, 3), "properties": {}} for g in MI.geometry if g is not None and not g.is_empty])
 
-# ---------- label points (rendered as HTML, no glyph server) ----------
-labels = []
-for _, r in C.iterrows():
-    labels.append({"t": "c", "n": r["NAME"], "x": round(r["LABEL_X"], 3), "y": round(r["LABEL_Y"], 3), "z": float(r["MIN_LABEL"]), "k": r["key"]})
-PP = gpd.read_file(f"{NE}/ne_10m_populated_places_simple.geojson")
-PP = PP[PP["featurecla"].astype(str).str.contains("Admin-0 capital")]
-for _, r in PP.iterrows():
-    labels.append({"t": "p", "n": r["name"], "x": round(r.geometry.x, 3), "y": round(r.geometry.y, 3), "z": max(3.0, float(r["min_zoom"]))})
-MP = gpd.read_file(f"{NE}/ne_10m_geography_marine_polys.geojson")
-for _, r in MP.iterrows():
-    if not isinstance(r["name"], str) or r.geometry is None: continue
-    p = r.geometry.representative_point()
-    z = float(r["min_label"]) if "min_label" in MP.columns and not pd.isna(r["min_label"]) else 2 + float(r["scalerank"])
-    labels.append({"t": "m", "n": r["name"], "x": round(p.x, 3), "y": round(p.y, 3), "z": z})
-GR = gpd.read_file(f"{NE}/ne_10m_geography_regions_polys.geojson"); GR.columns = [c.lower() if c != "geometry" else c for c in GR.columns]; GR = GR.set_geometry("geometry")
-for _, r in GR.iterrows():
-    if not isinstance(r["name"], str) or r.geometry is None: continue
-    if str(r["featurecla"]) in ("Continent", "Island group", "Island", "Peninsula", "Pen/cape", "Isthmus", "Coast", "Delta", "Wetlands", "Gorge"): continue
-    p = r.geometry.representative_point()
-    z = float(r["min_label"]) if "min_label" in GR.columns and not pd.isna(r["min_label"]) else 2 + float(r["scalerank"])
-    labels.append({"t": "g", "n": r["name"], "x": round(p.x, 3), "y": round(p.y, 3), "z": z, "f": str(r["featurecla"])})
-json.dump(labels, open(f"{D}/labels.json", "w"), separators=(",", ":"), ensure_ascii=False)
-print("labels", len(labels), {t: sum(l["t"] == t for l in labels) for t in "cpmg"})
-
 # ---------- country totals ----------
 out = {}
 for _, r in C.iterrows():

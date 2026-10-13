@@ -3,18 +3,22 @@
 
 Run by a scheduled GitHub Action every few hours; devs can run it locally:
 
-    python3 -I pipeline/live/fetch_live.py [--only events,fires,ships,aircraft,navy,story]
+    python3 -I pipeline/live/fetch_live.py [--only events,fires,ships,aircraft,jets,airliners,navy,story]
                                            [--days 14] [--ais-seconds 240]
+                                           [--archive DIR [--archive-budget-mb 1000] [--archive-long-days 1826]]
 
 Feeds (each one independent; a failure leaves that feed's previous output):
   events   GDELT 2.0 export files, CAMEO roots 18-20, city-level geo -> events.geojson
   fires    NASA FIRMS VIIRS 24 h CSVs (NOAA-20, NOAA-21, Suomi NPP)  -> fires.json
   ships    aisstream.io WebSocket snapshot (needs AISSTREAM_API_KEY) -> ships.geojson
   aircraft adsb.lol /v2/mil                                          -> aircraft.geojson
+  jets     adsb.lol /v2/type, business-jet types, LADD/PIA dropped  -> jets.geojson
+  airliners adsb.lol /v2/type, airliner and regional types           -> airliners.geojson
   navy     USNI News Fleet and Marine Tracker (latest weekly post)   -> navy.geojson
   story    GDELT 1.0 dailies + 2.0 slots, regional surges per
            day / week / month window                                 -> story.json
-plus manifest.json describing all of them.
+plus manifest.json describing all of them. --archive also files this run into a
+rolling, size-capped history (pipeline/live/archive.py).
 
 Standard library only, except `websockets` (imported lazily for ships).
 Raw downloads are cached under raw/live_cache/ so reruns are incremental.
@@ -41,7 +45,7 @@ OUT = os.path.join(DATA, "live")
 CACHE = os.path.join(ROOT, "raw", "live_cache")
 UA = "resourcemap-live/1.0 (+https://github.com/byron123t/resourcemap)"
 # events before fires (fires use events for cf) and before story (story reuses the GDELT slot cache)
-FEEDS = ["events", "fires", "ships", "aircraft", "navy", "story"]
+FEEDS = ["events", "fires", "ships", "aircraft", "jets", "airliners", "navy", "story"]
 
 SOURCES = {
     "fires": {"source": "NASA FIRMS VIIRS 375 m (NOAA-20, NOAA-21, Suomi NPP), last 24 h",
@@ -51,6 +55,9 @@ SOURCES = {
     "ships": {"source": "aisstream.io AIS (terrestrial), WebSocket snapshot",
               "url": "https://aisstream.io/"},
     "aircraft": {"source": "adsb.lol /v2/mil", "url": "https://adsb.lol/"},
+    "jets": {"source": "adsb.lol /v2/type (business-jet types; LADD/PIA-flagged aircraft omitted)",
+             "url": "https://adsb.lol/"},
+    "airliners": {"source": "adsb.lol /v2/type (airliner, regional and large freighter types)", "url": "https://adsb.lol/"},
     "navy": {"source": "USNI News Fleet and Marine Tracker (weekly; positions approximate)",
              "url": "https://news.usni.org/category/fleet-tracker"},
     "story": {"source": "GDELT 1.0 daily + 2.0 15-minute event files (CAMEO 18–20), ranked by surge",
@@ -683,37 +690,131 @@ def run_ships(args, ctx):
 
 # ---------------------------------------------------------------- D. military aircraft
 
+def aircraft_feature(a):
+    """adsb.lol aircraft record -> GeoJSON point, or None without a recent position."""
+    lat, lon = a.get("lat"), a.get("lon")
+    if lat is None or lon is None:
+        return None
+    if (a.get("seen_pos") if a.get("seen_pos") is not None else 1e9) >= 300:
+        return None
+    alt = a.get("alt_baro")
+    props = {"hex": a.get("hex"), "f": (a.get("flight") or "").strip() or None,
+             "r": a.get("r"), "ty": a.get("t")}
+    if alt == "ground":
+        props["alt"], props["gnd"] = 0, 1
+    elif isinstance(alt, (int, float)):
+        props["alt"] = int(alt)
+    props["gs"] = round(a["gs"], 1) if isinstance(a.get("gs"), (int, float)) else None
+    props["trk"] = round(a["track"], 1) if isinstance(a.get("track"), (int, float)) else None
+    props["sq"] = a.get("squawk")
+    return {"type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [round(lon, 4), round(lat, 4)]},
+            "properties": {k: v for k, v in props.items() if v is not None}}
+
+
 def run_aircraft(args, ctx):
     feed = "aircraft"
     now = utcnow()
     d = json.loads(http_get("https://api.adsb.lol/v2/mil", timeout=60))
     ac = d.get("ac") or []
-    feats = []
-    for a in ac:
-        lat, lon = a.get("lat"), a.get("lon")
-        if lat is None or lon is None:
-            continue
-        if (a.get("seen_pos") if a.get("seen_pos") is not None else 1e9) >= 300:
-            continue
-        alt = a.get("alt_baro")
-        props = {"hex": a.get("hex"), "f": (a.get("flight") or "").strip() or None,
-                 "r": a.get("r"), "ty": a.get("t")}
-        if alt == "ground":
-            props["alt"], props["gnd"] = 0, 1
-        elif isinstance(alt, (int, float)):
-            props["alt"] = int(alt)
-        props["gs"] = round(a["gs"], 1) if isinstance(a.get("gs"), (int, float)) else None
-        props["trk"] = round(a["track"], 1) if isinstance(a.get("track"), (int, float)) else None
-        props["sq"] = a.get("squawk")
-        feats.append({"type": "Feature",
-                      "geometry": {"type": "Point", "coordinates": [round(lon, 4), round(lat, 4)]},
-                      "properties": {k: v for k, v in props.items() if v is not None}})
+    feats = [f for f in map(aircraft_feature, ac) if f]
     if not feats and not ac:
         raise RuntimeError("adsb.lol returned no aircraft")
     fc = {"type": "FeatureCollection", "updated": iso(now), "features": feats}
     size = write_json(os.path.join(OUT, "aircraft.geojson"), fc)
     log(feed, f"wrote aircraft.geojson: {len(feats)} of {len(ac)} aircraft, {mb(size)}")
     return {"updated": iso(now), "count": len(feats)}
+
+
+# ---------------------------------------------------------------- D2. business jets and airliners
+
+# ICAO type designators for business jets, queried one by one (adsb.lol has no working
+# global dump). Light jets (C510, C525, E50P, ...) are left out to keep a run near 3 min.
+JET_TYPES = {
+    "GLF4": "Gulfstream IV", "GLF5": "Gulfstream V", "GLF6": "Gulfstream G650", "GA5C": "Gulfstream G500",
+    "GA6C": "Gulfstream G600", "GA7C": "Gulfstream G700", "GA8C": "Gulfstream G800", "GL5T": "Bombardier Global 5000/5500",
+    "GL7T": "Bombardier Global 7500", "GLEX": "Bombardier Global Express/6000", "GL8T": "Bombardier Global 8000",
+    "CL30": "Bombardier Challenger 300", "CL35": "Bombardier Challenger 350", "CL60": "Bombardier Challenger 600 series",
+    "FA7X": "Dassault Falcon 7X", "FA8X": "Dassault Falcon 8X", "F900": "Dassault Falcon 900", "F2TH": "Dassault Falcon 2000",
+    "FA50": "Dassault Falcon 50", "FA6X": "Dassault Falcon 6X", "FA10": "Dassault Falcon 10",
+    "E35L": "Embraer Legacy 600/650", "E55P": "Embraer Phenom 300", "E545": "Embraer Praetor 500 / Legacy 450",
+    "E550": "Embraer Praetor 600 / Legacy 500", "LJ45": "Learjet 45", "LJ60": "Learjet 60", "LJ75": "Learjet 75",
+    "C56X": "Cessna Citation Excel/XLS", "C680": "Cessna Citation Sovereign", "C68A": "Cessna Citation Latitude",
+    "C700": "Cessna Citation Longitude", "C750": "Cessna Citation X", "H25B": "Hawker 800", "PC24": "Pilatus PC-24",
+}
+# dbFlags bits: 1 military (already in aircraft.geojson), 4 PIA (privacy ICAO address),
+# 8 LADD (owner asked the FAA not to have the aircraft displayed). We honour both opt-outs.
+JET_DROP = 1 | 4 | 8
+
+
+# Mainline, regional and large freighter types; together about 90% of airliner traffic.
+AIRLINER_TYPES = {
+    "A318": "Airbus A318", "A319": "Airbus A319", "A320": "Airbus A320", "A321": "Airbus A321",
+    "A19N": "Airbus A319neo", "A20N": "Airbus A320neo", "A21N": "Airbus A321neo",
+    "A332": "Airbus A330-200", "A333": "Airbus A330-300", "A338": "Airbus A330-800neo", "A339": "Airbus A330-900neo",
+    "A343": "Airbus A340-300", "A346": "Airbus A340-600", "A359": "Airbus A350-900", "A35K": "Airbus A350-1000",
+    "A388": "Airbus A380", "BCS1": "Airbus A220-100", "BCS3": "Airbus A220-300",
+    "B712": "Boeing 717", "B733": "Boeing 737-300", "B734": "Boeing 737-400", "B735": "Boeing 737-500",
+    "B736": "Boeing 737-600", "B737": "Boeing 737-700", "B738": "Boeing 737-800", "B739": "Boeing 737-900",
+    "B37M": "Boeing 737 MAX 7", "B38M": "Boeing 737 MAX 8", "B39M": "Boeing 737 MAX 9", "B3XM": "Boeing 737 MAX 10",
+    "B744": "Boeing 747-400", "B748": "Boeing 747-8", "B752": "Boeing 757-200", "B753": "Boeing 757-300",
+    "B762": "Boeing 767-200", "B763": "Boeing 767-300", "B764": "Boeing 767-400",
+    "B772": "Boeing 777-200", "B77L": "Boeing 777-200LR / 777F", "B773": "Boeing 777-300", "B77W": "Boeing 777-300ER",
+    "B788": "Boeing 787-8", "B789": "Boeing 787-9", "B78X": "Boeing 787-10", "MD11": "McDonnell Douglas MD-11",
+    "E170": "Embraer E170", "E75S": "Embraer E175", "E75L": "Embraer E175", "E190": "Embraer E190",
+    "E195": "Embraer E195", "E290": "Embraer E190-E2", "E295": "Embraer E195-E2",
+    "CRJ2": "Bombardier CRJ200", "CRJ7": "Bombardier CRJ700", "CRJ9": "Bombardier CRJ900", "CRJX": "Bombardier CRJ1000",
+    "AT72": "ATR 72", "AT75": "ATR 72-500", "AT76": "ATR 72-600", "DH8D": "De Havilland Dash 8-400",
+    "C919": "COMAC C919", "AJ27": "COMAC ARJ21", "SU95": "Sukhoi Superjet 100",
+}
+
+
+def fetch_types(feed, types, fname):
+    """Query adsb.lol /v2/type for each type, drop opted-out and military aircraft, write fname."""
+    now = utcnow()
+    seen, feats, total, dropped, failed = set(), [], 0, 0, []
+    for i, t in enumerate(types):
+        if i:
+            time.sleep(2)  # adsb.lol answers bursts with 429
+        body = None
+        for wait in (0, 10, 20, 40):  # back off on 429, give up on other errors
+            time.sleep(wait)
+            try:
+                body = http_get(f"https://api.adsb.lol/v2/type/{t}", timeout=60, retries=1)
+                break
+            except RuntimeError as e:
+                if "429" not in str(e):
+                    break
+        if body is None:
+            failed.append(t)
+            continue
+        for a in json.loads(body).get("ac") or []:
+            if a.get("hex") in seen:
+                continue
+            seen.add(a.get("hex"))
+            total += 1
+            if (a.get("dbFlags") or 0) & JET_DROP or str(a.get("hex", "")).startswith("~"):
+                dropped += 1
+                continue
+            f = aircraft_feature(a)
+            if f:
+                f["properties"]["desc"] = types.get(a.get("t"), types[t])
+                feats.append(f)
+    if len(failed) > len(types) // 2:
+        raise RuntimeError(f"adsb.lol type queries failed for {len(failed)} of {len(types)} types")
+    fc = {"type": "FeatureCollection", "updated": iso(now), "features": feats}
+    size = write_json(os.path.join(OUT, fname), fc)
+    log(feed, f"wrote {fname}: {len(feats)} of {total} aircraft ({dropped} privacy/military flagged), "
+              f"failed types: {failed or '-'}, {mb(size)}")
+    return {"updated": iso(now), "count": len(feats), "types": len(types) - len(failed)}
+
+
+def run_jets(args, ctx):
+    return fetch_types("jets", JET_TYPES, "jets.geojson")
+
+
+def run_airliners(args, ctx):
+    return fetch_types("airliners", AIRLINER_TYPES, "airliners.geojson")
 
 
 # ---------------------------------------------------------------- E. US Navy deployments (USNI Fleet Tracker)
@@ -1238,7 +1339,7 @@ def run_story(args, ctx):
 # ---------------------------------------------------------------- main
 
 RUNNERS = {"events": run_events, "fires": run_fires, "ships": run_ships, "aircraft": run_aircraft,
-           "navy": run_navy, "story": run_story}
+           "jets": run_jets, "airliners": run_airliners, "navy": run_navy, "story": run_story}
 
 
 def main():
@@ -1247,6 +1348,10 @@ def main():
                     help="comma-separated subset of: " + ",".join(FEEDS))
     ap.add_argument("--days", type=int, default=14, help="GDELT window in days (default 14)")
     ap.add_argument("--ais-seconds", type=int, default=240, help="AIS listen time (default 240)")
+    ap.add_argument("--archive", metavar="DIR", help="also add this run to the rolling archive in DIR (see archive.py)")
+    ap.add_argument("--archive-budget-mb", type=float, default=1000, help="archive size cap in MB (default 1000)")
+    ap.add_argument("--archive-long-days", type=int, default=1826,
+                    help="days of events, story and navy history to keep (default 1826, five years)")
     args = ap.parse_args()
     want = [s.strip() for s in args.only.split(",") if s.strip()]
     bad = [s for s in want if s not in RUNNERS]
@@ -1287,6 +1392,14 @@ def main():
             base = old.get(name) or {"status": "error", **SOURCES[name]}
             feeds[name] = {**base, "stale": True, "error": msg}
     write_json(mpath, {"generated": iso(utcnow()), "feeds": feeds})
+    if args.archive:
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import archive
+            archive.update(args.archive, OUT, os.path.join(CACHE, "gdelt"), ok, utcnow(),
+                           args.archive_budget_mb, args.archive_long_days)
+        except Exception as e:
+            log("archive", f"FAILED: {type(e).__name__}: {e}")
     log("main", f"ok: {ok or '-'}; failed: {failed or '-'}; total {time.time() - t0:.0f} s")
     return 1 if failed and not ok else 0
 
