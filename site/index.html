@@ -155,6 +155,8 @@ h1 { margin: 4px 0 6px; font-family: var(--f-display); font-stretch: 78%; font-w
 .seg.views button:nth-child(3n+1) { border-left: 0; }
 .seg.views button:nth-child(n+4) { border-top: 1px solid var(--panel-line); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); font-weight: 600; }
+.seg + .seg { margin-top: 6px; }
+.dt-note { margin: 6px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--ink-3); }
 
 select, .search input { width: 100%; box-sizing: border-box; font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); }
 .choro-legend { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
@@ -232,7 +234,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .base-legend .ticks { display: grid; font-size: 10.5px; color: var(--ink-2); line-height: 1.2; }
 .base-legend .note { font-size: 11.5px; color: var(--ink-3); line-height: 1.4; }
 .layer .name small.live { font-family: var(--f-mono); font-size: 10.5px; }
-.layer .name small.live.bad { color: var(--disputed); }
+.layer .name small.live.bad { color: var(--ink-3); }
+.layer:has(input:checked) .name small.live.bad { color: var(--disputed); }
 .imagery { display: flex; flex-direction: column; gap: 6px; }
 .imagery .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; font-size: 12px; color: var(--ink-2); }
 .imagery .row2 label { display: flex; flex-direction: column; gap: 2px; }
@@ -328,6 +331,26 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .sim ul.facts { margin: 0; padding-left: 16px; font-size: 11.5px; line-height: 1.45; color: var(--ink-2); display: flex; flex-direction: column; gap: 3px; }
 .sim details { font-size: 11.5px; color: var(--ink-3); line-height: 1.45; }
 .sim summary { cursor: pointer; color: var(--ink-2); }
+.sim-start { display: flex; flex-direction: column; gap: 8px; }
+.sim-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+.sim-tabs button { font: inherit; font-size: 11.5px; padding: 4px 8px; border: 1px solid var(--panel-line); border-radius: 999px; background: var(--land); color: var(--ink-2); cursor: pointer; }
+.sim-tabs button[aria-selected="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.sim-cards, .sim-kinds { display: grid; gap: 6px; }
+.sim-kinds { grid-template-columns: 1fr 1fr; }
+.sim-cards button, .sim-kinds button { font: inherit; text-align: left; padding: 7px 9px; border: 1px solid var(--panel-line); border-radius: 6px; background: var(--land); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.sim-cards button:hover, .sim-kinds button:hover { border-color: var(--ink-3); }
+.sim-kinds button[aria-pressed="true"] { border-color: var(--sim-zone); box-shadow: inset 0 0 0 1px var(--sim-zone); }
+.sim-cards b, .sim-kinds b { font-size: 12.5px; font-weight: 600; line-height: 1.3; }
+.sim-cards span, .sim-kinds span { font-size: 11.5px; line-height: 1.4; color: var(--ink-3); }
+.sim-cards > div { display: flex; flex-direction: column; gap: 2px; }
+.sim-cards button { width: 100%; }
+.sim-cards a { font-size: 11px; color: var(--ink-3); align-self: flex-end; }
+.sim-head { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.sim-head div { border: 1px solid var(--panel-line); border-radius: 6px; padding: 6px 8px; display: flex; flex-direction: column; gap: 1px; }
+.sim-head b { font-family: var(--f-display); font-stretch: 85%; font-size: 19px; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.sim-head b.dn { color: var(--sim-down); } .sim-head b.up { color: var(--sim-up); }
+.sim-head span { font-size: 11px; line-height: 1.35; color: var(--ink-2); }
+.sim details.more > div { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
 .sim-key { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: var(--ink-2); }
 .sim-key i { display: inline-block; width: 16px; height: 3px; vertical-align: 3px; margin-right: 5px; border-radius: 2px; }
 .detail .zoom-btn { margin: 0 16px 14px; font: inherit; font-size: 12.5px; padding: 6px 10px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
@@ -342,7 +365,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       <div>
         <div class="eyebrow">Site-level · 2026 data</div>
         <h1>World Extraction Atlas</h1>
-        <p class="lede">Oil, gas, coal, ore, critical minerals, industry, power and water, with the borders, pipelines, cables and sea lanes that connect them. Every site is drawn at its true location at every zoom, with live satellite imagery, fire detections, conflict events, warships and aircraft on top.</p>
+        <p class="lede">Where the world's energy, ore, food and water come from, how they move, and what breaks when something stops. Pick a view to start.</p>
         <p class="offnote" id="offNote" hidden></p>
       </div>
       <button class="toggle-sheet" id="toggleSheet" aria-expanded="true">Hide</button>
@@ -370,20 +393,30 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       <p class="sum small">Each card is a place where conflict reports (assaults, fighting, mass violence) jumped well above that place's own usual level in that hour, day or three days. Picked from GDELT, which codes events from news articles automatically, so read the linked articles. The headline comes from the most-cited article and can be about a different event in the same place.</p>
     </div>
     <div class="sim" id="sim" hidden>
-      <p class="sum" id="simSum">Switch something off and watch the oil and gas network re-route around it.</p>
-      <div class="row">
-        <button type="button" id="simPick" aria-pressed="false">Pick on map</button>
-        <button type="button" id="simDry" aria-pressed="false">Dry a river basin</button>
-        <select id="simChoke" aria-label="Close a chokepoint"><option value="">Close a chokepoint…</option></select>
-        <button type="button" id="simClear">Clear</button>
-      </div>
-      <p class="hint" id="simHint" hidden>Click a refinery, oil or gas field, pipeline, oil port, LNG terminal, power plant, coal or iron mine, or cable landing. Click open ground for a conflict or disaster zone. Esc stops.</p>
-      <p class="hint" id="simHintW" hidden>Click inside a river basin. It and everything upstream lose water, and basins downstream lose a share. Esc stops.</p>
-      <div class="row chips" id="simShow" role="group" aria-label="Also show on the map"></div>
+      <p class="sum" id="simSum">What breaks if something stops? Pick a ready-made scenario, or build your own: the model re-routes oil and gas, roads and rail, and river water around it.</p>
+      <div class="sim-head" id="simHead" hidden></div>
       <ul class="shocks" id="simList"></ul>
-      <div class="row" id="simPresets" role="group" aria-label="Examples"></div>
+      <div class="row" id="simBar" hidden>
+        <button type="button" id="simClear">Start over</button>
+        <button type="button" id="simCopy">Copy link</button>
+      </div>
+      <p class="hint" id="simHint" hidden></p>
       <div id="simOut"></div>
-      <details id="simAsm"><summary>Assumptions</summary><div></div></details>
+      <section class="sim-start">
+        <div class="sec">Try a scenario</div>
+        <div class="sim-tabs" id="simGroups" role="tablist" aria-label="Scenario groups"></div>
+        <div class="sim-cards" id="simPresets"></div>
+        <div class="sec">Or build your own</div>
+        <div class="sim-kinds">
+          <button type="button" data-pick="choke" aria-pressed="false"><b>Close a sea route</b><span>Shut a strait or canal; ships go the long way round.</span></button>
+          <button type="button" data-pick="fac" aria-pressed="false"><b>Switch off a site</b><span>A refinery, field, pipeline, terminal, port, power plant, mine or cable landing.</span></button>
+          <button type="button" data-pick="zone" aria-pressed="false"><b>Draw a conflict or disaster zone</b><span>Everything inside is damaged; roads and rail detour round it.</span></button>
+          <button type="button" data-pick="water" aria-pressed="false"><b>Dry up a river</b><span>A basin and everything upstream lose water; who runs short downstream?</span></button>
+        </div>
+        <div class="row chips" id="simChokes" role="group" aria-label="Close a sea route" hidden></div>
+        <div class="row chips" id="simShow" role="group" aria-label="Also show on the map"></div>
+      </section>
+      <details id="simAsm"><summary>How the model works</summary><div></div></details>
     </div>
     <div class="sheet-body" id="sheetBody">
       <section class="viewbox">
@@ -391,7 +424,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         <div class="seg views" role="group" aria-label="Quick views">
           <button type="button" data-view="overview" aria-pressed="true">Overview</button>
           <button type="button" data-view="now" aria-pressed="false">Now</button>
-          <button type="button" data-view="grid" aria-pressed="false">Grid</button>
+          <button type="button" data-view="people" aria-pressed="false">People</button>
+          <button type="button" data-view="oil" aria-pressed="false">Oil &amp; gas</button>
+          <button type="button" data-view="clean" aria-pressed="false">Clean power</button>
+          <button type="button" data-view="water" aria-pressed="false">Water</button>
           <button type="button" data-view="shipping" aria-pressed="false">Shipping</button>
           <button type="button" data-view="security" aria-pressed="false">Conflict</button>
           <button type="button" data-view="farm" aria-pressed="false">Farming</button>
@@ -568,6 +604,11 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
           <button type="button" id="st-op" aria-pressed="false">Operating</button>
           <button type="button" id="st-plan" aria-pressed="false">Planned</button>
         </div>
+        <div class="seg" role="group" aria-label="How many sites to show zoomed out">
+          <button type="button" id="dt-main" aria-pressed="true">Largest sites</button>
+          <button type="button" id="dt-all" aria-pressed="false">Every site</button>
+        </div>
+        <p class="dt-note" id="dtNote">Zoomed out (below zoom 5), only the biggest fields, mines, plants, pipelines, ports, fires and report clusters show, and only major naval bases and missile sites unless you pick a base type. Zoom in or pick <b>Every site</b> for the rest.</p>
       </section>
 
       <section class="search">
@@ -1340,13 +1381,28 @@ onmessage = async ev => {
   const R = k => { const base = ["max", 2.5, ["*", k, ["sqrt", ["coalesce", ["get", "q"], 0]]]]; return ["interpolate", ["linear"], ["zoom"], ...ZF.flatMap((v, i) => i % 2 ? [] : [v, ["*", base, ZF[i + 1]]])]; };
 
   // capped so one giant site never swallows the view
-  const RC = k => { const base = ["min", 26, ["max", 2.5, ["*", k, ["sqrt", ["coalesce", ["get", "q"], 0]]]]]; return ["interpolate", ["linear"], ["zoom"], ...ZF.flatMap((v, i) => i % 2 ? [] : [v, ["*", base, ZF[i + 1]]])]; };
+  const RC = (k, lo = 2.5) => { const base = ["min", 26, ["max", lo, ["*", k, ["sqrt", ["coalesce", ["get", "q"], 0]]]]]; return ["interpolate", ["linear"], ["zoom"], ...ZF.flatMap((v, i) => i % 2 ? [] : [v, ["*", base, ZF[i + 1]]])]; };
+  // Zoomed out, thousands of sites overlap: sites too small to size (at the minimum radius) fade back. With "Largest sites"
+  // on, what's left is all worth seeing, so nothing fades and the smallest draw a little bigger.
+  function ptSize(src, main) {
+    const Qk = Q[src];
+    const tiny = Qk.count || main ? ["==", 1, 0] : ["<", ["*", Qk.k, ["sqrt", ["coalesce", ["get", "q"], 0]]], 2.5];
+    const countR = ["interpolate", ["linear"], ["zoom"], 1, 1.8, 4, 2.6, 8, 4, 12, 6];
+    return { "circle-radius": Qk.count ? countR : RC(Qk.k, main ? 4.5 : 2.5),
+      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", tiny, 0.28, ["==", ["get", "s"], "operating"], 0.8, 0.4], 4, ["case", tiny, 0.55, ["==", ["get", "s"], "operating"], 0.85, 0.45], 6, ["case", ["==", ["get", "s"], "operating"], 0.88, 0.5]] };
+  }
   const STATUS = {
     all: s => !["cancelled", "retired", "abandoned", "decommissioning", "closed"].includes(s),
     op: s => s === "operating",
     plan: s => ["proposed", "discovered", "in-development", "construction", "exploration", "shelved"].includes(s)
   };
   let statusMode = "all", fuelFilter = "", mineralFilter = "";
+  // "Largest sites": zoomed out past MAIN_Z, sites below these figures drop out so a world view stays readable.
+  // Units are each layer's own (q, fire power for fires, article count for reports); a view's `big` can raise one.
+  const MAIN = { oilgas: 40, coal: 15, iron: 3.5, foot: 37, power: 2, steel: 4, cement: 4, lng: 7.5, refinery: 0.25, pipes: 0.3, ports: 3, events: 400, fires: 200 };
+  const MAIN_Z = 5;
+  let siteDetail = "main", viewBig = {}, mainOn = true;
+  const minQ = k => mainOn ? (viewBig[k] ?? MAIN[k] ?? null) : null;
 
   const GROUPS = {
     oilgas: { layers: ["oilgas-pts"], data: ["oilgas"] }, coal: { layers: ["coal-pts"], data: ["coal"] },
@@ -1367,103 +1423,114 @@ onmessage = async ev => {
     cables: { layers: ["cables", "cables-plan", "landings-pts"], data: ["cables", "landings"] },
     bases: { layers: ["bases-pts"], data: ["bases"] }, airports: { layers: ["airports-l", "airports-m", "airports-s"], data: ["airports"] }, dc: { layers: ["dc-pts"], data: ["dc"] }
   };
-  // Preset views. on: layer checkboxes; fuel/mineral/fire/bases/air/status: sub-filters; base: background shading;
+  // Preset views. on: layer checkboxes (keep to a handful: the panel below adds the rest); fuel/mineral/fire/bases/air/status:
+  // sub-filters; big: raise or lower a layer's "Largest sites" cut-off (MAIN) for this view; base: background shading;
   // img: satellite imagery ("geo"/"geoir" pick the geostationary satellite over the map centre) with optional opacity;
   // agri: farmland layer; note: what the view is for; x: a cross-domain connection worth checking; go: an example place
   const VIEWS = {
-    overview: { g: "Start here", label: "Overview: extraction & industry", on: ["oilgas", "coal", "crit", "iron", "power", "steel", "lng", "pipes", "lanes", "choke", "lakes", "ice"],
-      note: "Where the world's oil, gas, coal, ore and critical minerals come out of the ground, and the plants, pipelines and sea lanes that move and use them." },
-    now: { g: "Start here", label: "Now: news & live events", on: ["events", "fires", "ships", "navy", "aircraft", "choke", "lanes", "lakes"], fire: "noind",
-      note: "The latest snapshot of conflict reports, fires (industrial heat left out), large ships, US Navy positions and military aircraft. Click a country or report for recent articles.",
+    overview: { g: "Start here", label: "Overview: where energy and ore come from", on: ["oilgas", "coal", "iron", "pipes", "choke"],
+      note: "The biggest oil and gas fields, coal and iron ore mines, the main pipelines and the eight sea chokepoints. Zoom in for smaller sites.",
+      x: "Pick a view below for one topic at a time, or switch on any layer from the list further down.",
+      go: { c: [50, 28], z: 4.2, label: "The Gulf" } },
+    now: { g: "Start here", label: "Now: news & live events", on: ["events", "fires", "navy", "choke"], fire: "noind",
+      note: "Where conflict reports cluster, the largest fires (industrial heat left out) and US Navy positions. Click a country or report for recent articles.",
       x: "The Storyboard ranks places where reports jumped far above their usual level; a surge next to a <b>chokepoint</b> or <b>pipeline</b> often moves markets before it makes headlines.",
       go: { story: true, label: "Open the storyboard" } },
-    everyday: { g: "Start here", label: "Around me: streets, travel, hazards", on: ["osm", "rail", "airports", "rivers", "lakes", "terrain", "fires", "power"], fire: "noind",
-      note: "A street map with railways, airports, rivers and terrain, plus nearby fires and power plants. Search a town or address above the sources list.",
+    everyday: { g: "Start here", label: "Around me: streets, travel, hazards", on: ["osm", "terrain", "rivers", "airports", "fires"], fire: "noind",
+      note: "A street map with terrain, rivers, airports and nearby fires. Search a town or address above the sources list.",
       x: "Fires upwind of you mean smoke even when they're far away; terrain shading shows which valleys flood first.",
       go: { locate: true, label: "Go to my location" } },
+    people: { g: "Start here", label: "Where people live", on: ["rivers", "lakes"], agri: "pop",
+      note: "Population density in 2020 with rivers and lakes. Most people live within a day's walk of a river or a coast.",
+      x: "Switch Background shading to <b>water stress</b>: the densest river valleys (the Ganges, Indus, Nile) are also the most stressed basins.",
+      go: { c: [80, 25], z: 4.5, label: "South Asia" } },
 
-    grid: { g: "Energy, grid & supply chain", label: "Power grid status & hardening", on: ["power", "dc", "pipes", "lng", "cables", "rivers", "lakes", "events"], img: "dnb20",
-      note: "Every power plant by fuel and size, the gas pipelines and LNG terminals that feed them, and data centres, over the latest full night of satellite night lights.",
-      x: "Night lights show <b>blackouts</b>: cities that went dark after storms or strikes on the grid. Compare with conflict reports and the plants that serve them. Change the day under Satellite imagery to see before and after.",
-      go: { c: [33, 48.8], z: 5.2, label: "Ukraine at night" } },
-    transition: { g: "Energy, grid & supply chain", label: "Energy transition: planned build-out", on: ["power", "crit", "lng", "lakes", "ice"], status: "plan", fuel: "solar,wind", mineral: "lithium,cobalt,nickel,graphite,manganese", base: "w:ws",
-      note: "Planned and under-construction solar and wind farms and LNG terminals, with battery-metal deposits, over today's water stress.",
-      x: "Battery metals often sit in <b>water-stressed</b> basins: lithium brine in the Atacama is pumped from aquifers in one of the driest places on Earth.",
-      go: { c: [-67.8, -23.6], z: 5.5, label: "Lithium triangle, Atacama" } },
-    supply: { g: "Energy, grid & supply chain", label: "Supply chain: ore to steel & cement", on: ["iron", "coal", "steel", "cement", "rail", "ports", "lanes", "choke"], base: "c:steel",
-      note: "Iron ore and coal mines, steel and cement plants, the railways that haul ore to port and the sea lanes in between. Countries shaded by steel capacity.",
+    oil: { g: "Energy & supply chain", label: "Oil & gas flows", on: ["oilgas", "refinery", "pipes", "lng", "choke"],
+      note: "The largest oil and gas fields, refineries, pipelines and LNG terminals, and the chokepoints they pass. Background shading can add countries by production.",
+      x: "About a fifth of the world's oil and LNG passes the <b>Strait of Hormuz</b>; the pipelines that bypass it (to Yanbu and Fujairah) carry only part of that. Try it under Scenarios.",
+      go: { c: [55.8, 26.3], z: 6, label: "Strait of Hormuz" } },
+    grid: { g: "Energy & supply chain", label: "Power plants at night", on: ["power"], img: "blk", big: { power: 3 },
+      note: "Power plants by fuel and size over NASA's cloud-free night-lights map. Zoomed out, plants of 3 GW and up; zoom in for the rest.",
+      x: "Night lights show <b>blackouts</b>: pick a recent night under Satellite imagery (night lights, pick a day) and compare it with this map to see cities that went dark after storms or strikes on the grid.",
+      go: { c: [127.3, 38.3], z: 5.6, label: "Korea at night" } },
+    clean: { g: "Energy & supply chain", label: "Clean power: hydro, nuclear, solar & wind", on: ["power", "lakes"], fuel: "hydro,nuclear,solar,wind", status: "op", big: { power: 1 },
+      note: "Operating hydro, nuclear, solar and wind plants. Zoomed out, plants of 1 GW and up; zoom in for the rest. Pick Planned under Status for what's being built.",
+      x: "Hydro and nuclear both depend on <b>rivers</b>: a dry summer cuts hydro output and forces river-cooled reactors to throttle back.",
+      go: { c: [108, 31], z: 5, label: "Yangtze dams" } },
+    nuclear: { g: "Energy & supply chain", label: "Nuclear power & uranium", on: ["power", "crit"], fuel: "nuclear", mineral: "uranium", big: { power: 0 },
+      note: "Every operating nuclear plant, and uranium deposits (the deposit list covers the United States only).",
+      x: "Kazakhstan mines about two-fifths of the world's uranium, and much of it reaches reactors by rail through Russia or the <b>Caspian</b>. Reactors sit on coasts and big rivers because they need cooling water.",
+      go: { c: [4, 48], z: 4.6, label: "France's reactors" } },
+    supply: { g: "Energy & supply chain", label: "Supply chain: ore to steel", on: ["iron", "coal", "steel", "rail"],
+      note: "The largest iron ore and coal mines, steel plants, and the railways that haul ore to port.",
       x: "Most seaborne ore goes from the Pilbara and Brazil to Chinese mills, so a closure of the <b>Malacca or Lombok straits</b> would reach car and construction prices worldwide.",
       go: { c: [118.4, -21.2], z: 5.6, label: "Pilbara iron ore" } },
-    oil: { g: "Energy, grid & supply chain", label: "Oil & gas flows", on: ["oilgas", "outlines", "pipes", "lng", "refinery", "ports", "lanes", "choke", "ships"], base: "c:og",
-      note: "Oil and gas fields and their boundaries, pipelines, LNG terminals, tankers at sea and the chokepoints they pass. Countries shaded by production.",
-      x: "About a fifth of the world's oil and LNG passes the <b>Strait of Hormuz</b>; the pipelines that bypass it (to Yanbu and Fujairah) carry only part of that.",
-      go: { c: [55.8, 26.3], z: 6, label: "Strait of Hormuz" } },
-    internet: { g: "Energy, grid & supply chain", label: "Internet: cables & data centres", on: ["cables", "dc", "power", "choke", "lanes", "ships"], base: "c:pw_gw",
-      note: "Undersea cables, their landing points and data centres, with power plants and countries shaded by generating capacity.",
+    minerals: { g: "Energy & supply chain", label: "Battery metals", on: ["crit", "ports"], mineral: "lithium,cobalt,nickel,graphite,manganese",
+      note: "Known lithium, cobalt, nickel, graphite and manganese deposits, and the main seaports. Pick another mineral in the Resources list.",
+      x: "Battery metals often sit in <b>water-stressed</b> basins: lithium brine in the Atacama is pumped from aquifers in one of the driest places on Earth.",
+      go: { c: [26.8, -11.2], z: 6, label: "DR Congo copper & cobalt belt" } },
+    internet: { g: "Energy & supply chain", label: "Internet: cables & data centres", on: ["cables", "dc"],
+      note: "Undersea cables, their landing points and data centres.",
       x: "Cables bunch up in the same straits as shipping, and ships dragging <b>anchors</b> are the most common cause of cuts. Data centres need as much power as a city.",
       go: { c: [41.5, 15.5], z: 5.3, label: "Red Sea cable corridor" } },
-    minerals: { g: "Energy, grid & supply chain", label: "Critical minerals & who holds them", on: ["crit", "foot", "rail", "ports", "bases"], base: "c:crit_n",
-      note: "Known critical-mineral deposits and mapped mine land, the rail and ports that export them, and countries shaded by deposit count.",
-      x: "Military bases near mines and ports show who protects which supply line; the <b>disputed</b> hatching marks deposits whose ownership is contested.",
-      go: { c: [26.8, -11.2], z: 6, label: "DR Congo copper & cobalt belt" } },
 
-    water: { g: "Water, climate & environment", label: "Water & hydropower", on: ["rivers", "lakes", "ice", "power", "terrain"], fuel: "hydro", base: "w:ws",
-      note: "Rivers, lakes, reservoirs and glaciers with hydropower plants, over water stress by river basin.",
-      x: "Dams upstream decide water downstream across borders: the <b>Nile</b>, Mekong, Indus and Tigris–Euphrates all have dams in one country and farms in another.",
+    water: { g: "Water, climate & environment", label: "Water stress & hydropower", on: ["rivers", "lakes", "power"], fuel: "hydro", big: { power: 1 }, base: "w:ws",
+      note: "Water stress by river basin, with rivers, lakes and hydropower plants (1 GW and up when zoomed out).",
+      x: "Dams upstream decide water downstream across borders: the <b>Nile</b>, Mekong, Indus and Tigris–Euphrates all have dams in one country and farms in another. Dry one under Scenarios.",
       go: { c: [34.5, 13], z: 4.6, label: "Grand Ethiopian Renaissance Dam & the Nile" } },
-    drought: { g: "Water, climate & environment", label: "Drought & thermal power", on: ["power", "rivers", "lakes", "ice", "fires"], fuel: "coal,gas,oil,nuclear,hydro", fire: "noind", base: "w:dr",
-      note: "Drought risk by basin with hydro, coal, gas, oil and nuclear plants, rivers and fires.",
+    drought: { g: "Water, climate & environment", label: "Drought & thermal power", on: ["power", "rivers"], fuel: "coal,gas,oil,nuclear", big: { power: 3 }, base: "w:dr",
+      note: "Drought risk by basin with the rivers and the coal, gas, oil and nuclear plants they cool (3 GW and up when zoomed out).",
       x: "Coal, gas and nuclear plants are cooled by river water; in <b>heatwaves and droughts</b> they cut output just as demand for air conditioning peaks, and hydro falls at the same time.",
       go: { c: [4.8, 45.6], z: 5.6, label: "Rhône valley nuclear plants" } },
-    env: { g: "Water, climate & environment", label: "Environmental footprint", on: ["foot", "outlines", "coal", "oilgas", "cement", "steel", "chem", "fires", "rivers"], fire: "noind", img: "eox",
-      note: "Mined land, oil and coal field boundaries, heavy industry and fires on a cloud-free 10 m satellite mosaic. Zoom past 6.5 for mine outlines.",
+    env: { g: "Water, climate & environment", label: "Environmental footprint", on: ["foot", "outlines", "fires"], fire: "noind", img: "eox",
+      note: "Mined land, oil and coal field boundaries and fires on a cloud-free 10 m satellite mosaic. Zoom past 6.5 for mine outlines.",
       x: "Mines and smelters sit on <b>rivers</b> because they need water: tailings spills travel downstream to farms and towns far from the site.",
       go: { c: [-111.5, 57.1], z: 8, label: "Alberta oil sands" } },
-    landuse: { g: "Water, climate & environment", label: "Deforestation & land use", on: ["foot", "fires", "roads", "rivers", "oilgas"], fire: "noind", agri: "lc",
-      note: "Yearly land cover (forest, farmland, urban) with mined land, fires and roads. Change the year under Farmland & land cover to see change.",
+    landuse: { g: "Water, climate & environment", label: "Deforestation & land use", on: ["fires", "roads"], fire: "noind", agri: "lc",
+      note: "Yearly land cover (forest, farmland, urban) with fires and roads. Change the year under Farmland & land cover to see change.",
       x: "Clearing follows <b>new roads</b>: fires in the dry season trace the edge of the frontier, and mines open new roads too.",
       go: { c: [-62.5, -10.5], z: 6, label: "Rondônia, Amazon" } },
 
-    fire: { g: "Emergency, police & safety", label: "Wildfire & emergency response", on: ["fires", "airports", "osm", "power", "terrain", "rivers", "lakes", "dc"], fire: "noind", air: "", img: "vm11",
-      note: "Fire detections over the latest full day's false-colour satellite image (hot spots glow orange, burned land is dark), with every airstrip, streets, terrain and power plants.",
-      x: "Small <b>airstrips</b> are where air tankers and helicopters reload; power plants and lines in the fire's path decide who loses power next.",
+    fire: { g: "Emergency & safety", label: "Wildfire & emergency response", on: ["fires", "airports", "terrain"], fire: "noind", air: "",
+      note: "Fire detections with terrain, airports and, from zoom 6, airstrips. Zoom in on a fire and pick a false-colour day under Satellite imagery to see the burn scar.",
+      x: "Small <b>airstrips</b> are where air tankers and helicopters reload; switch on Power plants to see what's in the fire's path.",
       go: { c: [-120.5, 38.5], z: 5.6, label: "California" } },
-    borders: { g: "Emergency, police & safety", label: "Borders, ports & smuggling routes", on: ["ports", "airports", "jets", "ships", "lanes", "rail", "roads"], air: "",
-      note: "Seaports, every airport and airstrip, business jets and large ships, sea lanes, railways and main roads, with maritime boundaries.",
+    borders: { g: "Emergency & safety", label: "Borders, ports & smuggling routes", on: ["ports", "airports", "jets", "lanes"], air: "",
+      note: "Seaports, airports and airstrips, business jets and sea lanes, with maritime boundaries.",
       x: "Remote <b>airstrips</b> near borders and ships far from the usual lanes are the classic signs of smuggling; tankers with AIS gaps near sanctioned terminals point to shadow fleets.",
       go: { c: [-88, 17], z: 5.5, label: "Central America & the Caribbean" } },
 
-    shipping: { g: "Shipping & aviation", label: "Shipping & freight", on: ["ports", "lanes", "choke", "ships", "lng", "rail", "cables"], base: "c:ports",
-      note: "Seaports, sea lanes, chokepoints, live ships and LNG terminals, with railways inland and countries shaded by port count.",
-      x: "When a chokepoint closes, ships reroute around the Cape and freight rates jump everywhere, not just on that route; rail links to the port decide how fast cargo moves inland.",
+    shipping: { g: "Shipping & aviation", label: "Shipping & freight", on: ["ports", "lanes", "choke", "ships"],
+      note: "The main seaports, sea lanes, chokepoints and live positions of large ships.",
+      x: "When a chokepoint closes, ships reroute around the Cape and freight rates jump everywhere, not just on that route. Close one under Scenarios.",
       go: { c: [103.8, 1.25], z: 8, label: "Singapore Strait" } },
-    mariner: { g: "Shipping & aviation", label: "At sea: captains & pilots", on: ["ships", "ports", "lanes", "choke", "navy", "events", "cables"], img: "geoir",
-      note: "Ships, ports, lanes and chokepoints over the latest infrared cloud image, with navy positions, conflict reports and undersea cables.",
-      x: "Don't anchor over <b>cables</b>; conflict reports near a strait (the Red Sea, Black Sea) mean higher war-risk insurance and possible GPS jamming.",
+    mariner: { g: "Shipping & aviation", label: "At sea: captains & pilots", on: ["ships", "choke", "navy"],
+      note: "Ships, chokepoints and US Navy positions. Pick infrared clouds under Satellite imagery for weather, and switch on conflict reports for war-risk areas.",
+      x: "Conflict reports near a strait (the Red Sea, Black Sea) mean higher war-risk insurance and possible GPS jamming; switch on cables before anchoring.",
       go: { c: [43.3, 13], z: 6.5, label: "Bab-el-Mandeb" } },
-    aviation: { g: "Shipping & aviation", label: "Aviation & airspace", on: ["airports", "airliners", "jets", "aircraft", "bases", "events", "fires", "terrain"], bases: "air", fire: "noind", img: "geoir",
-      note: "Large and medium airports, airliners, business jets and military aircraft over the latest infrared cloud image, with air bases and conflict reports.",
-      x: "Air bases and conflict reports mark airspace to avoid; big fires mean smoke, and heat spots on volcanoes can mean ash.",
+    aviation: { g: "Shipping & aviation", label: "Aviation & airspace", on: ["airports", "airliners", "aircraft"], air: "L",
+      note: "Large airports, airliners and military aircraft. Pick infrared clouds under Satellite imagery for weather.",
+      x: "Switch on conflict reports and air bases to see airspace to avoid; big fires mean smoke, and heat spots on volcanoes can mean ash.",
       go: { c: [10, 50], z: 4.2, label: "Europe" } },
 
-    security: { g: "Security & diplomacy", label: "Conflict & military", on: ["bases", "airports", "events", "fires", "aircraft", "navy", "ships", "cables", "choke", "lanes"], fire: "cf", air: "mil",
-      note: "Military bases and airfields, conflict reports, fires near reported fighting, military aircraft, US Navy ships and the sea lanes they guard.",
+    security: { g: "Security & diplomacy", label: "Conflict & military", on: ["events", "bases", "fires", "navy", "choke"], fire: "cf",
+      note: "Conflict reports, fires near reported fighting, US Navy ships, chokepoints, and major naval bases and missile sites (every base from zoom 5).",
       x: "Fires that appear next to conflict reports can be strikes, but also crop burning; check the satellite imagery for the day before trusting either.",
       go: { c: [34, 46.5], z: 5, label: "Black Sea" } },
-    warinfra: { g: "Security & diplomacy", label: "Conflict × infrastructure", on: ["events", "fires", "power", "pipes", "lng", "refinery", "dc", "cables", "ports", "rail"], fire: "cf", img: "dnb20",
-      note: "Conflict reports and fires near fighting over the latest full night of night lights, with power plants, pipelines, LNG, data centres, cables, ports and railways.",
-      x: "Dark cities at night next to strikes on <b>power plants</b> show outages; rail junctions and ports near the front decide supply for both sides.",
+    warinfra: { g: "Security & diplomacy", label: "Conflict × infrastructure", on: ["events", "power", "pipes", "refinery"], big: { power: 3 },
+      note: "Conflict reports with power plants (3 GW and up when zoomed out), pipelines and refineries. Pick a recent night under Satellite imagery for blackouts.",
+      x: "Dark cities next to strikes on <b>power plants</b> show outages; refineries near the front are targets for long-range drones. Model a zone under Scenarios.",
       go: { c: [36.5, 48.3], z: 6, label: "Eastern Ukraine" } },
-    diplomacy: { g: "Security & diplomacy", label: "Diplomacy & energy dependence", on: ["lng", "pipes", "oilgas", "choke", "lanes"], base: "c:lng_imp",
-      note: "Countries shaded by LNG import capacity, with LNG terminals, pipelines, oil and gas fields, chokepoints and sea lanes. Disputed areas and maritime boundaries stay on.",
+    diplomacy: { g: "Security & diplomacy", label: "Diplomacy & energy dependence", on: ["lng", "pipes", "choke"], base: "c:lng_imp",
+      note: "Countries shaded by LNG import capacity, with LNG terminals, pipelines and chokepoints. Disputed areas and maritime boundaries stay on.",
       x: "<b>Disputed</b> seas often sit on top of oil and gas fields (South China Sea, East Mediterranean); a country's import terminals show who it can switch to in a crisis.",
       go: { c: [114, 12.5], z: 4.5, label: "South China Sea" } },
-    cablesnavy: { g: "Security & diplomacy", label: "Cables, chokepoints & navies", on: ["cables", "choke", "navy", "ships", "bases", "lanes", "events"], bases: "naval",
-      note: "Undersea cables and landing points with naval bases, navy and merchant ships, sea lanes and conflict reports.",
+    cablesnavy: { g: "Security & diplomacy", label: "Cables, chokepoints & navies", on: ["cables", "navy", "bases", "choke"], bases: "naval",
+      note: "Undersea cables and landing points with naval bases, US Navy ships and chokepoints.",
       x: "Cables, oil and grain share the same narrow seas, so a single anchor drag in the <b>Baltic</b> or a missile in the Red Sea can hit internet, energy and trade at once.",
       go: { c: [20, 58.3], z: 5, label: "Baltic Sea" } },
-    mineconflict: { g: "Security & diplomacy", label: "Minerals × conflict", on: ["crit", "foot", "events", "bases", "airports", "rivers"], air: "",
-      note: "Critical-mineral deposits and mine land with conflict reports, bases and airstrips.",
+    mineconflict: { g: "Security & diplomacy", label: "Conflict minerals", on: ["crit", "foot"], mineral: "tin,tantalum,tungsten",
+      note: "Tin, tantalum and tungsten deposits and mined land. Switch on conflict reports to see where fighting sits near the mines.",
       x: "Armed groups fund themselves from <b>artisanal mines</b> (tin, tantalum, tungsten, gold); airstrips near mines are how minerals leave without roads.",
       go: { c: [28.6, -1.8], z: 6.2, label: "Eastern DR Congo" } },
 
@@ -1471,22 +1538,22 @@ onmessage = async ev => {
       note: "Cropland share of land with rivers, fires (often crop burning), fertilizer and chemical plants, potash and phosphate deposits, and the railways and ports that export grain.",
       x: "Nitrogen fertilizer is made from <b>natural gas</b> at ammonia plants, so a gas price spike reaches farm costs within a season.",
       go: { c: [-92, 41.5], z: 5, label: "US Corn Belt" } },
-    food: { g: "Farming, food & cities", label: "Food security & grain trade", on: ["ports", "lanes", "choke", "rail", "chem", "lng", "pipes", "events"], base: "w:dr",
-      note: "Drought risk by basin with grain ports, sea lanes, chokepoints, railways, fertilizer plants, LNG, gas pipelines and conflict reports.",
+    food: { g: "Farming, food & cities", label: "Food security & grain trade", on: ["ports", "lanes", "choke"], agri: "crop",
+      note: "Cropland with the seaports, sea lanes and chokepoints grain moves through. Background shading can add drought risk by basin.",
       x: "Wheat from the Black Sea passes the <b>Bosporus</b>; drought in one breadbasket and a closed strait in another together drive bread prices.",
       go: { c: [32, 44.5], z: 4.6, label: "Black Sea grain" } },
-    city: { g: "Farming, food & cities", label: "City planning", on: ["osm", "rail", "roads", "airports", "dc", "power", "rivers", "lakes"], img: "esri",
-      note: "Streets and buildings over sharp aerial imagery, with railways, roads, airports, data centres, power plants and rivers.",
+    city: { g: "Farming, food & cities", label: "City planning", on: ["osm", "rail", "dc"], img: "esri",
+      note: "Streets and buildings over sharp aerial imagery, with railways and data centres.",
       x: "Switch Background shading to <b>water stress 2050</b>: new data centres and housing draw on the same rivers and aquifers.",
       go: { locate: true, label: "Go to my location" } },
-    dcwater: { g: "Farming, food & cities", label: "Data centres × water", on: ["dc", "power", "cables", "rivers", "lakes"], fuel: "coal,gas,oil,nuclear", base: "w:ws",
-      note: "Data centres, thermal power plants and cables over water stress by basin.",
+    dcwater: { g: "Farming, food & cities", label: "Data centres × water", on: ["dc", "power"], fuel: "coal,gas,oil,nuclear", big: { power: 3 }, base: "w:ws",
+      note: "Data centres and the largest thermal power plants (3 GW and up when zoomed out) over water stress by basin.",
       x: "Data centres and the plants that power them both need cooling water, and many are being built in <b>desert</b> basins (Arizona, Spain, the Gulf).",
       go: { c: [-112, 33.4], z: 7.5, label: "Phoenix" } }
   };
   const VIEW_DEFAULT = { fuel: "", mineral: "", fire: "", bases: "", air: "LM", status: "all", base: "", img: "", opacity: 100, agri: "" };
-  const FUEL_LABEL = { "coal,gas,oil,nuclear": "Thermal (coal, gas, oil, nuclear)", "coal,gas,oil,nuclear,hydro": "Thermal & hydro" };
-  const MINERAL_LABEL = { "potash,phosphate": "Fertilizer minerals (potash, phosphate)" };
+  const FUEL_LABEL = { "coal,gas,oil,nuclear": "Thermal (coal, gas, oil, nuclear)", "hydro,nuclear,solar,wind": "Low-carbon (hydro, nuclear, solar, wind)" };
+  const MINERAL_LABEL = { "potash,phosphate": "Fertilizer minerals (potash, phosphate)", "tin,tantalum,tungsten": "Tin, tantalum & tungsten" };
   const VIEW_KEYS = ["oilgas", "coal", "crit", "iron", "foot", "outlines", "power", "steel", "cement", "chem", "lng", "refinery", "pipes", "lanes", "ports", "rail", "roads", "osm", "choke", "rivers", "lakes", "ice", "terrain",
     "fires", "events", "ships", "aircraft", "jets", "airliners", "navy", "bases", "airports", "dc", "cables"];
 
@@ -1552,10 +1619,15 @@ onmessage = async ev => {
 
   // filters for the defence and live layers (no status field)
   let fireMode = "", baseType = "", airMode = "LM";
+  const atLeast = (k, v) => { const m = minQ(k); return m == null || (v || 0) >= m; };
   const FILTERS = {
-    fires: p => !fireMode || (fireMode === "noind" ? !p.ind : !!p.cf),
-    bases: p => !baseType || p.t === baseType,
-    airports: p => airMode === "" || (airMode === "mil" ? !!p.mil : airMode === "L" ? p.t === "L" : p.t !== "S" || !!p.mil)
+    fires: p => (!fireMode || (fireMode === "noind" ? !p.ind : !!p.cf)) && atLeast("fires", p.frp),
+    events: p => atLeast("events", p.a),
+    ports: p => atLeast("ports", p.q),
+    // zoomed out with "Largest sites": only bases notable enough for Wikidata, and unless a type is picked, only naval and missile sites
+    bases: p => (!baseType || p.t === baseType) && (!mainOn || (!!p.w && (!!baseType || p.t === "naval" || p.t === "missile"))),
+    // zoomed out with "Largest sites", only large airports (or every military field when that's the pick)
+    airports: p => airMode === "mil" ? !!p.mil : mainOn ? p.t === "L" : airMode === "" || (airMode === "L" ? p.t === "L" : p.t !== "S" || !!p.mil)
   };
 
   // ---------- ships: Digitraffic fallback (Fintraffic, CC BY 4.0) ----------
@@ -1595,8 +1667,10 @@ onmessage = async ev => {
     const ok = STATUS[statusMode];
     const fuels = src === "power" && fuelFilter ? fuelFilter.split(",") : null;
     const mins = src === "crit" && mineralFilter ? mineralFilter.split(",") : null;
+    const mq = minQ(src);
     return d.features.filter(f => {
       const p = f.properties;
+      if (mq != null && (p.q || 0) < mq) return false;
       if (src !== "foot" && src !== "crit" && !ok(String(p.s || "").toLowerCase())) return false;
       if (fuels && !fuels.includes(p.f)) return false;
       if (mins && !mins.some(m => ("|" + p.m + "|").includes("|" + m + "|"))) return false;
@@ -1607,7 +1681,7 @@ onmessage = async ev => {
     if (!map || !DATA[src]) return;
     if (PTS.includes(src)) { map.getSource(src).setData({ type: "FeatureCollection", features: filtered(src) }); return; }
     if (FILTERS[src]) { const fs = DATA[src].features.filter(f => FILTERS[src](f.properties)); map.getSource(src).setData({ type: "FeatureCollection", features: fs }); setCount(COUNT_ID[src], fs.length); return; }
-    if (src === "pipelines") { const ok = STATUS[statusMode]; map.getSource(src).setData({ type: "FeatureCollection", features: DATA[src].features.filter(f => ok(String(f.properties.s || ""))) }); return; }
+    if (src === "pipelines") { const ok = STATUS[statusMode]; map.getSource(src).setData({ type: "FeatureCollection", features: DATA[src].features.filter(f => ok(String(f.properties.s || "")) && atLeast("pipes", f.properties.q)) }); return; }
     // story.json isn't GeoJSON; storyRender() fills the "story" source itself
     if (map.getSource(src) && src !== "story") map.getSource(src).setData(DATA[src]);
   }
@@ -1645,7 +1719,7 @@ onmessage = async ev => {
   // a local stand-in for an online imagery choice: night and thermal layers get Black Marble, the rest Blue Marble
   function offImg(k) {
     if (!k || !offUse.imagery || (IMG[k] && IMG[k].src === "off")) return k;
-    const L = OFF.imagery, night = /^(dnb|dnb20|b31n)$/.test(k);
+    const L = OFF.imagery, night = /^(blk|dnb|dnb20|b31n)$/.test(k);
     return night && L.blk ? "off_blk" : L.bm ? "off_bm" : L.bmng ? "off_bmng" : L.blk ? "off_blk" : k;
   }
 
@@ -1754,7 +1828,7 @@ onmessage = async ev => {
     // 1. ground + one exclusive background fill
     L({ id: "land", type: "fill", source: "land", paint: { "fill-color": css("--land") } });
     L({ id: "countries-fill", type: "fill", source: "countries", paint: { "fill-color": css("--land"), "fill-opacity": ["case", ["has", "c"], 1, 0] } });
-    L({ id: "water-fill", type: "fill", source: "water_risk", layout: hidden, paint: { "fill-color": css("--land"), "fill-opacity": 0.92 } });
+    L({ id: "water-fill", type: "fill", source: "water_risk", layout: hidden, paint: { "fill-color": css("--land"), "fill-opacity": 0.7 } });
     L({ id: "gw-fill", type: "fill", source: "groundwater", layout: hidden, paint: { "fill-color": css("--land"), "fill-opacity": 0.9 } });
     L({ id: "gw-major", type: "line", source: "groundwater", filter: ["==", ["get", "t"], "m"], layout: hidden, paint: { "line-color": css("--gw"), "line-width": 0.8, "line-opacity": 0.7 } });
     L({ id: "saline", type: "fill", source: "saline_gw", layout: hidden, paint: { "fill-pattern": "hatch-salt" } });
@@ -1850,8 +1924,8 @@ onmessage = async ev => {
     L({ id: "gw-mining", type: "circle", source: "gw_mining", layout: hidden, paint: { "circle-radius": 4, "circle-color": css("--panel"), "circle-stroke-color": css("--stress"), "circle-stroke-width": 2 } });
     // conflict reports sit under the sites so their big translucent discs never block a click
     L({ id: "events-pts", type: "circle", source: "events", layout: { ...hidden, "circle-sort-key": ["-", 0, ["get", "a"]] }, paint: {
-      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["*", EV_R, 0.7], 4, EV_R, 8, ["*", EV_R, 1.5], 12, ["*", EV_R, 2.2]],
-      "circle-color": css("--conflict"), "circle-opacity": ["case", [">", ["get", "e3"], 0], 0.5, 0.22],
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["*", EV_R, 0.4], 3, ["*", EV_R, 0.6], 5, EV_R, 8, ["*", EV_R, 1.5], 12, ["*", EV_R, 2.2]],
+      "circle-color": css("--conflict"), "circle-opacity": ["interpolate", ["linear"], ["zoom"], 2, ["case", [">", ["get", "e3"], 0], 0.4, 0.15], 5, ["case", [">", ["get", "e3"], 0], 0.5, 0.22]],
       "circle-stroke-color": css("--conflict"), "circle-stroke-width": ["case", [">", ["get", "e3"], 0], 1, 0.5], "circle-stroke-opacity": 0.8 } });
 
     // 6. sites, all at their true positions; big sites draw underneath small ones so nothing is hidden
@@ -1864,12 +1938,8 @@ onmessage = async ev => {
         L({ id: "lng-pts", type: "circle", source: "lng", layout: { ...hidden, "circle-sort-key": ["*", -1, ["coalesce", ["get", "q"], 0]] }, paint: { "circle-color": "rgba(0,0,0,0)", "circle-radius": RC(Qk.k), "circle-stroke-color": css("--oil"), "circle-stroke-width": 2,
           "circle-stroke-opacity": ["case", ["==", ["get", "s"], "operating"], 1, 0.55] } });
       } else {
-        // zoomed out, thousands of sites overlap: thinner rings, and sites too small to size (at the minimum radius) fade back
-        const tiny = Qk.count ? ["==", 1, 0] : ["<", ["*", Qk.k, ["sqrt", ["coalesce", ["get", "q"], 0]]], 2.5];
-        const countR = ["interpolate", ["linear"], ["zoom"], 1, 1.8, 4, 2.6, 8, 4, 12, 6];
         L({ id: src + "-pts", type: "circle", source: src, layout: { ...hidden, "circle-sort-key": ["*", -1, ["coalesce", ["get", "q"], 0]] }, paint: {
-          "circle-color": css(Qk.color), "circle-radius": Qk.count ? countR : RC(Qk.k),
-          "circle-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", tiny, 0.28, ["==", ["get", "s"], "operating"], 0.8, 0.4], 4, ["case", tiny, 0.55, ["==", ["get", "s"], "operating"], 0.85, 0.45], 6, ["case", ["==", ["get", "s"], "operating"], 0.88, 0.5]],
+          "circle-color": css(Qk.color), ...ptSize(src, mainOn),
           "circle-stroke-color": css("--mark-ring"), "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 1, 0.35, 4, 0.6, 7, 0.8] } });
       }
     });
@@ -1967,6 +2037,7 @@ onmessage = async ev => {
     bindAgri();
     bindStory();
     simBind();
+    syncMain(true);
     const hv = (location.hash.match(/view=(\w+)/) || [])[1];
     setView(VIEWS[hv] ? hv : "overview");
     if (/(?:^#|&)sim=/.test(location.hash)) setMode("sim");
@@ -1993,6 +2064,18 @@ onmessage = async ev => {
   function setStatus(k) {
     Object.entries(ST_BTNS).forEach(([m, id]) => $(id).setAttribute("aria-pressed", String(m === k)));
     if (statusMode !== k) { statusMode = k; PTS.concat(["pipelines"]).forEach(pushData); }
+  }
+  const DT_SRC = PTS.concat(["pipelines", "ports", "events", "fires", "bases", "airports"]);
+  function syncMain(force) {
+    const on = siteDetail === "main" && map.getZoom() < MAIN_Z;
+    if (on === mainOn && !force) return;
+    mainOn = on; DT_SRC.forEach(k => DATA[k] && pushData(k));
+    PTS.filter(k => k !== "foot" && !Q[k].ring).forEach(k => Object.entries(ptSize(k, on)).forEach(([p, v]) => map.setPaintProperty(k + "-pts", p, v)));
+  }
+  function setDetail(d) {
+    siteDetail = d;
+    $("dt-main").setAttribute("aria-pressed", String(d === "main")); $("dt-all").setAttribute("aria-pressed", String(d === "all"));
+    syncMain(true);
   }
   // select a value, adding an option for preset-only combinations (e.g. thermal fuels)
   function setSel(id, v, label) {
@@ -2022,8 +2105,9 @@ onmessage = async ev => {
     setSel("fuel", conf.fuel, FUEL_LABEL[conf.fuel]); fuelFilter = conf.fuel;
     setSel("mineral", conf.mineral, MINERAL_LABEL[conf.mineral]); mineralFilter = conf.mineral;
     $("fireMode").value = fireMode = conf.fire; $("baseType").value = baseType = conf.bases; $("airMode").value = airMode = conf.air;
+    viewBig = conf.big || {};
     setStatus(conf.status);
-    ["power", "crit", "fires", "bases", "airports"].forEach(k => DATA[k] && pushData(k));
+    DT_SRC.forEach(k => DATA[k] && pushData(k));
     Object.keys(GROUPS).forEach(applyGroup);
     $("base").value = conf.base; applyBase();
     // imagery and farmland: only rebuild when they change, so a Sentinel search or picked day isn't thrown away
@@ -2080,7 +2164,7 @@ onmessage = async ev => {
     $("view").addEventListener("change", e => e.target.value && setView(e.target.value));
     $("viewGo").addEventListener("click", viewGo);
     $("fuel").addEventListener("change", e => {
-      fuelFilter = e.target.value;
+      fuelFilter = e.target.value; viewBig = {};
       if (!$("lyr-power").checked) { $("lyr-power").checked = true; applyGroup("power"); }
       ensure("power").then(() => pushData("power"));
     });
@@ -2100,6 +2184,9 @@ onmessage = async ev => {
       }));
 
     Object.keys(ST_BTNS).forEach(k => $(ST_BTNS[k]).addEventListener("click", () => setStatus(k)));
+    $("dt-main").addEventListener("click", () => setDetail("main"));
+    $("dt-all").addEventListener("click", () => setDetail("all"));
+    map.on("zoomend", () => syncMain(false));
 
     // topmost first: queryRenderedFeatures returns features in draw order, top down
     const pointLayers = ["story-halo", "navy-pts", "aircraft-pts", "jets-pts", "airliners-pts", "ships-pts", "fires-pts", "bases-pts", "airports-l", "airports-m", "airports-s", "dc-pts"].concat(PTS.map(s => s + "-pts"), ["landings-pts", "ports-pts", "gw-mining", "events-pts"]);
@@ -2626,6 +2713,12 @@ onmessage = async ev => {
       ensure("water_risk");
       const colors = ramp("--stress"), arid = mix(css("--land"), css("--ink"), 0.1);
       map.setPaintProperty("water-fill", "fill-color", ["match", ["coalesce", ["get", field], -9], 0, colors[0], 1, colors[1], 2, colors[2], 3, colors[3], 4, colors[4], -1, arid, "rgba(0,0,0,0)"]);
+      // low categories stay faint so high-risk basins and the sites on top read first
+      // (dark land makes the same fill read heavier, so scale it down there)
+      const k = hex(css("--land")).reduce((s, v) => s + v, 0) < 300 ? 0.7 : 1;
+      // basin shapes are simplified, so fade them once zoomed in past where their edges hold up
+      const op = s => ["match", ["coalesce", ["get", field], -9], 0, 0.12 * k * s, 1, 0.22 * k * s, 2, 0.4 * k * s, 3, 0.62 * k * s, 0.75 * k * s];
+      map.setPaintProperty("water-fill", "fill-opacity", ["interpolate", ["linear"], ["zoom"], 4.5, op(1), 7, op(0.4), 10, op(0.25)]);
       map.setLayoutProperty("water-fill", "visibility", "visible");
       const ws = field === "ws" || field === "f50";
       legend(colors, ws ? ["<10%", "10–20", "20–40", "40–80", ">80%"] : CAT5,
@@ -2821,6 +2914,7 @@ onmessage = async ev => {
       ft_mtg: eu("mtg_fd:rgb_firetemperature", "Meteosat MTG fire temperature (Europe, Africa, Middle East)", "1–2 km. Fires show yellow to white as they get hotter.")
     }],
     ["Thermal & night lights, daily (pick a day)", {
+      blk: { ...gb("VIIRS_Black_Marble", 8, "png", "base", "Black Marble night lights 2016 (cloud-free)", "About 500 m; cloud-free composite of 2016 night lights. Compare with a recent night to spot blackouts.", "NASA Black Marble"), time: "2016-01-01" },
       b31n: gb("MODIS_Terra_Brightness_Temp_Band31_Night", 7, "png", "day", "Terra MODIS surface temperature, night", "1 km brightness temperature at 11 µm, night pass.", "NASA"),
       b31d: gb("MODIS_Terra_Brightness_Temp_Band31_Day", 7, "png", "day", "Terra MODIS surface temperature, day", "1 km brightness temperature at 11 µm, day pass.", "NASA"),
       dnb: gb("VIIRS_SNPP_DayNightBand", 7, "png", "day", "Suomi NPP night lights", "750 m low-light band: city lights, gas flares, fires and blackouts.", "NOAA/NASA"),
@@ -2973,6 +3067,7 @@ onmessage = async ev => {
       try { time = await pcRegister(pcBody(I)); }
       catch (e) { if (seq === imgSeq) $("imgNote").textContent = `Couldn't load ${PC[I.pc].name}: ${e instanceof TypeError ? "Planetary Computer is unreachable" : e.message}. Pick the layer again to retry.`; return; }
     }
+    else if (I.time) time = I.time;
     else if (I.src === "gibs") time = await gibsLatest(I);
     if (seq !== imgSeq) return;
     imgTime = time;
@@ -3138,16 +3233,54 @@ onmessage = async ev => {
     zone: "Conflict or disaster zone", power: "Power plant", mine: "Mine", cable: "Cable landing", water: "River basin drought" };
   const SIM_CHOKE = { malacca: "Strait of Malacca", hormuz: "Strait of Hormuz", suez: "Suez Canal & SUMED", bab: "Bab el-Mandeb", danish: "Danish Straits",
     turkish: "Turkish Straits", panama: "Panama Canal", cape: "Cape of Good Hope" };
+  // ready-made scenarios: [group, title, what it tests, shocks as [kind, id, share]]. "news" is filled from scenarios_weekly.json.
+  const SIM_GROUPS = [["news", "This week's news"], ["routes", "Sea routes"], ["energy", "Oil & gas"], ["conflict", "Conflict & disaster"], ["water", "Water"], ["power", "Power"], ["net", "Cables & mines"]];
+  const lngs = (...a) => a.map(i => ["lng", "l" + i, 1]);
   const SIM_PRESETS = [
-    ["Jamnagar refinery offline", [["refinery", "r3143912", 1]]],
-    ["Hormuz closed", [["choke", "hormuz", 1]]],
-    ["Red Sea closed", [["choke", "bab", 1], ["choke", "suez", 1]]],
-    ["Druzhba pipeline cut", [["pipeline", fnv36("Druzhba Oil Pipeline"), 1]]],
-    ["Fighting near Kharkiv", [["zone", [36.23, 49.99, 60], 1]]],
-    ["Three Gorges Dam offline", [["power", fnv36("Three Gorges Dam|CHN"), 1]]],
-    ["Flooding around Lyon", [["zone", [4.84, 45.76, 40], 0.7]]],
-    ["Indus drought", [["water", "456100", 0.4]]]
+    ["routes", "Hormuz closed", "About a fifth of the world's oil sails out of the Gulf here. How much can the Saudi and UAE bypass pipelines carry?", [["choke", "hormuz", 1]]],
+    ["routes", "Hormuz and its bypasses", "Hormuz closed and both bypass pipelines (Saudi East-West, UAE Habshan–Fujairah) knocked out too.", [["choke", "hormuz", 1], ["pipeline", "jnp3mr", 1], ["pipeline", "obko63", 1]]],
+    ["routes", "Red Sea closed", "As in 2024, ships avoid Bab el-Mandeb and Suez (with the SUMED pipeline) and sail round Africa.", [["choke", "bab", 1], ["choke", "suez", 1]]],
+    ["routes", "Malacca blocked", "The main sea road from the Gulf and Africa to China, Japan and Korea.", [["choke", "malacca", 1]]],
+    ["routes", "Turkish Straits shut", "Russian and Kazakh crude leaving the Black Sea for the Mediterranean.", [["choke", "turkish", 1]]],
+    ["routes", "Panama Canal drought", "Low water at Gatun Lake halves traffic, as in 2023.", [["choke", "panama", 0.5]]],
+    ["energy", "Jamnagar refinery offline", "The world's largest refinery, on India's west coast. Who makes up the diesel?", [["refinery", "r3143912", 1]]],
+    ["energy", "Saudi fields attacked", "Like the 2019 Abqaiq strike: four big Saudi fields and the Ras Tanura refinery at half output.",
+      [["field", "f:SAU:97:56", 0.5], ["field", "f:SAU:97:55", 0.5], ["field", "f:SAU:107:43", 0.5], ["field", "f:SAU:98:57", 0.5], ["refinery", "r3144102", 0.5]]],
+    ["energy", "Russian refineries hit by drones", "Eight large Russian refineries at half capacity, as drone strikes have done since 2024.",
+      ["r1753742", "r3144075", "r3144077", "r3144076", "r1753766", "r3144085", "r3144090", "r3144080"].map(id => ["refinery", id, 0.5])],
+    ["energy", "Druzhba pipeline cut", "Russian crude to Hungary, Slovakia and Czechia by pipe.", [["pipeline", fnv36("Druzhba Oil Pipeline"), 1]]],
+    ["energy", "Qatar LNG offline", "Ras Laffan's trains: about a fifth of the world's LNG exports.", lngs(490, 491, 492, 493, 494, 495, 496)],
+    ["energy", "US LNG exports halted", "Sabine Pass, Cameron, Freeport, Corpus Christi, Calcasieu Pass, Plaquemines, Cove Point and Elba Island all stop.",
+      lngs(540, 541, 542, 543, 544, 545, 82, 83, 84, 210, 212, 213, 214, 117, 118, 119, 79, 461, 130, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185)],
+    ["energy", "TurkStream cut", "Russia's last pipeline gas route into Europe.", [["pipeline", "fazrlm", 1]]],
+    ["energy", "Power of Siberia cut", "Russian gas to northern China.", [["pipeline", "juk2xx", 1]]],
+    ["conflict", "Fighting near Kharkiv", "A 60 km war zone on Ukraine's north-east front: towns inside, and how roads and rail detour.", [["zone", [36.23, 49.99, 60], 1]]],
+    ["conflict", "Strike on Kharg Island", "Iran's main crude export terminal.", [["port", "p48465", 1]]],
+    ["conflict", "Russian oil ports struck", "Novorossiysk on the Black Sea and Primorsk on the Baltic.", [["port", "p44200", 1], ["port", "p28360", 1]]],
+    ["conflict", "Taiwan blockade", "Everything within 200 km of Taiwan shut: its ports, LNG imports and power plants.", [["zone", [121, 23.7, 200], 1]]],
+    ["conflict", "Hurricane on the Texas coast", "A storm between Houston and Port Arthur: refineries, LNG terminals and ports at 40% output.", [["zone", [-94.6, 29.6, 110], 0.6]]],
+    ["conflict", "Flooding around Lyon", "A 40 km flood zone: towns, roads and rail.", [["zone", [4.84, 45.76, 40], 0.7]]],
+    ["water", "Indus drought", "The Indus loses 40% of its water: Pakistan's farms, cities and power plants.", [["water", "456100", 0.4]]],
+    ["water", "Nile runs low", "The Nile above Aswan loses 30%, as a long drought in Ethiopia could do.", [["water", "172119", 0.3]]],
+    ["water", "Euphrates cut upstream", "Dams in Türkiye hold back 40% of the Euphrates before it reaches Syria and Iraq.", [["water", "294790", 0.4]]],
+    ["water", "Yangtze drought", "Like summer 2022: the Yangtze loses 40% and its dams and cooling water with it.", [["water", "434951", 0.4]]],
+    ["water", "Rhine at low water", "The Rhine at Kaub loses 40%, as in 2018 and 2022.", [["water", "232630", 0.4]]],
+    ["water", "Colorado River shortage", "The Colorado loses a third of its flow.", [["water", "772330", 0.33]]],
+    ["water", "Mekong drought", "The lower Mekong loses 40%.", [["water", "442500", 0.4]]],
+    ["power", "Three Gorges Dam offline", "The world's largest power station.", [["power", fnv36("Three Gorges Dam|CHN"), 1]]],
+    ["power", "Itaipu offline", "The Brazilian half of the dam on the Paraná.", [["power", fnv36("Itaipu (Parte Brasileira)|BRA"), 1]]],
+    ["power", "Guri Dam offline", "Venezuela's main power source, behind its 2019 blackouts.", [["power", fnv36("Simon Bolivar (Guri)|VEN"), 1]]],
+    ["power", "Kashiwazaki-Kariwa offline", "The world's largest nuclear plant, in Japan.", [["power", fnv36("Kashiwazaki Kariwa|JPN"), 1]]],
+    ["power", "Taichung power station offline", "One of the world's largest coal plants, in Taiwan.", [["power", fnv36("Taichung power station|TWN"), 1]]],
+    ["power", "Kursk nuclear plant offline", "Near Russia's border with Ukraine.", [["power", fnv36("Kursk|RUS"), 1]]],
+    ["net", "Red Sea cables cut", "Landings at Djibouti, Jeddah and Zafarana lost, as when ships' anchors cut cables in 2024.",
+      [["cable", "djibouti-city-djibouti", 1], ["cable", "jeddah-saudi-arabia", 1], ["cable", "zafarana-egypt", 1]]],
+    ["net", "Marseille cable hub lost", "Where most Europe–Asia cables come ashore.", [["cable", "marseille-france", 1]]],
+    ["net", "Singapore cable landing lost", "Tuas, a hub for South-east Asia.", [["cable", "tuas-singapore", 1]]],
+    ["net", "Largest US coal mine shut", "North Antelope Rochelle in Wyoming's Powder River Basin.", [["mine", "c-1rwos51", 1]]],
+    ["net", "Carajás iron ore halted", "Vale's Serra Norte mines in Brazil.", [["mine", "i-1pakmck", 1]]]
   ];
+  let simGroup = "routes", simWeekly = null;
   // world rows: label, key, unit, decimals, whether a rise is bad
   const SIM_WORLD = [["Crude oil produced", "crude", "kb/d", 0], ["Refinery runs", "run", "kb/d", 0], ["Diesel & gasoil made", "dsl", "kb/d", 0],
     ["Oil left in ground or tanks", "stock", "kb/d", 0, 1], ["Gas delivered", "gas", "bcm/yr", 1], ["Gas shortfall", "gasShort", "bcm/yr", 1, 1],
@@ -3266,6 +3399,9 @@ onmessage = async ev => {
     facts.water = R;
     if (!R.basins.length) return out;
     const share = v => R.people ? fmt(v / R.people * 100) + "%" : "–";
+    facts.head.push([fmt(sig2(R.people)), "people live in basins losing water", "dn"]);
+    if (R.exposed) facts.head.push([fmt(sig2(R.exposed)), "of them newly short of water (high stress)", "dn"]);
+    if (R.moved >= 1) facts.head.push([fmt(sig2(R.moved)), "people may move away", "dn"]);
     for (const s of shocks) out.push(`<li><b>${esc(s.n)}</b>: ${Math.round(s.m * 100)}% less water for it and every basin upstream.</li>`);
     out.push(`<li>${fmt(R.basins.length)} river basin${R.basins.length > 1 ? "s" : ""} lose at least ${WATER.stop * 100}% of their water, home to ≈${fmt(sig2(R.people))} people. `
       + `≈${fmt(sig2(R.exposed))} (${share(R.exposed)}) of them end up in basins newly under high or extremely high water stress, where use is over ${WATER.cut[2] * 100}% of the water available.</li>`);
@@ -3396,17 +3532,22 @@ onmessage = async ev => {
     }
     return best;
   }
-  const simSay = msg => { const h = $("simHint"); h.textContent = msg; h.hidden = false; $("simHintW").hidden = true; };
-  // on: false, true (any facility or a zone) or "water" (a river basin)
+  const simSay = msg => { const h = $("simHint"); h.textContent = msg; h.hidden = false; };
+  const SIM_HINT = {
+    choke: "Pick a strait or canal to close.",
+    fac: "Click a refinery, oil or gas field, pipeline, oil port, LNG terminal, power plant, coal or iron mine, or cable landing on the map. Click open ground for a zone instead. Esc stops.",
+    zone: "Click the map where the fighting, flood or storm is. Set its size and how bad it is in the list above. Esc stops.",
+    water: "Click inside a river basin (outlined). It and everything upstream lose water, and basins downstream lose a share. Esc stops."
+  };
+  // on: false, "choke" (no map pick: the chokepoint buttons), "fac" (a facility, or a zone on open ground), "zone" or "water" (a river basin)
   function simSetPick(on) {
-    simPicking = on;
-    $("simPick").setAttribute("aria-pressed", String(on === true));
-    $("simDry").setAttribute("aria-pressed", String(on === "water"));
-    const h = $("simHint"); h.textContent = h.dataset.text; h.hidden = on !== true;
-    $("simHintW").hidden = on !== "water";
+    simPicking = on === "choke" ? false : on;
+    document.querySelectorAll("[data-pick]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pick === on)));
+    $("simChokes").hidden = on !== "choke";
+    const h = $("simHint"); h.textContent = SIM_HINT[on] || ""; h.hidden = !on;
     if (on === "water") ensure("water_risk");
     if (map.getLayer("sim-basin-line")) map.setLayoutProperty("sim-basin-line", "visibility", on === "water" ? "visible" : "none");
-    map.getCanvas().style.cursor = on ? "crosshair" : "";
+    map.getCanvas().style.cursor = simPicking ? "crosshair" : "";
   }
   function simHash() {
     try {
@@ -3444,8 +3585,13 @@ onmessage = async ev => {
         const pipes = P ? P.features.map(f => f.properties.n) : [];
         simG = G; simCE = E.countries;
         simPipes = new Set(Object.values(G.edges.ref).map(r => pipes[r] && fnv36(pipes[r])).filter(Boolean));
-        const sel = $("simChoke");
-        Object.entries(SIM_CHOKE).forEach(([k, n]) => G.choke[k] && sel.add(new Option(n, k)));
+        const box = $("simChokes");
+        Object.entries(SIM_CHOKE).forEach(([k, n]) => {
+          if (!G.choke[k]) return;
+          const b = document.createElement("button"); b.type = "button"; b.textContent = n;
+          b.onclick = () => { simSetPick(false); simAdd("choke", k, 1); };
+          box.appendChild(b);
+        });
         $("simSum").textContent = "Solving today's oil and gas flows (a few seconds)…";
         simW = new Worker(URL.createObjectURL(new Blob([$("simWorker").textContent], { type: "text/javascript" })));
         simW.onmessage = simMsg;
@@ -3467,7 +3613,7 @@ onmessage = async ev => {
     ["pipes-oil", "pipes-gas"].forEach(l => { map.setPaintProperty(l, "line-color", css(on ? "--foot" : "--oil")); map.setPaintProperty(l, "line-opacity", on ? simPipeLook.sim : simPipeLook.map); });
   }
   function simExit() {
-    simSetPick(false); $("simHint").hidden = $("simHintW").hidden = true; simPipeTone();
+    simSetPick(false); simPipeTone();
     ["sim-flow", "sim-zone", "sim-off", "sim-water", "sim-move", "sim-traffic"].forEach(s => map.getSource(s) && map.getSource(s).setData(empty));
     simHash();
   }
@@ -3532,10 +3678,10 @@ onmessage = async ev => {
     const h = (n, k) => fnv36(n + "|" + k);
     if (simPicking === "water") {
       const ll = e.lngLat.wrap();
-      return simBasins().then(B => { const i = basinAt(ll.lng, ll.lat); return i < 0 ? simSay("No river basin there.") : simAdd("water", String(B.pf[i]), 0.5); },
+      return simBasins().then(B => { const i = basinAt(ll.lng, ll.lat); if (i < 0) return simSay("No river basin there."); simSetPick(false); return simAdd("water", String(B.pf[i]), 0.5); },
         err => simSay("The river-basin data didn't load (" + err.message + ")."));
     }
-    if (!f) { const ll = e.lngLat.wrap(); return simAdd("zone", [+ll.lng.toFixed(2), +ll.lat.toFixed(2), 50], 1); }
+    if (!f || simPicking === "zone") { const ll = e.lngLat.wrap(); simSetPick(false); return simAdd("zone", [+ll.lng.toFixed(2), +ll.lat.toFixed(2), 50], 1); }
     if (s === "refinery") return simAdd("refinery", p.id, 1);
     if (s === "ports") return simAdd("port", "p" + p.wpi, 1);
     if (s === "pipelines") return simAdd("pipeline", fnv36(p.n), 1);
@@ -3553,6 +3699,7 @@ onmessage = async ev => {
 
   function simRenderList() {
     const ul = $("simList"); ul.innerHTML = "";
+    $("simBar").hidden = !simShocks.length;
     simShocks.forEach((s, i) => {
       const li = document.createElement("li"), pct = Math.round(s.m * 100);
       li.innerHTML = `<span class="k">${SIM_KIND[s.k]}</span><button type="button" class="close" aria-label="Remove ${esc(s.n)}">×</button><b>${esc(s.n)}</b>`
@@ -3624,18 +3771,27 @@ onmessage = async ev => {
 
   // effects that need no network: power plants, mines, cable landings, towns inside zones
   async function simLocal() {
+    // facts.head: the headline figures shown first, as [figure, what it means, "dn" if bad]
     const facts = [], T = DATA.totals || {}, zones = simShocks.filter(s => s.k === "zone"), own = k => simShocks.filter(s => s.k === k);
+    facts.head = [];
     const trafficP = zones.length ? simTraffic(zones.map(z => ({ x: z.t[0], y: z.t[1], r: z.t[2], m: z.m }))) : null;
     const inZones = (x, y) => { let f = 1; for (const z of zones) if (Math.abs(y - z.t[1]) < z.t[2] / 100 && hav(z.t[0], z.t[1], x, y) <= z.t[2]) f *= 1 - z.m; return f; };
+    let inside = 0;
     for (const z of zones) {
       const towns = LABELS.filter(l => l.t === "p" && l.pop && hav(z.t[0], z.t[1], l.x, l.y) <= z.t[2]).sort((a, b) => b.pop - a.pop);
       const people = await popInRadius(z.t[0], z.t[1], z.t[2]);
+      inside += people || 0;
       facts.push(`<li><b>${esc(z.n)}</b>, ${z.t[2]} km: ${people == null ? "population data didn't load" : `≈${fmt(sig2(people))} people live inside`}${towns.length ? ` (largest towns: ${towns.slice(0, 3).map(l => esc(l.n)).join(", ")})` : ""}. `
         + `Fields, refineries, ports, terminals, pipeline junctions and power plants inside lose ${Math.round(z.m * 100)}% of capacity.</li>`);
     }
+    if (inside) facts.head.push([fmt(sig2(inside)), "people live inside the zone" + (zones.length > 1 ? "s" : ""), "dn"]);
     if (zones.length) {
       const tr = await trafficP;
-      if (tr) { facts.traffic = tr; facts.push(...simTrafficFacts(tr)); }
+      if (tr) {
+        facts.traffic = tr; facts.push(...simTrafficFacts(tr));
+        const rd = tr.type === "result" && tr.out.road;
+        if (rd && rd.total && rd.through + rd.inZone > 0) facts.head.push([fmt((rd.through + rd.inZone) / rd.total * 100) + "%", "of nearby road trips start, end or detour round the zone", "dn"]);
+      }
     }
     const pw = own("power");
     if (pw.length || zones.length) {
@@ -3646,6 +3802,8 @@ onmessage = async ev => {
         if (zones.length) for (const f of D.features) { const v = inZones(f.geometry.coordinates[0], f.geometry.coordinates[1]); if (v < 1) mul(f, v); }
         const by = {};
         rem.forEach((v, f) => { const p = f.properties; if (p.s !== "operating" || !p.mw || v >= 1) return; const o = by[p.k] = by[p.k] || { gw: 0, n: 0 }; o.gw += p.mw * (1 - v) / 1000; o.n++; });
+        const gw = Object.values(by).reduce((a, o) => a + o.gw, 0);
+        if (gw >= 0.05) facts.head.push([smart(gw) + " GW", "of power plants offline", "dn"]);
         Object.entries(by).sort((a, b) => b[1].gw - a[1].gw).slice(0, 6).forEach(([k, o]) => {
           const c = T[k] || {}, sh = c.pw_gw ? Math.min(1, o.gw / c.pw_gw) : 0;
           facts.push(`<li>Power, ${esc(simCountry(k))}: ${smart(o.gw)} GW offline at ${o.n} plant${o.n > 1 ? "s" : ""}`
@@ -3657,6 +3815,7 @@ onmessage = async ev => {
     for (const s of own("mine")) {
       const coal = s.t[0] === "c", p = s.f.properties, key = coal ? "coal" : "iron", mt = (p.pr || (!coal && p.cap) || 0) * s.m;
       const ct = (T[p.k] || {})[key], wt = Object.values(T).reduce((a, c) => a + (c[key] || 0), 0);
+      if (mt && wt) facts.head.push([fmt(mt / wt * 100, 1) + "%", `of the world's ${coal ? "coal" : "iron ore"} output lost`, "dn"]);
       facts.push(`<li>${coal ? "Coal" : "Iron ore"}, ${esc(p.n)}: ` + (mt ? `${smart(mt)} Mt/yr lost${ct ? `, ${fmt(mt / ct * 100, 1)}% of ${esc(simCountry(p.k))}'s output` : ""}${wt ? ` and ${fmt(mt / wt * 100, 2)}% of the world's` : ""}` : "no reported output")
         + (/^operating$/i.test(p.s || "") ? "." : ` (status: ${esc(p.s || "unknown")}).`) + "</li>");
     }
@@ -3670,6 +3829,7 @@ onmessage = async ev => {
         cb.forEach(s => split(s.f.properties.cs).forEach(x => cut.set(x, Math.max(cut.get(x) || 0, s.m))));
         const rows = Object.entries(per).map(([c, set]) => { let l = 0; set.forEach(x => l += cut.get(x) || 0); return [c, l, set.size]; })
           .filter(r => r[1] > 0).sort((a, b) => b[1] / b[2] - a[1] / a[2] || b[1] - a[1]).slice(0, 6);
+        if (rows.length) facts.head.push([fmt(rows[0][1] / rows[0][2] * 100) + "%", `of ${esc(rows[0][0])}'s cables cut, the hardest hit`, "dn"]);
         facts.push(`<li>Cables: ${fmt(cut.size)} system${cut.size > 1 ? "s" : ""} land${cut.size > 1 ? "" : "s"} there, counted as cut everywhere they land. Hardest hit: `
           + rows.map(([c, l, n]) => `${esc(c)} ${fmt(l, l % 1 ? 1 : 0)} of ${n} (${fmt(l / n * 100)}%)`).join(", ") + ". Every cable counts the same here; real capacity varies a lot.</li>");
       }
@@ -3683,15 +3843,26 @@ onmessage = async ev => {
   }
 
   function simRender(r, facts) {
-    const out = [], B = simBase, w0 = B.world;
+    const out = [], key = [], head = $("simHead");
     if (!simShocks.length) {
-      $("simSum").textContent = `Today's network: ${fmt(w0.crude[0])} kb/d of crude feeds ${fmt(w0.run[0])} kb/d of refinery runs (${fmt(w0.dsl[0])} kb/d diesel and gasoil), and ${fmt(w0.gas[0])} bcm/yr of gas reaches buyers. Pick something to switch off, close a chokepoint, or try an example.`;
-      $("simOut").innerHTML = ""; return;
+      $("simSum").textContent = "What breaks if something stops? Pick a ready-made scenario below, or build your own. The model re-routes oil and gas, roads and rail, and river water around it.";
+      $("simOut").innerHTML = ""; head.hidden = true; return;
     }
-    $("simSum").textContent = r ? `${simShocks.length} change${simShocks.length > 1 ? "s" : ""}. Re-routed in ${fmt(r.ms)} ms.` : `${simShocks.length} change${simShocks.length > 1 ? "s" : ""}. None of them touch the oil and gas network.`;
     const cls = (d, bad) => Math.abs(d) < 1e-6 ? "" : (bad ? d > 0 : d < 0) ? "dn" : "up";
+    const top3 = [];
     if (r) {
-      const W = r.world;
+      const W = r.world, d = k => W[k][1] - W[k][0];
+      // the headline: oil that can't get out, diesel lost, gas short, and the country hit hardest
+      // small moves (under ~0.05% of world supply) stay in the tables, so they don't crowd out local effects
+      if (d("stock") > 50) top3.push([fmt(d("stock")) + " kb/d", "of oil stuck in the ground or in tanks", "dn"]);
+      if (d("dsl") < -20) top3.push([fmt(-d("dsl")) + " kb/d", "less diesel and gasoil made worldwide", "dn"]);
+      if (d("gasShort") > 2) top3.push([fmt(d("gasShort"), 1) + " bcm/yr", "more gas that buyers can't get", "dn"]);
+      // hardest hit: the biggest share of its own diesel use lost, among countries using at least 20 kb/d (an exporter can lose more than it uses)
+      const worst = r.rows.map(x => { const use = simCE && simCE[x.k] && simCE[x.k].dc; return [x, use >= 20 ? Math.min(1, (x.dsl[0] - x.dsl[1]) / use) : 0]; }).sort((a, b) => b[1] - a[1])[0];
+      if (worst && worst[1] > 0.02) top3.push([fmt(worst[1] * 100) + "%", `of ${esc(simCountry(worst[0].k))}'s diesel use no longer made at home, the hardest hit`, "dn"]);
+      const moved = Object.entries(r.chokes).map(([k, v]) => [k, v.o[0] - v.o[1]]).sort((a, b) => b[1] - a[1])[0];
+      if (moved && moved[1] > 50) top3.push([fmt(moved[1]) + " kb/d", `of oil no longer through ${SIM_CHOKE[moved[0]]}`, "dn"]);
+      if (!top3.length) top3.push(["≈0", "change to world oil and gas supply: the network routes round it", "up"]);
       out.push(`<div class="sec">World</div><table class="simt"><thead><tr><th></th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody>`
         + SIM_WORLD.map(([label, key, unit, dd, bad]) => { const [b, s] = W[key], d = s - b;
           return `<tr><td>${label} <small>${unit}</small></td><td>${fmt(b, dd)}</td><td>${fmt(s, dd)}</td><td class="${cls(d, bad)}">${sgn(d, dd)}</td></tr>`; }).join("")
@@ -3710,11 +3881,18 @@ onmessage = async ev => {
       r.notes.forEach(n => lis.push(`<li>${esc(n)}</li>`));
       out.push(`<div class="sec">Routes</div><ul class="facts">${lis.join("")}</ul>`);
     }
-    if (facts.length) out.push(`<div class="sec">Local effects</div><ul class="facts">${facts.join("")}</ul>`);
-    if (facts.water) out.push(`<div class="sim-key"><span><i style="background:var(--sim-dry)"></i>basins losing water (darker: more)</span><span><i style="background:var(--sim-move)"></i>where people may move</span></div>`);
-    if (facts.traffic && facts.traffic.type === "result") out.push(`<div class="sim-key"><span><i style="background:var(--sim-up)"></i>more road or rail traffic</span><span><i style="background:var(--sim-down)"></i>less</span><span>dotted: rail</span></div>`);
-    if (r) out.push(`<div class="sim-key"><span><i style="background:var(--sim-up)"></i>more flow</span><span><i style="background:var(--sim-down)"></i>less flow</span><span>dashed: gas</span><span>faint straight lines: unmapped links</span></div>`);
-    $("simOut").innerHTML = out.join("");
+    // oil and gas figures lead when the network moved; otherwise the local ones (people, power, water)
+    const cards = (r && !(top3.length === 1 && top3[0][0] === "≈0") ? top3.concat(facts.head) : facts.head.concat(r ? top3 : [])).slice(0, 4);
+    head.innerHTML = cards.map(([v, t, c]) => `<div><b class="${c || ""}">${v}</b><span>${t}</span></div>`).join("");
+    head.hidden = !cards.length;
+    $("simSum").textContent = (simShocks.length === 1 ? simShocks[0].n : simShocks.length + " changes together") + ". "
+      + (cards.length ? "What happens:" : "No measurable effect.");
+    if (facts.water) key.push(`<div class="sim-key"><span><i style="background:var(--sim-dry)"></i>basins losing water (darker: more)</span><span><i style="background:var(--sim-move)"></i>where people may move</span></div>`);
+    if (facts.traffic && facts.traffic.type === "result") key.push(`<div class="sim-key"><span><i style="background:var(--sim-up)"></i>more road or rail traffic</span><span><i style="background:var(--sim-down)"></i>less</span><span>dotted: rail</span></div>`);
+    if (r) key.push(`<div class="sim-key"><span><i style="background:var(--sim-up)"></i>more flow</span><span><i style="background:var(--sim-down)"></i>less flow</span><span>dashed: gas</span><span>faint straight lines: unmapped links</span></div>`);
+    // the headline cards say what matters; the sentences and tables behind them fold away (open on their own if there are no cards)
+    if (facts.length) out.unshift(`<ul class="facts">${facts.join("")}</ul>`);
+    $("simOut").innerHTML = key.join("") + (out.length ? `<details class="more"${cards.length ? "" : " open"}><summary>Details${r ? ": oil and gas by country and route" : ""}</summary><div>${out.join("")}</div></details>` : "");
   }
   function simAsm(b) {
     const K = b.consts, pc = v => fmt(v * 100);
@@ -3732,21 +3910,63 @@ onmessage = async ev => {
       <li>Road and rail: ${fmt(trInfo ? trInfo.names.length : 3089)} cities of 100,000+ are tied to the nearest line within ${trInfo ? trInfo.cityKm : 25} km, and line ends within ${trInfo ? trInfo.snapKm : 3} km are joined. Each city's trips go to its ${TRANSPORT.partners} strongest partners within ${fmt(TRANSPORT.reach)} km (population × population ÷ distance²), adding up to its population: a trip index, not vehicles. Trains run at ${TRANSPORT.speed.rail} km/h, cars at ${TRANSPORT.speed.road} km/h and ${TRANSPORT.speed.fast} km/h on expressways. A zone divides speeds inside it by (1 − damage) and closes the lines at ${pc(TRANSPORT.closed)}%. Trips to or from a city inside are counted as lost; trips through it take the fastest way round, and one over ${TRANSPORT.giveUp[0]} × today's time + ${TRANSPORT.giveUp[1]} h counts as no practical route, because the mapped network leaves out most minor roads.</li>
       <li>Today's flows were solved in ${fmt(b.ms)} ms. All constants are illustrative.</li></ul>`;
   }
-  function simBind() {
-    const h = $("simHint"); h.dataset.text = h.textContent;
-    $("simPick").onclick = () => simSetPick(simPicking === true ? false : true);
-    $("simDry").onclick = () => simSetPick(simPicking === "water" ? false : "water");
-    $("simClear").onclick = () => { simShocks = []; simRenderList(); simRun(0); };
-    $("simChoke").onchange = e => { const v = e.target.value; e.target.value = ""; if (v) simAdd("choke", v, 1); };
-    const box = $("simPresets");
-    box.innerHTML = '<span class="sum small">Examples:</span>';
-    SIM_PRESETS.forEach(([label, list, why]) => {
-      const b = document.createElement("button"); b.type = "button"; b.textContent = label;
-      if (!list) { b.disabled = true; b.title = why; }
-      else b.onclick = async () => { simShocks = []; for (const [k, t, m] of list) await simAdd(k, Array.isArray(t) ? t.slice() : t, m, false); simRenderList(); simRun(0); };
-      box.appendChild(b);
+  // replace whatever is switched off with a ready-made scenario, and fly to it
+  async function simPreset(list) {
+    simSetPick(false); simShocks = [];
+    for (const [k, t, m] of list) await simAdd(k, Array.isArray(t) ? t.slice() : t, m, false);
+    simRenderList(); simRun(0);
+    $("sim").scrollTop = 0;
+    const pts = simShocks.filter(s => s.x != null);
+    if (pts.length === 1) map.flyTo({ center: [pts[0].x, pts[0].y], zoom: Math.max(Math.min(map.getZoom(), 6), simShocks[0].k === "zone" ? 6 : 4) });
+    else if (pts.length) {
+      const xs = pts.map(s => s.x), ys = pts.map(s => s.y);
+      map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 120, maxZoom: 6 });
+    }
+  }
+  function simCards() {
+    const tabs = $("simGroups"), box = $("simPresets"), news = simWeekly && simWeekly.items.length;
+    if (simGroup === "news" && !news) simGroup = "routes";
+    tabs.innerHTML = "";
+    SIM_GROUPS.forEach(([g, label]) => {
+      if (g === "news" && !news) return;
+      const b = document.createElement("button"); b.type = "button"; b.role = "tab"; b.textContent = label;
+      b.setAttribute("aria-selected", String(g === simGroup));
+      b.onclick = () => { simGroup = g; simCards(); };
+      tabs.appendChild(b);
     });
-    document.addEventListener("keydown", e => { if (e.key === "Escape" && simPicking) simSetPick(false); });
+    box.innerHTML = "";
+    const items = simGroup === "news" ? simWeekly.items.map(x => ["news", x.label, x.why, x.shocks, x.url]) : SIM_PRESETS.filter(p => p[0] === simGroup);
+    items.forEach(([, title, desc, list, url]) => {
+      const card = document.createElement("div"), b = document.createElement("button");
+      b.type = "button"; b.innerHTML = `<b>${esc(title)}</b><span>${esc(desc)}</span>`;
+      b.onclick = () => simPreset(list);
+      card.appendChild(b);
+      if (url && /^https?:\/\//.test(url)) card.insertAdjacentHTML("beforeend", `<a href="${esc(url)}" target="_blank" rel="noopener">source</a>`);
+      box.appendChild(card);
+    });
+    if (simGroup === "news") box.insertAdjacentHTML("beforeend", `<p class="hint">From the week's news surges (GDELT), matched to nearby facilities. Updated ${esc((simWeekly.updated || "").slice(0, 10))}.</p>`);
+  }
+  function simBind() {
+    document.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => {
+      const on = b.getAttribute("aria-pressed") === "true";
+      simSetPick(on ? false : b.dataset.pick);
+    });
+    $("simClear").onclick = () => { simSetPick(false); simShocks = []; simRenderList(); simRun(0); };
+    $("simCopy").onclick = async () => {
+      const b = $("simCopy");
+      try { await navigator.clipboard.writeText(location.href); b.textContent = "Copied"; } catch (e) { b.textContent = "Copy failed"; }
+      setTimeout(() => { b.textContent = "Copy link"; }, 1500);
+    };
+    simCards();
+    // the weekly file is optional: written by .github/workflows/scenarios-weekly.yml
+    get("scenarios_weekly.json").then(w => {
+      if (!w || !Array.isArray(w.items)) return;
+      const ok = s => Array.isArray(s) && s.length === 3 && SIM_KIND[s[0]] && isFinite(s[2]);
+      w.items = w.items.filter(x => x && x.label && Array.isArray(x.shocks) && x.shocks.length && x.shocks.every(ok)).slice(0, 12);
+      if (!w.items.length) return;
+      simWeekly = w; simGroup = "news"; simCards();
+    }, () => {});
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && (simPicking || !$("simChokes").hidden)) simSetPick(false); });
   }
 
   // ---------- farmland & land cover (GIBS rasters, drawn above any satellite imagery) ----------
@@ -3836,7 +4056,7 @@ onmessage = async ev => {
     ["Esri World Imagery", "https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9", "sharp base imagery", "Esri terms of use", "mixed dates"],
     ["OpenStreetMap via OpenFreeMap", "https://openfreemap.org/", "streets, buildings, rail, water and street names from zoom 6 (vector tiles rebuilt about weekly)", "ODbL; credit © OpenStreetMap contributors, © OpenMapTiles", "weekly"],
     ["Mapterhorn terrain tiles", "https://mapterhorn.com/attribution", "elevation for terrain shading (Copernicus GLO-30 worldwide, national lidar and DEMs in places)", "open data: Copernicus DEM licence, CC BY 4.0, public domain and national open licences; credit © Mapterhorn", "2025"],
-    ["NASA Blue Marble & Black Marble", "https://www.earthdata.nasa.gov/gibs", "relief, sea floor and 2016 night-light mosaics, saved for offline use by tools/offline.py", "NASA open data", "2004, 2016"],
+    ["NASA Blue Marble & Black Marble", "https://www.earthdata.nasa.gov/gibs", "relief and sea floor (saved for offline use by tools/offline.py) and the 2016 night-lights mosaic behind the grid view", "NASA open data", "2004, 2016"],
     ["pmtiles.js (Protomaps)", "https://github.com/protomaps/PMTiles", "reads the offline street and terrain files", "BSD-3-Clause", "4.5.0"],
     ["IBM Plex Sans, IBM Plex Mono, Archivo", "https://fonts.google.com/", "interface fonts, self-hosted", "SIL Open Font License 1.1", ""]
   ];
