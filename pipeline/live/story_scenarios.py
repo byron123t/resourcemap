@@ -1,25 +1,39 @@
 #!/usr/bin/env python3
-"""Turn the week's storyboard surges into ready-made Scenarios.
+"""Turn the storyboard's news surges into ready-made Scenarios: this week's, this month's and this year's.
 
 Run weekly by .github/workflows/scenarios-weekly.yml after the story feed; devs can run it locally:
 
     python3 -I pipeline/live/fetch_live.py --only story
     python3 -I pipeline/live/story_scenarios.py [--days 7] [--story PATH] [--out PATH]
     python3 -I pipeline/live/story_scenarios.py --check      # validate the file only (after hand review)
+    python3 -I pipeline/live/story_scenarios.py --backfill-year   # one-off: seed the year list from GDELT 1.0
 
-Reads site/data/live/story.json (week window, plus month-window surges that ended in the
-last --days) and keeps the surges that look like strikes or fighting (headline keywords,
-or CAMEO 19/20-heavy when there is no headline) and sit near something the Scenarios panel
-can break: refineries, oil ports, LNG terminals and field clusters from energy_graph.json,
-power plants of 1 GW or more, cable landings, and the eight sea chokepoints. Each one
-becomes a zone shock sized to cover what it matched, plus cable and chokepoint shocks.
+Reads site/data/live/story.json and keeps the surges that look like strikes or fighting
+(headline keywords, or CAMEO 19/20-heavy when there is no headline) and sit near something
+the Scenarios panel can break: refineries, oil ports, LNG terminals and field clusters from
+energy_graph.json, power plants of 1 GW or more, cable landings, and the eight sea
+chokepoints. Each one becomes a zone shock sized to cover what it matched, plus cable and
+chokepoint shocks, at three levels read off the news (see levels()):
+
+    de   de-escalation: only the nearest site is hit, lightly
+    cur  as reported: the zone covers everything matched, damage from the report mix
+    esc  escalation: the zone grows to take in the next ring of sites, damage rises, and a
+         nearby strait closes fully if the story is about shipping
+
+Windows: week = the story week window plus month-window surges that ended in the last
+--days; month = both windows; year = this run's month items merged with last run's year
+items (read back from --out) younger than 365 days. The year list is built up week by
+week, so it only reaches a full year after a year of runs.
 
 Writes site/data/scenarios_weekly.json:
-    {"updated": ISO, "source": ..., "items": [{"label", "why", "url", "shocks", "place", "t", "z", "matched"}]}
-The page shows at most 12 items in the "This week's news" tab and ignores the extra keys,
-which are there for the reviewer (a person, or the Claude step in the workflow).
-Matching is keyword- and distance-based, so expect some noise; the workflow's review step
-drops it before the file is committed.
+    {"updated": ISO, "source": ..., "items": [week items],
+     "windows": {"week": {"items"}, "month": {"items"}, "year": {"items"}}}
+    item: {"label", "why", "url", "shocks" (= levels.cur), "levels": {"de", "cur", "esc"},
+           "lv": {"de", "cur", "esc"} (one line each), "trend", "likely", "at", "months",
+           "place", "t", "z", "matched"}
+"items" repeats the week list for older pages. The page shows at most 12 items a window and
+ignores the reviewer keys (place, t, z, matched). Matching is keyword- and distance-based, so
+expect some noise; the weekly PR's review drops it before the file is merged.
 
 Standard library only.
 """
@@ -54,7 +68,7 @@ STRIKE = [(r"\bdrones?\b|\buavs?\b", "Drone strikes"), (r"\bmissiles?\b|\bprojec
           (r"\battacks?\b|\battacked\b|\braids?\b|\bambush\b", "Attacks"),
           (r"\binvasion\b|\bmilitants?\b|\binsurgents?\b", "Fighting")]  # not "war": too many retrospectives
 # headlines about crime, courts or politics; dropped unless they also match STRIKE
-NOISE = r"\bschool\b|\bshooting\b|\bshooter\b|\bgunman\b|\bexecution\b|\btrial\b|\bcourt\b|\blawsuit\b|\bcharges?\b|\barrest(ed|s)?\b|\bprotests?\b|\bmurder\b|\bhostage\b|\bjournalist\b|\belection\b"
+NOISE = r"\bschool\b|\bshooting\b|\bshooter\b|\bgunman\b|\bexecution\b|\btrial\b|\bcourt\b|\blawsuit\b|\bcharges?\b|\barrest(ed|s)?\b|\bprotests?\b|\bmurder\b|\bhostage\b|\bjournalist\b|\belection\b|\bsettlers?\b|\bfarmers?\b"
 SEA = r"\bships?\b|\btankers?\b|\bvessels?\b|\bstrait\b|\bmaritime\b|\bhouthis?\b|\bnavy\b|\bnaval\b|\bshipping\b|\bport\b"
 
 
@@ -158,19 +172,74 @@ def describe(sites):
     return " and ".join([", ".join(parts[:-1]), parts[-1]]) if len(parts) > 1 else parts[0]
 
 
-def build(story, days, grids):
+def ts(v):
+    return datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+
+
+def trend(it):
+    """'rising', 'easing' or 'steady': reports in the window's last buckets against the surge bucket."""
+    x = [v for v in (it.get("x") or []) if isinstance(v, (int, float))]
+    if len(x) < 3:
+        return "steady"
+    peak, i = max(x), x.index(max(x))
+    tail = sum(x[-2:]) / 2
+    if i >= len(x) - 2 or tail >= 0.8 * peak:
+        return "rising"
+    return "easing" if tail < 0.25 * peak else "steady"
+
+
+def round5(v):
+    return int(5 * math.ceil(v / 5))
+
+
+def levels(lon, lat, m, sites, km, sea, lands, chokes, grids):
+    """Shocks and one-line descriptions for de-escalation, as reported and escalation."""
+    energy, power, _ = grids
+    lv, txt = {}, {}
+    zone = lambda r, mm: ["zone", [round(lon, 2), round(lat, 2), r], mm]
+    pct = lambda v: f"{round(v * 100)}%"
+    near = sorted(sites, key=lambda s: s[0])
+    if sites:
+        d0, p0 = near[0]
+        km_de, m_de = min(km, max(10, round5(d0 + 5))), max(0.1, round(m * 0.4 * 20) / 20)
+        lv["de"] = [zone(km_de, m_de)]
+        txt["de"] = f"Calms down: only the nearest site, {p0['n']}, is hit, {pct(m_de)} damage within {km_de} km."
+        lv["cur"] = [zone(km, m)]
+        txt["cur"] = f"As reported: {len(sites)} site{'s' if len(sites) > 1 else ''} within {km} km, {pct(m)} damage."
+        km_esc, m_esc = min(150, round5(km * 1.8)), min(1.0, round((m + 0.25) * 20) / 20)
+        more = energy.within(lon, lat, km_esc) + power.within(lon, lat, km_esc)
+        have = {p["n"] for _, p in sites}
+        extra = [p["n"] for _, p in more if p["n"] not in have]
+        lv["esc"] = [zone(km_esc, m_esc)]
+        txt["esc"] = f"Spreads to {km_esc} km, {pct(m_esc)} damage" + (
+            f", reaching {len(extra)} more site{'s' if len(extra) > 1 else ''} ({', '.join(extra[:2])}{' …' if len(extra) > 2 else ''})." if extra else ".")
+    else:
+        lv["de"], lv["cur"], lv["esc"] = [], [], []
+        txt["de"] = txt["cur"] = txt["esc"] = ""
+    if sea:
+        cab = [["cable", p["id"], 1] for _, p in lands[:3]]
+        if chokes:
+            name = CHOKES[chokes[0]][0]
+            lv["de"] += [["choke", chokes[0], 0.1]]
+            lv["cur"] += cab + [["choke", chokes[0], 0.5]]
+            lv["esc"] += cab + [["choke", chokes[0], 1]]
+            txt["de"] = (txt["de"] + " " if txt["de"] else "") + f"Ships keep using {name}, a few divert."
+            txt["cur"] = (txt["cur"] + " " if txt["cur"] else "") + f"Half the traffic avoids {name}" + (", cables at risk." if cab else ".")
+            txt["esc"] = (txt["esc"] + " " if txt["esc"] else "") + f"{name} closes" + (" and cables are cut." if cab else ".")
+        elif cab:
+            lv["cur"] += cab
+            lv["esc"] += cab
+            txt["cur"] = (txt["cur"] + " " if txt["cur"] else "") + "Nearby cables cut."
+            txt["esc"] = (txt["esc"] + " " if txt["esc"] else "") + "Nearby cables cut."
+    if not lv["de"]:  # a cable-only story: de-escalation cuts nothing, so keep the smallest real shock
+        lv["de"] = [s[:2] + [0.25] for s in lv["cur"][:1]]
+        txt["de"] = "Damage is repaired quickly: a quarter of the capacity is out for a while."
+    return lv, txt
+
+
+def build(cand, grids, now):
     energy, power, cables = grids
-    now = datetime.strptime(story["updated"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-    since = now - timedelta(days=days)
-    W = story.get("windows", {})
-    cand = list(W.get("week", {}).get("items", []))
-    for it in W.get("month", {}).get("items", []):
-        try:
-            if datetime.strptime(it["t1"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc) >= since:
-                cand.append(it)
-        except (KeyError, ValueError):
-            pass
-    cand.sort(key=lambda it: -(it.get("z") or 0))
+    cand = sorted(cand, key=lambda it: -(it.get("z") or 0))
     out, kept = [], []
     for it in cand:
         if not all(isinstance(it.get(k), (int, float)) for k in ("lat", "lon")):
@@ -191,65 +260,156 @@ def build(story, days, grids):
         r = it.get("r") or [0, 0, 0]
         heavy = (r[1] + r[2]) / max(1, sum(r))
         m = round(min(1.0, 0.3 + 0.4 * heavy + (0.2 if r[2] else 0)) * 20) / 20  # 30-90% damage, more for CAMEO 19/20
-        shocks = []
-        if sites:
-            km = max(25, min(80, 5 * math.ceil(max(d for d, _ in sites) / 5)))
-            shocks.append(["zone", [round(lon, 2), round(lat, 2), km], m])
-        if sea:
-            shocks += [["cable", p["id"], 1] for _, p in lands[:3]]
-            shocks += [["choke", s, 0.5] for s in chokes[:1]]
+        km = max(25, min(80, round5(max(d for d, _ in sites)))) if sites else 0
+        lv, txt = levels(lon, lat, m, sites, km, sea, lands, chokes, grids)
+        shocks = lv["cur"]
         if not shocks:
             continue
+        tr = trend(it)
         name = place(it)
         what = describe(sites) if sites else ", ".join(p["n"] for _, p in lands[:3]) or CHOKES[chokes[0]][0]
         headline = (it.get("title") or "").strip()
-        why = f"{what} within {shocks[0][1][2] if shocks[0][0] == 'zone' else CABLE_KM} km."
+        why = f"{what} within {km or CABLE_KM} km."
         if headline:
             why += f" In the news: {headline[:110] + '…' if len(headline) > 110 else headline + '.'}"
         urls = [u for u in (it.get("u") or []) if isinstance(u, str) and re.match(r"https?://", u)]
         out.append({"label": f"{verb} near {name}", "why": why, "url": urls[0] if urls else None, "shocks": shocks,
+                    "levels": lv, "lv": txt, "trend": tr, "likely": {"rising": "esc", "easing": "de"}.get(tr, "cur"),
+                    "at": [round(lon, 2), round(lat, 2)], "months": [(it.get("t") or now.strftime("%Y-%m"))[:7]],
                     "place": it.get("n"), "t": it.get("t"), "z": it.get("z"),
                     "matched": [p["n"] for _, p in sites[:8]] + [p["n"] for _, p in lands[:3]] + [CHOKES[s][0] for s in chokes[:1]]})
         kept.append((lat, lon))
-        if len(out) >= MAX_ITEMS:
-            break
     return out
 
 
+def windows(story, days, grids, prev):
+    """{"week", "month", "year"} item lists. prev: last run's file (for the year list) or None."""
+    now = ts(story["updated"])
+    W = story.get("windows", {})
+    wk, mo = list(W.get("week", {}).get("items", [])), list(W.get("month", {}).get("items", []))
+    recent = []
+    for it in mo:
+        try:
+            if ts(it["t1"]) >= now - timedelta(days=days):
+                recent.append(it)
+        except (KeyError, ValueError):
+            pass
+    week = build(wk + recent, grids, now)
+    month = build(wk + mo, grids, now)
+    # year: this month's items plus last year's list, one per place (the newest wins; the months it surged in add up)
+    old = []
+    for x in ((prev or {}).get("windows", {}).get("year", {}).get("items", []) if isinstance(prev, dict) else []):
+        try:
+            if isinstance(x, dict) and x.get("at") and x.get("levels") and ts(x["t"]) >= now - timedelta(days=365):
+                old.append(x)
+        except (KeyError, ValueError, TypeError):
+            pass
+    year = []
+    for x in month + sorted(old, key=lambda x: x["t"], reverse=True):
+        twin = next((y for y in year if haversine_km(x["at"][1], x["at"][0], y["at"][1], y["at"][0]) < MERGE_KM), None)
+        if twin:
+            twin["months"] = sorted(set(twin["months"]) | set(x.get("months") or []))
+        else:
+            year.append(dict(x, months=list(x.get("months") or [])))
+    year.sort(key=lambda x: (-len(x["months"]), -(x.get("z") or 0)))
+    return {"week": week[:MAX_ITEMS], "month": month[:MAX_ITEMS], "year": year[:MAX_ITEMS]}
+
+
 SIM_KINDS = {"refinery", "field", "port", "lng", "pipeline", "choke", "zone", "power", "mine", "cable", "water"}
+
+
+def bad_shocks(sh):
+    """The shocks in a list that the page would reject."""
+    out = []
+    for s in sh:
+        ok = isinstance(s, list) and len(s) == 3 and s[0] in SIM_KINDS and isinstance(s[2], (int, float)) and 0 <= s[2] <= 1
+        if ok and s[0] == "zone":
+            z = s[1]
+            ok = isinstance(z, list) and len(z) == 3 and all(isinstance(v, (int, float)) for v in z) \
+                and -180 <= z[0] <= 180 and -90 <= z[1] <= 90 and 5 <= z[2] <= 200
+        elif ok:
+            ok = isinstance(s[1], str) and s[1] != ""
+        if ok and s[0] == "choke":
+            ok = s[1] in CHOKES
+        if not ok:
+            out.append(s)
+    return out
 
 
 def check(doc):
     """Problems that would make the page drop an item (mirrors the loader in index.html), as strings."""
     if not isinstance(doc, dict) or not isinstance(doc.get("items"), list):
         return ["top level must be an object with an items list"]
+    wins = doc.get("windows") or {"week": {"items": doc["items"]}}
+    if not isinstance(wins, dict):
+        return ["windows must be an object"]
     bad = []
-    if len(doc["items"]) > MAX_ITEMS:
-        bad.append(f"{len(doc['items'])} items; the page shows only the first {MAX_ITEMS}")
-    for i, x in enumerate(doc["items"]):
-        tag = f"item {i} ({x.get('label') if isinstance(x, dict) else x!r})"
-        if not isinstance(x, dict) or not isinstance(x.get("label"), str) or not x["label"].strip():
-            bad.append(f"{tag}: needs a label")
+    for w, v in wins.items():
+        if w not in ("week", "month", "year") or not isinstance(v, dict) or not isinstance(v.get("items"), list):
+            bad.append(f"windows.{w}: must be week, month or year with an items list")
             continue
-        if x.get("url") is not None and not re.match(r"https?://", str(x["url"])):
-            bad.append(f"{tag}: url must be http(s) or null")
-        sh = x.get("shocks")
-        if not isinstance(sh, list) or not sh:
-            bad.append(f"{tag}: needs at least one shock")
-            continue
-        for s in sh:
-            ok = isinstance(s, list) and len(s) == 3 and s[0] in SIM_KINDS and isinstance(s[2], (int, float)) and 0 <= s[2] <= 1
-            if ok and s[0] == "zone":
-                z = s[1]
-                ok = isinstance(z, list) and len(z) == 3 and all(isinstance(v, (int, float)) for v in z) \
-                    and -180 <= z[0] <= 180 and -90 <= z[1] <= 90 and 5 <= z[2] <= 200
-            elif ok:
-                ok = isinstance(s[1], str) and s[1] != ""
-            if ok and s[0] == "choke":
-                ok = s[1] in CHOKES
-            if not ok:
-                bad.append(f"{tag}: bad shock {s!r}")
+        if len(v["items"]) > MAX_ITEMS:
+            bad.append(f"{w}: {len(v['items'])} items; the page shows only the first {MAX_ITEMS}")
+        for i, x in enumerate(v["items"]):
+            tag = f"{w} item {i} ({x.get('label') if isinstance(x, dict) else x!r})"
+            if not isinstance(x, dict) or not isinstance(x.get("label"), str) or not x["label"].strip():
+                bad.append(f"{tag}: needs a label")
+                continue
+            if x.get("url") is not None and not re.match(r"https?://", str(x["url"])):
+                bad.append(f"{tag}: url must be http(s) or null")
+            sh = x.get("shocks")
+            if not isinstance(sh, list) or not sh:
+                bad.append(f"{tag}: needs at least one shock")
+                continue
+            bad += [f"{tag}: bad shock {s!r}" for s in bad_shocks(sh)]
+            lv = x.get("levels")
+            if lv is None:
+                continue
+            if not isinstance(lv, dict) or set(lv) != {"de", "cur", "esc"}:
+                bad.append(f"{tag}: levels must have de, cur and esc")
+                continue
+            for k, l in lv.items():
+                if not isinstance(l, list) or not l:
+                    bad.append(f"{tag}: level {k} needs at least one shock")
+                else:
+                    bad += [f"{tag}: level {k}: bad shock {s!r}" for s in bad_shocks(l)]
     return bad
+
+
+def backfill_year(grids, until):
+    """Year items from twelve 30-day story windows over GDELT 1.0 daily files (several GB to download once;
+    the filtered days are cached in raw/live_cache/gdelt1_year). Uses fetch_live's own story code."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import fetch_live as fl
+    from concurrent.futures import ThreadPoolExecutor
+    cache = os.path.join(ROOT, "raw", "live_cache", "gdelt1_year")
+    os.makedirs(cache, exist_ok=True)
+    end = until.replace(hour=0, minute=0, second=0, microsecond=0)
+    items = []
+    for k in range(1, 13):
+        e = end - timedelta(days=30 * k)  # the month window already covers the latest 30 days
+        b0 = e - timedelta(days=30)
+        days = [(b0 + timedelta(days=i)).strftime("%Y%m%d") for i in range(30)]
+        with ThreadPoolExecutor(max_workers=4) as ex:
+            got = list(ex.map(lambda d: fl.gdelt1_day(d, cache), days))
+        rows = [r for g in got if g for r in g]
+        have = sum(1 for g in got if g is not None)
+        if have < 20:
+            log(f"backfill {days[0]}–{days[-1]}: only {have} daily files, skipped")
+            continue
+        bk = [(fl.iso(b0 + timedelta(days=3 * i)), fl.iso(b0 + timedelta(days=3 * i + 3))) for i in range(10)]
+
+        def tri_of(r, b0=b0):
+            d = datetime.strptime(r[10][:8], "%Y%m%d").replace(tzinfo=timezone.utc)
+            if r[1] < (d - timedelta(days=3)).strftime("%Y%m%d"):
+                return None
+            i = (d - b0).days // 3
+            return i if 0 <= i < 10 else None
+        win = fl.story_window(rows, bk, tri_of, 30)
+        got_items = build(win["items"], grids, e)
+        log(f"backfill {days[0]}–{days[-1]}: {len(rows)} events, {len(win['items'])} surges, {len(got_items)} scenario(s)")
+        items += got_items
+    return items
 
 
 def main():
@@ -258,6 +418,7 @@ def main():
     ap.add_argument("--story", default=os.path.join(DATA, "live", "story.json"))
     ap.add_argument("--out", default=os.path.join(DATA, "scenarios_weekly.json"))
     ap.add_argument("--check", action="store_true", help="only validate --out and exit 1 on problems")
+    ap.add_argument("--backfill-year", action="store_true", help="also seed the year list from a year of GDELT 1.0 daily files (slow, one-off)")
     args = ap.parse_args()
     if args.check:
         with open(args.out, encoding="utf-8") as f:
@@ -268,12 +429,25 @@ def main():
         sys.exit(1 if bad else 0)
     with open(args.story, encoding="utf-8") as f:
         story = json.load(f)
-    items = build(story, args.days, facilities())
-    for x in items:
-        log(f"{x['label']}: {len(x['shocks'])} shock(s), z {x['z']}")
+    prev = None
+    if os.path.exists(args.out):
+        try:
+            with open(args.out, encoding="utf-8") as f:
+                prev = json.load(f)
+        except (OSError, ValueError):
+            log("couldn't read the previous file; the year list starts again")
+    grids = facilities()
+    if args.backfill_year:
+        old = backfill_year(grids, ts(story["updated"]))
+        prev = {"windows": {"year": {"items": old + (((prev or {}).get("windows") or {}).get("year") or {}).get("items", [])}}}
+    wins = windows(story, args.days, grids, prev)
+    for w, items in wins.items():
+        for x in items:
+            log(f"{w}: {x['label']}: {x['trend']}, {len(x['months'])} month(s), z {x['z']}")
+    items = wins["week"]
     doc = {"updated": story["updated"], "source": "GDELT storyboard surges matched to sites within "
            f"{ENERGY_KM} km (cables {CABLE_KM} km, chokepoints {CHOKE_KM} km); see pipeline/live/story_scenarios.py",
-           "items": items}
+           "items": items, "windows": {w: {"items": v} for w, v in wins.items()}}
     bad = check(doc)
     if bad:
         raise SystemExit("generated file fails its own check: " + "; ".join(bad))
@@ -282,7 +456,7 @@ def main():
         json.dump(doc, f, indent=1, ensure_ascii=False)  # indented so the weekly PR diff is readable
         f.write("\n")
     os.replace(tmp, args.out)
-    log(f"{len(items)} scenario(s) -> {args.out}")
+    log(", ".join(f"{len(v)} {w}" for w, v in wins.items()) + f" scenario(s) -> {args.out}")
 
 
 if __name__ == "__main__":

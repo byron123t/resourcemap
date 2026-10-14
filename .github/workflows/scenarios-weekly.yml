@@ -4,7 +4,7 @@
 #    fields, big power plants, cable landings and chokepoints (pipeline/live/story_scenarios.py).
 # 2. Validate the file and open (or update) a PR on branch claude/scenarios-weekly for a person
 #    to merge. Merging to main redeploys Pages, and the page shows the items under
-#    "This week's news" in the Scenarios panel.
+#    "In the news" (this week, month and year) in the Scenarios panel.
 #
 # The Claude review is not part of this workflow. The model gateway (LiteLLM) is only reachable
 # over the University of Michigan VPN, so tools/review_scenarios.sh runs on the owner's machine

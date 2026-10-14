@@ -322,6 +322,53 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .shocks label { grid-column: 1 / -1; display: grid; grid-template-columns: 52px 1fr 54px; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-2); }
 .shocks input[type=range] { width: 100%; accent-color: var(--sim-zone); }
 .shocks output { font-family: var(--f-mono); font-size: 11px; text-align: right; }
+/* one tap per setting: each change is a full re-solve, so fixed steps beat a slider */
+.steps { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 11.5px; color: var(--ink-2); }
+.steps > span { width: 50px; }
+.steps button { font: inherit; font-size: 11.5px; min-width: 40px; padding: 4px 6px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; font-variant-numeric: tabular-nums; }
+.steps button[aria-pressed="true"] { background: var(--sim-zone); border-color: var(--sim-zone); color: #fff; }
+.sim-news { display: flex; flex-direction: column; gap: 6px; }
+.sim-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.sim-levels button { font: inherit; text-align: left; padding: 7px 8px; border: 1px solid var(--panel-line); border-radius: 6px; background: var(--land); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 44px; }
+.sim-levels button[aria-checked="true"] { border-color: var(--sim-zone); box-shadow: inset 0 0 0 1px var(--sim-zone); background: color-mix(in srgb, var(--sim-zone) 8%, var(--land)); }
+.sim-levels b { font-size: 12px; font-weight: 600; line-height: 1.25; }
+.sim-levels small { font-family: var(--f-mono); font-size: 10px; color: var(--ink-3); }
+/* the chain of consequences: one card per step, each switching on the layers that show it */
+.sim-chain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.sim-chain li { display: flex; flex-direction: column; }
+.sim-chain li + li::before { content: "↓"; text-align: center; color: var(--ink-3); font-size: 12px; line-height: 15px; }
+.sim-chain button { width: 100%; height: 100%; text-align: left; font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--panel-line); border-left: 3px solid var(--panel-line); border-radius: 5px; padding: 6px 9px; cursor: pointer; display: grid; grid-template-columns: 20px 1fr; gap: 1px 8px; align-content: start; }
+.sim-chain button:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+.sim-chain button[aria-current="true"] { border-left-color: var(--sim-down); background: color-mix(in srgb, var(--sim-down) 8%, transparent); }
+.sim-chain .no { grid-row: span 3; width: 20px; height: 20px; border-radius: 50%; background: var(--ink-3); color: var(--panel); font-family: var(--f-mono); font-size: 10.5px; display: grid; place-items: center; margin-top: 1px; }
+.sim-chain button[aria-current="true"] .no { background: var(--sim-down); color: #fff; }
+.sim-chain .ttl { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .03em; text-transform: uppercase; color: var(--ink-3); }
+.sim-chain .big { font-family: var(--f-display); font-stretch: 85%; font-size: 18px; font-weight: 700; line-height: 1.15; color: var(--sim-down); font-variant-numeric: tabular-nums; }
+.sim-chain .big.up { color: var(--sim-up); } .sim-chain .big.k { color: var(--ink); }
+.sim-chain .txt { font-size: 11.5px; line-height: 1.4; color: var(--ink-2); }
+.sim-cards .meta { font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); }
+.sim-tabs .glbl { font-size: 11px; color: var(--ink-3); align-self: center; margin-right: 2px; }
+.sim-tabs .brk { flex-basis: 100%; height: 0; }
+@media (max-width: 720px) {
+  /* scenarios on a phone: big tap targets, swipeable rows instead of long columns */
+  .sim { padding: 10px 14px 14px; gap: 8px; }
+  .sim-kinds { grid-template-columns: 1fr; }
+  .sim-kinds span { display: none; }
+  .sim-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .sim-tabs .brk { display: none; }
+  .sim-tabs button { flex: none; padding: 7px 11px; font-size: 12.5px; }
+  .sim-cards button { padding: 9px 10px; }
+  .sim-chain { flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; scrollbar-width: none; }
+  .sim-chain li { flex: 0 0 84%; scroll-snap-align: start; }
+  .sim-chain li + li::before { content: none; }
+  .sim .row button, .stepper button { min-height: 38px; padding-inline: 12px; }
+  .steps button { min-height: 36px; min-width: 46px; }
+  .sim-levels button { min-height: 50px; }
+  .shocks .close { min-width: 36px; min-height: 36px; }
+  .sim .simt { display: block; overflow-x: auto; }
+  .sheet .eyebrow { display: none; }
+  .sheet:has(.sim:not([hidden])) h1, .sheet:has(.story:not([hidden])) h1 { font-size: 17px; }
+}
 .simt { width: 100%; border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums; }
 .simt th { text-align: right; font-weight: 500; color: var(--ink-3); font-size: 10.5px; padding: 0 0 3px 6px; }
 .simt th:first-child, .simt td:first-child { text-align: left; padding-left: 0; }
@@ -394,7 +441,20 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     </div>
     <div class="sim" id="sim" hidden>
       <p class="sum" id="simSum">What breaks if something stops? Pick a ready-made scenario, or build your own: the model re-routes oil and gas, roads and rail, and river water around it.</p>
+      <div class="sim-news" id="simNews" hidden>
+        <div class="sim-levels" id="simLevels" role="radiogroup" aria-label="How the story could go"></div>
+        <p class="sum small" id="simLvText"></p>
+      </div>
       <div class="sim-head" id="simHead" hidden></div>
+      <div class="sim-news" id="simFlow" hidden>
+        <div class="stepper">
+          <button type="button" id="simPrev" aria-label="Previous step">← Prev</button>
+          <button type="button" id="simPlay" aria-pressed="false">Play</button>
+          <button type="button" id="simNext" aria-label="Next step">Next →</button>
+          <span class="pos" id="simPos"></span>
+        </div>
+        <ol class="sim-chain" id="simChain" aria-label="What happens next, step by step"></ol>
+      </div>
       <ul class="shocks" id="simList"></ul>
       <div class="row" id="simBar" hidden>
         <button type="button" id="simClear">Start over</button>
@@ -1828,6 +1888,8 @@ onmessage = async ev => {
     // 1. ground + one exclusive background fill
     L({ id: "land", type: "fill", source: "land", paint: { "fill-color": css("--land") } });
     L({ id: "countries-fill", type: "fill", source: "countries", paint: { "fill-color": css("--land"), "fill-opacity": ["case", ["has", "c"], 1, 0] } });
+    // scenarios: the countries a consequence step is about (opacity set per step by simShade)
+    L({ id: "sim-country", type: "fill", source: "countries", filter: ["in", ["get", "k"], ["literal", []]], paint: { "fill-color": css("--sim-down"), "fill-opacity": 0.3 } });
     L({ id: "water-fill", type: "fill", source: "water_risk", layout: hidden, paint: { "fill-color": css("--land"), "fill-opacity": 0.7 } });
     L({ id: "gw-fill", type: "fill", source: "groundwater", layout: hidden, paint: { "fill-color": css("--land"), "fill-opacity": 0.9 } });
     L({ id: "gw-major", type: "line", source: "groundwater", filter: ["==", ["get", "t"], "m"], layout: hidden, paint: { "line-color": css("--gw"), "line-width": 0.8, "line-opacity": 0.7 } });
@@ -2328,7 +2390,7 @@ onmessage = async ev => {
     });
 
     const sheet = $("sheet"), tg = $("toggleSheet");
-    const setSheet = c => { sheet.classList.toggle("collapsed", c); tg.textContent = c ? "Layers" : "Hide"; tg.setAttribute("aria-expanded", String(!c)); };
+    const setSheet = c => { sheet.classList.toggle("collapsed", c); tg.textContent = c ? "Show" : "Hide"; tg.setAttribute("aria-expanded", String(!c)); };
     tg.addEventListener("click", () => setSheet(!sheet.classList.contains("collapsed")));
     if (!wide()) setSheet(true);
   }
@@ -3192,6 +3254,7 @@ onmessage = async ev => {
   function setMode(mode) {
     if (mode === curMode) return;
     const prev = curMode; curMode = mode;
+    if ($("sheet").classList.contains("collapsed")) $("toggleSheet").click();   // on a phone, picking a mode opens the panel
     document.querySelectorAll(".seg.mode button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode ? "true" : "false"));
     if (prev === "story") { storyOn = false; storyStop(); storyClear(); map.setLayoutProperty("story-halo", "visibility", "none"); }
     if (prev === "sim") simExit();
@@ -3233,8 +3296,10 @@ onmessage = async ev => {
     zone: "Conflict or disaster zone", power: "Power plant", mine: "Mine", cable: "Cable landing", water: "River basin drought" };
   const SIM_CHOKE = { malacca: "Strait of Malacca", hormuz: "Strait of Hormuz", suez: "Suez Canal & SUMED", bab: "Bab el-Mandeb", danish: "Danish Straits",
     turkish: "Turkish Straits", panama: "Panama Canal", cape: "Cape of Good Hope" };
-  // ready-made scenarios: [group, title, what it tests, shocks as [kind, id, share]]. "news" is filled from scenarios_weekly.json.
-  const SIM_GROUPS = [["news", "This week's news"], ["routes", "Sea routes"], ["energy", "Oil & gas"], ["conflict", "Conflict & disaster"], ["water", "Water"], ["power", "Power"], ["net", "Cables & mines"]];
+  // ready-made scenarios: [group, title, what it tests, shocks as [kind, id, share]]. The news groups are filled from scenarios_weekly.json.
+  const SIM_NEWS = { week: "This week", month: "This month", year: "This year" };
+  const SIM_LEVELS = [["de", "De-escalate"], ["cur", "Current"], ["esc", "Escalate"]];
+  const SIM_GROUPS = [["week", "This week"], ["month", "This month"], ["year", "This year"], ["routes", "Sea routes"], ["energy", "Oil & gas"], ["conflict", "Conflict & disaster"], ["water", "Water"], ["power", "Power"], ["net", "Cables & mines"]];
   const lngs = (...a) => a.map(i => ["lng", "l" + i, 1]);
   const SIM_PRESETS = [
     ["routes", "Hormuz closed", "About a fifth of the world's oil sails out of the Gulf here. How much can the Saudi and UAE bypass pipelines carry?", [["choke", "hormuz", 1]]],
@@ -3280,7 +3345,10 @@ onmessage = async ev => {
     ["net", "Largest US coal mine shut", "North Antelope Rochelle in Wyoming's Powder River Basin.", [["mine", "c-1rwos51", 1]]],
     ["net", "Carajás iron ore halted", "Vale's Serra Norte mines in Brazil.", [["mine", "i-1pakmck", 1]]]
   ];
-  let simGroup = "routes", simWeekly = null;
+  let simGroup = "routes", simNewsDoc = null, simNews = null;
+  // the consequence chain: steps, the one shown, whether the next result starts it again, the Play timer, and the farmland/population overlay to put back on leaving
+  let simSteps = [], simStep = 0, simFresh = false, simPlayT = 0, simAgri0 = null, simBoxes = {};
+  const SIM_STEP_M = [25, 50, 75, 100], SIM_STEP_R = [10, 25, 50, 100, 150, 200];
   // world rows: label, key, unit, decimals, whether a rise is bad
   const SIM_WORLD = [["Crude oil produced", "crude", "kb/d", 0], ["Refinery runs", "run", "kb/d", 0], ["Diesel & gasoil made", "dsl", "kb/d", 0],
     ["Oil left in ground or tanks", "stock", "kb/d", 0, 1], ["Gas delivered", "gas", "bcm/yr", 1], ["Gas shortfall", "gasShort", "bcm/yr", 1, 1],
@@ -3441,6 +3509,8 @@ onmessage = async ev => {
       }
     }
     map.getSource("sim-water").setData({ type: "FeatureCollection", features: fs });
+    simBoxes.water = R && R.basins.length ? R.basins.reduce((a, b) => { const [x0, y0, x1, y1] = basinBox[b.i]; return [Math.min(a[0], x0), Math.min(a[1], y0), Math.max(a[2], x1), Math.max(a[3], y1)]; }, [180, 90, -180, -90]) : null;
+    simBoxes.move = R && R.dest.length ? simBox(R.dest.slice(0, WATER.show).flatMap(d => [d.from, [d.x, d.y]])) : null;
     map.getSource("sim-move").setData({ type: "FeatureCollection", features: mv });
   }
 
@@ -3515,6 +3585,7 @@ onmessage = async ev => {
       }
     }
     map.getSource("sim-traffic").setData({ type: "FeatureCollection", features: feats });
+    simBoxes.traffic = simBox(feats.sort((a, b) => b.properties.w - a.properties.w).slice(0, 30).flatMap(f => simCoords(f.geometry)));
   }
   function simZoneAt(lon, lat) {
     closeDetail(); setMode("sim");
@@ -3577,7 +3648,7 @@ onmessage = async ev => {
     if (d.type === "error") $("simSum").textContent = "The model failed on this scenario: " + d.message.split("\n")[0];
   }
   function simEnter() {
-    simChips(); simPipeTone();
+    simChips(); simPipeTone(); simAgri0 = $("agri").value;
     if (!simReady) {
       $("simSum").textContent = "Loading the energy network…";
       simReady = (async () => {
@@ -3613,7 +3684,9 @@ onmessage = async ev => {
     ["pipes-oil", "pipes-gas"].forEach(l => { map.setPaintProperty(l, "line-color", css(on ? "--foot" : "--oil")); map.setPaintProperty(l, "line-opacity", on ? simPipeLook.sim : simPipeLook.map); });
   }
   function simExit() {
-    simSetPick(false); simPipeTone();
+    simSetPick(false); simPlay(false); simShade(null);
+    if (simAgri0 != null && $("agri").value !== simAgri0) { $("agri").value = simAgri0; applyAgri(); }
+    simAgri0 = null; simPipeTone();
     ["sim-flow", "sim-zone", "sim-off", "sim-water", "sim-move", "sim-traffic"].forEach(s => map.getSource(s) && map.getSource(s).setData(empty));
     simHash();
   }
@@ -3671,7 +3744,7 @@ onmessage = async ev => {
     const r = await simResolve(k, t);
     if (!r) return simSay("Couldn't find that in the data.");
     simShocks.push({ k, t, m, ...r });
-    if (run) { simRenderList(); simRun(); }
+    if (run) { simNews = null; simNewsRender(); simFresh = true; simRenderList(); simRun(); }
   }
   function simPickAt(e, f) {
     const p = f && f.properties, s = f && f.source, at = f && f.geometry.type === "Point" ? f.geometry.coordinates : [e.lngLat.lng, e.lngLat.lat];
@@ -3697,21 +3770,25 @@ onmessage = async ev => {
     simSay("That can't be switched off here. Pick a facility listed above, or open ground for a zone.");
   }
 
+  // each setting is a row of fixed steps (plus the current value if it's between them): one tap, one re-solve
   function simRenderList() {
     const ul = $("simList"); ul.innerHTML = "";
     $("simBar").hidden = !simShocks.length;
+    ul.hidden = !!(simNews && simNews.x.levels);   // a news scenario is set by its three levels instead
+    const steps = (label, vals, cur, unit, attr) => `<div class="steps" ${attr} role="group" aria-label="${label}"><span>${label}</span>`
+      + [...new Set(vals.concat(cur))].sort((a, b) => a - b).map(v => `<button type="button" data-v="${v}" aria-pressed="${v === cur}">${v}${unit}</button>`).join("") + "</div>";
     simShocks.forEach((s, i) => {
       const li = document.createElement("li"), pct = Math.round(s.m * 100);
       li.innerHTML = `<span class="k">${SIM_KIND[s.k]}</span><button type="button" class="close" aria-label="Remove ${esc(s.n)}">×</button><b>${esc(s.n)}</b>`
-        + `<label>${s.k === "choke" ? "Closed" : s.k === "zone" ? "Damage" : s.k === "water" ? "Water lost" : "Outage"}<input type="range" min="0" max="100" step="5" value="${pct}" data-m><output>${pct}%</output></label>`
-        + (s.k === "zone" ? `<label>Radius<input type="range" min="5" max="200" step="5" value="${s.t[2]}" data-r><output>${s.t[2]} km</output></label>` : "");
+        + steps(s.k === "choke" ? "Closed" : s.k === "zone" ? "Damage" : s.k === "water" ? "Water lost" : "Outage", SIM_STEP_M, pct, "%", "data-m")
+        + (s.k === "zone" ? steps("Radius", SIM_STEP_R, s.t[2], " km", "data-r") : "");
       li.querySelector(".close").onclick = () => { simShocks.splice(i, 1); simRenderList(); simRun(); };
-      li.querySelector("b").onclick = () => s.x != null && map.flyTo({ center: [s.x, s.y], zoom: Math.max(map.getZoom(), 5) });
-      li.querySelectorAll("input").forEach(inp => inp.oninput = () => {
-        const v = +inp.value;
-        if (inp.dataset.r != null) { s.t[2] = v; inp.nextElementSibling.textContent = v + " km"; }
-        else { s.m = v / 100; inp.nextElementSibling.textContent = v + "%"; }
-        simRun();
+      li.querySelector("b").onclick = () => s.x != null && simFit(simShockBox([s]));
+      li.querySelectorAll(".steps button").forEach(b => b.onclick = () => {
+        const v = +b.dataset.v, row = b.parentElement;
+        if (row.dataset.r != null) s.t[2] = v; else s.m = v / 100;
+        row.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+        simRun(0);
       });
       ul.appendChild(li);
     });
@@ -3745,7 +3822,10 @@ onmessage = async ev => {
         feats.push({ type: "Feature", geometry: { type: "LineString", coordinates: [[x1, Y[a] / 100], [x2, Y[z] / 100]] }, properties: props });
       }
     }
-    map.getSource("sim-flow").setData({ type: "FeatureCollection", features: feats.concat([...byRef.values()]) });
+    const all = feats.concat([...byRef.values()]);
+    map.getSource("sim-flow").setData({ type: "FeatureCollection", features: all });
+    simBoxes.flowMax = all.reduce((a, f) => f.properties.v ? a : Math.max(a, f.properties.w), 0);
+    simBoxes.flow = simBox(all.filter(f => !f.properties.v).sort((a, b) => b.properties.w - a.properties.w).slice(0, 12).flatMap(f => simCoords(f.geometry)));
   }
 
   function simRun(delay = 150) {
@@ -3765,7 +3845,7 @@ onmessage = async ev => {
       }
       const facts = await local;
       if (id !== simId || curMode !== "sim") return;
-      simRender(r, facts); simDraw(r); simDrawWater(facts.water); simDrawTraffic(facts.traffic);
+      simDraw(r); simDrawWater(facts.water); simDrawTraffic(facts.traffic); simRender(r, facts);
     }, delay);
   }
 
@@ -3781,6 +3861,7 @@ onmessage = async ev => {
       const towns = LABELS.filter(l => l.t === "p" && l.pop && hav(z.t[0], z.t[1], l.x, l.y) <= z.t[2]).sort((a, b) => b.pop - a.pop);
       const people = await popInRadius(z.t[0], z.t[1], z.t[2]);
       inside += people || 0;
+      (facts.zones = facts.zones || []).push({ n: z.n, r: z.t[2], people, towns: towns.slice(0, 3).map(l => l.n), box: simShockBox([z]) });
       facts.push(`<li><b>${esc(z.n)}</b>, ${z.t[2]} km: ${people == null ? "population data didn't load" : `≈${fmt(sig2(people))} people live inside`}${towns.length ? ` (largest towns: ${towns.slice(0, 3).map(l => esc(l.n)).join(", ")})` : ""}. `
         + `Fields, refineries, ports, terminals, pipeline junctions and power plants inside lose ${Math.round(z.m * 100)}% of capacity.</li>`);
     }
@@ -3791,6 +3872,7 @@ onmessage = async ev => {
         facts.traffic = tr; facts.push(...simTrafficFacts(tr));
         const rd = tr.type === "result" && tr.out.road;
         if (rd && rd.total && rd.through + rd.inZone > 0) facts.head.push([fmt((rd.through + rd.inZone) / rd.total * 100) + "%", "of nearby road trips start, end or detour round the zone", "dn"]);
+        if (rd && rd.total) facts.road = { share: (rd.through + rd.inZone) / rd.total, cut: rd.cutW / Math.max(1e-9, rd.through), slow: rd.h0 ? rd.dh / rd.h0 : 0, pairs: rd.pairs.slice(0, 3).map(q => `${trInfo.names[q.i]}–${trInfo.names[q.j]}`) };
       }
     }
     const pw = own("power");
@@ -3804,6 +3886,11 @@ onmessage = async ev => {
         rem.forEach((v, f) => { const p = f.properties; if (p.s !== "operating" || !p.mw || v >= 1) return; const o = by[p.k] = by[p.k] || { gw: 0, n: 0 }; o.gw += p.mw * (1 - v) / 1000; o.n++; });
         const gw = Object.values(by).reduce((a, o) => a + o.gw, 0);
         if (gw >= 0.05) facts.head.push([smart(gw) + " GW", "of power plants offline", "dn"]);
+        if (gw >= 0.05) {
+          const pts = []; rem.forEach((v, f) => { if (v < 1 && f.properties.s === "operating" && f.properties.mw) pts.push(f.geometry.coordinates); });
+          facts.power = { gw, box: simBox(pts), rows: Object.entries(by).sort((a, b) => b[1].gw - a[1].gw).slice(0, 3).map(([k, o]) => {
+            const c = T[k] || {}, sh = c.pw_gw ? Math.min(1, o.gw / c.pw_gw) : 0; return { k, gw: o.gw, sh, people: sh ? (c.kpop || c.pop) * sh : 0 }; }) };
+        }
         Object.entries(by).sort((a, b) => b[1].gw - a[1].gw).slice(0, 6).forEach(([k, o]) => {
           const c = T[k] || {}, sh = c.pw_gw ? Math.min(1, o.gw / c.pw_gw) : 0;
           facts.push(`<li>Power, ${esc(simCountry(k))}: ${smart(o.gw)} GW offline at ${o.n} plant${o.n > 1 ? "s" : ""}`
@@ -3816,6 +3903,7 @@ onmessage = async ev => {
       const coal = s.t[0] === "c", p = s.f.properties, key = coal ? "coal" : "iron", mt = (p.pr || (!coal && p.cap) || 0) * s.m;
       const ct = (T[p.k] || {})[key], wt = Object.values(T).reduce((a, c) => a + (c[key] || 0), 0);
       if (mt && wt) facts.head.push([fmt(mt / wt * 100, 1) + "%", `of the world's ${coal ? "coal" : "iron ore"} output lost`, "dn"]);
+      (facts.mines = facts.mines || []).push({ n: p.n, coal, mt, world: wt ? mt / wt : 0, ctry: ct ? mt / ct : 0, k: p.k, box: simShockBox([s]) });
       facts.push(`<li>${coal ? "Coal" : "Iron ore"}, ${esc(p.n)}: ` + (mt ? `${smart(mt)} Mt/yr lost${ct ? `, ${fmt(mt / ct * 100, 1)}% of ${esc(simCountry(p.k))}'s output` : ""}${wt ? ` and ${fmt(mt / wt * 100, 2)}% of the world's` : ""}` : "no reported output")
         + (/^operating$/i.test(p.s || "") ? "." : ` (status: ${esc(p.s || "unknown")}).`) + "</li>");
     }
@@ -3830,6 +3918,7 @@ onmessage = async ev => {
         const rows = Object.entries(per).map(([c, set]) => { let l = 0; set.forEach(x => l += cut.get(x) || 0); return [c, l, set.size]; })
           .filter(r => r[1] > 0).sort((a, b) => b[1] / b[2] - a[1] / a[2] || b[1] - a[1]).slice(0, 6);
         if (rows.length) facts.head.push([fmt(rows[0][1] / rows[0][2] * 100) + "%", `of ${esc(rows[0][0])}'s cables cut, the hardest hit`, "dn"]);
+        if (rows.length) facts.cable = { rows, n: cut.size, box: simShockBox(cb) };
         facts.push(`<li>Cables: ${fmt(cut.size)} system${cut.size > 1 ? "s" : ""} land${cut.size > 1 ? "" : "s"} there, counted as cut everywhere they land. Hardest hit: `
           + rows.map(([c, l, n]) => `${esc(c)} ${fmt(l, l % 1 ? 1 : 0)} of ${n} (${fmt(l / n * 100)}%)`).join(", ") + ". Every cable counts the same here; real capacity varies a lot.</li>");
       }
@@ -3846,7 +3935,7 @@ onmessage = async ev => {
     const out = [], key = [], head = $("simHead");
     if (!simShocks.length) {
       $("simSum").textContent = "What breaks if something stops? Pick a ready-made scenario below, or build your own. The model re-routes oil and gas, roads and rail, and river water around it.";
-      $("simOut").innerHTML = ""; head.hidden = true; return;
+      $("simOut").innerHTML = ""; head.hidden = true; simSteps = []; simChainRender(); return;
     }
     const cls = (d, bad) => Math.abs(d) < 1e-6 ? "" : (bad ? d > 0 : d < 0) ? "dn" : "up";
     const top3 = [];
@@ -3883,10 +3972,13 @@ onmessage = async ev => {
     }
     // oil and gas figures lead when the network moved; otherwise the local ones (people, power, water)
     const cards = (r && !(top3.length === 1 && top3[0][0] === "≈0") ? top3.concat(facts.head) : facts.head.concat(r ? top3 : [])).slice(0, 4);
+    // the chain of consequences says it step by step, so the headline cards only stand in if it can't be built
+    simSteps = simChain(r, facts);
     head.innerHTML = cards.map(([v, t, c]) => `<div><b class="${c || ""}">${v}</b><span>${t}</span></div>`).join("");
-    head.hidden = !cards.length;
-    $("simSum").textContent = (simShocks.length === 1 ? simShocks[0].n : simShocks.length + " changes together") + ". "
-      + (cards.length ? "What happens:" : "No measurable effect.");
+    head.hidden = !cards.length || simSteps.length > 1;
+    $("simSum").textContent = (simNews ? simNews.x.label : simShocks.length === 1 ? simShocks[0].n : simShocks.length + " changes together") + ". "
+      + (simSteps.length > 1 ? "What follows, step by step (tap a step to see it on the map):" : cards.length ? "What happens:" : "No measurable effect.");
+    simChainRender();
     if (facts.water) key.push(`<div class="sim-key"><span><i style="background:var(--sim-dry)"></i>basins losing water (darker: more)</span><span><i style="background:var(--sim-move)"></i>where people may move</span></div>`);
     if (facts.traffic && facts.traffic.type === "result") key.push(`<div class="sim-key"><span><i style="background:var(--sim-up)"></i>more road or rail traffic</span><span><i style="background:var(--sim-down)"></i>less</span><span>dotted: rail</span></div>`);
     if (r) key.push(`<div class="sim-key"><span><i style="background:var(--sim-up)"></i>more flow</span><span><i style="background:var(--sim-down)"></i>less flow</span><span>dashed: gas</span><span>faint straight lines: unmapped links</span></div>`);
@@ -3910,61 +4002,236 @@ onmessage = async ev => {
       <li>Road and rail: ${fmt(trInfo ? trInfo.names.length : 3089)} cities of 100,000+ are tied to the nearest line within ${trInfo ? trInfo.cityKm : 25} km, and line ends within ${trInfo ? trInfo.snapKm : 3} km are joined. Each city's trips go to its ${TRANSPORT.partners} strongest partners within ${fmt(TRANSPORT.reach)} km (population × population ÷ distance²), adding up to its population: a trip index, not vehicles. Trains run at ${TRANSPORT.speed.rail} km/h, cars at ${TRANSPORT.speed.road} km/h and ${TRANSPORT.speed.fast} km/h on expressways. A zone divides speeds inside it by (1 − damage) and closes the lines at ${pc(TRANSPORT.closed)}%. Trips to or from a city inside are counted as lost; trips through it take the fastest way round, and one over ${TRANSPORT.giveUp[0]} × today's time + ${TRANSPORT.giveUp[1]} h counts as no practical route, because the mapped network leaves out most minor roads.</li>
       <li>Today's flows were solved in ${fmt(b.ms)} ms. All constants are illustrative.</li></ul>`;
   }
-  // replace whatever is switched off with a ready-made scenario, and fly to it
-  async function simPreset(list) {
+  // replace whatever is switched off with a ready-made scenario, and fly to it (fly false: keep the camera, e.g. when changing a news level)
+  async function simPreset(list, fly = true) {
     simSetPick(false); simShocks = [];
     for (const [k, t, m] of list) await simAdd(k, Array.isArray(t) ? t.slice() : t, m, false);
-    simRenderList(); simRun(0);
-    $("sim").scrollTop = 0;
-    const pts = simShocks.filter(s => s.x != null);
-    if (pts.length === 1) map.flyTo({ center: [pts[0].x, pts[0].y], zoom: Math.max(Math.min(map.getZoom(), 6), simShocks[0].k === "zone" ? 6 : 4) });
-    else if (pts.length) {
-      const xs = pts.map(s => s.x), ys = pts.map(s => s.y);
-      map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 120, maxZoom: 6 });
+    simFresh = fly; simRenderList(); simRun(0);
+    if (fly) { $("sim").scrollTop = 0; const b = simShockBox(simShocks); if (b) simFit(b, simShocks.some(s => s.k === "zone") ? 7 : 5); }
+  }
+  async function simNewsPick(x, lvl, fly) {
+    simNews = { x, lvl }; simNewsRender();
+    await simPreset((x.levels && x.levels[lvl]) || x.shocks, fly);
+  }
+  function simNewsRender() {
+    const n = simNews; $("simNews").hidden = !n;
+    if (!n) return;
+    const L = n.x.levels ? SIM_LEVELS : [["cur", "Current"]], tr = { rising: "reports rising", easing: "reports easing", steady: "reports steady" }[n.x.trend];
+    $("simLevels").innerHTML = L.map(([k, t]) => `<button type="button" role="radio" aria-checked="${k === n.lvl}" data-lv="${k}"><b>${t}</b>`
+      + (n.x.likely === k && tr ? `<small>${tr}</small>` : "") + "</button>").join("");
+    $("simLevels").querySelectorAll("button").forEach(b => b.onclick = () => { if (b.dataset.lv !== simNews.lvl) simNewsPick(simNews.x, b.dataset.lv, false); });
+    $("simLvText").textContent = (n.x.lv && n.x.lv[n.lvl]) || "";
+  }
+
+  // ---- the chain of consequences: what's hit, what it does next, and who feels it, one map view per step ----
+  const simCoords = g => g.type === "Point" ? [g.coordinates] : g.type === "LineString" || g.type === "MultiPoint" ? g.coordinates
+    : g.type === "MultiLineString" || g.type === "Polygon" ? g.coordinates.flat() : g.type === "MultiPolygon" ? g.coordinates.flat(2) : [];
+  function simBox(pts) {
+    const b = [Infinity, Infinity, -Infinity, -Infinity];
+    for (const [x, y] of pts) if (isFinite(x) && isFinite(y)) { b[0] = Math.min(b[0], x); b[1] = Math.min(b[1], y); b[2] = Math.max(b[2], x); b[3] = Math.max(b[3], y); }
+    return isFinite(b[0]) ? b : null;
+  }
+  // a box round shocks: zones by their radius, pipelines by their line, everything else by its point
+  function simShockBox(list) {
+    const pts = [];
+    for (const s of list) {
+      if (s.k === "zone") { const [x, y, r] = s.t, dy = r / 111, dx = dy / Math.max(0.2, Math.cos(y * Math.PI / 180)); pts.push([x - dx, y - dy], [x + dx, y + dy]); }
+      else if (s.geo) s.geo.forEach(g => pts.push(...simCoords(g)));
+      else if (s.x != null) pts.push([s.x - 0.3, s.y - 0.3], [s.x + 0.3, s.y + 0.3]);
     }
+    return simBox(pts);
+  }
+  const simUnion = (a, b) => a && b ? [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])] : a || b;
+  // countries by their label point, a few degrees either side
+  function simCountryBox(keys) {
+    const pts = [];
+    keys.forEach(k => { const l = LABELS.find(l => l.t === "c" && l.k === k); if (l) pts.push([l.x - 4, l.y - 3], [l.x + 4, l.y + 3]); });
+    return simBox(pts);
+  }
+  // fit a box into the part of the map the panel doesn't cover
+  function simFit(b, maxZoom = 6) {
+    if (!b) return;
+    const sh = $("sheet").getBoundingClientRect(), W = map.getCanvas().clientWidth, H = map.getCanvas().clientHeight, mob = innerWidth <= 720;
+    const pad = mob ? { top: 40, left: 24, right: 24, bottom: Math.min(H * 0.62, sh.height + 16) } : { top: 50, bottom: 50, left: Math.min(W * 0.5, sh.right + 30), right: 60 };
+    if (W - pad.left - pad.right < 60 || H - pad.top - pad.bottom < 60) { pad.left = pad.right = 10; pad.top = pad.bottom = 10; }
+    map.fitBounds([[b[0], b[1]], [b[2], b[3]]], { padding: pad, maxZoom, duration: 1100 });
+  }
+  // shade countries by how hard a step hits them: {ISO3: 0..1}, or null to clear
+  function simShade(by) {
+    if (!map.getLayer("sim-country")) return;
+    const ks = by ? Object.keys(by) : [];
+    map.setFilter("sim-country", ["in", ["get", "k"], ["literal", ks]]);
+    if (ks.length) map.setPaintProperty("sim-country", "fill-opacity", ["match", ["get", "k"], ...ks.flatMap(k => [k, 0.08 + 0.3 * Math.min(1, by[k])]), 0]);
+  }
+  const simBig = v => v >= 1e6 ? fmt(v / 1e6, v < 1e7 ? 1 : 0) + " M" : fmt(sig2(v));
+  const SIM_KIND_LAYER = { power: ["power"], cable: ["cables"], mine: ["coal", "iron"], water: ["rivers", "lakes"], zone: ["power", "refinery", "oilgas"], choke: ["lanes", "choke"],
+    refinery: ["refinery", "pipes"], field: ["oilgas", "pipes"], port: ["ports", "lanes"], lng: ["lng", "lanes"], pipeline: ["pipes"] };
+  function simChain(r, facts) {
+    const st = [], kinds = [...new Set(simShocks.map(s => s.k))];
+    const pc = v => fmt(v * 100, v < 0.1 ? 1 : 0) + "%";
+    // 1. what's hit
+    st.push({ k: "hit", title: "What's hit", big: simShocks.length === 1 ? SIM_KIND[simShocks[0].k] : simShocks.length + " things at once", cls: "k",
+      text: simShocks.slice(0, 4).map(s => `${s.n}${s.k === "zone" ? `, ${s.t[2]} km` : ""}: ${Math.round(s.m * 100)}% ${s.k === "choke" ? "closed" : s.k === "water" ? "less water" : s.k === "zone" ? "damage" : "out"}`).join("; ") + (simShocks.length > 4 ? "; …" : "") + ".",
+      on: ["lakes", ...new Set(kinds.flatMap(k => SIM_KIND_LAYER[k] || []))], box: simShockBox(simShocks), z: 7 });
+    // 2. people inside a zone
+    const zs = (facts.zones || []).filter(z => z.people);
+    if (zs.length) {
+      const n = zs.reduce((a, z) => a + z.people, 0), towns = zs.flatMap(z => z.towns).slice(0, 3);
+      st.push({ k: "people", title: "Who lives there", big: "≈" + simBig(n) + " people", text: `live inside the zone${zs.length > 1 ? "s" : ""}${towns.length ? ", in " + towns.join(", ") : ""}. The shading is population density.`,
+        on: ["lakes", "roads"], agri: "pop", box: simBox(zs.flatMap(z => [[z.box[0], z.box[1]], [z.box[2], z.box[3]]])), z: 8 });
+    }
+    // 3. power plants
+    if (facts.power) {
+      const P = facts.power, top = P.rows[0];
+      st.push({ k: "power", title: "Power plants go dark", big: smart(P.gw) + " GW offline",
+        text: P.rows.map(o => `${simCountry(o.k)} loses ${o.sh ? pc(o.sh) + " of its power capacity" : smart(o.gw) + " GW"}${o.people >= 1000 ? `, the supply of ≈${simBig(o.people)} people` : ""}`).join("; ") + ".",
+        on: ["power", "lakes"], cty: Object.fromEntries(P.rows.filter(o => o.sh).map(o => [o.k, Math.max(0.15, o.sh * 3)])), box: simUnion(P.box, simShockBox(simShocks)) || (top && simCountryBox([top.k])), z: 7 });
+    }
+    // 4. cables
+    if (facts.cable) {
+      const C = facts.cable;
+      st.push({ k: "cable", title: "Internet cables cut", big: pc(C.rows[0][1] / C.rows[0][2]), text: `of ${C.rows[0][0]}'s international cables cut${C.rows.length > 1 ? "; also " + C.rows.slice(1, 4).map(([c, l, n]) => `${c} ${pc(l / n)}`).join(", ") : ""}. Traffic crowds onto the cables left.`,
+        on: ["cables"], box: C.box, z: 5 });
+    }
+    // 5. mines
+    for (const m of (facts.mines || []).slice(0, 2)) {
+      st.push({ k: "mine", title: m.coal ? "Coal stops" : "Iron ore stops", big: smart(m.mt) + " Mt/yr", text: `lost from ${m.n}: ${m.ctry ? pc(m.ctry) + " of " + simCountry(m.k) + "'s output, " : ""}${pc(m.world)} of the world's. Steel mills and power plants that buy it look elsewhere.`,
+        on: [m.coal ? "coal" : "iron", "steel", "lanes", "ports"], box: m.box, z: 6 });
+    }
+    // 6.-8. oil and gas: re-routing, then who runs short, then gas power
+    if (r) {
+      const W = r.world, d = k => W[k][1] - W[k][0], chk = Object.entries(r.chokes).map(([k, v]) => [k, v.o[0] - v.o[1]]).sort((a, b) => b[1] - a[1]);
+      const parts = [d("stock") > 50 && `${fmt(d("stock"))} kb/d of oil can't get out and stays in the ground or in tanks`, chk[0] && chk[0][1] > 50 && `${fmt(chk[0][1])} kb/d no longer passes ${SIM_CHOKE[chk[0][0]]}`,
+        d("run") < -20 && `refineries run ${fmt(-d("run"))} kb/d less crude`, d("gas") < -1 && `${fmt(-d("gas"), 1)} bcm/yr less gas delivered`].filter(Boolean);
+      const fm = simBoxes.flowMax || 0;
+      if (simBoxes.flow && (parts.length || fm >= 20)) st.push({ k: "flow", title: "Oil and gas re-route",
+        big: d("stock") > 50 ? fmt(d("stock")) + " kb/d stuck" : chk[0] && chk[0][1] > 50 ? fmt(chk[0][1]) + " kb/d diverted" : d("gas") < -1 ? fmt(-d("gas"), 1) + " bcm/yr less gas" : "up to " + fmt(fm) + " kb/d",
+        cls: d("stock") > 50 || d("gas") < -1 ? "" : "k",
+        text: (parts.length ? parts.join("; ") + ". " : "moves onto other pipelines and routes on the busiest line (gas counted as oil equivalent). ") + "Blue lines carry more than before, orange less.", on: ["pipes", "lanes", "choke", "refinery", "lng", "ports"], box: simBoxes.flow, z: 6 });
+      const use = x => simCE && simCE[x.k] && simCE[x.k].dc;
+      const hit = r.rows.map(x => [x, use(x) >= 20 ? Math.min(1, (x.dsl[0] - x.dsl[1]) / use(x)) : 0]).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      if (hit.length) st.push({ k: "fuel", title: "Diesel runs short", big: pc(hit[0][1]), text: `of ${simCountry(hit[0][0].k)}'s diesel use is no longer made at home${hit.length > 1 ? "; then " + hit.slice(1, 4).map(([x, v]) => `${simCountry(x.k)} ${pc(v)}`).join(", ") : ""}. Trucks, farms and generators feel it first; imports have to make it up.`,
+        on: ["refinery", "lanes", "ports"], cty: Object.fromEntries(hit.map(([x, v]) => [x.k, v])), box: simCountryBox(hit.map(([x]) => x.k)), z: 5 });
+      const gw = r.rows.filter(x => x.gw[1] - x.gw[0] >= 0.2).sort((a, b) => (b.gw[1] - b.gw[0]) - (a.gw[1] - a.gw[0])).slice(0, 5);
+      if (gw.reduce((a, x) => a + x.gw[1] - x.gw[0], 0) >= 1) st.push({ k: "gaspower", title: "Gas power at risk", big: smart(gw.reduce((a, x) => a + x.gw[1] - x.gw[0], 0)) + " GW", text: `of gas-fired power could go short of fuel: ${gw.map(x => `${simCountry(x.k)} ${smart(x.gw[1] - x.gw[0])} GW`).join(", ")}.`,
+        on: ["power", "pipes", "lng"], cty: Object.fromEntries(gw.map(x => [x.k, Math.min(1, (x.gw[1] - x.gw[0]) / 5)])), box: simCountryBox(gw.map(x => x.k)), z: 5 });
+    }
+    // 9. roads and rail
+    if (facts.road && simBoxes.traffic) {
+      const R = facts.road;
+      st.push({ k: "road", title: "Roads and rail detour", big: pc(R.share) + " of trips", text: `between nearby cities start, end or detour round the zone${R.slow > 0.005 ? `; detours take ${pc(R.slow)} longer` : ""}${R.pairs.length ? ". Worst hit: " + R.pairs.join(", ") : ""}.`,
+        on: ["roads", "rail", "lakes"], box: simBoxes.traffic, z: 8 });
+    }
+    // 10.-11. rivers, then people moving
+    const Wt = facts.water;
+    if (Wt && Wt.basins.length) {
+      st.push({ k: "water", title: "Rivers run low", big: "≈" + simBig(Wt.people) + " people", text: `live in basins losing water${Wt.exposed ? `; ≈${simBig(Wt.exposed)} of them end up short of water (high stress)` : ""}. Farms and cities downstream share less.`,
+        on: ["rivers", "lakes"], box: simBoxes.water, z: 6 });
+      if (Wt.moved >= 1) st.push({ k: "move", title: "People move", big: "≈" + simBig(Wt.moved), text: `may leave for cities with water to spare: ${Wt.dest.slice(0, 3).map(d => d.n).join(", ")}.`, on: ["rivers"], box: simBoxes.move || simBoxes.water, z: 6 });
+    }
+    return st;
+  }
+  function simChainRender() {
+    const box = $("simFlow"), ol = $("simChain");
+    box.hidden = simSteps.length < 2;
+    if (box.hidden) { simPlay(false); simShade(null); return; }
+    ol.innerHTML = simSteps.map((s, i) => `<li><button type="button" data-i="${i}"><span class="no">${i + 1}</span><span class="ttl">${esc(s.title)}</span>`
+      + `<span class="big ${s.cls || ""}">${esc(s.big)}</span><span class="txt">${esc(s.text)}</span></button></li>`).join("");
+    ol.querySelectorAll("button").forEach(b => b.onclick = () => { simPlay(false); simShowStep(+b.dataset.i, true); });
+    const prev = simSteps.findIndex(s => s.k === simCur), i = simFresh || prev < 0 ? 0 : prev, apply = simFresh || prev < 0;
+    simFresh = false;
+    simShowStep(i, false, apply);
+  }
+  let simCur = "", simSwipeT = 0;
+  // show a step: highlight it, switch on its layers (apply), shade its countries, and move the map to it (move)
+  function simShowStep(i, move, apply = true) {
+    const st = simSteps[i]; if (!st) return;
+    simStep = i; simCur = st.k;
+    $("simChain").querySelectorAll("button").forEach((b, j) => b.setAttribute("aria-current", String(j === i)));
+    const ol = $("simChain"), card = ol.children[i];
+    // phones show the chain as a swipeable row; keep the current step in view (and say the scroll was ours, see simBind)
+    if (card && ol.scrollWidth > ol.clientWidth) { simSwipeT = Date.now(); ol.scrollTo({ left: card.offsetLeft - ol.offsetLeft, behavior: move ? "smooth" : "auto" }); }
+    else if (card && move) card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    $("simPos").textContent = `${i + 1} / ${simSteps.length}`;
+    if (apply) {
+      VIEW_KEYS.forEach(k => { const c = $("lyr-" + k), on = st.on.includes(k); if (c.checked !== on) { c.checked = on; applyGroup(k); } });
+      const ag = st.agri || simAgri0 || "";
+      if ($("agri").value !== ag) { $("agri").value = ag; applyAgri(); }
+      simChips();
+    }
+    simShade(st.cty || null);
+    if (move) simFit(st.box, st.z);
+  }
+  function simPlay(on) {
+    clearInterval(simPlayT); simPlayT = 0;
+    $("simPlay").setAttribute("aria-pressed", String(!!on)); $("simPlay").textContent = on ? "Pause" : "Play";
+    if (on) simPlayT = setInterval(() => simShowStep((simStep + 1) % simSteps.length, true), 5500);
   }
   function simCards() {
-    const tabs = $("simGroups"), box = $("simPresets"), news = simWeekly && simWeekly.items.length;
-    if (simGroup === "news" && !news) simGroup = "routes";
+    const tabs = $("simGroups"), box = $("simPresets"), D = simNewsDoc, has = g => !(g in SIM_NEWS) || !!(D && D[g].length);
+    if (!has(simGroup)) simGroup = "routes";
     tabs.innerHTML = "";
+    if (D) tabs.insertAdjacentHTML("beforeend", '<span class="glbl">In the news:</span>');
     SIM_GROUPS.forEach(([g, label]) => {
-      if (g === "news" && !news) return;
+      if (!has(g)) return;
+      if (g === "routes") tabs.insertAdjacentHTML("beforeend", D ? '<span class="brk"></span><span class="glbl">Ready-made:</span>' : "");
       const b = document.createElement("button"); b.type = "button"; b.role = "tab"; b.textContent = label;
       b.setAttribute("aria-selected", String(g === simGroup));
       b.onclick = () => { simGroup = g; simCards(); };
       tabs.appendChild(b);
     });
     box.innerHTML = "";
-    const items = simGroup === "news" ? simWeekly.items.map(x => ["news", x.label, x.why, x.shocks, x.url]) : SIM_PRESETS.filter(p => p[0] === simGroup);
-    items.forEach(([, title, desc, list, url]) => {
+    const day = t => { const d = new Date(t); return isNaN(d) ? "" : d.toLocaleDateString(undefined, { day: "numeric", month: "short" }); };
+    const items = simGroup in SIM_NEWS ? D[simGroup].map(x => ["", x.label, x.why, null, x.url, x]) : SIM_PRESETS.filter(p => p[0] === simGroup);
+    items.forEach(([, title, desc, list, url, x]) => {
       const card = document.createElement("div"), b = document.createElement("button");
-      b.type = "button"; b.innerHTML = `<b>${esc(title)}</b><span>${esc(desc)}</span>`;
-      b.onclick = () => simPreset(list);
+      const meta = x ? [day(x.t), x.trend && "reports " + x.trend, x.months && x.months.length > 1 && `in the news in ${x.months.length} months`].filter(Boolean).join(" · ") : "";
+      b.type = "button"; b.innerHTML = `<b>${esc(title)}</b><span>${esc(desc)}</span>` + (meta ? `<span class="meta">${esc(meta)}</span>` : "");
+      b.onclick = () => { if (x) simNewsPick(x, "cur", true); else { simNews = null; simNewsRender(); simPreset(list); } };
       card.appendChild(b);
       if (url && /^https?:\/\//.test(url)) card.insertAdjacentHTML("beforeend", `<a href="${esc(url)}" target="_blank" rel="noopener">source</a>`);
       box.appendChild(card);
     });
-    if (simGroup === "news") box.insertAdjacentHTML("beforeend", `<p class="hint">From the week's news surges (GDELT), matched to nearby facilities. Updated ${esc((simWeekly.updated || "").slice(0, 10))}.</p>`);
+    if (simGroup in SIM_NEWS) box.insertAdjacentHTML("beforeend", `<p class="hint">Places where conflict reports surged (GDELT) near energy, power, cable or shipping sites. Each one opens as reported; switch to de-escalation or escalation to compare. Updated ${esc((D.updated || "").slice(0, 10))}.</p>`);
   }
   function simBind() {
     document.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => {
       const on = b.getAttribute("aria-pressed") === "true";
       simSetPick(on ? false : b.dataset.pick);
     });
-    $("simClear").onclick = () => { simSetPick(false); simShocks = []; simRenderList(); simRun(0); };
+    $("simClear").onclick = () => { simSetPick(false); simShocks = []; simNews = null; simNewsRender(); simRenderList(); simRun(0); };
+    $("simPrev").onclick = () => { simPlay(false); simShowStep((simStep - 1 + simSteps.length) % simSteps.length, true); };
+    $("simNext").onclick = () => { simPlay(false); simShowStep((simStep + 1) % simSteps.length, true); };
+    $("simPlay").onclick = () => { const on = !simPlayT; simPlay(on); if (on) simShowStep((simStep + 1) % simSteps.length, true); };
+    // swiping the chain on a phone moves to the step that lands in view
+    let swipe = 0;
+    $("simChain").addEventListener("scroll", () => {
+      clearTimeout(swipe);
+      swipe = setTimeout(() => {
+        const ol = $("simChain"); if (Date.now() - simSwipeT < 900 || ol.scrollWidth <= ol.clientWidth) return;
+        const kids = [...ol.children], i = kids.reduce((b, c, j) => Math.abs(c.offsetLeft - ol.offsetLeft - ol.scrollLeft) < Math.abs(kids[b].offsetLeft - ol.offsetLeft - ol.scrollLeft) ? j : b, 0);
+        if (i !== simStep) { simPlay(false); simShowStep(i, true); }
+      }, 160);
+    }, { passive: true });
     $("simCopy").onclick = async () => {
       const b = $("simCopy");
       try { await navigator.clipboard.writeText(location.href); b.textContent = "Copied"; } catch (e) { b.textContent = "Copy failed"; }
       setTimeout(() => { b.textContent = "Copy link"; }, 1500);
     };
     simCards();
-    // the weekly file is optional: written by .github/workflows/scenarios-weekly.yml
+    // the news file is optional: written by pipeline/live/story_scenarios.py via .github/workflows/scenarios-weekly.yml.
+    // Older files have only "items" (the week); levels are dropped unless all three are usable.
     get("scenarios_weekly.json").then(w => {
       if (!w || !Array.isArray(w.items)) return;
       const ok = s => Array.isArray(s) && s.length === 3 && SIM_KIND[s[0]] && isFinite(s[2]);
-      w.items = w.items.filter(x => x && x.label && Array.isArray(x.shocks) && x.shocks.length && x.shocks.every(ok)).slice(0, 12);
-      if (!w.items.length) return;
-      simWeekly = w; simGroup = "news"; simCards();
+      const okL = l => Array.isArray(l) && l.length && l.every(ok);
+      const clean = a => (Array.isArray(a) ? a : []).filter(x => x && x.label && okL(x.shocks)).slice(0, 12)
+        .map(x => ({ ...x, levels: x.levels && SIM_LEVELS.every(([k]) => okL(x.levels[k])) ? x.levels : null }));
+      const W = w.windows && typeof w.windows === "object" ? w.windows : { week: { items: w.items } }, D = { updated: w.updated };
+      Object.keys(SIM_NEWS).forEach(k => { D[k] = clean(W[k] && W[k].items); });
+      const first = Object.keys(SIM_NEWS).find(k => D[k].length);
+      if (!first) return;
+      simNewsDoc = D; simGroup = first; simCards();
     }, () => {});
     document.addEventListener("keydown", e => { if (e.key === "Escape" && (simPicking || !$("simChokes").hidden)) simSetPick(false); });
   }
@@ -4101,7 +4368,7 @@ onmessage = async ev => {
     set("cables", "line-color", css("--cable")); set("cables-plan", "line-color", css("--cable"));
     set("landings-pts", "circle-color", css("--panel")); set("landings-pts", "circle-stroke-color", css("--cable"));
     set("hover-line", "line-color", css("--ink")); set("story-halo", "circle-color", css("--conflict")); set("story-halo", "circle-stroke-color", css("--conflict"));
-    set("sim-zone-fill", "fill-color", css("--sim-zone")); set("sim-zone-line", "line-color", css("--sim-zone")); set("sim-off-line", "line-color", css("--sim-off"));
+    set("sim-country", "fill-color", css("--sim-down")); set("sim-zone-fill", "fill-color", css("--sim-zone")); set("sim-zone-line", "line-color", css("--sim-zone")); set("sim-off-line", "line-color", css("--sim-off"));
     set("sim-basin-line", "line-color", css("--sim-dry")); set("sim-water-fill", "fill-color", css("--sim-dry")); set("sim-water-line", "line-color", css("--sim-dry"));
     set("sim-move", "line-color", css("--sim-move")); set("sim-move-pts", "circle-color", css("--sim-move")); set("sim-move-pts", "circle-stroke-color", css("--mark-ring"));
     ["sim-flow", "sim-flow-gas", "sim-traffic", "sim-traffic-rail"].forEach(l => set(l, "line-color", ["case", [">", ["get", "d"], 0], css("--sim-up"), css("--sim-down")]));

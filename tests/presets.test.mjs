@@ -18,7 +18,7 @@ function presets() {
   const fnv = HTML.match(/function fnv36\(s\) \{[^\n]*\}/)[0];
   const ctx = vm.createContext({});
   vm.runInContext(fnv + "\n" + HTML.slice(a, b).replace(/\bconst (\w+) =/g, "var $1 ="), ctx);
-  return { list: ctx.SIM_PRESETS, kinds: ctx.SIM_KIND, chokes: ctx.SIM_CHOKE, groups: ctx.SIM_GROUPS.map(g => g[0]), fnv36: ctx.fnv36 };
+  return { list: ctx.SIM_PRESETS, kinds: ctx.SIM_KIND, chokes: ctx.SIM_CHOKE, groups: ctx.SIM_GROUPS.map(g => g[0]), news: Object.keys(ctx.SIM_NEWS), fnv36: ctx.fnv36 };
 }
 
 function resolver(fnv36) {
@@ -47,12 +47,12 @@ test("presets are well formed", () => {
   const P = presets();
   assert.ok(P.list.length >= 30, `${P.list.length} presets`);
   for (const [g, title, desc, shocks] of P.list) {
-    assert.ok(P.groups.includes(g) && g !== "news", `${title}: group ${g}`);
+    assert.ok(P.groups.includes(g) && !P.news.includes(g), `${title}: group ${g}`);
     assert.ok(title && desc, `${title}: needs a title and description`);
     assert.ok(Array.isArray(shocks) && shocks.length, `${title}: no shocks`);
     for (const s of shocks) assert.ok(s[0] in P.kinds, `${title}: kind ${s[0]}`);
   }
-  for (const g of P.groups) assert.ok(g === "news" || P.list.some(p => p[0] === g), `group ${g} is empty`);
+  for (const g of P.groups) assert.ok(P.news.includes(g) || P.list.some(p => p[0] === g), `group ${g} is empty`);
 });
 
 test("every preset target exists in the built data", { skip: !REAL && "site/data not built" }, () => {
@@ -62,15 +62,31 @@ test("every preset target exists in the built data", { skip: !REAL && "site/data
   assert.deepEqual(bad, []);
 });
 
-test("weekly news scenarios resolve", { skip: (!REAL || !existsSync(D("scenarios_weekly.json"))) && "no scenarios_weekly.json" }, () => {
+test("news scenarios resolve", { skip: (!REAL || !existsSync(D("scenarios_weekly.json"))) && "no scenarios_weekly.json" }, () => {
   const P = presets(), ok = resolver(P.fnv36), W = J("scenarios_weekly.json");
   assert.ok(Array.isArray(W.items) && W.items.length <= 12, "items: a list of at most 12");
-  const bad = [];
-  for (const x of W.items) {
-    assert.ok(typeof x.label === "string" && x.label.trim(), "label");
-    assert.ok(x.url == null || /^https?:\/\//.test(x.url), `${x.label}: url`);
-    assert.ok(Array.isArray(x.shocks) && x.shocks.length, `${x.label}: shocks`);
-    for (const s of x.shocks) if (!(Array.isArray(s) && s.length === 3 && s[0] in P.kinds && ok(P, s))) bad.push(`${x.label}: ${JSON.stringify(s)}`);
+  const wins = W.windows || { week: { items: W.items } };
+  for (const w of Object.keys(wins)) assert.ok(P.news.includes(w), `window ${w} has no tab`);
+  const bad = [], good = s => Array.isArray(s) && s.length === 3 && s[0] in P.kinds && ok(P, s);
+  for (const [w, { items }] of Object.entries(wins)) {
+    assert.ok(Array.isArray(items) && items.length <= 12, `${w}: a list of at most 12`);
+    for (const x of items) {
+      assert.ok(typeof x.label === "string" && x.label.trim(), "label");
+      assert.ok(x.url == null || /^https?:\/\//.test(x.url), `${x.label}: url`);
+      assert.ok(Array.isArray(x.shocks) && x.shocks.length, `${x.label}: shocks`);
+      for (const s of x.shocks) if (!good(s)) bad.push(`${w} ${x.label}: ${JSON.stringify(s)}`);
+      if (!x.levels) continue;
+      for (const k of ["de", "cur", "esc"]) {
+        assert.ok(Array.isArray(x.levels[k]) && x.levels[k].length, `${x.label}: level ${k}`);
+        for (const s of x.levels[k]) if (!good(s)) bad.push(`${w} ${x.label} ${k}: ${JSON.stringify(s)}`);
+      }
+      // the levels should get worse in order: zone radius and damage never shrink from de to cur to esc
+      const z = k => x.levels[k].find(s => s[0] === "zone");
+      if (z("de") && z("cur") && z("esc")) {
+        assert.ok(z("de")[1][2] <= z("cur")[1][2] && z("cur")[1][2] <= z("esc")[1][2], `${x.label}: radius order`);
+        assert.ok(z("de")[2] <= z("cur")[2] && z("cur")[2] <= z("esc")[2], `${x.label}: damage order`);
+      }
+    }
   }
   assert.deepEqual(bad, []);
 });
