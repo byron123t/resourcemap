@@ -11,3 +11,6 @@ raw/*
 __pycache__/
 tools/shots/
 dist/
+# offline store (tools/offline.py) belongs outside the repo; this guards against a symlink or --dir inside it
+site/offline/
+atlas-offline/

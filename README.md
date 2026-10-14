@@ -4,12 +4,12 @@ An interactive, site-level world map of where resources are extracted and proces
 
 Live at **https://byron123t.github.io/resourcemap/**.
 
-It's a single static page (`site/index.html`) on [MapLibre GL JS 4.7.1](https://maplibre.org/) that loads pre-processed GeoJSON from `site/data/`. No build step and no tile server: geometry is simplified ahead of time, and labels are rendered as HTML, so it needs no glyph server either.
+It's a single static page (`site/index.html`) on [MapLibre GL JS 4.7.1](https://maplibre.org/) that loads pre-processed GeoJSON from `site/data/`. No build step and no tile server: geometry is simplified ahead of time, and labels are rendered as HTML. Streets, terrain and imagery come from free online tile services, and `tools/offline.py` can keep a local copy of each for when those services or the internet are down (see "Offline backup").
 
 ```
 site/
-  index.html            the whole app: HTML + CSS + JS in one file (~1,500 lines of JS)
-  vendor/               maplibre-gl.css and maplibre-gl.js 4.7.1 (the page loads the JS from jsDelivr; the local copy is for offline tests)
+  index.html            the whole app: HTML + CSS + JS in one file (~2,700 lines of JS, including the scenario worker)
+  vendor/               maplibre-gl 4.7.1, pmtiles.js 4.5.0 and the self-hosted fonts (fonts.css + fonts/), so the page needs no CDN
   data/                 processed layers, ~80 MB (see "Data files" below)
   data/live/            live snapshots written by pipeline/live/fetch_live.py (generated at deploy time, not committed)
   .nojekyll             tells GitHub Pages to serve the folder as-is
@@ -21,16 +21,19 @@ pipeline/               Python that turns the raw downloads into site/data
   step3_industry_power_transport.py power plants, steel, cement, chemicals, shipping lanes, rail, roads
   step4_water_risk_minerals.py      Aqueduct water risk, WHYMAP groundwater, USGS critical minerals
   step5_defense_infra.py            military bases (Wikidata + OSM), airfields (OurAirports), ports (NGA WPI), data centres (OSM), submarine cables (TeleGeography)
+  step6_network_pop.py              oil refineries (Climate TRACE), EIA balances + energy network, Kontur population tiles, HydroBASINS river links, road/rail graph (Scenarios)
   live/archive.py       rolling history of the live feeds under a byte budget (fetch_live.py --archive)
   live/fetch_live.py    near-real-time snapshots: FIRMS fires, GDELT events + storyboard, AIS ships, USNI navy tracker, adsb.lol aircraft, business jets, airliners
   postprocess.py        size/cleanup passes run between the steps
   fetch_open_sources.sh downloads the freely scriptable sources into raw/
 raw/                    raw downloads (not committed; see raw/README.md)
+tests/sim.test.mjs      scenario solver tests: node --test 'tests/*.test.mjs'
 .github/workflows/pages.yml  builds and deploys site/ to GitHub Pages, refreshing the live snapshots every 30 min
 tools/
-  screenshot.py         headless render at several zooms → tools/shots/*.png
-  bundle_artifact.py    inlines the CSS into dist/index.html for single-file hosting
+  screenshot.py         headless render at several zooms → tools/shots/*.png (--hash "sim=…" for a scenario)
+  bundle_artifact.py    single-file dist/index.html (CSS inlined, MapLibre and fonts from CDNs) for hosts that take one file
   live_refresh.py       keeps site/data/live fresh in dev: optional CI-artifact pull, then fetch_live.py, on a timer
+  offline.py            offline backup: sync local copies of the street, terrain, font and imagery tiles; serve the site with them
 ```
 
 ## Run it
@@ -43,6 +46,28 @@ python -m http.server 8765
 
 It must be served over HTTP, not opened as `file://`, because the page `fetch()`es `data/*.geojson`.
 
+## Offline backup
+
+The page works without the internet, from a store of local copies kept outside the repo (`~/atlas-offline`, or `$ATLAS_OFFLINE`). Nothing in the store is committed or published.
+
+```bash
+python3 tools/offline.py sync      # fetch whatever is missing; rerun to resume or top up
+python3 tools/offline.py status    # what's there, what's still downloading, whether OpenFreeMap has a newer build
+python3 tools/offline.py serve     # http://localhost:8765 (use instead of python -m http.server)
+```
+
+| Copy | Size | Source |
+|---|---|---|
+| `osm/planet-<build>.pmtiles`: every street, building, rail line and street name, zoom 0–14 | ~87 GB | OpenFreeMap planet build, sha256-checked. `sync --refresh-osm` replaces it with a newer build (about weekly upstream) |
+| `terrain/terrain-z10.pmtiles`: elevation for the hillshade, zoom 0–10 (about 150 m) | ~30 GB | Mapterhorn, extracted with the go-pmtiles CLI (`--terrain-zoom 12` for the full detail, ~400 GB) |
+| `glyphs/Noto Sans Regular/*.pbf`: the street-name font | 5 MB | OpenFreeMap |
+| `imagery/{bm,blk,crop,past,pop}/`: Blue Marble relief and sea floor, Black Marble 2016 night lights, croplands and pastures 2000, population density 2020, zoom 0–7 | ~2 GB | NASA GIBS |
+| `site/data/live/`: newest published live snapshots | ~30 MB | the GitHub Pages site |
+
+To keep the store on another disk, point `$ATLAS_OFFLINE` (or `--dir`) at it; `serve` won't follow symlinks out of the store or `site/`.
+
+`serve` is a threaded static server with HTTP Range support (pmtiles reads byte ranges, which `python -m http.server` can't do). It serves `site/` and maps `/offline/` to the store, and answers `/offline/config.json` with the finished files. On load the page reads that file (`offReady`), and if it's there, probes OpenFreeMap, Mapterhorn and GIBS. Any service that doesn't answer within 5 s is swapped for its local copy through the `pmtiles://` protocol: the `osm` source and street-name glyphs, the `dem` source, and imagery (`offImg()` replaces an online imagery choice with a saved mosaic, night and thermal choices with Black Marble). Add `#offline` to the URL to use every local copy regardless. A note under the title says what is coming from the backup. The basemap, resource layers and the last live snapshots are already local; place search falls back to the local matches, and news, Sentinel scenes and the geostationary loops need the internet. A service that goes down mid-session needs a reload.
+
 ## Rebuild the data
 
 ```bash
@@ -52,12 +77,16 @@ bash pipeline/fetch_open_sources.sh      # Natural Earth, shipping lanes, WRI po
 bash pipeline/run_all.sh                 # ~10–15 min; writes site/data/
 ```
 
-Set `ATLAS_ROOT` to point the scripts at another checkout. The steps must run in order, because each one reads and extends files written by the one before. In particular, `step2` rewrites the point layers from `step1` to add a quantity field `q` and a country key `k`, and it creates `country_totals.json`, which steps 3 and 4 then extend. Step 5 is independent and downloads its own inputs into `raw/infra/` (`--offline` rebuilds from that cache).
+Set `ATLAS_ROOT` to point the scripts at another checkout. The steps must run in order, because each one reads and extends files written by the one before. In particular, `step2` rewrites the point layers from `step1` to add a quantity field `q` and a country key `k`, and it creates `country_totals.json`, which steps 3 and 4 then extend. Step 5 is independent and downloads its own inputs into `raw/infra/` (`--offline` rebuilds from that cache). Step 6 also downloads its own inputs, into `raw/net/`, and reads the output of the earlier steps: it adds `kpop`/`kdens` to `country_totals.json` and lines `basins.json` up with `water_risk.geojson`, so rerun `--only=water` whenever step 4 changes, and `--only=transport` whenever `roads.geojson`, `rail.geojson` or `labels.json` change. Its population and water sections need `numpy` and `matplotlib`; the Kontur GeoPackage (~1 GB unpacked) is unpacked to the system temp folder, not the repo.
 
 ### Refresh only the infrastructure or live layers
 
 ```bash
 python3 -I pipeline/step5_defense_infra.py          # bases, airports, ports, data centres, cables (~5 min the first time, needs network)
+python3 -I pipeline/step6_network_pop.py --only=refineries   # refineries (Climate TRACE, ~10 s); --offline reuses raw/net/
+python3 -I pipeline/step6_network_pop.py --only=energy       # EIA balances + crude/gas network for Scenarios (~10 s)
+python3 -I pipeline/step6_network_pop.py --only=pop,water    # Kontur population tiles + river-basin links (~25 s; first run downloads ~280 MB; needs numpy and matplotlib)
+python3 -I pipeline/step6_network_pop.py --only=transport    # road and rail graph for zone detours, from roads, rail and labels (~2 s; no download)
 python3 -I pipeline/live/fetch_live.py               # all live feeds into site/data/live/
 python3 -I pipeline/live/fetch_live.py --only fires,aircraft,jets,airliners
 python3 -I pipeline/live/fetch_live.py --only navy,story
@@ -86,7 +115,7 @@ Everything else needs no key. The processed `site/data/*.geojson` files are comm
 
 All of this is in `site/index.html`, in the second `<script>` block.
 
-**Layer registry.** `Q` lists every resource point layer: its label, colour token, unit and size constant `k`. `GROUPS` maps each sidebar checkbox to the map layers and data files behind it. `VIEWS` defines the six presets (Overview, Resources, Industry, Transport, Water, Security).
+**Layer registry.** `Q` lists every resource point layer: its label, colour token, unit and size constant `k`. `GROUPS` maps each sidebar checkbox to the map layers and data files behind it. `VIEWS` defines 27 presets in seven groups (start here; energy, grid & supply chain; water, climate & environment; emergency, police & safety; shipping & aviation; security & diplomacy; farming, food & cities). Each sets the checkboxes and sub-filters, a background shading, imagery or farmland raster that suits the question (`img: "geo"`/`"geoir"` picks the geostationary satellite over the map centre with `geoPick()`), a note, a "Connection" line that ties two domains together, and a go-to place (`go`). Six common ones are chips; all are in the `#view` select. `setView()` applies one and writes `#view=<key>` to the URL; changing any checkbox afterwards marks the view as custom.
 
 **Lazy loading.** `ensure(src)` fetches a data file the first time its checkbox is turned on; `FILES` maps sources to static files and `LOADERS` handles the live ones. `pushData(src)` applies the status filter (all active, operating, or planned), the fuel filter for power and the commodity filter for critical minerals, then sets the source data. Defence and live layers have no status field; their filters are in `FILTERS` (fire type, base type, airport size).
 
@@ -104,19 +133,27 @@ All of this is in `site/index.html`, in the second `<script>` block.
 
 **Storyboard.** The "Storyboard" mode button hides the layer controls (`#sheetBody`) and shows `#story`. `setMode()` saves the layer checkboxes, keeps only a few context layers, and restores them on exit. `story.json` has three windows (`day`: 24 hourly buckets, `week`: 7 days, `month`: ten 3-day buckets). Each item is a place whose CAMEO 18–20 reports in one bucket were far above that place's own average over the window (`story_window()` in `fetch_live.py`). `storyRender()` draws the summary, the total-per-bucket chart, numbered cards with per-place sparklines, numbered HTML markers and the `story-halo` circles. `storyGo(i)` highlights a card, flies there and opens a detail panel with the article links and recent news. Prev/Next step through the items, and Play advances every 6.5 s. The `day` window ends at the newest GDELT 2.0 15-minute file; `month` is built from GDELT 1.0 daily files, which appear about a day late, so its last bucket can start 2–4 days back.
 
+**Scenarios.** The "Scenarios" mode button shows `#sim` and keeps only the energy layers (`SIM_LAYERS`); `setMode()` greys the pipelines (`simPipeTone()`) so changes stand out. A scenario is a list of shocks `{k, t, m}`: kind, target id and severity 0–1. Kinds are refinery (`r<Climate TRACE id>`), field (`f:<ISO>:<cell>`), port (`p<WPI>`), LNG terminal, pipeline (`fnv36(name)`), chokepoint (slug), zone (`[lon, lat, km]`), power plant, coal or iron mine, cable landing and river basin (`water`, HydroBASINS Pfafstetter code). Add them with "Pick on map" (click a site, or open ground for a 50 km zone), "Dry a river basin" (click inside a basin), the chokepoint select, or the example buttons; each gets a severity slider and, for zones, a radius slider. The list is written to the URL as `#sim=kind.id.percent;…` (zones as `zone.lon_lat_km.percent`), so a scenario can be shared or reloaded.
+
+The model runs in a Web Worker started from the `<script type="text/plain" id="simWorker">` block. `init` loads `energy_graph.json` and solves today's crude (kb/d) and gas (bcm/yr) flows as two min-cost flows with a network simplex (`Net.simplex`). Refineries ask for the world-average run rate (crude supply ÷ capacity) and may run up to 95% when crude is spare; gas demand comes from EIA consumption. Each buyer's demand is split into three slices of falling value, so a shortage is shared out instead of falling on whoever is furthest away. Pipelines cost their length up to 70% of capacity and 3× above that, sea lanes 0.15 per km plus port calls and liquefaction, and links through a country hub (rail, trucks, unmapped pipes) 4× their length. A scenario starts from the baseline, cuts flow above each shocked arc's new capacity and re-routes only that excess with successive shortest paths (`Net.solve`, warm-started from the baseline potentials), usually in 0.1–1 s. `compare()` returns per-country refinery runs, diesel (EIA distillate yield, else by refinery type), crude, gas delivered and gas shortfall; chokepoint flows; and edges whose flow moved. A new gas shortfall derates the country's gas-fired capacity by the same share ("gas power at risk"). Power plants, mines, cables and the people inside a zone need no network and are worked out on the page (`simLocal()`); `popInRadius()` sums the Kontur hexagons from the `pop/` tiles it needs, fetched on first use.
+
+River basins use the classic `<script id="simWater">` block (pure functions, also run by the tests). `basins.json` lines up with `water_risk.geojson`: basin *i* is feature *i*, with its Pfafstetter code, the next basin downstream, upstream area and population. `waterImpact()` dries each shocked basin and everything upstream of it by the chosen share; each basin downstream loses that share times the ratio of upstream areas, until under 1%. Aqueduct's baseline stress ratio (`wr`) is divided by the water left and re-banded. Basins that end highly stressed lose 1–5% of their people, depending on how much water went, to towns of 100,000+ within 500 km in unhit, low-stress basins, weighted by population over distance squared. `simWaterFacts()` adds the country breakdown and thermal or hydro plants in basins losing over a quarter of their water. The map draws `sim-water-fill` (darker = more water lost) and dashed `sim-move` arrows. `basinAt()` finds the basin under a point and falls back to the nearest edge, because the simplified polygons leave thin gaps. The map draws flow changes in `sim-flow` (oil) and `sim-flow-gas` (dashed; `line-dasharray` can't be data-driven): pipelines along their real route, other links as straight lines, and hub or cross-border links thin and faint. Every constant is listed under "Assumptions" in the panel.
+
+Zones also re-route road and rail traffic. The model is the classic `<script id="simTransport">` block (pure functions); the page starts a second worker from that text plus `<script type="text/plain" id="simTransportWorker">`, which fetches `transport_graph.json` once, so a run never blocks the map. `transportNet()` turns one network into edge arrays with travel times (cars 70 km/h, 100 on expressways, trains 80). Each city of 100,000+ sends trips to its 25 strongest partners within 1,500 km (population × population ÷ distance²), adding up to its population: a trip index, not vehicles. `trSlow()` divides speeds inside a zone by (1 − damage) and closes lines at 99%. `transportImpact()` counts trips to or from cities inside as lost; for trips whose straight line passes near a zone it compares today's fastest route (cached per origin) with the route avoiding the zone, and a detour over 3 × today's time + 6 h counts as no practical route. The worker returns totals, the worst city pairs and per-edge changes in trips; `trSlice()` cuts each changed edge out of its `roads.geojson` or `rail.geojson` part, and `sim-traffic` (roads) and `sim-traffic-rail` (dotted) draw them in the flow colours. If the part counts in `check` don't match the loaded geojson, edges are drawn as straight lines instead. A GDELT event card has a "Use as scenario zone" button (`simZoneAt()`). `node --test 'tests/*.test.mjs'` checks the solver on small graphs and, when `site/data` is built, on the real network.
+
 **News.** Clicking a country or a conflict report calls `loadNews(place, topic)`, which asks the GDELT DOC API for articles from the last 14 days. GDELT allows one request per 5 s, so requests are queued (`newsNext`) and cached per place.
 
-**Satellite imagery.** `IMAGERY` is the registry of raster overlays, grouped as in the picker: sharp mosaics (Esri, EOX Sentinel-2 cloudless), daily true colour (VIIRS, MODIS), false colour, 10 m Sentinel on demand, 30 m HLS, geostationary GeoColor (GOES, MTG, Himawari), thermal infrared, fire temperature, and night/thermal daily composites. `gb()` builds NASA GIBS entries and `eu()` EUMETSAT WMS entries. `applyImagery()` adds the chosen raster under the borders (`beforeId "disputed"`), sets its `maxzoom` to the source's native level, and writes resolution, image time and attribution into `#imgNote`. Daily layers get a date picker; geostationary layers (`kind: "now"`) refresh every 10 minutes with `setTiles`. GIBS's `default` time differs between CDN edges, so `gibsLatest()` reads the `layer-time-actual` header from tile `0/0/0` and pins that explicit time. Esri World Imagery is a patchwork of photos from different years, so at zoom 12 and above `esriWhen()` asks the Esri `identify` endpoint for the photo under the map centre and shows its capture date, resolution and provider.
+**Satellite imagery.** `IMAGERY` is the registry of raster overlays, grouped as in the picker: sharp mosaics (Esri, EOX Sentinel-2 cloudless), daily true colour (VIIRS, MODIS), false colour, 10 m Sentinel on demand, 30 m HLS, geostationary GeoColor (GOES, MTG, Himawari), thermal infrared, fire temperature, and night/thermal daily composites. `gb()` builds NASA GIBS entries and `eu()` EUMETSAT WMS entries. `applyImagery()` adds the chosen raster under the borders (`beforeId "disputed"`), sets its `maxzoom` to the source's native level, and writes resolution, image time and attribution into `#imgNote`. Daily layers get a date picker that defaults to `lastFullDay()`: yesterday after 15:00 UTC, otherwise the day before, because GIBS hasn't finished yesterday's passes over the Americas until about midday UTC. Geostationary layers (`kind: "now"`) refresh every 10 minutes with `setTiles`. GIBS's `default` time differs between CDN edges, so `gibsLatest()` reads the `layer-time-actual` header from tile `0/0/0` and pins that explicit time. Esri World Imagery is a patchwork of photos from different years, so at zoom 12 and above `esriWhen()` asks the Esri `identify` endpoint for the photo under the map centre and shows its capture date, resolution and provider.
 
 **Sentinel and NAIP on demand.** The `pc()` entries (`src: "pc"`) pull Sentinel-2 L2A, Sentinel-1 RTC and USDA NAIP (60 cm US aerial photos, from zoom 11, newest photo per spot from the last ~4 years) scenes from Microsoft Planetary Computer, which needs no key and allows CORS. `applyImagery()` POSTs a CQL2 search to `/data/v1/mosaic/register`: Sentinel-2 scenes from the 14 days up to the "Up to" date with under 30% cloud, least cloudy first, or Sentinel-1 scenes from the last 12 days, newest first. It then requests tiles from `/mosaic/{searchid}/tiles/…` with the band recipe in `q`. Search ids are cached per page load (`pcReg`). The tiler renders nothing below zoom 9 for Sentinel-2 or zoom 8 for Sentinel-1, so `pcHint()` shows a "Zoom in" button. "Find scenes in this view" runs a STAC search over the visible bounds for the last 30 days and groups the results into passes (one satellite, one UTC day). Hovering over a pass outlines its footprint in the `hover` source. Picking a pass re-registers the mosaic with an `id in [...]` filter, so only that pass shows.
 
-**Farmland & land cover.** `AGRI` holds three GIBS rasters: SEDAC croplands and pastures (share of each cell, around 2000) and MODIS IGBP land cover (yearly, 2001–2024). `applyAgri()` adds the chosen one under the borders, and above any satellite imagery, with its own opacity slider and legend.
+**Farmland, land cover & people.** `AGRI` holds four GIBS rasters: SEDAC croplands and pastures (share of each cell, around 2000), MODIS IGBP land cover (yearly, 2001–2024) and GPW v4.11 population density (2020). GPW is a static layer, so it uses the `default` time. `applyAgri()` adds the chosen one under the borders, and above any satellite imagery, with its own opacity slider and legend.
 
 **Sources panel.** `SOURCES` lists every dataset with its link, licence and retrieval date. Dates come from `infra_meta.json` (step 5) or the live manifest; the panel is rendered into the sidebar at startup. The map's attribution control also shows the active imagery's credit.
 
 **Streets & buildings.** The "Streets & buildings" checkbox (on in the Transport view) shows OpenStreetMap from OpenFreeMap's free vector tiles (`osm` source, OpenMapTiles schema, zoom 0–14, overzoomed to the map's max of 17; the planet build is refreshed about weekly, so new roads appear within a week or two of being mapped). Nothing is downloaded until the layer is on. `osm-water` and `osm-bldg` (buildings from zoom 13) sit under the satellite imagery, so imagery shows real rooftops. `osm-case`, `osm-street`, `osm-rail` and `osm-names` sit above the imagery and borders and below every data layer, which gives a hybrid map. Street names are the only text drawn by MapLibre, using OpenFreeMap's Noto Sans glyphs (`glyphs` in the style). While OSM is on, `applyGroup()` caps the Natural Earth `roads` and `rail` layers at zoom 9, because they don't line up with OSM streets. Colours are the `--street*` and `--building*` tokens.
 
-**Terrain.** The "Terrain shading" checkbox shows a `hillshade` layer from Mapterhorn's terrarium-encoded elevation tiles (`dem` source, 512 px WebP, zoom 0–12, overzoomed above that). It sits above the background shading, so choropleth colours show through, and its shadow, highlight and accent colours are the `--hs-*` tokens. The Resources and Water views turn it on.
+**Terrain.** The "Terrain shading" checkbox shows a `hillshade` layer from Mapterhorn's terrarium-encoded elevation tiles (`dem` source, 512 px WebP, zoom 0–12, overzoomed above that). It sits above the background shading, so choropleth colours show through, and its shadow, highlight and accent colours are the `--hs-*` tokens. The Everyday, Water, Wildfire and Aviation views turn it on. Offline, the `dem` source reads the local extract instead (see "Offline backup").
 
 **Background shading.** Only one fill shows at a time, chosen in the "Background shading" select and handled by `applyBase()`. `w:*` options colour Aqueduct basins by a category field, `g:recharge` shows WHYMAP groundwater, and `c:*` options are country choropleths with five equal-count classes, computed from `country_totals.json` and written into a `c` property on the country features.
 
@@ -133,7 +170,6 @@ All of this is in `site/index.html`, in the second `<script>` block.
 1. **Dense regions overlap at world zoom.** With no aggregation, the Permian, Ruhr or Pearl River Delta read as a solid blob below zoom 3. Per-country totals are in the country panel; a heat or density layer at low zoom would be the next step if that matters.
 2. **Circles are capped at 26 px** (`RC`), so the very largest sites look the same size as merely big ones. Consider a log scale or a legend note.
 3. **Data gaps:**
-   - No oil refineries.
    - Solar, wind, hydro and nuclear come from the 2021 WRI database. Swap in the GEM Global Integrated Power Tracker (`raw/README.md` has the links).
    - The US critical-minerals set is far denser than the global one.
    - About two thirds of oil and gas fields report no production.
@@ -143,7 +179,10 @@ All of this is in `site/index.html`, in the second `<script>` block.
 5. **Storyboard headlines are guessed from article URLs.** GDELT gives no titles, so `slug_title()` rebuilds one from the URL path and `slug_case()` restores capitals for known places and actors. Some headlines stay lower case or describe a different event at the same place.
 6. **Sentinel tiles need zoom 8–9 and are slow.** Planetary Computer renders each tile on request (about 1–2 s each), so a full screen takes a few seconds. It is a free public service with no uptime promise. Free sharper imagery is limited to Esri's mosaic (often several years old) and NAIP (US only, every 2–3 years). Fresh sub-metre imagery (Vantor/Maxar, Planet SkySat, Airbus Pléiades, or resellers such as SkyFi and UP42) is paid per km² and needs an API key, so it would need a small backend to hold the key and should be an explicit "order this view" button, never loaded on zoom.
 7. **Farmland shares are from around 2000.** The SEDAC cropland and pasture layers are the most recent global ones on GIBS. For change over time, use the MODIS land-cover option with its year picker.
-8. **Performance.** `power.geojson` (~8.5 MB, about 35k points) and `water_risk.geojson` (~7 MB) are the heaviest files. If load time matters, convert to vector tiles (PMTiles via tippecanoe), served statically with the `pmtiles` protocol.
+8. **Scenario flows are indicative.** The energy network is snapped together from simplified pipeline lines (0.1° tolerance), a third of pipeline capacities are imputed from the median for the same fuel, and links through a country hub stand in for unmapped pipes, rail and trucks (the panel shows their share of tonne-km). Refinery utilisation, diesel yields and the power derate are global rules of thumb. Products trade (diesel shipped between countries), stocks drawn down over time, and prices aren't modelled yet.
+9. **The river-basin model is a sketch.** Water loss is spread downstream by upstream area, not by actual flow, so dams, canals (Punjab's link canals, the Nile's) and groundwater pumping aren't seen. Aqueduct's main-stem basins often score low stress, because they carry water from far upstream, so the example dries the whole Indus catchment from its mouth basin. Migration shares and the 500 km reach are illustrative rules, not a migration model. The simplified basin outlines leave thin gaps along shared edges; clicks there snap to the nearest basin. Kontur and Natural Earth populations differ by over 25% for a few countries (Syria, Moldova, Lebanon, Palestine, Eritrea, Cyprus, Bahrain), mostly because of refugee movements and disputed census figures.
+10. **Road and rail detours are coarse.** The networks are Natural Earth's simplified 10 m roads and railways, snapped together where line ends lie within 3 km, so minor roads are missing, some joins are guessed, and some detours give up (counted as "no practical route") where a real one exists. Traffic is a gravity trip index between cities of 100,000+, not vehicle counts or freight tonnes; ferries, border closures and line capacity aren't modelled.
+11. **Performance.** `power.geojson` (~8.5 MB, about 35k points) and `water_risk.geojson` (~7 MB) are the heaviest files. If load time matters, convert to vector tiles (PMTiles via tippecanoe), served statically with the `pmtiles` protocol.
 
 ## Data files (site/data)
 
@@ -164,6 +203,9 @@ Short property keys keep the files small. Every point feature has `q` (the quant
 | cement.geojson | 3,690 | `q` cement Mt/yr, `ck` clinker |
 | chemicals.geojson | 868 | `pp` primary products, `fs` feedstock (no capacity, so `q`=1) |
 | lng.geojson | 742 terminals | `q` Mt/yr, `ft` import/export, `fl` floating |
+| refineries.geojson | 728 | Climate TRACE: `id` r+asset id, `bd` crude capacity bbl/d, `q` M bbl/d, `t` d deep / m medium conversion / h hydroskimming, `o` owner, `ci`=1 capacity imputed from the country median |
+| country_energy.json | ~240 countries | EIA latest year since 2010: `cr` crude, `lq` all liquids, `pc`/`pp` products consumed/produced, `dc`/`dp` distillate consumed/produced (kb/d); `gp`/`gc`/`gi`/`ge` gas produced/consumed/imported/exported (bcm/yr); `<key>y` the year; `fo`/`fg` EIA ÷ GEM field production; `dy` distillate yield (2014, clamped 0.2–0.5) |
+| energy_graph.json | ~12.5k nodes, 26k edges | columnar flow network. Nodes `t`: J pipeline junction, F field cluster (0.5°), R refinery, P oil port (WPI), X/I LNG export/import, S sea-lane vertex, H country hub, D gas demand (2° cells); `x`/`y` ×100; `so`/`sg` supply kb/d / bcm/yr, `dr` refinery crude capacity kb/d, `dg` gas demand bcm/yr, `cap`. Edges `t`: p pipeline (`ref` = pipelines.geojson feature), l local link, h domestic link via the hub, b cross-border, s sea lane, t port↔sea, x/i liquefaction/regas; `c` o/g/* commodity; `km`, `cap`, `dir` one-way edges, `ci` imputed capacity. `choke` lists edge indices per chokepoint; `ids` maps refinery/port/LNG/hub ids to nodes |
 | pipelines.geojson | 4,560 | `f` oil/gas, `q` M boe/d, `cap` bcm/yr, `x`=1 if it crosses borders, `cs` countries |
 | shipping.geojson | 211 | `t` Major/Middle/Minor |
 | ports.geojson | 1,081 | `sr` Natural Earth scalerank (3 = largest); superseded on the map by ports_wpi |
@@ -186,17 +228,25 @@ Short property keys keep the files small. Every point feature has `q` (the quant
 | rail.geojson / roads.geojson | 24k / 21k lines | `sr` scalerank, `e` electrified / `x` expressway |
 | chokepoints.geojson | 8 | `q` oil M b/d (1H 2025), `lng` Bcf/d, `pk`/`pky` recent peak (EIA, Mar 2026) |
 | water_risk.geojson | ~16k basins | Aqueduct 4.0 categories 0–4 (−1 = arid, low use): `ws` water stress, `f30`/`f50`/`f80` future stress (business as usual), `p50`/`o50` pessimistic/optimistic 2050, `gw` groundwater decline, `dr` drought, `rf`/`cf` flood, `wr` raw stress ratio |
+| transport_graph.json | road 23.7k nodes / 27.5k edges, rail 22.2k / 27.8k, 3,089 cities | `cities` {`n`, `x`/`y` ×100, `pop`, `k`} for labels of 100,000+. Per network (`road`, `rail`): `parts[i]` lists the nodes along the *i*-th line part of the geojson (features in order, MultiLineString parts in order) as `[node, key, node, key, node, …]`, where a key is 100 × the fractional vertex index of the node before it; consecutive nodes form edges, numbered in that order; `km[e]` edge length in 0.1 km; `fast` expressway part indices (road); `x`/`y` node coordinates ×100; `city[i]` node of city *i* (−1 if none), `cityKm[i]` distance to it; `check` = [parts, vertices] of the geojson it was built from |
+| basins.json | 16,003 | lines up with water_risk.geojson (index *i* = feature *i*), columnar: `pf` HydroBASINS level-6 Pfafstetter code, `dn` index of the next basin downstream (−1 at the sea or an inland sink), `ua` upstream area km², `pop` Kontur people, `k` index into `countries` (main country), `cx`/`cy` centre ×100, `cities` `[name, x×100, y×100, pop, basin]` for towns of 100,000+, `check` = feature count of the water_risk file it was built against |
+| pop/index.json | 383 tiles | Kontur 2023 population: `tile` (10°), `q` (quantisation), `total` people, `tiles` {name: hexagon count}, `layout` |
+| pop/{ix}_{iy}.bin | ~2.0 M hexagons, 8.2 MB | one 10° tile, `ix = floor(lon/10)`, `iy = floor(lat/10)`. Little-endian: `uint32[100]` hexagon counts per 1° cell (row-major from the SW, row = latitude), then for all *n* hexagons in cell order `uint8 dx[n]`, `uint8 dy[n]` (offset from the cell's SW corner in 1/256°) and `uint16 q[n]` = round(ln(1 + people) × `q`) |
 | groundwater.geojson | 2,966 | WHYMAP `r` recharge class 0–4, `t` m=major basin / c=complex / l=local |
 | saline_gw.geojson, gw_mining.geojson | 102 / 55 | saline groundwater areas; intensive or fossil-water well fields (`x`=2 fossil) |
 | rivers, lakes, glaciers, land, countries, borders, disputed, disputed_lines, maritime | | Natural Earth, simplified; lakes have `km2`, `res` reservoir, `sal` saline |
 | labels.json | 8,330 | `{t: c/p/m/g, n, x, y, z: min zoom}`; cities add `r` rank 0 national capital / 1 admin-1 capital or 1 M+ / 2 other, `pop` metro population, `a` admin-1 name, `k` ADM0_A3; regions add `f` feature class |
-| country_totals.json | 242 keyed by ADM0_A3 | sums of **operating** sites: `og`, `coal`, `iron`, `mine_km2`, `crit_n`, `crit_m` {commodity: count}, `pw_gw` and `pw_<fuel>`, `steel`, `cement`, `chem_n`, `ammonia_n`, `lng_exp`, `lng_imp`, `ports`, `lake_km2`, `res_km2`, `ice_km2`, `bws` (area-weighted Aqueduct score 0–5), `bws_hi` (% of area at high stress or above), `gw_basin_km2`, `pop`, `id` (index into countries.geojson) |
+| country_totals.json | 242 keyed by ADM0_A3 | sums of **operating** sites: `og`, `coal`, `iron`, `mine_km2`, `crit_n`, `crit_m` {commodity: count}, `pw_gw` and `pw_<fuel>`, `steel`, `cement`, `chem_n`, `ammonia_n`, `lng_exp`, `lng_imp`, `ports`, `lake_km2`, `res_km2`, `ice_km2`, `bws` (area-weighted Aqueduct score 0–5), `bws_hi` (% of area at high stress or above), `gw_basin_km2`, `pop` (Natural Earth estimate), `kpop` (Kontur 2023 people inside the country polygon), `kdens` (people/km²), `id` (index into countries.geojson) |
 | crit_commodities.json | | commodity → deposit count, used to fill the mineral filter |
 
 Conversions: gas is converted at 6,000 cf per barrel of oil equivalent (million m³ × 35.3147 / 6000 = M boe). LNG 1 Mt ≈ 1.36 bcm. Offshore sites are assigned to the nearest country within 400 km in an equal-area projection (EPSG:6933).
 
 ## Sources and licences
 
+- **US EIA International Energy Data** (public domain), eia.gov/opendata/bulk/INTL.zip: country crude, liquids, products, distillate and natural-gas production, consumption and trade.
+- **Climate TRACE v6 assets** (CC BY 4.0), climatetrace.org/data, api.climatetrace.org/v6/assets: oil refineries with crude capacity, configuration and owner (2024 inventory).
+- **Kontur Population 2023** (CC BY 4.0), data.humdata.org/dataset/kontur-population-dataset, H3 resolution 6 GeoPackage (2023-11-01): `pop/` tiles, `kpop`/`kdens` and basin populations.
+- **HydroSHEDS HydroBASINS v1c, level 6** (free for any use with attribution; HydroSHEDS licence), hydrosheds.org/products/hydrobasins: which river basin drains into which, and upstream areas, for `basins.json`. Lehner & Grill 2013, https://doi.org/10.1002/hyp.9740.
 - **Global Energy Monitor trackers** (CC BY 4.0), globalenergymonitor.org/download-data: oil & gas extraction (Mar 2026), coal mines (Aug 2026), coal mine boundaries v1.0.2, iron ore mines (Sep 2026), coal plants (Jul 2026), oil & gas plants (Aug 2026), iron & steel (Sep 2026), cement (Jul 2026), chemicals (Nov 2025), oil/NGL pipelines (Jul 2026), gas pipelines (Nov 2025), LNG terminals (Sep 2025).
 - **Maus et al. 2022**, Global-scale mining polygons v2, https://doi.org/10.1594/PANGAEA.942325 (CC BY-SA 4.0).
 - **WRI Aqueduct 4.0** water risk (2023), CC BY 4.0.
@@ -234,10 +284,17 @@ Satellite imagery (tiles requested directly by the browser):
 - **USDA NAIP**, https://planetarycomputer.microsoft.com/dataset/naip, National Agriculture Imagery Program, USDA Farm Service Agency, via Microsoft Planetary Computer (public domain).
 - **Copernicus Sentinel-1 RTC**, https://planetarycomputer.microsoft.com/dataset/sentinel-1-rtc, terrain-corrected by Catalyst, via Microsoft Planetary Computer (CC BY 4.0).
 - **Ramankutty et al. 2010**, Global Agricultural Lands: Croplands 2000 (https://doi.org/10.7927/H4C8276G) and Pastures 2000 (https://doi.org/10.7927/H47H1GGR), NASA SEDAC, CC BY 4.0, via GIBS.
+- **CIESIN Gridded Population of the World v4.11**, population density 2020 (https://doi.org/10.7927/H49C6VHW), NASA SEDAC, CC BY 4.0, via GIBS.
 - **NASA MODIS Land Cover Type** MCD12Q1 v061 (https://doi.org/10.5067/MODIS/MCD12Q1.061), NASA open data, via GIBS.
 - **Esri World Imagery**, © Esri, Maxar, Earthstar Geographics and the GIS User Community (Esri terms of use). Capture dates from the same service's `identify` endpoint.
 - **OpenStreetMap**, © OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright), as vector tiles from **OpenFreeMap** (https://openfreemap.org/, free, no key) in the OpenMapTiles schema (© OpenMapTiles, CC BY 4.0 for the schema and styles). Fonts are Noto Sans (SIL OFL) from the same server. Used for streets, buildings, rail, water and street names.
 - **Mapterhorn terrain tiles**, https://mapterhorn.com/ (credit "© Mapterhorn"; per-source list at https://mapterhorn.com/attribution). Copernicus GLO-30 DEM worldwide (Copernicus DEM licence, © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018, provided under COPERNICUS by the European Union and ESA), plus about 150 national lidar and DEM datasets under CC BY 4.0, public domain, Licence Ouverte, Datenlizenz Deutschland and similar open licences. Used for the hillshade.
+
+Offline copies and self-hosted code (`tools/offline.py`, `site/vendor/`):
+
+- **NASA Blue Marble** (shaded relief and bathymetry; next generation) and **NASA Black Marble** 2016 night lights, via GIBS. NASA data, no restrictions; saved for offline use only.
+- **pmtiles.js** 4.5.0 (BSD-3-Clause), https://github.com/protomaps/PMTiles, and the **go-pmtiles** CLI (BSD-3-Clause) for the terrain extract.
+- **IBM Plex Sans, IBM Plex Mono and Archivo** fonts (SIL Open Font License 1.1), self-hosted from Google Fonts, latin and latin-ext subsets.
 
 Search:
 

@@ -4,9 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Site-level world map of oil, gas, coal, ore, critical minerals, industry, power, water, military bases, airports, ports, data centres, undersea cables and farmland, with live satellite imagery, fire detections, conflict reports, warships and aircraft, and a storyboard of recent surges in conflict news.">
 <title>World Extraction Atlas</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="vendor/fonts.css">
 <link rel="stylesheet" href="vendor/maplibre-gl.css">
 <style>
 /* Layout: full-bleed map with an HTML label layer; one control sheet (left on desktop, bottom on phones); detail card top-right */
@@ -36,6 +34,7 @@
   --gw: #2f6f9a;
   --steel: #2a78d6;
   --chem: #e87ba4;
+  --refinery: #a0522d;
   --cement: #8a7f72;
   --rail: #3d3f3b;
   --rail-tie: #efeee8;
@@ -65,6 +64,13 @@
   --vessel: #6d7f8a;
   --cable: #b5338a;
   --focus: #2a78d6;
+  --sim-up: #1f7a8c;
+  --sim-down: #c2410c;
+  --sim-zone: #b3122e;
+  --sim-off: #1c1d1b;
+  --sim-dry: #b0761a;
+  --sim-move: #6b46b0;
+  --pop: #8a3f8f;
   --halo: rgb(239 238 232 / .85);
   --f-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --f-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
@@ -75,7 +81,7 @@
     --ocean: #0f1519; --land: #23272a; --border: #7a8186; --border-soft: #3f464a; --water: #1f3a4a; --river: #4b8aae;
     --ice: #3b4248; --ice-line: #4d575e; --disputed: #e07a6c;
     --panel: #1a1e20; --panel-line: #33393c; --ink: #eceeea; --ink-2: #b4b8b1; --ink-3: #868b84; --sea-ink: #6f9db3;
-    --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --fire: #ff7a2e; --fire-ind: #8d847c; --conflict: #ff4d6a; --mil: #a9bf6e; --air: #9ea3e0; --jet: #5cc4f0; --airliner: #b4c0cb; --hs-shadow: rgba(0, 0, 0, 0.9); --hs-light: rgba(170, 185, 192, 0.3); --hs-accent: rgba(0, 0, 0, 0.45); --street: #3b4246; --street-major: #6e5d3e; --street-case: #121618; --street-ink: #b4b8b1; --building: #31373a; --building-line: #3f474b; --dc: #c18be0; --tanker: #e0915a; --cargo: #4cc0c0; --navy: #e8ecf5; --vessel: #9fb0ba; --cable: #e57ac0; --focus: #6aa8f0; --halo: rgb(15 21 25 / .8);
+    --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --refinery: #f2b98a; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --fire: #ff7a2e; --fire-ind: #8d847c; --conflict: #ff4d6a; --mil: #a9bf6e; --air: #9ea3e0; --jet: #5cc4f0; --airliner: #b4c0cb; --hs-shadow: rgba(0, 0, 0, 0.9); --hs-light: rgba(170, 185, 192, 0.3); --hs-accent: rgba(0, 0, 0, 0.45); --street: #3b4246; --street-major: #6e5d3e; --street-case: #121618; --street-ink: #b4b8b1; --building: #31373a; --building-line: #3f474b; --dc: #c18be0; --tanker: #e0915a; --cargo: #4cc0c0; --navy: #e8ecf5; --vessel: #9fb0ba; --cable: #e57ac0; --focus: #6aa8f0; --sim-up: #4fc1d6; --sim-down: #ff8a4c; --sim-zone: #ff4d6a; --sim-off: #f2f2ee; --sim-dry: #e3a646; --sim-move: #b99cf2; --pop: #d58ad8; --halo: rgb(15 21 25 / .8);
     color-scheme: dark;
   }
 }
@@ -83,7 +89,7 @@
   --ocean: #0f1519; --land: #23272a; --border: #7a8186; --border-soft: #3f464a; --water: #1f3a4a; --river: #4b8aae;
   --ice: #3b4248; --ice-line: #4d575e; --disputed: #e07a6c;
   --panel: #1a1e20; --panel-line: #33393c; --ink: #eceeea; --ink-2: #b4b8b1; --ink-3: #868b84; --sea-ink: #6f9db3;
-  --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --fire: #ff7a2e; --fire-ind: #8d847c; --conflict: #ff4d6a; --mil: #a9bf6e; --air: #9ea3e0; --jet: #5cc4f0; --airliner: #b4c0cb; --hs-shadow: rgba(0, 0, 0, 0.9); --hs-light: rgba(170, 185, 192, 0.3); --hs-accent: rgba(0, 0, 0, 0.45); --street: #3b4246; --street-major: #6e5d3e; --street-case: #121618; --street-ink: #b4b8b1; --building: #31373a; --building-line: #3f474b; --dc: #c18be0; --tanker: #e0915a; --cargo: #4cc0c0; --navy: #e8ecf5; --vessel: #9fb0ba; --cable: #e57ac0; --focus: #6aa8f0; --halo: rgb(15 21 25 / .8);
+  --oil: #d95926; --coal: #9085e9; --iron: #199e70; --foot: #c9ccc4; --power: #c98500; --crit: #3fa34d; --stress: #e0705f; --gw: #5fa3d1; --steel: #3987e5; --chem: #d55181; --refinery: #f2b98a; --cement: #a89c8e; --rail: #b9bdb5; --rail-tie: #23272a; --road: #8c7550; --lane: #5d8ba3; --mark-ring: #0f1519; --fire: #ff7a2e; --fire-ind: #8d847c; --conflict: #ff4d6a; --mil: #a9bf6e; --air: #9ea3e0; --jet: #5cc4f0; --airliner: #b4c0cb; --hs-shadow: rgba(0, 0, 0, 0.9); --hs-light: rgba(170, 185, 192, 0.3); --hs-accent: rgba(0, 0, 0, 0.45); --street: #3b4246; --street-major: #6e5d3e; --street-case: #121618; --street-ink: #b4b8b1; --building: #31373a; --building-line: #3f474b; --dc: #c18be0; --tanker: #e0915a; --cargo: #4cc0c0; --navy: #e8ecf5; --vessel: #9fb0ba; --cable: #e57ac0; --focus: #6aa8f0; --sim-up: #4fc1d6; --sim-down: #ff8a4c; --sim-zone: #ff4d6a; --sim-off: #f2f2ee; --sim-dry: #e3a646; --sim-move: #b99cf2; --pop: #d58ad8; --halo: rgb(15 21 25 / .8);
   color-scheme: dark;
 }
 html, body { height: 100%; }
@@ -126,6 +132,8 @@ body { background: var(--ocean); color: var(--ink); font-family: var(--f-body); 
 .eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 h1 { margin: 4px 0 6px; font-family: var(--f-display); font-stretch: 78%; font-weight: 800; font-size: 26px; line-height: 1.05; letter-spacing: -.01em; text-wrap: balance; }
 .lede { margin: 0; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+.offnote { margin: 6px 0 0; padding: 5px 8px; border: 1px solid var(--panel-line); border-radius: 6px; color: var(--ink-2); font-size: 12px; line-height: 1.4; }
+.offnote b { color: var(--ink); font-weight: 600; }
 .sheet-body { overflow-y: auto; padding: 10px 18px 16px; display: flex; flex-direction: column; gap: 16px; }
 .toggle-sheet { display: none; }
 
@@ -143,8 +151,9 @@ h1 { margin: 4px 0 6px; font-family: var(--f-display); font-stretch: 78%; font-w
 .seg { display: flex; border: 1px solid var(--panel-line); border-radius: 5px; overflow: hidden; }
 .seg button { flex: 1; font: inherit; font-size: 12.5px; padding: 6px 8px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
 .seg button + button { border-left: 1px solid var(--panel-line); }
-.seg.views { flex-wrap: wrap; }
-.seg.views button { flex: 1 0 auto; }
+.seg.views { display: grid; grid-template-columns: repeat(3, 1fr); }
+.seg.views button:nth-child(3n+1) { border-left: 0; }
+.seg.views button:nth-child(n+4) { border-top: 1px solid var(--panel-line); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); font-weight: 600; }
 
 select, .search input { width: 100%; box-sizing: border-box; font: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); }
@@ -205,7 +214,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 
 @media (max-width: 720px) {
   .sheet { top: auto; bottom: 0; left: 0; right: 0; width: auto; max-height: 60%; border-radius: 10px 10px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
-  .sheet.collapsed .sheet-body, .sheet.collapsed .story { display: none; }
+  .sheet.collapsed .sheet-body, .sheet.collapsed .story, .sheet.collapsed .sim { display: none; }
   .seg.mode { grid-column: 1 / -1; margin-top: 4px; }
   .sheet-head { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 8px; padding: 12px 16px 10px; }
   h1 { font-size: 21px; }
@@ -231,6 +240,11 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .imagery input[type="range"] { width: 100%; accent-color: var(--ink); }
 .imagery .note { font-size: 11.5px; color: var(--ink-3); line-height: 1.4; }
 .imagery .note a { color: var(--ink-2); }
+.viewbox { display: flex; flex-direction: column; gap: 6px; }
+.view-note { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
+.view-note .x { display: block; margin-top: 4px; color: var(--ink-3); }
+.view-note .x b { color: var(--ink-2); font-weight: 600; }
+.viewbox button.sm { align-self: flex-start; font: inherit; font-size: 12px; padding: 4px 8px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
 .imagery button.sm, .imagery .scenes .list button { font: inherit; font-size: 12px; text-align: left; padding: 5px 8px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
 .imagery .note button.sm { padding: 2px 7px; margin-left: 4px; font-size: 11.5px; }
 .imagery .scenes { display: flex; flex-direction: column; gap: 5px; }
@@ -286,6 +300,36 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .lc-key { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; font-size: 11px; color: var(--ink-2); line-height: 1.3; }
 .lc-key i { display: inline-block; width: 9px; height: 10px; vertical-align: -1px; box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .25); }
 .lc-key i:last-of-type { margin-right: 5px; }
+.sim { overflow-y: auto; padding: 12px 18px 16px; display: flex; flex-direction: column; gap: 10px; }
+.sim > * { flex-shrink: 0; }
+.sim .sum { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); }
+.sim .sum.small { font-size: 11.5px; color: var(--ink-3); }
+.sim .sec { font-family: var(--f-display); font-stretch: 85%; font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); padding-top: 8px; border-top: 1px solid var(--panel-line); }
+.sim .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.sim .row button, .sim .row select { font: inherit; font-size: 12px; padding: 5px 9px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
+.sim .row button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.sim .row select { flex: 1; min-width: 0; }
+.sim .chips button { font-size: 11px; padding: 3px 7px; }
+.sim .hint { margin: 0; font-size: 11.5px; color: var(--sim-zone); }
+.shocks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.shocks li { border: 1px solid var(--panel-line); border-left: 3px solid var(--sim-zone); border-radius: 4px; padding: 6px 4px 6px 9px; display: grid; grid-template-columns: 1fr auto; gap: 2px 6px; font-size: 12px; }
+.shocks .k { font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); }
+.shocks b { font-weight: 600; line-height: 1.3; grid-column: 1; overflow-wrap: anywhere; }
+.shocks .close { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
+.shocks label { grid-column: 1 / -1; display: grid; grid-template-columns: 52px 1fr 54px; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-2); }
+.shocks input[type=range] { width: 100%; accent-color: var(--sim-zone); }
+.shocks output { font-family: var(--f-mono); font-size: 11px; text-align: right; }
+.simt { width: 100%; border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.simt th { text-align: right; font-weight: 500; color: var(--ink-3); font-size: 10.5px; padding: 0 0 3px 6px; }
+.simt th:first-child, .simt td:first-child { text-align: left; padding-left: 0; }
+.simt td { text-align: right; padding: 2px 0 2px 6px; border-top: 1px solid var(--panel-line); font-family: var(--f-mono); font-size: 11px; white-space: nowrap; }
+.simt td:first-child { font-family: inherit; font-size: 11.5px; white-space: normal; }
+.simt .up { color: var(--sim-up); } .simt .dn { color: var(--sim-down); }
+.sim ul.facts { margin: 0; padding-left: 16px; font-size: 11.5px; line-height: 1.45; color: var(--ink-2); display: flex; flex-direction: column; gap: 3px; }
+.sim details { font-size: 11.5px; color: var(--ink-3); line-height: 1.45; }
+.sim summary { cursor: pointer; color: var(--ink-2); }
+.sim-key { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: var(--ink-2); }
+.sim-key i { display: inline-block; width: 16px; height: 3px; vertical-align: 3px; margin-right: 5px; border-radius: 2px; }
 .detail .zoom-btn { margin: 0 16px 14px; font: inherit; font-size: 12.5px; padding: 6px 10px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
 </style>
 
@@ -299,11 +343,13 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         <div class="eyebrow">Site-level · 2026 data</div>
         <h1>World Extraction Atlas</h1>
         <p class="lede">Oil, gas, coal, ore, critical minerals, industry, power and water, with the borders, pipelines, cables and sea lanes that connect them. Every site is drawn at its true location at every zoom, with live satellite imagery, fire detections, conflict events, warships and aircraft on top.</p>
+        <p class="offnote" id="offNote" hidden></p>
       </div>
       <button class="toggle-sheet" id="toggleSheet" aria-expanded="true">Hide</button>
       <div class="seg mode" role="group" aria-label="Choose a mode">
         <button type="button" data-mode="map" aria-pressed="true">Map layers</button>
         <button type="button" data-mode="story" aria-pressed="false">Storyboard</button>
+        <button type="button" data-mode="sim" aria-pressed="false">Scenarios</button>
       </div>
     </div>
     <div class="story" id="story" hidden>
@@ -323,17 +369,36 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       <ol class="cards" id="storyCards"></ol>
       <p class="sum small">Each card is a place where conflict reports (assaults, fighting, mass violence) jumped well above that place's own usual level in that hour, day or three days. Picked from GDELT, which codes events from news articles automatically, so read the linked articles. The headline comes from the most-cited article and can be about a different event in the same place.</p>
     </div>
+    <div class="sim" id="sim" hidden>
+      <p class="sum" id="simSum">Switch something off and watch the oil and gas network re-route around it.</p>
+      <div class="row">
+        <button type="button" id="simPick" aria-pressed="false">Pick on map</button>
+        <button type="button" id="simDry" aria-pressed="false">Dry a river basin</button>
+        <select id="simChoke" aria-label="Close a chokepoint"><option value="">Close a chokepoint…</option></select>
+        <button type="button" id="simClear">Clear</button>
+      </div>
+      <p class="hint" id="simHint" hidden>Click a refinery, oil or gas field, pipeline, oil port, LNG terminal, power plant, coal or iron mine, or cable landing. Click open ground for a conflict or disaster zone. Esc stops.</p>
+      <p class="hint" id="simHintW" hidden>Click inside a river basin. It and everything upstream lose water, and basins downstream lose a share. Esc stops.</p>
+      <div class="row chips" id="simShow" role="group" aria-label="Also show on the map"></div>
+      <ul class="shocks" id="simList"></ul>
+      <div class="row" id="simPresets" role="group" aria-label="Examples"></div>
+      <div id="simOut"></div>
+      <details id="simAsm"><summary>Assumptions</summary><div></div></details>
+    </div>
     <div class="sheet-body" id="sheetBody">
-      <section>
-        <h3 class="group-title">View</h3>
-        <div class="seg views" role="group" aria-label="Choose a view">
+      <section class="viewbox">
+        <h3 class="group-title"><label for="view">View</label></h3>
+        <div class="seg views" role="group" aria-label="Quick views">
           <button type="button" data-view="overview" aria-pressed="true">Overview</button>
-          <button type="button" data-view="resources" aria-pressed="false">Resources</button>
-          <button type="button" data-view="industry" aria-pressed="false">Industry</button>
-          <button type="button" data-view="transport" aria-pressed="false">Transport</button>
-          <button type="button" data-view="water" aria-pressed="false">Water</button>
-          <button type="button" data-view="security" aria-pressed="false">Security</button>
+          <button type="button" data-view="now" aria-pressed="false">Now</button>
+          <button type="button" data-view="grid" aria-pressed="false">Grid</button>
+          <button type="button" data-view="shipping" aria-pressed="false">Shipping</button>
+          <button type="button" data-view="security" aria-pressed="false">Conflict</button>
+          <button type="button" data-view="farm" aria-pressed="false">Farming</button>
         </div>
+        <select id="view" aria-label="All views"></select>
+        <p class="view-note" id="viewNote"></p>
+        <button type="button" class="sm" id="viewGo" hidden></button>
       </section>
 
       <section>
@@ -368,12 +433,13 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       </section>
 
       <section class="imagery">
-        <h3 class="group-title"><label for="agri">Farmland &amp; land cover</label></h3>
+        <h3 class="group-title"><label for="agri">Farmland, land cover &amp; people</label></h3>
         <select id="agri">
           <option value="">None</option>
           <option value="crop">Cropland share of land (2000)</option>
           <option value="past">Pasture share of land (2000)</option>
           <option value="lc">Land cover type, MODIS (pick a year)</option>
+          <option value="pop">Population density (2020)</option>
         </select>
         <div class="row2" id="agriCtl" hidden>
           <label id="agriYearWrap">Year<select id="agriYear"></select></label>
@@ -407,6 +473,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
           <label class="layer"><input type="checkbox" id="lyr-cement"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--cement)" stroke="var(--mark-ring)"/></svg><span class="name">Cement plants<small>capacity, Mt/yr</small></span><span class="count" id="n-cement"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-chem"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--chem)" stroke="var(--mark-ring)"/></svg><span class="name">Chemical plants<small>ammonia, olefins, methanol; count</small></span><span class="count" id="n-chem"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-lng"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--oil)" stroke-width="2.5"/></svg><span class="name">LNG terminals<small>capacity, Mt/yr</small></span><span class="count" id="n-lng"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-refinery"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--refinery)" stroke="var(--mark-ring)"/></svg><span class="name">Oil refineries<small>crude capacity, M bbl/d</small></span><span class="count" id="n-refinery"></span></label>
         </div>
       </section>
 
@@ -469,6 +536,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
             <option value="c:lng_imp">LNG import capacity</option>
             <option value="c:ports">Seaports</option>
           </optgroup>
+          <optgroup label="Countries by: people">
+            <option value="c:kpop">Population</option>
+            <option value="c:kdens">Population density</option>
+          </optgroup>
           <optgroup label="Countries by: water">
             <option value="c:bws">Average water stress</option>
             <option value="c:fresh_km2">Lake &amp; reservoir area</option>
@@ -513,7 +584,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       <section class="notes">
         <h3 class="group-title">Sources</h3>
         <ul class="srcs" id="sources"></ul>
-        <p><strong>Read with care.</strong> Totals add up only what each site reports; many large oil fields, including Saudi Arabia's, publish no production. The US critical-mineral set is far more detailed than the global one, so the US shows many more deposits. Solar, wind, hydro and nuclear come from a 2021 database. Oil refineries aren't included yet. Gas is converted at 6,000 cf per barrel of oil equivalent. Country totals count operating sites only; offshore sites go to the nearest country. Country water stress is an area-weighted average of Aqueduct basin scores. Borders follow Natural Earth's de facto lines and don't imply endorsement.</p>
+        <p><strong>Read with care.</strong> Totals add up only what each site reports; many large oil fields, including Saudi Arabia's, publish no production. The US critical-mineral set is far more detailed than the global one, so the US shows many more deposits. Solar, wind, hydro and nuclear come from a 2021 database. Refinery capacities are nameplate figures from Climate TRACE; a few missing ones use the country median. Gas is converted at 6,000 cf per barrel of oil equivalent. Country totals count operating sites only; offshore sites go to the nearest country. Country water stress is an area-weighted average of Aqueduct basin scores. Borders follow Natural Earth's de facto lines and don't imply endorsement.</p>
         <p><strong>Live layers.</strong> Fires, conflict reports, ships and aircraft are snapshots refreshed every 30 minutes or so by the site's build, not a live stream; each layer shows when it was taken. Conflict reports are machine-coded from news articles and are often duplicated, misplaced (to a country's centre, say) or wrong; open the linked articles before relying on one. A fire next to a conflict report isn't proof of an attack. Warship positions come from USNI News's weekly fleet tracker, which names a port or sea area rather than coordinates, so they're approximate and only cover publicly reported US Navy ships; other navies rarely publish positions and their warships usually switch AIS off. Worldwide merchant ships need an aisstream.io key in the build; without one the ship layer shows the Baltic, live. Business jets cover about 35 common jet types and airliners about 60 passenger, regional and freighter types, not every plane; aircraft whose owners have opted out of public tracking (the FAA's LADD list and privacy ICAO addresses) are left out, and no owner names are shown. Search a registration or callsign to find one. Military bases combine Wikidata and OpenStreetMap and are still incomplete, so a gap doesn't mean there's no base. Cable routes are schematic.</p>
       </section>
     </div>
@@ -523,7 +594,718 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   <div class="tip" id="tip" hidden></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<!-- Scenario solver: plain JS with no DOM, started as a Web Worker from a Blob; tests/sim.test.mjs runs the same text in node -->
+<script type="text/plain" id="simWorker">
+"use strict";
+// Scenario solver. Runs in a Web Worker (started from a Blob) and in node tests (vm). No DOM.
+// Energy: two min-cost flows on energy_graph.json, crude oil (kb/d) and gas (bcm/yr). The baseline is solved once;
+// a scenario starts from the baseline flow, removes the flow its shocks cut and re-routes only that.
+
+// ---- min-cost flow: successive shortest paths from excess to deficit nodes, Dijkstra on reduced costs ----
+function Net(n) { this.n = n; this.head = new Int32Array(n).fill(-1); this.to = []; this.nxt = []; this.cap0 = []; this.cost = []; }
+Net.prototype.arc = function (u, v, cap, cost) {
+  const e = this.to.length;
+  cost = Math.round(cost * 100);   // integer costs (0.01 km-equivalent) keep the cost-scaling solver exact
+  this.to.push(v, u); this.cap0.push(cap, 0); this.cost.push(cost, -cost);
+  this.nxt.push(this.head[u], this.head[v]); this.head[u] = e; this.head[v] = e + 1;
+  return e;
+};
+Net.prototype.freeze = function () {
+  this.to = Int32Array.from(this.to); this.nxt = Int32Array.from(this.nxt);
+  this.cap0 = Float64Array.from(this.cap0); this.cost = Float64Array.from(this.cost);
+  const n = this.n, m = this.to.length;
+  this.dist = new Float64Array(n); this.prev = new Int32Array(n);
+  this.seen = new Int32Array(n); this.done = new Int32Array(n); this.settled = new Int32Array(n);
+  this.hk = new Float64Array(m + n); this.hv = new Int32Array(m + n);
+};
+// cap: residual capacity per arc (flow on arc e is cap[e ^ 1]); exc: supply (+) / demand (-) per node; pot: node potentials
+// that keep every residual arc's reduced cost >= 0. All three are updated in place. Returns the number of augmenting paths.
+Net.prototype.solve = function (cap, exc, pot) {
+  const { n, head, to, nxt, cost, dist, prev, seen, done, settled, hk, hv } = this;
+  const EPS = 1e-7;
+  let it = 0, paths = 0;
+  seen.fill(0); done.fill(0);
+  const srcs = [];
+  for (let v = 0; v < n; v++) if (exc[v] > EPS) srcs.push(v);
+  while (true) {
+    it++;
+    let hn = 0, ns = 0, t = -1;
+    const push = (k, v) => { let i = hn++; while (i > 0) { const p = (i - 1) >> 1; if (hk[p] < k || (hk[p] === k && hv[p] <= v)) break; hk[i] = hk[p]; hv[i] = hv[p]; i = p; } hk[i] = k; hv[i] = v; };
+    for (const v of srcs) if (exc[v] > EPS) { dist[v] = 0; seen[v] = it; prev[v] = -1; push(0, v); }
+    if (!hn) break;
+    while (hn) {
+      const d = hk[0], u = hv[0];
+      const lk = hk[--hn], lv = hv[hn]; let i = 0;
+      while (true) { let c = 2 * i + 1; if (c >= hn) break; if (c + 1 < hn && (hk[c + 1] < hk[c] || (hk[c + 1] === hk[c] && hv[c + 1] < hv[c]))) c++; if (hk[c] > lk || (hk[c] === lk && hv[c] >= lv)) break; hk[i] = hk[c]; hv[i] = hv[c]; i = c; }
+      hk[i] = lk; hv[i] = lv;
+      if (done[u] === it || d > dist[u]) continue;
+      done[u] = it; settled[ns++] = u;
+      if (exc[u] < -EPS) { t = u; break; }
+      const pu = pot[u];
+      for (let e = head[u]; e !== -1; e = nxt[e]) {
+        if (cap[e] <= EPS) continue;
+        const v = to[e];
+        if (done[v] === it) continue;
+        let rc = cost[e] + pu - pot[v]; if (rc < 0) rc = 0;
+        const nd = d + rc;
+        if (seen[v] !== it || nd < dist[v]) { seen[v] = it; dist[v] = nd; prev[v] = e; push(nd, v); }
+      }
+    }
+    if (t < 0) break;   // the remaining excess cannot reach any deficit
+    const dt = dist[t];
+    for (let i = 0; i < ns; i++) { const v = settled[i]; pot[v] += dist[v] - dt; }
+    let f = -exc[t], s = t;
+    for (; prev[s] !== -1; s = to[prev[s] ^ 1]) if (cap[prev[s]] < f) f = cap[prev[s]];
+    if (exc[s] < f) f = exc[s];
+    for (let v = t; v !== s; v = to[prev[v] ^ 1]) { cap[prev[v]] -= f; cap[prev[v] ^ 1] += f; }
+    exc[s] -= f; exc[t] += f; paths++;
+  }
+  return paths;
+};
+
+// Cold solve: primal network simplex with block search pivots (after LEMON's NetworkSimplex). Integer costs and
+// capacities keep it exact. sup: supply (+) / demand (-) per node, summing to 0. Fills cap like solve() and returns
+// potentials that keep every residual arc's reduced cost >= 0, so solve() can warm-start from the result.
+Net.prototype.simplex = function (cap, sup) {
+  const n = this.n, m = this.to.length >> 1, all = m + n, root = n;
+  const src = new Int32Array(all), tgt = new Int32Array(all), cst = new Float64Array(all), cp = new Float64Array(all), flow = new Float64Array(all);
+  const state = new Int8Array(all);
+  for (let k = 0; k < m; k++) { src[k] = this.to[2 * k + 1]; tgt[k] = this.to[2 * k]; cst[k] = this.cost[2 * k]; cp[k] = this.cap0[2 * k]; state[k] = 1; }
+  const parent = new Int32Array(n + 1), pred = new Int32Array(n + 1), thread = new Int32Array(n + 1), rev = new Int32Array(n + 1);
+  const succ = new Int32Array(n + 1), last = new Int32Array(n + 1), pdir = new Int8Array(n + 1), pi = new Float64Array(n + 1);
+  let art = 0; for (let k = 0; k < m; k++) if (Math.abs(cst[k]) > art) art = Math.abs(cst[k]);
+  art = (art + 1) * n;
+  const INF = Infinity;
+  for (let u = 0, e = m; u < n; u++, e++) {
+    parent[u] = root; pred[u] = e; thread[u] = u + 1; rev[u + 1] = u; succ[u] = 1; last[u] = u;
+    cp[e] = INF; state[e] = 0;
+    if (sup[u] >= 0) { pdir[u] = 1; pi[u] = 0; src[e] = u; tgt[e] = root; flow[e] = sup[u]; cst[e] = 0; }
+    else { pdir[u] = -1; pi[u] = art; src[e] = root; tgt[e] = u; flow[e] = -sup[u]; cst[e] = art; }
+  }
+  parent[root] = -1; pred[root] = -1; thread[root] = 0; rev[0] = root; succ[root] = n + 1; last[root] = root - 1; pi[root] = 0;
+  const block = Math.max(Math.ceil(Math.sqrt(m)), 10);
+  let next = 0, inArc = 0, join = 0, uIn = 0, vIn = 0, uOut = 0, delta = 0, pivots = 0;
+  const dirty = [];
+  const enter = () => {
+    let min = 0, cnt = block, e;
+    for (e = next; e < m; e++) {
+      const c = state[e] * (cst[e] + pi[src[e]] - pi[tgt[e]]);
+      if (c < min) { min = c; inArc = e; }
+      if (--cnt === 0) { if (min < 0) { next = inArc; return true; } cnt = block; }
+    }
+    for (e = 0; e < next; e++) {
+      const c = state[e] * (cst[e] + pi[src[e]] - pi[tgt[e]]);
+      if (c < min) { min = c; inArc = e; }
+      if (--cnt === 0) { if (min < 0) { next = inArc; return true; } cnt = block; }
+    }
+    if (min >= 0) return false;
+    next = inArc; return true;
+  };
+  while (enter()) {
+    pivots++;
+    // join node of the cycle
+    let u = src[inArc], v = tgt[inArc];
+    while (u !== v) { if (succ[u] < succ[v]) u = parent[u]; else v = parent[v]; }
+    join = u;
+    // leaving arc
+    let first, second;
+    if (state[inArc] === 1) { first = src[inArc]; second = tgt[inArc]; } else { first = tgt[inArc]; second = src[inArc]; }
+    delta = cp[inArc]; let result = 0;
+    for (u = first; u !== join; u = parent[u]) {
+      const e = pred[u]; let d = flow[e];
+      if (pdir[u] === -1) d = cp[e] - d;
+      if (d < delta) { delta = d; uOut = u; result = 1; }
+    }
+    for (u = second; u !== join; u = parent[u]) {
+      const e = pred[u]; let d = flow[e];
+      if (pdir[u] === 1) d = cp[e] - d;
+      if (d <= delta) { delta = d; uOut = u; result = 2; }
+    }
+    if (result === 1) { uIn = first; vIn = second; } else { uIn = second; vIn = first; }
+    if (delta === INF) throw new Error("simplex: unbounded");
+    // change flow
+    if (delta > 0) {
+      const val = state[inArc] * delta;
+      flow[inArc] += val;
+      for (u = src[inArc]; u !== join; u = parent[u]) flow[pred[u]] -= pdir[u] * val;
+      for (u = tgt[inArc]; u !== join; u = parent[u]) flow[pred[u]] += pdir[u] * val;
+    }
+    if (!result) { state[inArc] = -state[inArc]; continue; }
+    state[inArc] = 0; state[pred[uOut]] = flow[pred[uOut]] === 0 ? 1 : -1;
+    // update tree structure
+    const oldRev = rev[uOut], oldSucc = succ[uOut], oldLast = last[uOut], vOut = parent[uOut];
+    if (uIn === uOut) {
+      parent[uIn] = vIn; pred[uIn] = inArc; pdir[uIn] = uIn === src[inArc] ? 1 : -1;
+      if (thread[vIn] !== uOut) {
+        let after = thread[oldLast];
+        thread[oldRev] = after; rev[after] = oldRev;
+        after = thread[vIn];
+        thread[vIn] = uOut; rev[uOut] = vIn;
+        thread[oldLast] = after; rev[after] = oldLast;
+      }
+    } else {
+      const cont = oldRev === vIn ? thread[oldLast] : thread[vIn];
+      let stem = uIn, parStem = vIn, nextStem, lst = last[uIn], before, after = thread[lst];
+      thread[vIn] = uIn;
+      dirty.length = 0; dirty.push(vIn);
+      while (stem !== uOut) {
+        nextStem = parent[stem];
+        thread[lst] = nextStem; dirty.push(lst);
+        before = rev[stem]; thread[before] = after; rev[after] = before;
+        parent[stem] = parStem; parStem = stem; stem = nextStem;
+        lst = last[stem] === last[parStem] ? rev[parStem] : last[stem];
+        after = thread[lst];
+      }
+      parent[uOut] = parStem;
+      thread[lst] = cont; rev[cont] = lst; last[uOut] = lst;
+      if (oldRev !== vIn) { thread[oldRev] = after; rev[after] = oldRev; }
+      for (const d of dirty) rev[thread[d]] = d;
+      let sc = 0; const ls = last[uOut];
+      for (let w = uOut, p = parent[w]; w !== uIn; w = p, p = parent[w]) {
+        pred[w] = pred[p]; pdir[w] = -pdir[p];
+        sc += succ[w] - succ[p]; succ[w] = sc; last[p] = ls;
+      }
+      pred[uIn] = inArc; pdir[uIn] = uIn === src[inArc] ? 1 : -1; succ[uIn] = oldSucc;
+    }
+    const upLimit = last[join] === vIn ? join : -1, lastOut = last[uOut];
+    for (u = vIn; u !== -1 && last[u] === vIn; u = parent[u]) last[u] = lastOut;
+    if (join !== oldRev && vIn !== oldRev) { for (u = vOut; u !== upLimit && last[u] === oldLast; u = parent[u]) last[u] = oldRev; }
+    else if (lastOut !== oldLast) { for (u = vOut; u !== upLimit && last[u] === oldLast; u = parent[u]) last[u] = lastOut; }
+    for (u = vIn; u !== join; u = parent[u]) succ[u] += oldSucc;
+    for (u = vOut; u !== join; u = parent[u]) succ[u] -= oldSucc;
+    // update potentials of the moved subtree
+    const sigma = pi[vIn] - pi[uIn] - pdir[uIn] * cst[inArc], end = thread[last[uIn]];
+    for (u = uIn; u !== end; u = thread[u]) pi[u] += sigma;
+  }
+  for (let e = m; e < all; e++) if (flow[e] > 0) throw new Error("simplex: infeasible");
+  for (let k = 0; k < m; k++) { cap[2 * k] = cp[k] - flow[k]; cap[2 * k + 1] = flow[k]; }
+  this.pivots = pivots;
+  return pi.subarray(0, n);
+};
+
+// ---- constants (km-equivalent costs; all illustrative, listed in the panel's Assumptions) ----
+const K = {
+  pipeHi: 0.7, pipeHiCost: 3,   // above 70% of capacity a pipeline km costs 3x, so flow spreads before a line saturates
+  hub: 4,                        // domestic and cross-border virtual links (rail, trucks, unmapped pipes) cost 4x a pipeline km
+  sea: 0.15, port: 50, lng: 300, // a sea km costs 0.15; each port call adds 50, liquefaction plus regas adds 300
+  util: 0.95,                    // refineries run up to 95% of nameplate when crude is spare
+  // what a unit delivered is worth, in the same km-equivalents: each buyer's demand in three slices of falling value, so a shortage
+  // is shared out (everyone loses their last 20% before anyone loses more) instead of landing on whoever is furthest away
+  tiers: [[0.5, 4e5], [0.3, 3e5], [0.2, 2e5]], spare: 5e4,
+  yield: { h: 0.30, m: 0.35, d: 0.38 },   // distillate share by refinery type, used when the country has no EIA yield
+};
+const BIG = 1e9;
+
+let G = null, CE = null, CT = null, M = null, BASE = null;
+
+function fnv36(s) { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(36); }
+
+function hav(x1, y1, x2, y2) {
+  const r = Math.PI / 180, a = Math.sin((y2 - y1) * r / 2) ** 2 + Math.cos(y1 * r) * Math.cos(y2 * r) * Math.sin((x2 - x1) * r / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(a));
+}
+
+function build(pipeNames) {
+  const N = G.nodes.t.length, E = G.edges, ne = E.a.length;
+  const dir = new Uint8Array(ne); E.dir.forEach(i => dir[i] = 1);
+  const mk = comm => {
+    const S = N, T = N + 1, net = new Net(N + 2), sc = comm === "o" ? 10 : 1000;   // integer capacity units: 0.1 kb/d, 0.001 bcm/yr
+    const fw = [], bw = [];        // per graph edge: arcs carrying a->b and b->a
+    const arcEdge = [], arcNode = [];   // per forward arc: graph edge, or the node a source/sink arc belongs to (-1 if none)
+    const A = (u, v, cp, cost, e, nd) => { const a = net.arc(u, v, cp >= BIG ? BIG : Math.round(cp * sc), cost); arcEdge[a >> 1] = e; arcNode[a >> 1] = nd; return a; };
+    for (let i = 0; i < ne; i++) {
+      fw.push([]); bw.push([]);
+      const c = E.c[i], t = E.t[i];
+      if (c !== comm && c !== "*") continue;
+      const km = E.km[i], cap = E.cap[i] || BIG;
+      const add = (cp, cost) => { fw[i].push(A(E.a[i], E.b[i], cp, cost, i, -1)); if (!dir[i]) bw[i].push(A(E.b[i], E.a[i], cp, cost, i, -1)); };
+      if (t === "p") { add(cap * K.pipeHi, km); add(cap * (1 - K.pipeHi), km * K.pipeHiCost); }
+      else if (t === "l") add(BIG, km);
+      else if (t === "h" || t === "b") add(cap, km * K.hub);
+      else if (t === "s") add(BIG, km * K.sea);
+      else if (t === "t") add(cap, km * K.sea + K.port);
+      else add(cap, km * K.sea + K.lng);   // x, i
+    }
+    const src = [], snk = [];   // [arc, node, cap] ; sinks also carry a tier (1 demand, 2 spare refinery capacity)
+    let want = 0, u0 = 1;
+    const so = comm === "o" ? G.nodes.so : G.nodes.sg;
+    for (const k in so) { const a = A(S, +k, so[k], 0, -1, +k); src.push([a, +k, so[k]]); want += net.cap0[a]; }
+    const demand = (k, c) => K.tiers.forEach(([sh, v]) => snk.push([A(+k, T, c * sh, -v, -1, +k), +k, c * sh, 1]));
+    if (comm === "o") {
+      let cap = 0; for (const k in G.nodes.dr) cap += G.nodes.dr[k];
+      u0 = Math.min(K.util, want / sc / cap);   // refineries want the world average run rate; spare crude fills them up to K.util
+      for (const k in G.nodes.dr) {
+        const c = G.nodes.dr[k];
+        demand(k, c * u0);
+        snk.push([A(+k, T, c * (K.util - u0), -K.spare, -1, +k), +k, c * (K.util - u0), 2]);
+      }
+    } else for (const k in G.nodes.dg) demand(k, G.nodes.dg[k]);
+    // supply nobody can take stays in the ground or in storage (oil) or is stranded (gas)
+    const slack = A(S, T, BIG, 0, -1, -1);
+    net.freeze();
+    return { comm, sc, net, S, T, fw, bw, arcEdge: Int32Array.from(arcEdge), arcNode: Int32Array.from(arcNode), src, snk, slack, want, u0 };
+  };
+  M = { o: mk("o"), g: mk("g"), N, ne, iso: i => G.nodes.k[i] >= 0 ? G.countries[G.nodes.k[i]] : null };
+  M.pipeEdges = {};
+  if (pipeNames) for (const k in E.ref) { const nm = pipeNames[E.ref[k]]; if (nm) (M.pipeEdges[fnv36(nm)] = M.pipeEdges[fnv36(nm)] || []).push(+k); }
+}
+
+// shocks -> remaining share (0..1) per node and per graph edge
+function effects(shocks) {
+  const nodeF = new Map(), edgeF = new Map(), notes = [];
+  const mul = (m, i, f) => m.set(i, (m.has(i) ? m.get(i) : 1) * f);
+  for (const sh of shocks) {
+    const f = 1 - Math.max(0, Math.min(1, +sh.m));
+    if (["refinery", "field", "port", "lng"].includes(sh.k)) {
+      const i = G.ids[sh.t];
+      if (i === undefined) notes.push(`${sh.k} ${sh.t}: not in the energy network`); else mul(nodeF, i, f);
+    } else if (sh.k === "pipeline") {
+      const es = M.pipeEdges[sh.t];
+      if (!es) notes.push(`pipeline ${sh.t}: not in the energy network (not operating, or not joined up)`); else es.forEach(e => mul(edgeF, e, f));
+    } else if (sh.k === "choke") {
+      (G.choke[sh.t] || []).forEach(e => mul(edgeF, e, f));
+    } else if (sh.k === "zone" && Array.isArray(sh.t)) {
+      const [lon, lat, km] = sh.t, X = G.nodes.x, Y = G.nodes.y, T = G.nodes.t;
+      for (let i = 0; i < M.N; i++) if ("FRPXIDJ".includes(T[i]) && hav(lon, lat, X[i] / 100, Y[i] / 100) <= km) mul(nodeF, i, f);
+    }
+  }
+  return { nodeF, edgeF, notes };
+}
+
+// remaining share for one forward arc: its graph edge, the junctions/ports/terminals it touches, or its facility
+function arcFactor(P, a, fx) {
+  const e = P.arcEdge[a >> 1], nd = P.arcNode[a >> 1];
+  if (nd >= 0) return fx.nodeF.has(nd) ? fx.nodeF.get(nd) : 1;
+  if (e < 0) return 1;
+  let f = fx.edgeF.has(e) ? fx.edgeF.get(e) : 1;
+  for (const v of [G.edges.a[e], G.edges.b[e]]) if (fx.nodeF.has(v) && "JPXI".includes(G.nodes.t[v])) f *= fx.nodeF.get(v);
+  return f;
+}
+
+function baseline(comm) {
+  const P = M[comm], net = P.net, cap = net.cap0.slice(), exc = new Float64Array(net.n), pot = new Float64Array(net.n);
+  exc[P.S] = P.want; exc[P.T] = -P.want;
+  const t0 = Date.now(), pot2 = Float64Array.from(net.simplex(cap, exc));
+  return { cap, pot: pot2, paths: net.pivots, ms: Date.now() - t0 };
+}
+
+// warm start: copy the baseline, cut flow above each shocked arc's new capacity, then route the resulting excess
+function scenario(comm, fx, B) {
+  const P = M[comm], net = P.net, cap = B.cap.slice(), pot = B.pot.slice(), exc = new Float64Array(net.n);
+  for (let a = 0; a < net.to.length; a += 2) {
+    const f = arcFactor(P, a, fx);
+    if (f >= 1) continue;
+    const flow = cap[a ^ 1], c0 = net.cap0[a];
+    const nc = (c0 >= BIG ? flow : c0) * f;   // an uncapacitated link (sea lane, local link) keeps 1-m of today's flow
+    if (flow > nc) {
+      const d = flow - nc, u = net.to[a ^ 1], v = net.to[a];
+      cap[a ^ 1] = nc; cap[a] = 0; exc[u] += d; exc[v] -= d;
+    } else cap[a] = nc - flow;
+  }
+  const t0 = Date.now(), paths = net.solve(cap, exc, pot);
+  let left = 0; for (let v = 0; v < net.n; v++) if (exc[v] > 1e-6) left += exc[v] / P.sc;
+  return { cap, pot, paths, ms: Date.now() - t0, left };
+}
+
+// read flows and per-node results out of a residual
+function readout(comm, R, fx) {
+  const P = M[comm], net = P.net, cap = R.cap, fl = a => cap[a ^ 1] / P.sc;
+  const flow = new Float64Array(M.ne);
+  for (let i = 0; i < M.ne; i++) { let v = 0; for (const a of P.fw[i]) v += fl(a); for (const a of P.bw[i]) v -= fl(a); flow[i] = v; }
+  const sup = {}, got = {}, want = {};
+  for (const [a, i] of P.src) sup[i] = (sup[i] || 0) + fl(a);
+  for (const [a, i, c, tier] of P.snk) {
+    got[i] = (got[i] || 0) + fl(a);
+    if (tier === 1) want[i] = (want[i] || 0) + c * (fx && fx.nodeF.has(i) ? fx.nodeF.get(i) : 1);
+  }
+  return { flow, sup, got, want, slack: fl(P.slack), paths: R.paths, ms: R.ms, left: R.left || 0 };
+}
+
+function countryRoll(O, Gs) {
+  const by = {}, rt = G.rt;
+  const add = (k, key, v) => { if (!k || !v) return; const o = by[k] = by[k] || {}; o[key] = (o[key] || 0) + v; };
+  for (const i in O.got) {
+    const k = M.iso(+i), th = O.got[i];
+    add(k, "run", th);
+    add(k, "dsl", th * ((CE && CE[k] && CE[k].dy) || K.yield[rt[i]] || 0.35));
+  }
+  for (const i in O.sup) add(M.iso(+i), "crude", O.sup[i]);
+  for (const i in Gs.got) add(M.iso(+i), "gas", Gs.got[i]);
+  for (const i in Gs.want) add(M.iso(+i), "gasShort", Math.max(0, Gs.want[i] - (Gs.got[i] || 0)));
+  for (const i in Gs.sup) add(M.iso(+i), "gasProd", Gs.sup[i]);
+  return by;
+}
+
+function virtualShare(R) {
+  let v = 0, all = 0;
+  for (let i = 0; i < M.ne; i++) { const f = Math.abs(R.flow[i]) * G.edges.km[i]; all += f; if ("hb".includes(G.edges.t[i])) v += f; }
+  return all ? v / all : 0;
+}
+
+const FIELDS = ["run", "dsl", "crude", "gas", "gasShort", "gasProd"];
+
+function compare(B, S) {
+  const rows = [];
+  for (const k of new Set([...Object.keys(B.c), ...Object.keys(S.c)])) {
+    const b = B.c[k] || {}, s = S.c[k] || {}, r = { k };
+    for (const f of FIELDS) r[f] = [b[f] || 0, s[f] || 0];
+    // power: the new gas shortfall as a share of national gas use, applied to the country's gas-fired capacity (GW)
+    const gc = (CE && CE[k] && CE[k].gc) || 0, pw = (CT && CT[k] && CT[k].pw_gas) || 0, dg = r.gasShort[1] - r.gasShort[0];
+    r.gw = [0, gc > 0 && dg > 0 ? Math.min(1, dg / gc) * pw : 0];
+    if (FIELDS.some(f => Math.abs(r[f][1] - r[f][0]) > 1e-3) || r.gw[1] > 1e-3) rows.push(r);
+  }
+  // edges whose flow moved: [edge, base, scenario, commodity]
+  const moved = [];
+  for (let i = 0; i < M.ne; i++) {
+    const c = G.edges.c[i];
+    if (c !== "g") { const b = B.o.flow[i], s = S.o.flow[i]; if (Math.abs(s - b) > 5) moved.push([i, +b.toFixed(1), +s.toFixed(1), "o"]); }
+    if (c !== "o") { const b = B.g.flow[i], s = S.g.flow[i]; if (Math.abs(s - b) > 0.2) moved.push([i, +b.toFixed(2), +s.toFixed(2), "g"]); }
+  }
+  const world = {};
+  for (const f of FIELDS) {
+    world[f] = [0, 0];
+    for (const k in B.c) world[f][0] += B.c[k][f] || 0;
+    for (const k in S.c) world[f][1] += S.c[k][f] || 0;
+  }
+  world.gw = [0, rows.reduce((a, r) => a + r.gw[1], 0)];
+  world.stock = [B.o.slack, S.o.slack];
+  world.strand = [B.g.slack, S.g.slack];
+  world.virt = [virtualShare(B.o), virtualShare(S.o)];
+  const chokes = {};
+  for (const c in G.choke) {
+    const o = [0, 0], g = [0, 0];
+    for (const e of G.choke[c]) { o[0] += Math.abs(B.o.flow[e]); o[1] += Math.abs(S.o.flow[e]); g[0] += Math.abs(B.g.flow[e]); g[1] += Math.abs(S.g.flow[e]); }
+    chokes[c] = { o, g };
+  }
+  return { rows, moved, world, chokes, notes: S.notes || [], ms: S.o.ms + S.g.ms, paths: [S.o.paths, S.g.paths], left: S.o.left + S.g.left };
+}
+
+function init(d) {
+  G = d.graph; CE = d.energy && d.energy.countries; CT = d.totals;
+  build(d.pipes);
+  const o = baseline("o"), g = baseline("g");
+  BASE = { ro: o, rg: g };
+  BASE.o = readout("o", o); BASE.g = readout("g", g); BASE.c = countryRoll(BASE.o, BASE.g);
+  return { ms: o.ms + g.ms, paths: [o.paths, g.paths], world: compare(BASE, BASE).world, u0: M.o.u0, consts: K };
+}
+
+function runShocks(shocks) {
+  const fx = effects(shocks);
+  const o = scenario("o", fx, BASE.ro), g = scenario("g", fx, BASE.rg);
+  const S = { o: readout("o", o, fx), g: readout("g", g, fx), notes: fx.notes };
+  S.c = countryRoll(S.o, S.g);
+  return compare(BASE, S);
+}
+
+if (typeof self !== "undefined" && typeof self.postMessage === "function" && typeof module === "undefined") {
+  let latest = 0;
+  self.onmessage = ev => {
+    const d = ev.data;
+    try {
+      if (d.type === "init") self.postMessage({ type: "ready", baseline: init(d) });
+      else if (d.type === "run") { latest = d.id; const r = runShocks(d.shocks); if (d.id === latest) self.postMessage({ type: "result", id: d.id, ...r }); }
+    } catch (e) { self.postMessage({ type: "error", id: d.id, message: String(e && e.stack || e) }); }
+  };
+}
+</script>
+<script id="simWater">
+// River-basin drought model for Scenarios. Pure functions over basins.json (B) and the Aqueduct basin stress (W), no DOM;
+// tests/water.test.mjs runs this block in a vm. Basin i is feature i of water_risk.geojson.
+const WATER = {
+  cut: [0.1, 0.2, 0.4, 0.8],   // Aqueduct baseline water stress bands: withdrawals over available water
+  stop: 0.01,                  // downstream, the effect fades out once under 1% of a basin's flow is lost
+  leave: [[0.75, 0.05], [0.4, 0.03], [0.15, 0.01]],   // [share of water lost, share of people who leave], once stress is high
+  near: 20, reach: [500, 1000],   // receiving cities: within 500 km (1000 if none), pulled by population / distance², distance floored at 20 km
+  show: 8,                     // destination cities drawn and listed
+  plant: 0.25                  // power plants in a basin losing at least this share of its water are flagged
+};
+
+function waterCat(r) { let c = 0; while (c < 4 && r >= WATER.cut[c]) c++; return c; }
+
+function waterKm(x1, y1, x2, y2) {
+  const r = Math.PI / 180, a = Math.sin((y2 - y1) * r / 2) ** 2 + Math.cos(y1 * r) * Math.cos(y2 * r) * Math.sin((x2 - x1) * r / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(a));
+}
+
+// upstream neighbours of each basin, from the downstream links
+function waterUp(B) {
+  if (B._up) return B._up;
+  const up = B.dn.map(() => []);
+  B.dn.forEach((d, i) => { if (d >= 0 && d !== i) up[d].push(i); });
+  return (B._up = up);
+}
+
+// shocks: [{t: Pfafstetter code (string or number), m: 0..1 share of water lost}]. Each dries the basin and everything upstream
+// of it by m; basins downstream lose m times the dried catchment's share of their upstream area.
+// W: {wr: raw stress ratio per basin (null if unknown), ws: Aqueduct category per basin (-1 arid and little used, -9999 no data)}
+function waterImpact(B, W, shocks) {
+  const n = B.n, rem = new Float64Array(n).fill(1), up = waterUp(B), notes = [];
+  for (const s of shocks) {
+    const m = Math.max(0, Math.min(1, +s.m)), at = [];
+    for (let i = 0; i < n; i++) if (String(B.pf[i]) === String(s.t)) at.push(i);
+    if (!at.length) { notes.push(`basin ${s.t}: not in the data`); continue; }
+    if (!m) continue;
+    const seen = new Set(at), q = at.slice();
+    while (q.length) for (const u of up[q.pop()]) if (!seen.has(u)) { seen.add(u); q.push(u); }
+    seen.forEach(i => rem[i] *= 1 - m);
+    let ua = 0; at.forEach(i => ua = Math.max(ua, B.ua[i] || 0));
+    for (const i0 of at) {
+      let j = B.dn[i0];
+      while (j >= 0 && !seen.has(j)) {
+        const f = m * Math.min(1, ua / Math.max(B.ua[j] || 0, ua || 1));
+        if (f < WATER.stop) break;
+        rem[j] *= 1 - f; seen.add(j); j = B.dn[j];
+      }
+    }
+  }
+  const basins = [], hit = new Uint8Array(n);
+  let moved = 0, exposed = 0, people = 0;
+  const leave = loss => { for (const [l, r] of WATER.leave) if (loss >= l) return r; return 0; };
+  for (let i = 0; i < n; i++) {
+    const loss = 1 - rem[i];
+    if (loss < WATER.stop) continue;
+    hit[i] = 1;
+    const wr0 = W.wr[i], c0 = wr0 == null ? W.ws[i] : waterCat(wr0);
+    const wr1 = wr0 == null ? null : wr0 / Math.max(rem[i], 1e-3), c1 = wr1 == null ? c0 : waterCat(wr1);
+    const pop = B.pop[i] || 0, mv = c1 >= 3 ? pop * leave(loss) : 0;
+    people += pop; moved += mv;
+    if (c1 >= 3 && c1 > c0) exposed += pop;
+    basins.push({ i, loss, wr0, wr1, c0, c1, pop, mv });
+  }
+  // where people go: cities in basins this left alone and that aren't short of water themselves
+  const ok = b => !hit[b] && W.wr[b] != null && waterCat(W.wr[b]) <= 2;
+  const cand = (B.cities || []).filter(c => ok(c[4]));
+  const recv = new Map();
+  let placed = 0;
+  for (const b of basins) {
+    if (!b.mv) continue;
+    const x = B.cx[b.i] / 100, y = B.cy[b.i] / 100;
+    let ws = [];
+    for (const R of WATER.reach) {
+      ws = [];
+      for (const c of cand) {
+        if (Math.abs(c[2] / 100 - y) > R / 111) continue;
+        const d = waterKm(x, y, c[1] / 100, c[2] / 100);
+        if (d <= R) ws.push([c, c[3] / Math.max(d, WATER.near) ** 2]);
+      }
+      if (ws.length) break;
+    }
+    const tot = ws.reduce((a, w) => a + w[1], 0);
+    if (!tot) continue;
+    for (const [c, w] of ws) {
+      const v = b.mv * w / tot, r = recv.get(c) || { n: 0, sx: 0, sy: 0 };
+      r.n += v; r.sx += v * x; r.sy += v * y; recv.set(c, r);
+    }
+    placed += b.mv;
+  }
+  const dest = [...recv].sort((a, b) => b[1].n - a[1].n || a[0][0].localeCompare(b[0][0]))
+    .map(([c, r]) => ({ n: c[0], x: c[1] / 100, y: c[2] / 100, pop: c[3], b: c[4], people: r.n, from: [r.sx / r.n, r.sy / r.n] }));
+  const by = {};
+  for (const b of basins) {
+    const k = B.k[b.i] >= 0 ? B.countries[B.k[b.i]] : null;
+    if (!k) continue;
+    const o = by[k] = by[k] || { people: 0, exposed: 0, moved: 0 };
+    o.people += b.pop; o.moved += b.mv; if (b.c1 >= 3 && b.c1 > b.c0) o.exposed += b.pop;
+  }
+  return { basins, people, exposed, moved, placed, dest, countries: by, notes };
+}
+</script>
+<script id="simTransport">
+// Road and rail detours around Scenarios zones. Pure functions over transport_graph.json, no DOM;
+// tests/transport.test.mjs runs this block in a vm. Travel times are in hours.
+const TRANSPORT = {
+  speed: { road: 70, fast: 100, rail: 80 },   // km/h: ordinary road, expressway, train
+  partners: 25, reach: 1500, near: 20,        // each city's trips go to its 25 strongest partners within 1500 km, pull = population × population / distance² (distance floored at 20 km)
+  ellipse: 1.6,                               // a trip is only checked against a zone inside this multiple of its straight-line length
+  closed: 0.99,                               // damage at or above this closes the lines; below it, time through the zone is divided by (1 - damage)
+  giveUp: [3, 6]                              // a detour over 3 × today's time + 6 h counts as no practical route (the mapped network is sparse)
+};
+
+function trKm(x1, y1, x2, y2) {
+  const r = Math.PI / 180, a = Math.sin((y2 - y1) * r / 2) ** 2 + Math.cos(y1 * r) * Math.cos(y2 * r) * Math.sin((x2 - x1) * r / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(a));
+}
+
+// one network of transport_graph.json as arrays: edges in file order, each with the part and key range it covers, and adjacency
+function transportNet(N, kind) {
+  const ea = [], eb = [], ep = [], k0 = [], k1 = [], h = [], km = [], fast = new Set(N.fast || []);
+  let e = 0;
+  N.parts.forEach((row, pi) => {
+    const v = fast.has(pi) ? TRANSPORT.speed.fast : TRANSPORT.speed[kind];
+    let prev = 0;
+    for (let j = 2; j < row.length; j += 2) {
+      ea.push(row[j - 2]); eb.push(row[j]); ep.push(pi); k0.push(prev); k1.push(row[j - 1]); prev = row[j - 1];
+      km.push(N.km[e] / 10); h.push(N.km[e++] / 10 / v);
+    }
+  });
+  const n = N.x.length, m = ea.length, off = new Int32Array(n + 1), adj = new Int32Array(2 * m);
+  for (let i = 0; i < m; i++) { off[ea[i] + 1]++; off[eb[i] + 1]++; }
+  for (let i = 0; i < n; i++) off[i + 1] += off[i];
+  const fill = off.slice(0, n);
+  for (let i = 0; i < m; i++) { adj[fill[ea[i]]++] = i; adj[fill[eb[i]]++] = i; }
+  return { kind, n, m, x: N.x, y: N.y, city: N.city, ea: Int32Array.from(ea), eb: Int32Array.from(eb), ep: Int32Array.from(ep),
+    k0: Int32Array.from(k0), k1: Int32Array.from(k1), h: Float64Array.from(h), km: Float64Array.from(km), off, adj };
+}
+
+// shortest times from src until every target node is settled; mult (optional) scales each edge's time, Infinity closes it
+function trDijkstra(G, src, targets, mult) {
+  const dist = new Float64Array(G.n).fill(Infinity), pred = new Int32Array(G.n).fill(-1), done = new Uint8Array(G.n);
+  const hk = [], hv = [];
+  const push = (k, v) => {
+    let i = hk.length; hk.push(k); hv.push(v);
+    while (i > 0) { const p = (i - 1) >> 1; if (hk[p] <= k) break; hk[i] = hk[p]; hv[i] = hv[p]; i = p; }
+    hk[i] = k; hv[i] = v;
+  };
+  const pop = () => {
+    const v = hv[0], k = hk.pop(), w = hv.pop(), n = hk.length;
+    if (n) {
+      let i = 0;
+      for (;;) {
+        let c = 2 * i + 1; if (c >= n) break;
+        if (c + 1 < n && hk[c + 1] < hk[c]) c++;
+        if (hk[c] >= k) break;
+        hk[i] = hk[c]; hv[i] = hv[c]; i = c;
+      }
+      hk[i] = k; hv[i] = w;
+    }
+    return v;
+  };
+  let left = targets.size;
+  dist[src] = 0; push(0, src);
+  while (hk.length && left) {
+    const u = pop();
+    if (done[u]) continue;
+    done[u] = 1;
+    if (targets.has(u)) left--;
+    for (let q = G.off[u]; q < G.off[u + 1]; q++) {
+      const e = G.adj[q], f = mult ? mult[e] : 1;
+      if (f === Infinity) continue;
+      const v = G.ea[e] === u ? G.eb[e] : G.ea[e], d = dist[u] + G.h[e] * f;
+      if (d < dist[v]) { dist[v] = d; pred[v] = e; push(d, v); }
+    }
+  }
+  return { dist, pred };
+}
+function trPath(G, R, t) {
+  const out = [];
+  for (let v = t, e; (e = R.pred[v]) >= 0; v = G.ea[e] === v ? G.eb[e] : G.ea[e]) out.push(e);
+  return out;
+}
+
+// each city's partners on one network: [[j, trips]], trips summing to the city's population
+function trPartners(C, G, i) {
+  const x = C.x[i] / 100, y = C.y[i] / 100, out = [];
+  for (let j = 0; j < C.n.length; j++) {
+    if (j === i || G.city[j] < 0 || Math.abs(C.y[j] / 100 - y) > TRANSPORT.reach / 111) continue;
+    const d = trKm(x, y, C.x[j] / 100, C.y[j] / 100);
+    if (d <= TRANSPORT.reach) out.push([j, C.pop[i] * C.pop[j] / Math.max(d, TRANSPORT.near) ** 2]);
+  }
+  out.sort((a, b) => b[1] - a[1] || a[0] - b[0]);
+  const top = out.slice(0, TRANSPORT.partners), s = top.reduce((a, p) => a + p[1], 0);
+  return top.map(([j, w]) => [j, w / s * C.pop[i]]);
+}
+
+// how much slower each edge gets: zones are [{x, y, r (km), m (damage 0-1)}]
+function trSlow(G, zones) {
+  const mult = new Float64Array(G.m).fill(1);
+  let hit = 0;
+  for (const z of zones) {
+    if (!(z.m > 0)) continue;
+    const f = z.m >= TRANSPORT.closed ? Infinity : 1 / (1 - z.m), c = Math.cos(z.y * Math.PI / 180), R = z.r / 111.2;
+    for (let e = 0; e < G.m; e++) {
+      const ax = (G.x[G.ea[e]] / 100 - z.x) * c, ay = G.y[G.ea[e]] / 100 - z.y, bx = (G.x[G.eb[e]] / 100 - z.x) * c, by = G.y[G.eb[e]] / 100 - z.y;
+      if (Math.min(ax, bx) > R || Math.max(ax, bx) < -R || Math.min(ay, by) > R || Math.max(ay, by) < -R) continue;
+      const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L)) : 0;
+      if (Math.hypot(ax + t * dx, ay + t * dy) <= R) { if (mult[e] === 1) hit++; mult[e] *= f; }
+    }
+  }
+  return { mult, hit };
+}
+
+// Trips between cities near the zones, before and after. T: transport_graph.json; G: transportNet of one of its networks;
+// cache: a Map kept between calls (partners and today's routes don't depend on the zones).
+function transportImpact(T, G, zones, cache) {
+  const C = T.cities, nc = C.n.length, zs = zones.filter(z => z.m > 0);
+  const out = { kind: G.kind, edges: 0, km: 0, total: 0, inZone: 0, through: 0, slowW: 0, cutW: 0, dh: 0, h0: 0, pairs: [], dvol: new Map(), inside: [] };
+  if (!zs.length) return out;
+  const { mult, hit } = trSlow(G, zs);
+  out.edges = hit;
+  for (let e = 0; e < G.m; e++) if (mult[e] !== 1) out.km += G.km[e];
+  const cx = i => C.x[i] / 100, cy = i => C.y[i] / 100;
+  const inside = new Float64Array(nc), maxR = Math.max(...zs.map(z => z.r));
+  for (let i = 0; i < nc; i++) for (const z of zs) if (trKm(z.x, z.y, cx(i), cy(i)) <= z.r) inside[i] = Math.max(inside[i], z.m);
+  const partners = i => { const k = G.kind + "p" + i; if (!cache.has(k)) cache.set(k, trPartners(C, G, i)); return cache.get(k); };
+  const add = (path, w) => { for (const e of path) out.dvol.set(e, (out.dvol.get(e) || 0) + w); };
+  for (let i = 0; i < nc; i++) {
+    if (G.city[i] < 0 || !zs.some(z => trKm(z.x, z.y, cx(i), cy(i)) <= TRANSPORT.reach + maxR)) continue;
+    if (inside[i]) out.inside.push(i);
+    const near = [];
+    for (const [j, w] of partners(i)) {
+      out.total += w;
+      if (inside[i] || inside[j]) { out.inZone += w * Math.max(inside[i], inside[j]); continue; }
+      if (!hit) continue;
+      const d = trKm(cx(i), cy(i), cx(j), cy(j));
+      if (zs.some(z => trKm(cx(i), cy(i), z.x, z.y) + trKm(z.x, z.y, cx(j), cy(j)) <= TRANSPORT.ellipse * d + 2 * z.r)) near.push([j, w]);
+    }
+    if (!near.length) continue;
+    // today's routes from i, kept for every partner
+    const bk = G.kind + "b" + i;
+    if (!cache.has(bk)) {
+      const ps = partners(i), R = trDijkstra(G, G.city[i], new Set(ps.map(([j]) => G.city[j])));
+      cache.set(bk, new Map(ps.map(([j]) => [j, { h: R.dist[G.city[j]], path: trPath(G, R, G.city[j]) }])));
+    }
+    const base = cache.get(bk), touched = near.filter(([j]) => base.get(j).h < Infinity && base.get(j).path.some(e => mult[e] !== 1));
+    if (!touched.length) continue;
+    const R = trDijkstra(G, G.city[i], new Set(touched.map(([j]) => G.city[j])), mult);
+    for (const [j, w] of touched) {
+      const b = base.get(j), h1 = R.dist[G.city[j]];
+      out.through += w; add(b.path, -w);
+      if (h1 > TRANSPORT.giveUp[0] * b.h + TRANSPORT.giveUp[1]) out.cutW += w;
+      else {
+        add(trPath(G, R, G.city[j]), w);
+        if (h1 > b.h + 1e-9) { out.slowW += w; out.dh += w * (h1 - b.h); out.h0 += w * b.h; }
+      }
+      out.pairs.push({ i, j, w, h0: b.h, h1 });
+    }
+  }
+  for (const [e, v] of out.dvol) if (Math.abs(v) < 1e-9) out.dvol.delete(e);
+  return out;
+}
+</script>
+<script type="text/plain" id="simTransportWorker">
+// Worker side of the road and rail model: the #simTransport text is put in front of this.
+// init {url} loads transport_graph.json; run {id, zones} answers with each network's result and the lines whose traffic changed.
+let TG = null, NET = {}, CACHE = new Map();
+onmessage = async ev => {
+  const d = ev.data;
+  try {
+    if (d.type === "init") {
+      const r = await fetch(d.url);
+      if (!r.ok) throw new Error("transport_graph.json: HTTP " + r.status);
+      TG = await r.json();
+      for (const k of ["road", "rail"]) NET[k] = transportNet(TG[k], k);
+      postMessage({ type: "ready", check: { road: TG.road.check[0], rail: TG.rail.check[0] }, snapKm: TG.snapKm, cityKm: TG.cityKm, names: TG.cities.n });
+      return;
+    }
+    const t0 = Date.now(), out = {};
+    for (const k of ["road", "rail"]) {
+      const G = NET[k], r = transportImpact(TG, G, d.zones, CACHE), g = TRANSPORT.giveUp;
+      // [part, key from, key to, change in trips, then the two stops' coordinates for drawing a straight line if the parts don't match]
+      r.lines = [...r.dvol].map(([e, v]) => [G.ep[e], G.k0[e], G.k1[e], v, G.x[G.ea[e]] / 100, G.y[G.ea[e]] / 100, G.x[G.eb[e]] / 100, G.y[G.eb[e]] / 100]);
+      delete r.dvol;
+      const cost = p => p.w * (Math.min(p.h1, g[0] * p.h0 + g[1]) - p.h0);
+      // trips both ways between two cities are one pair
+      const both = new Map();
+      for (const p of r.pairs) if (p.h1 > p.h0 + 1e-9) { const k = Math.min(p.i, p.j) + "," + Math.max(p.i, p.j), q = both.get(k); if (q) q.w += p.w; else both.set(k, { ...p }); }
+      r.pairs = [...both.values()].sort((a, b) => cost(b) - cost(a)).slice(0, 6).map(p => ({ ...p, cut: p.h1 > g[0] * p.h0 + g[1] }));
+      out[k] = r;
+    }
+    postMessage({ type: "result", id: d.id, ms: Date.now() - t0, out });
+  } catch (e) { postMessage({ type: "error", id: d.id, message: String((e && e.message) || e) }); }
+};
+</script>
+<script src="vendor/maplibre-gl.js"></script>
+<script src="vendor/pmtiles.js"></script>
 <script>
 (function () {
   "use strict";
@@ -549,7 +1331,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     steel:  { label: "Steel plant", plural: "plants", short: "Steel", color: "--steel", k: 1.3, unit: "Mt/yr" },
     cement: { label: "Cement plant", plural: "plants", short: "Cement", color: "--cement", k: 1.0, unit: "Mt/yr" },
     chem:   { label: "Chemical plant", plural: "plants", short: "Chemicals", color: "--chem", k: 3, unit: "plants", count: true },
-    lng:    { label: "LNG terminal", plural: "terminals", short: "LNG", color: "--oil", k: 2.0, unit: "Mt/yr", ring: true }
+    lng:    { label: "LNG terminal", plural: "terminals", short: "LNG", color: "--oil", k: 2.0, unit: "Mt/yr", ring: true },
+    refinery: { label: "Oil refinery", plural: "refineries", short: "Refineries", color: "--refinery", k: 12, unit: "M bbl/d" }
   };
   const PTS = Object.keys(Q);
   const ZF = [1, 0.55, 3, 0.7, 6, 1, 9, 2.6, 12, 5, 15, 9];
@@ -571,40 +1354,152 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     foot: { layers: ["foot-pts", "foot_w-fill", "foot_w-line", "foot_c-fill", "foot_c-line", "foot_e-fill", "foot_e-line"], data: ["foot"] },
     power: { layers: ["power-pts"], data: ["power"] }, steel: { layers: ["steel-pts"], data: ["steel"] },
     cement: { layers: ["cement-pts"], data: ["cement"] }, chem: { layers: ["chem-pts"], data: ["chem"] },
-    lng: { layers: ["lng-pts"], data: ["lng"] },
+    lng: { layers: ["lng-pts"], data: ["lng"] }, refinery: { layers: ["refinery-pts"], data: ["refinery"] },
     outlines: { layers: ["og-outline", "og-outline-line", "cb-fill", "cb-line"], data: ["oilgas_outlines", "coal_boundaries"] },
     pipes: { layers: ["pipes-oil", "pipes-gas"], data: ["pipelines"] }, lanes: { layers: ["lanes"], data: ["shipping"] },
     ports: { layers: ["ports-pts"], data: ["ports"] }, rail: { layers: ["rail", "rail-ties"], data: ["rail"] }, roads: { layers: ["roads"], data: ["roads"] },
     osm: { layers: ["osm-water", "osm-bldg", "osm-case", "osm-street", "osm-rail", "osm-names"], data: [] },
     choke: { layers: [], data: ["chokepoints"] }, rivers: { layers: ["rivers"], data: ["rivers"] },
     terrain: { layers: ["hillshade"], data: [] }, lakes: { layers: ["lakes", "lakes-line"], data: ["lakes"] }, ice: { layers: ["glaciers"], data: ["glaciers"] },
-    names: { layers: ["borders"], data: [] }, disputed: { layers: ["disputed", "disputed-lines"], data: [] }, maritime: { layers: ["maritime"], data: [] },
+    names: { layers: ["borders"], data: [] }, disputed: { layers: ["disputed", "disputed-edge", "disputed-lines"], data: [] }, maritime: { layers: ["maritime"], data: [] },
     fires: { layers: ["fires-pts"], data: ["fires"] }, events: { layers: ["events-pts"], data: ["events"] },
     ships: { layers: ["ships-pts"], data: ["ships"] }, aircraft: { layers: ["aircraft-pts"], data: ["aircraft"] }, jets: { layers: ["jets-pts"], data: ["jets"] }, airliners: { layers: ["airliners-pts"], data: ["airliners"] }, navy: { layers: ["navy-pts"], data: ["navy"] },
     cables: { layers: ["cables", "cables-plan", "landings-pts"], data: ["cables", "landings"] },
     bases: { layers: ["bases-pts"], data: ["bases"] }, airports: { layers: ["airports-l", "airports-m", "airports-s"], data: ["airports"] }, dc: { layers: ["dc-pts"], data: ["dc"] }
   };
+  // Preset views. on: layer checkboxes; fuel/mineral/fire/bases/air/status: sub-filters; base: background shading;
+  // img: satellite imagery ("geo"/"geoir" pick the geostationary satellite over the map centre) with optional opacity;
+  // agri: farmland layer; note: what the view is for; x: a cross-domain connection worth checking; go: an example place
   const VIEWS = {
-    overview: { on: ["oilgas", "coal", "crit", "iron", "power", "steel", "lng", "pipes", "lanes", "choke", "lakes", "ice"], fuel: "", base: "" },
-    resources: { on: ["oilgas", "coal", "crit", "iron", "foot", "outlines", "rivers", "lakes", "ice", "terrain"], fuel: "", base: "" },
-    industry: { on: ["power", "steel", "cement", "chem", "lng", "dc", "cables", "lakes", "ice"], fuel: "", base: "" },
-    transport: { on: ["pipes", "lng", "lanes", "cables", "ports", "rail", "roads", "osm", "choke", "airports", "lakes", "ice"], fuel: "", base: "" },
-    water: { on: ["rivers", "lakes", "ice", "power", "terrain"], fuel: "hydro", base: "w:ws" },
-    security: { on: ["bases", "airports", "ports", "events", "fires", "aircraft", "ships", "navy", "cables", "choke", "lanes", "lakes", "ice"], fuel: "", base: "" }
+    overview: { g: "Start here", label: "Overview: extraction & industry", on: ["oilgas", "coal", "crit", "iron", "power", "steel", "lng", "pipes", "lanes", "choke", "lakes", "ice"],
+      note: "Where the world's oil, gas, coal, ore and critical minerals come out of the ground, and the plants, pipelines and sea lanes that move and use them." },
+    now: { g: "Start here", label: "Now: news & live events", on: ["events", "fires", "ships", "navy", "aircraft", "choke", "lanes", "lakes"], fire: "noind",
+      note: "The latest snapshot of conflict reports, fires (industrial heat left out), large ships, US Navy positions and military aircraft. Click a country or report for recent articles.",
+      x: "The Storyboard ranks places where reports jumped far above their usual level; a surge next to a <b>chokepoint</b> or <b>pipeline</b> often moves markets before it makes headlines.",
+      go: { story: true, label: "Open the storyboard" } },
+    everyday: { g: "Start here", label: "Around me: streets, travel, hazards", on: ["osm", "rail", "airports", "rivers", "lakes", "terrain", "fires", "power"], fire: "noind",
+      note: "A street map with railways, airports, rivers and terrain, plus nearby fires and power plants. Search a town or address above the sources list.",
+      x: "Fires upwind of you mean smoke even when they're far away; terrain shading shows which valleys flood first.",
+      go: { locate: true, label: "Go to my location" } },
+
+    grid: { g: "Energy, grid & supply chain", label: "Power grid status & hardening", on: ["power", "dc", "pipes", "lng", "cables", "rivers", "lakes", "events"], img: "dnb20",
+      note: "Every power plant by fuel and size, the gas pipelines and LNG terminals that feed them, and data centres, over the latest full night of satellite night lights.",
+      x: "Night lights show <b>blackouts</b>: cities that went dark after storms or strikes on the grid. Compare with conflict reports and the plants that serve them. Change the day under Satellite imagery to see before and after.",
+      go: { c: [33, 48.8], z: 5.2, label: "Ukraine at night" } },
+    transition: { g: "Energy, grid & supply chain", label: "Energy transition: planned build-out", on: ["power", "crit", "lng", "lakes", "ice"], status: "plan", fuel: "solar,wind", mineral: "lithium,cobalt,nickel,graphite,manganese", base: "w:ws",
+      note: "Planned and under-construction solar and wind farms and LNG terminals, with battery-metal deposits, over today's water stress.",
+      x: "Battery metals often sit in <b>water-stressed</b> basins: lithium brine in the Atacama is pumped from aquifers in one of the driest places on Earth.",
+      go: { c: [-67.8, -23.6], z: 5.5, label: "Lithium triangle, Atacama" } },
+    supply: { g: "Energy, grid & supply chain", label: "Supply chain: ore to steel & cement", on: ["iron", "coal", "steel", "cement", "rail", "ports", "lanes", "choke"], base: "c:steel",
+      note: "Iron ore and coal mines, steel and cement plants, the railways that haul ore to port and the sea lanes in between. Countries shaded by steel capacity.",
+      x: "Most seaborne ore goes from the Pilbara and Brazil to Chinese mills, so a closure of the <b>Malacca or Lombok straits</b> would reach car and construction prices worldwide.",
+      go: { c: [118.4, -21.2], z: 5.6, label: "Pilbara iron ore" } },
+    oil: { g: "Energy, grid & supply chain", label: "Oil & gas flows", on: ["oilgas", "outlines", "pipes", "lng", "refinery", "ports", "lanes", "choke", "ships"], base: "c:og",
+      note: "Oil and gas fields and their boundaries, pipelines, LNG terminals, tankers at sea and the chokepoints they pass. Countries shaded by production.",
+      x: "About a fifth of the world's oil and LNG passes the <b>Strait of Hormuz</b>; the pipelines that bypass it (to Yanbu and Fujairah) carry only part of that.",
+      go: { c: [55.8, 26.3], z: 6, label: "Strait of Hormuz" } },
+    internet: { g: "Energy, grid & supply chain", label: "Internet: cables & data centres", on: ["cables", "dc", "power", "choke", "lanes", "ships"], base: "c:pw_gw",
+      note: "Undersea cables, their landing points and data centres, with power plants and countries shaded by generating capacity.",
+      x: "Cables bunch up in the same straits as shipping, and ships dragging <b>anchors</b> are the most common cause of cuts. Data centres need as much power as a city.",
+      go: { c: [41.5, 15.5], z: 5.3, label: "Red Sea cable corridor" } },
+    minerals: { g: "Energy, grid & supply chain", label: "Critical minerals & who holds them", on: ["crit", "foot", "rail", "ports", "bases"], base: "c:crit_n",
+      note: "Known critical-mineral deposits and mapped mine land, the rail and ports that export them, and countries shaded by deposit count.",
+      x: "Military bases near mines and ports show who protects which supply line; the <b>disputed</b> hatching marks deposits whose ownership is contested.",
+      go: { c: [26.8, -11.2], z: 6, label: "DR Congo copper & cobalt belt" } },
+
+    water: { g: "Water, climate & environment", label: "Water & hydropower", on: ["rivers", "lakes", "ice", "power", "terrain"], fuel: "hydro", base: "w:ws",
+      note: "Rivers, lakes, reservoirs and glaciers with hydropower plants, over water stress by river basin.",
+      x: "Dams upstream decide water downstream across borders: the <b>Nile</b>, Mekong, Indus and Tigris–Euphrates all have dams in one country and farms in another.",
+      go: { c: [34.5, 13], z: 4.6, label: "Grand Ethiopian Renaissance Dam & the Nile" } },
+    drought: { g: "Water, climate & environment", label: "Drought & thermal power", on: ["power", "rivers", "lakes", "ice", "fires"], fuel: "coal,gas,oil,nuclear,hydro", fire: "noind", base: "w:dr",
+      note: "Drought risk by basin with hydro, coal, gas, oil and nuclear plants, rivers and fires.",
+      x: "Coal, gas and nuclear plants are cooled by river water; in <b>heatwaves and droughts</b> they cut output just as demand for air conditioning peaks, and hydro falls at the same time.",
+      go: { c: [4.8, 45.6], z: 5.6, label: "Rhône valley nuclear plants" } },
+    env: { g: "Water, climate & environment", label: "Environmental footprint", on: ["foot", "outlines", "coal", "oilgas", "cement", "steel", "chem", "fires", "rivers"], fire: "noind", img: "eox",
+      note: "Mined land, oil and coal field boundaries, heavy industry and fires on a cloud-free 10 m satellite mosaic. Zoom past 6.5 for mine outlines.",
+      x: "Mines and smelters sit on <b>rivers</b> because they need water: tailings spills travel downstream to farms and towns far from the site.",
+      go: { c: [-111.5, 57.1], z: 8, label: "Alberta oil sands" } },
+    landuse: { g: "Water, climate & environment", label: "Deforestation & land use", on: ["foot", "fires", "roads", "rivers", "oilgas"], fire: "noind", agri: "lc",
+      note: "Yearly land cover (forest, farmland, urban) with mined land, fires and roads. Change the year under Farmland & land cover to see change.",
+      x: "Clearing follows <b>new roads</b>: fires in the dry season trace the edge of the frontier, and mines open new roads too.",
+      go: { c: [-62.5, -10.5], z: 6, label: "Rondônia, Amazon" } },
+
+    fire: { g: "Emergency, police & safety", label: "Wildfire & emergency response", on: ["fires", "airports", "osm", "power", "terrain", "rivers", "lakes", "dc"], fire: "noind", air: "", img: "vm11",
+      note: "Fire detections over the latest full day's false-colour satellite image (hot spots glow orange, burned land is dark), with every airstrip, streets, terrain and power plants.",
+      x: "Small <b>airstrips</b> are where air tankers and helicopters reload; power plants and lines in the fire's path decide who loses power next.",
+      go: { c: [-120.5, 38.5], z: 5.6, label: "California" } },
+    borders: { g: "Emergency, police & safety", label: "Borders, ports & smuggling routes", on: ["ports", "airports", "jets", "ships", "lanes", "rail", "roads"], air: "",
+      note: "Seaports, every airport and airstrip, business jets and large ships, sea lanes, railways and main roads, with maritime boundaries.",
+      x: "Remote <b>airstrips</b> near borders and ships far from the usual lanes are the classic signs of smuggling; tankers with AIS gaps near sanctioned terminals point to shadow fleets.",
+      go: { c: [-88, 17], z: 5.5, label: "Central America & the Caribbean" } },
+
+    shipping: { g: "Shipping & aviation", label: "Shipping & freight", on: ["ports", "lanes", "choke", "ships", "lng", "rail", "cables"], base: "c:ports",
+      note: "Seaports, sea lanes, chokepoints, live ships and LNG terminals, with railways inland and countries shaded by port count.",
+      x: "When a chokepoint closes, ships reroute around the Cape and freight rates jump everywhere, not just on that route; rail links to the port decide how fast cargo moves inland.",
+      go: { c: [103.8, 1.25], z: 8, label: "Singapore Strait" } },
+    mariner: { g: "Shipping & aviation", label: "At sea: captains & pilots", on: ["ships", "ports", "lanes", "choke", "navy", "events", "cables"], img: "geoir",
+      note: "Ships, ports, lanes and chokepoints over the latest infrared cloud image, with navy positions, conflict reports and undersea cables.",
+      x: "Don't anchor over <b>cables</b>; conflict reports near a strait (the Red Sea, Black Sea) mean higher war-risk insurance and possible GPS jamming.",
+      go: { c: [43.3, 13], z: 6.5, label: "Bab-el-Mandeb" } },
+    aviation: { g: "Shipping & aviation", label: "Aviation & airspace", on: ["airports", "airliners", "jets", "aircraft", "bases", "events", "fires", "terrain"], bases: "air", fire: "noind", img: "geoir",
+      note: "Large and medium airports, airliners, business jets and military aircraft over the latest infrared cloud image, with air bases and conflict reports.",
+      x: "Air bases and conflict reports mark airspace to avoid; big fires mean smoke, and heat spots on volcanoes can mean ash.",
+      go: { c: [10, 50], z: 4.2, label: "Europe" } },
+
+    security: { g: "Security & diplomacy", label: "Conflict & military", on: ["bases", "airports", "events", "fires", "aircraft", "navy", "ships", "cables", "choke", "lanes"], fire: "cf", air: "mil",
+      note: "Military bases and airfields, conflict reports, fires near reported fighting, military aircraft, US Navy ships and the sea lanes they guard.",
+      x: "Fires that appear next to conflict reports can be strikes, but also crop burning; check the satellite imagery for the day before trusting either.",
+      go: { c: [34, 46.5], z: 5, label: "Black Sea" } },
+    warinfra: { g: "Security & diplomacy", label: "Conflict × infrastructure", on: ["events", "fires", "power", "pipes", "lng", "refinery", "dc", "cables", "ports", "rail"], fire: "cf", img: "dnb20",
+      note: "Conflict reports and fires near fighting over the latest full night of night lights, with power plants, pipelines, LNG, data centres, cables, ports and railways.",
+      x: "Dark cities at night next to strikes on <b>power plants</b> show outages; rail junctions and ports near the front decide supply for both sides.",
+      go: { c: [36.5, 48.3], z: 6, label: "Eastern Ukraine" } },
+    diplomacy: { g: "Security & diplomacy", label: "Diplomacy & energy dependence", on: ["lng", "pipes", "oilgas", "choke", "lanes"], base: "c:lng_imp",
+      note: "Countries shaded by LNG import capacity, with LNG terminals, pipelines, oil and gas fields, chokepoints and sea lanes. Disputed areas and maritime boundaries stay on.",
+      x: "<b>Disputed</b> seas often sit on top of oil and gas fields (South China Sea, East Mediterranean); a country's import terminals show who it can switch to in a crisis.",
+      go: { c: [114, 12.5], z: 4.5, label: "South China Sea" } },
+    cablesnavy: { g: "Security & diplomacy", label: "Cables, chokepoints & navies", on: ["cables", "choke", "navy", "ships", "bases", "lanes", "events"], bases: "naval",
+      note: "Undersea cables and landing points with naval bases, navy and merchant ships, sea lanes and conflict reports.",
+      x: "Cables, oil and grain share the same narrow seas, so a single anchor drag in the <b>Baltic</b> or a missile in the Red Sea can hit internet, energy and trade at once.",
+      go: { c: [20, 58.3], z: 5, label: "Baltic Sea" } },
+    mineconflict: { g: "Security & diplomacy", label: "Minerals × conflict", on: ["crit", "foot", "events", "bases", "airports", "rivers"], air: "",
+      note: "Critical-mineral deposits and mine land with conflict reports, bases and airstrips.",
+      x: "Armed groups fund themselves from <b>artisanal mines</b> (tin, tantalum, tungsten, gold); airstrips near mines are how minerals leave without roads.",
+      go: { c: [28.6, -1.8], z: 6.2, label: "Eastern DR Congo" } },
+
+    farm: { g: "Farming, food & cities", label: "Farming", on: ["fires", "rivers", "lakes", "chem", "crit", "rail", "ports"], fire: "noind", mineral: "potash,phosphate", agri: "crop",
+      note: "Cropland share of land with rivers, fires (often crop burning), fertilizer and chemical plants, potash and phosphate deposits, and the railways and ports that export grain.",
+      x: "Nitrogen fertilizer is made from <b>natural gas</b> at ammonia plants, so a gas price spike reaches farm costs within a season.",
+      go: { c: [-92, 41.5], z: 5, label: "US Corn Belt" } },
+    food: { g: "Farming, food & cities", label: "Food security & grain trade", on: ["ports", "lanes", "choke", "rail", "chem", "lng", "pipes", "events"], base: "w:dr",
+      note: "Drought risk by basin with grain ports, sea lanes, chokepoints, railways, fertilizer plants, LNG, gas pipelines and conflict reports.",
+      x: "Wheat from the Black Sea passes the <b>Bosporus</b>; drought in one breadbasket and a closed strait in another together drive bread prices.",
+      go: { c: [32, 44.5], z: 4.6, label: "Black Sea grain" } },
+    city: { g: "Farming, food & cities", label: "City planning", on: ["osm", "rail", "roads", "airports", "dc", "power", "rivers", "lakes"], img: "esri",
+      note: "Streets and buildings over sharp aerial imagery, with railways, roads, airports, data centres, power plants and rivers.",
+      x: "Switch Background shading to <b>water stress 2050</b>: new data centres and housing draw on the same rivers and aquifers.",
+      go: { locate: true, label: "Go to my location" } },
+    dcwater: { g: "Farming, food & cities", label: "Data centres × water", on: ["dc", "power", "cables", "rivers", "lakes"], fuel: "coal,gas,oil,nuclear", base: "w:ws",
+      note: "Data centres, thermal power plants and cables over water stress by basin.",
+      x: "Data centres and the plants that power them both need cooling water, and many are being built in <b>desert</b> basins (Arizona, Spain, the Gulf).",
+      go: { c: [-112, 33.4], z: 7.5, label: "Phoenix" } }
   };
-  const VIEW_KEYS = ["oilgas", "coal", "crit", "iron", "foot", "outlines", "power", "steel", "cement", "chem", "lng", "pipes", "lanes", "ports", "rail", "roads", "osm", "choke", "rivers", "lakes", "ice", "terrain",
+  const VIEW_DEFAULT = { fuel: "", mineral: "", fire: "", bases: "", air: "LM", status: "all", base: "", img: "", opacity: 100, agri: "" };
+  const FUEL_LABEL = { "coal,gas,oil,nuclear": "Thermal (coal, gas, oil, nuclear)", "coal,gas,oil,nuclear,hydro": "Thermal & hydro" };
+  const MINERAL_LABEL = { "potash,phosphate": "Fertilizer minerals (potash, phosphate)" };
+  const VIEW_KEYS = ["oilgas", "coal", "crit", "iron", "foot", "outlines", "power", "steel", "cement", "chem", "lng", "refinery", "pipes", "lanes", "ports", "rail", "roads", "osm", "choke", "rivers", "lakes", "ice", "terrain",
     "fires", "events", "ships", "aircraft", "jets", "airliners", "navy", "bases", "airports", "dc", "cables"];
 
   // ---------- data loading ----------
   const FILES = {
-    oilgas: "oilgas.geojson", coal: "coal.geojson", iron: "iron.geojson", lng: "lng.geojson", power: "power.geojson", steel: "steel.geojson", cement: "cement.geojson",
+    oilgas: "oilgas.geojson", coal: "coal.geojson", iron: "iron.geojson", lng: "lng.geojson", refinery: "refineries.geojson", power: "power.geojson", steel: "steel.geojson", cement: "cement.geojson",
     chem: "chemicals.geojson", crit: "critical_minerals.geojson", foot: "mining_points.json", oilgas_outlines: "oilgas_outlines.geojson", coal_boundaries: "coal_boundaries.geojson",
     pipelines: "pipelines.geojson", shipping: "shipping.geojson", ports: "ports_wpi.geojson", rail: "rail.geojson", roads: "roads.geojson", chokepoints: "chokepoints.geojson",
     rivers: "rivers.geojson", lakes: "lakes.geojson", glaciers: "glaciers.geojson", water_risk: "water_risk.geojson", groundwater: "groundwater.geojson",
     saline_gw: "saline_gw.geojson", gw_mining: "gw_mining.geojson",
     bases: "bases.geojson", airports: "airports.geojson", dc: "datacenters.geojson", cables: "cables.geojson", landings: "landings.geojson"
   };
-  const COUNT_ID = { oilgas: "n-oilgas", coal: "n-coal", iron: "n-iron", lng: "n-lng", power: "n-power", steel: "n-steel", cement: "n-cement", chem: "n-chem", crit: "n-crit",
+  const COUNT_ID = { oilgas: "n-oilgas", coal: "n-coal", iron: "n-iron", lng: "n-lng", refinery: "n-refinery", power: "n-power", steel: "n-steel", cement: "n-cement", chem: "n-chem", crit: "n-crit",
     foot: "n-foot", pipelines: "n-pipes", shipping: "n-lanes", ports: "n-ports", rail: "n-rail", roads: "n-roads", rivers: "n-rivers", lakes: "n-lakes", glaciers: "n-ice",
     fires: "n-fires", events: "n-events", ships: "n-ships", aircraft: "n-aircraft", jets: "n-jets", airliners: "n-airliners", bases: "n-bases", airports: "n-airports", dc: "n-dc", navy: "n-navy", cables: "n-cables" };
   const DATA = {}, loading = {};
@@ -717,6 +1612,43 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     if (map.getSource(src) && src !== "story") map.getSource(src).setData(DATA[src]);
   }
 
+  // ---------- offline fallback ----------
+  // `tools/offline.py serve` puts local copies of the online services under offline/ and lists them in offline/config.json
+  // (a 404 everywhere else). Each service is probed once before the map starts; any that doesn't answer, or all of them
+  // with #offline in the URL, is replaced by its local copy. A service that drops out mid-session needs a reload.
+  const OFF_PROBE = {
+    osm: "https://tiles.openfreemap.org/planet",
+    terrain: "https://tiles.mapterhorn.com/0/0/0.webp",
+    gibs: "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/default/GoogleMapsCompatible_Level8/0/0/0.jpg"
+  };
+  let OFF = null; const offUse = {};
+  // absolute, with {z}/{x}/{y} and {fontstack} left unescaped (new URL() would escape the braces)
+  const offUrl = p => location.href.replace(/[?#].*$/, "").replace(/[^/]*$/, "") + "offline/" + p;
+  const offReady = (async () => {
+    try { const r = await fetch("offline/config.json", { cache: "no-store" }); if (!r.ok) return; OFF = await r.json(); } catch (e) { return; }
+    if (typeof pmtiles !== "undefined") maplibregl.addProtocol("pmtiles", new pmtiles.Protocol().tile);
+    const force = /(^|[#&])offline(&|$)/.test(location.hash);
+    const up = url => force ? Promise.resolve(false) : fetch(url, { cache: "no-store", signal: AbortSignal.timeout(5000) }).then(r => r.ok, () => false);
+    const [osm, terrain, gibs] = await Promise.all([up(OFF_PROBE.osm), up(OFF_PROBE.terrain), up(OFF_PROBE.gibs)]);
+    offUse.osm = !osm && !!OFF.osm; offUse.glyphs = !osm && !!OFF.glyphs;
+    offUse.terrain = !terrain && !!OFF.terrain;
+    // no GIBS is taken to mean no internet: every online imagery choice falls back to a local mosaic
+    offUse.imagery = !gibs && Object.keys(OFF.imagery || {}).length > 0;
+    const used = [offUse.osm && `streets (OpenStreetMap, ${OFF.osm.build})`, offUse.terrain && `terrain to zoom ${OFF.terrain.maxzoom}`,
+      offUse.glyphs && "street-name font",
+      offUse.imagery && Object.keys(OFF.imagery).map(k => ({ bm: "Blue Marble", bmng: "Blue Marble true colour", blk: "Black Marble night lights", crop: "cropland map", past: "pasture map", pop: "population map" }[k])).filter(Boolean).join(", ")].filter(Boolean);
+    if (used.length) {
+      $("offNote").innerHTML = `<b>${force ? "Offline mode" : "Some online services are unreachable"}.</b> From this machine's backup: ${esc(used.join(", "))}. Live layers show the last snapshot saved here.`;
+      $("offNote").hidden = false;
+    }
+  })();
+  // a local stand-in for an online imagery choice: night and thermal layers get Black Marble, the rest Blue Marble
+  function offImg(k) {
+    if (!k || !offUse.imagery || (IMG[k] && IMG[k].src === "off")) return k;
+    const L = OFF.imagery, night = /^(dnb|dnb20|b31n)$/.test(k);
+    return night && L.blk ? "off_blk" : L.bm ? "off_bm" : L.bmng ? "off_bmng" : L.blk ? "off_blk" : k;
+  }
+
   // ---------- map ----------
   let map;
   const wide = () => innerWidth > 720;
@@ -731,12 +1663,12 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     const ro = new ResizeObserver(() => { if (el.clientWidth > 0 && el.clientHeight > 0) { ro.disconnect(); cb(); } });
     ro.observe(el);
   }
-  whenSized($("map"), start);
+  whenSized($("map"), () => offReady.then(start));
 
   function start() {
     map = new maplibregl.Map({
       container: "map",
-      style: { version: 8, glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf", sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": css("--ocean") } }] },
+      style: { version: 8, glyphs: offUse.glyphs ? offUrl(OFF.glyphs) : "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf", sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": css("--ocean") } }] },
       ...initialCamera(), minZoom: 0.3, maxZoom: 17, attributionControl: false, dragRotate: false, pixelRatio: window.devicePixelRatio || 1
     });
     map.touchZoomRotate.disableRotation();
@@ -777,12 +1709,13 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     return x.getImageData(0, 0, 12, 12);
   }
   // Glyphs are only used for OSM street names, so ship, aircraft and base markers are drawn on a canvas (2x, pointing north) and rotated by MapLibre.
-  const ICONS = { "i-plane": ["plane", "--air"], "i-jet": ["plane", "--jet"], "i-airliner": ["plane", "--airliner"], "i-tanker": ["ship", "--tanker"], "i-cargo": ["ship", "--cargo"], "i-navy": ["ship", "--navy"], "i-carrier": ["carrier", "--navy"], "i-vessel": ["ship", "--vessel"], "i-base": ["base", "--mil"] };
+  const ICONS = { "i-plane": ["plane", "--air"], "i-jet": ["plane", "--jet"], "i-airliner": ["plane", "--airliner"], "i-tanker": ["ship", "--tanker"], "i-cargo": ["ship", "--cargo"], "i-navy": ["ship", "--navy"], "i-carrier": ["carrier", "--navy"], "i-vessel": ["ship", "--vessel"], "i-base": ["base", "--mil"], "sim-x": ["x", "--sim-off"] };
   const SHAPES = {
     plane: [[16, 2], [18.4, 11], [29, 16.5], [29, 19.5], [18.4, 16.5], [17.8, 24.5], [21.5, 27.5], [21.5, 30], [16, 28.6], [10.5, 30], [10.5, 27.5], [14.2, 24.5], [13.6, 16.5], [3, 19.5], [3, 16.5], [13.6, 11]],
     ship: [[16, 2], [22, 11], [22, 29], [10, 29], [10, 11]],
     carrier: [[12, 2], [20, 2], [25, 8], [25, 30], [7, 30], [7, 8]],
-    base: [[7, 7], [25, 7], [25, 25], [7, 25]]
+    base: [[7, 7], [25, 7], [25, 25], [7, 25]],
+    x: [[8, 3], [16, 11], [24, 3], [29, 8], [21, 16], [29, 24], [24, 29], [16, 21], [8, 29], [3, 24], [11, 16], [3, 8]]
   };
   function icon(shape, color) {
     const c = document.createElement("canvas"); c.width = c.height = 32;
@@ -802,13 +1735,16 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     const add = (id, opts = {}) => map.addSource(id, { type: "geojson", data: empty, ...opts });
     ["land", "countries", "glaciers", "lakes", "rivers", "borders", "disputed", "disputed_lines", "maritime", "pipelines", "oilgas_outlines", "coal_boundaries",
       "shipping", "rail", "roads", "ports", "sel", "foot_w", "foot_c", "foot_e", "water_risk", "groundwater", "saline_gw", "gw_mining",
-      "fires", "events", "ships", "aircraft", "jets", "airliners", "navy", "bases", "airports", "dc", "cables", "landings", "hover", "story"].forEach(id => add(id));
+      "fires", "events", "ships", "aircraft", "jets", "airliners", "navy", "bases", "airports", "dc", "cables", "landings", "hover", "story", "sim-water", "sim-move", "sim-traffic", "sim-flow", "sim-zone", "sim-off"].forEach(id => add(id));
     PTS.forEach(id => add(id));
     // Mapterhorn terrain: terrarium-encoded WebP, z0-12 everywhere (Copernicus GLO-30), finer national DEMs above that in places
-    map.addSource("dem", { type: "raster-dem", tiles: ["https://tiles.mapterhorn.com/{z}/{x}/{y}.webp"], tileSize: 512, encoding: "terrarium", maxzoom: 12,
-      attribution: '<a href="https://mapterhorn.com/attribution" target="_blank" rel="noopener">© Mapterhorn</a>' });
+    // (or the local extract from tools/offline.py, same tiles to a lower zoom)
+    map.addSource("dem", { type: "raster-dem", ...(offUse.terrain ? { url: "pmtiles://" + offUrl(OFF.terrain.url) } : { tiles: ["https://tiles.mapterhorn.com/{z}/{x}/{y}.webp"], maxzoom: 12 }),
+      tileSize: 512, encoding: "terrarium", attribution: '<a href="https://mapterhorn.com/attribution" target="_blank" rel="noopener">© Mapterhorn</a>' });
     // OpenFreeMap: OpenStreetMap in the OpenMapTiles schema, z0-14, rebuilt about weekly. Tiles are only fetched while a layer using them is visible.
-    map.addSource("osm", { type: "vector", url: "https://tiles.openfreemap.org/planet" });
+    // The offline copy is the same planet file, so the layers below work unchanged.
+    map.addSource("osm", { type: "vector", url: offUse.osm ? "pmtiles://" + offUrl(OFF.osm.url) : "https://tiles.openfreemap.org/planet",
+      ...(offUse.osm && { attribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }) });
     map.addImage("hatch", hatch(css("--disputed")));
     map.addImage("hatch-salt", hatch(css("--stress"), .55));
     Object.entries(ICONS).forEach(([id, [shape, tok]]) => map.addImage(id, icon(shape, css(tok)), { pixelRatio: 2 }));
@@ -845,10 +1781,13 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       "line-width": ["interpolate", ["linear"], ["zoom"], 1, ["max", 0.25, ["-", 1.4, ["*", 0.18, ["get", "sr"]]]], 6, ["max", 0.6, ["-", 3, ["*", 0.25, ["get", "sr"]]]], 10, ["max", 1, ["-", 4.5, ["*", 0.3, ["get", "sr"]]]]],
       "line-opacity": ["interpolate", ["linear"], ["zoom"], 1, ["case", ["<=", ["get", "sr"], 3], 0.75, 0], 3.5, ["case", ["<=", ["get", "sr"], 6], 0.8, 0], 5.5, 0.9] } });
     // 3. borders
-    L({ id: "disputed", type: "fill", source: "disputed", paint: { "fill-pattern": "hatch" } });
+    // the hatch marks contested areas at world scale and fades out by zoom 6, leaving only their edges (disputed-edge) and the dashed lines
+    L({ id: "disputed", type: "fill", source: "disputed", paint: { "fill-pattern": "hatch", "fill-opacity": ["interpolate", ["linear"], ["zoom"], 4, 1, 6, 0] } });
+    L({ id: "disputed-edge", type: "line", source: "disputed", minzoom: 4, layout: { "line-join": "round" },
+      paint: { "line-color": css("--disputed"), "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.6, 8, 1.4, 12, 2], "line-opacity": ["interpolate", ["linear"], ["zoom"], 4, 0, 6, 0.55] } });
     L({ id: "maritime", type: "line", source: "maritime", layout: { "line-cap": "round" }, paint: { "line-color": css("--sea-ink"), "line-width": 1.1, "line-dasharray": [0.2, 2.5], "line-opacity": 0.8 } });
     L({ id: "borders", type: "line", source: "borders", layout: { "line-join": "round" }, paint: { "line-color": css("--border"), "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.5, 6, 1.1, 10, 1.6] } });
-    L({ id: "disputed-lines", type: "line", source: "disputed_lines", paint: { "line-color": css("--disputed"), "line-width": 1.1, "line-dasharray": [3, 2] } });
+    L({ id: "disputed-lines", type: "line", source: "disputed_lines", paint: { "line-color": css("--disputed"), "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1.1, 6, 1.4, 10, 2], "line-dasharray": [3, 2] } });
     L({ id: "country-sel", type: "line", source: "countries", filter: ["==", ["get", "k"], "__none__"], paint: { "line-color": css("--ink"), "line-width": 2 } });
     // 3b. OpenStreetMap streets and names: above the borders and any satellite imagery (a hybrid map), below every data layer
     L({ id: "osm-case", type: "line", ...osmSrc, "source-layer": "transportation", minzoom: 11, filter: ["match", ["get", "class"], OSM_ROADS, true, false],
@@ -884,7 +1823,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     L({ id: "rail-ties", type: "line", source: "rail", minzoom: 5, layout: hidden, paint: { "line-color": css("--rail-tie"), "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 10, 1.4], "line-dasharray": [2, 2] } });
     const pw = ["interpolate", ["linear"], ["coalesce", ["get", "q"], 0], 0, 0.5, 0.2, 1.1, 1, 2.2, 3, 3.6];
     const pwz = ["interpolate", ["linear"], ["zoom"], 1, ["*", pw, 0.6], 6, pw, 10, ["*", pw, 1.6]];
-    const pipeOpacity = quiet(["case", ["==", ["get", "s"], "operating"], ["case", ["==", ["get", "x"], 1], 0.95, 0.7], 0.45], 0.55, 1);
+    const pipeOp = ["case", ["==", ["get", "s"], "operating"], ["case", ["==", ["get", "x"], 1], 0.95, 0.7], 0.45], pipeOpacity = quiet(pipeOp, 0.55, 1);
+    simPipeLook = { map: pipeOpacity, sim: quiet(pipeOp, 0.3, 0.45) };
     L({ id: "pipes-oil", type: "line", source: "pipelines", filter: ["==", ["get", "f"], "oil"], layout: { ...hidden, "line-join": "round", "line-cap": "round" }, paint: { "line-color": css("--oil"), "line-width": pwz, "line-opacity": pipeOpacity } });
     L({ id: "pipes-gas", type: "line", source: "pipelines", filter: ["==", ["get", "f"], "gas"], layout: { ...hidden, "line-join": "round" }, paint: { "line-color": css("--oil"), "line-width": pwz, "line-opacity": pipeOpacity, "line-dasharray": [2.2, 1.4] } });
     // 5. areas of extraction (zoomed in)
@@ -915,7 +1855,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       "circle-stroke-color": css("--conflict"), "circle-stroke-width": ["case", [">", ["get", "e3"], 0], 1, 0.5], "circle-stroke-opacity": 0.8 } });
 
     // 6. sites, all at their true positions; big sites draw underneath small ones so nothing is hidden
-    const order = ["foot", "cement", "chem", "power", "steel", "crit", "iron", "coal", "oilgas", "lng"];
+    const order = ["foot", "cement", "chem", "power", "steel", "crit", "iron", "coal", "oilgas", "refinery", "lng"];
     order.forEach(src => {
       const Qk = Q[src];
       if (src === "foot") {
@@ -980,6 +1920,35 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["min", 26, ["max", 7, ["*", 0.5, ["sqrt", ["get", "a"]]]]], 6, ["min", 60, ["max", 14, ["*", 1.1, ["sqrt", ["get", "a"]]]]]],
       "circle-color": css("--conflict"), "circle-opacity": ["case", ["boolean", ["get", "on"], false], 0.3, 0.12],
       "circle-stroke-color": css("--conflict"), "circle-stroke-width": ["case", ["boolean", ["get", "on"], false], 2, 0.8], "circle-stroke-opacity": 0.7 } });
+    // scenarios: zones, flows that moved (width = change, oil kb/d or gas in oil equivalent), and what was switched off
+    // river-basin drought: basins shaded by the share of water lost; lines from each drying basin to the cities people move to
+    L({ id: "sim-basin-line", type: "line", source: "water_risk", layout: hidden, paint: { "line-color": css("--sim-dry"), "line-width": 0.6, "line-opacity": 0.45 } });
+    L({ id: "sim-water-fill", type: "fill", source: "sim-water", paint: { "fill-color": css("--sim-dry"), "fill-opacity": ["interpolate", ["linear"], ["get", "l"], 0, 0.12, 1, 0.6] } });
+    L({ id: "sim-water-line", type: "line", source: "sim-water", paint: { "line-color": css("--sim-dry"), "line-width": 0.7, "line-opacity": 0.8 } });
+    L({ id: "sim-move", type: "line", source: "sim-move", filter: ["!=", ["geometry-type"], "Point"], layout: { "line-cap": "round" }, paint: {
+      "line-color": css("--sim-move"), "line-opacity": 0.8, "line-dasharray": [2, 1.5],
+      "line-width": ["interpolate", ["linear"], ["zoom"], 1, ["min", 4, ["max", 0.8, ["*", 0.003, ["sqrt", ["get", "p"]]]]], 6, ["min", 9, ["max", 1.5, ["*", 0.008, ["sqrt", ["get", "p"]]]]]] } });
+    L({ id: "sim-move-pts", type: "circle", source: "sim-move", filter: ["==", ["geometry-type"], "Point"], paint: {
+      "circle-color": css("--sim-move"), "circle-stroke-color": css("--mark-ring"), "circle-stroke-width": 1,
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["min", 9, ["max", 2.5, ["*", 0.006, ["sqrt", ["get", "p"]]]]], 6, ["min", 18, ["max", 4, ["*", 0.014, ["sqrt", ["get", "p"]]]]]] } });
+    // road and rail traffic around zones: rail dotted (line-dasharray can't follow a feature property, hence two layers)
+    ["road", "rail"].forEach(c => L({ id: c === "road" ? "sim-traffic" : "sim-traffic-rail", type: "line", source: "sim-traffic", filter: ["==", ["get", "c"], c],
+      layout: { "line-join": "round", "line-cap": "round", "line-sort-key": ["get", "w"] }, paint: {
+        "line-color": ["case", [">", ["get", "d"], 0], css("--sim-up"), css("--sim-down")], "line-opacity": 0.75, ...(c === "rail" && { "line-dasharray": [0.6, 1.6] }),
+        "line-width": ["interpolate", ["linear"], ["zoom"], 1, ["min", 5, ["max", 0.8, ["*", 0.004, ["sqrt", ["get", "w"]]]]],
+          6, ["min", 11, ["max", 1.6, ["*", 0.01, ["sqrt", ["get", "w"]]]]]] } }));
+    L({ id: "sim-zone-fill", type: "fill", source: "sim-zone", paint: { "fill-color": css("--sim-zone"), "fill-opacity": ["*", 0.18, ["get", "m"]] } });
+    L({ id: "sim-zone-line", type: "line", source: "sim-zone", paint: { "line-color": css("--sim-zone"), "line-width": 1.5, "line-dasharray": [3, 2] } });
+    // (two layers because line-dasharray can't follow a feature property)
+    ["o", "g"].forEach(c => L({ id: c === "o" ? "sim-flow" : "sim-flow-gas", type: "line", source: "sim-flow", filter: ["==", ["get", "c"], c],
+      layout: { "line-join": "round", "line-cap": c === "o" ? "round" : "butt", "line-sort-key": ["case", ["has", "v"], 0, ["get", "w"]] }, paint: {
+        "line-color": ["case", [">", ["get", "d"], 0], css("--sim-up"), css("--sim-down")], "line-opacity": ["case", ["has", "v"], 0.3, 0.85], ...(c === "g" && { "line-dasharray": [2, 1.2] }),
+        "line-width": ["interpolate", ["linear"], ["zoom"], 1, ["case", ["has", "v"], 0.6, ["min", 7, ["max", 1, ["*", 0.08, ["sqrt", ["get", "w"]]]]]],
+          6, ["case", ["has", "v"], 1.2, ["min", 16, ["max", 2, ["*", 0.2, ["sqrt", ["get", "w"]]]]]]] } }));
+    L({ id: "sim-off-line", type: "line", source: "sim-off", filter: ["!=", ["geometry-type"], "Point"], layout: { "line-cap": "round" }, paint: {
+      "line-color": css("--sim-off"), "line-width": ["interpolate", ["linear"], ["zoom"], 1, 2, 6, 4], "line-dasharray": [1, 1.5] } });
+    L({ id: "sim-off", type: "symbol", source: "sim-off", filter: ["==", ["geometry-type"], "Point"], layout: {
+      "icon-image": "sim-x", "icon-allow-overlap": true, "icon-ignore-placement": true, "icon-size": ["interpolate", ["linear"], ["zoom"], 1, 0.6, 6, 1] } });
     L({ id: "sel", type: "circle", source: "sel", filter: ["==", ["geometry-type"], "Point"], paint: {
       "circle-radius": ["coalesce", ["get", "_r"], 10], "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": css("--ink"), "circle-stroke-width": 2 } });
     L({ id: "sel-line", type: "line", source: "sel", filter: ["!=", ["geometry-type"], "Point"], paint: { "line-color": css("--ink"), "line-width": 2, "line-dasharray": [1, 1] } });
@@ -990,14 +1959,17 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     DATA.countries = baseData[1];
     setCount("n-disputed", baseData[3].features.length);
     get("labels.json").then(initLabels);
-    get("country_totals.json").then(t => { DATA.totals = t; Object.values(t).forEach(c => c.fresh_km2 = (c.lake_km2 || 0) + (c.res_km2 || 0) || undefined); computeRanks(); });
+    get("country_totals.json").then(t => { DATA.totals = t; Object.values(t).forEach(c => c.fresh_km2 = (c.lake_km2 || 0) + (c.res_km2 || 0) || undefined); computeRanks(); if ($("base").value.startsWith("c:")) applyBase(); });
     get("crit_commodities.json").then(fillMinerals);
 
     bindControls();
     bindImagery();
     bindAgri();
     bindStory();
-    setView("overview");
+    simBind();
+    const hv = (location.hash.match(/view=(\w+)/) || [])[1];
+    setView(VIEWS[hv] ? hv : "overview");
+    if (/(?:^#|&)sim=/.test(location.hash)) setMode("sim");
     map.on("zoomend", renderSizes);
   }
 
@@ -1017,13 +1989,62 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     }
     renderSizes();
   }
+  const ST_BTNS = { all: "st-all", op: "st-op", plan: "st-plan" };
+  function setStatus(k) {
+    Object.entries(ST_BTNS).forEach(([m, id]) => $(id).setAttribute("aria-pressed", String(m === k)));
+    if (statusMode !== k) { statusMode = k; PTS.concat(["pipelines"]).forEach(pushData); }
+  }
+  // select a value, adding an option for preset-only combinations (e.g. thermal fuels)
+  function setSel(id, v, label) {
+    const el = $(id);
+    if (v && ![...el.options].some(o => o.value === v)) el.add(new Option(label || v, v));
+    el.value = v;
+  }
+  // the geostationary satellite that sees the map centre
+  function geoPick(ir) {
+    const x = map.getCenter().wrap().lng;
+    if (x < -110) return ir ? "ir_w" : "goesw";
+    if (x < -25) return ir ? "ir_e" : "goese";
+    if (x < 55) return ir ? "ir_mtg" : "mtg";
+    if (x < 95 && ir) return "ir_iodc";
+    return ir ? "ir_h" : "hima";
+  }
+  let curView = "";
   function setView(v) {
-    const conf = VIEWS[v];
+    const conf = { ...VIEW_DEFAULT, ...VIEWS[v] };
+    curView = v;
     document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
+    $("view").value = v;
+    $("viewNote").innerHTML = conf.note + (conf.x ? `<span class="x">Connection: ${conf.x}</span>` : "");
+    $("viewGo").hidden = !conf.go; if (conf.go) $("viewGo").textContent = conf.go.label + (conf.go.c ? " →" : "");
     VIEW_KEYS.forEach(k => { $("lyr-" + k).checked = conf.on.includes(k); });
-    if ($("fuel").value !== conf.fuel) { $("fuel").value = conf.fuel; fuelFilter = conf.fuel; if (DATA.power) pushData("power"); }
+    // sub-filters
+    setSel("fuel", conf.fuel, FUEL_LABEL[conf.fuel]); fuelFilter = conf.fuel;
+    setSel("mineral", conf.mineral, MINERAL_LABEL[conf.mineral]); mineralFilter = conf.mineral;
+    $("fireMode").value = fireMode = conf.fire; $("baseType").value = baseType = conf.bases; $("airMode").value = airMode = conf.air;
+    setStatus(conf.status);
+    ["power", "crit", "fires", "bases", "airports"].forEach(k => DATA[k] && pushData(k));
     Object.keys(GROUPS).forEach(applyGroup);
     $("base").value = conf.base; applyBase();
+    // imagery and farmland: only rebuild when they change, so a Sentinel search or picked day isn't thrown away
+    const img = conf.img.startsWith("geo") ? geoPick(conf.img === "geoir") : conf.img;
+    $("imgOpacity").value = conf.opacity; if (map.getLayer("imagery")) map.setPaintProperty("imagery", "raster-opacity", conf.opacity / 100);
+    if ($("imagery").value !== img || (img && !map.getLayer("imagery"))) { $("imagery").value = img; applyImagery(false); }
+    if ($("agri").value !== conf.agri) { $("agri").value = conf.agri; applyAgri(); }
+    try { history.replaceState(null, "", "#" + [...location.hash.slice(1).split("&").filter(t => t && !t.startsWith("view=")), "view=" + v].join("&")); } catch (e) {}
+  }
+  function viewGo() {
+    const conf = VIEWS[curView], go = conf && conf.go; if (!go) return;
+    if (go.story) return setMode("story");
+    const after = () => { if (conf.img && conf.img.startsWith("geo")) { const k = geoPick(conf.img === "geoir"); if ($("imagery").value !== k) { $("imagery").value = k; applyImagery(false); } } };
+    if (go.locate) {
+      if (!navigator.geolocation) return;
+      $("viewGo").textContent = "Finding you…";
+      navigator.geolocation.getCurrentPosition(p => { $("viewGo").textContent = go.label; map.flyTo({ center: [p.coords.longitude, p.coords.latitude], zoom: 13 }); map.once("moveend", after); },
+        () => { $("viewGo").textContent = "Location unavailable; use search below"; }, { timeout: 10000 });
+      return;
+    }
+    map.flyTo({ center: go.c, zoom: go.z }); map.once("moveend", after);
   }
 
   const bands = { foot_w: [-180, -30], foot_c: [-30, 60], foot_e: [60, 180] }, loadedBand = {};
@@ -1043,15 +2064,21 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     let html = '<option value="">All critical minerals</option><optgroup label="Groups">' + groups.map(([l, v]) => `<option value="${v}">${l}</option>`).join("") + '</optgroup><optgroup label="Single commodity">';
     html += Object.entries(list).filter(([, n]) => n >= 10).map(([m, n]) => `<option value="${esc(m)}">${esc(m.length <= 3 ? m : cap(m))} (${n})</option>`).join("") + "</optgroup>";
     sel.innerHTML = html;
+    setSel("mineral", mineralFilter, MINERAL_LABEL[mineralFilter]);
   }
 
   // ---------- controls ----------
   function bindControls() {
     Object.keys(GROUPS).forEach(k => $("lyr-" + k).addEventListener("change", () => {
       applyGroup(k);
-      if (VIEW_KEYS.includes(k)) document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", "false"));
+      if (VIEW_KEYS.includes(k)) { document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", "false")); $("view").value = ""; }
     }));
     document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
+    const groups = [...new Set(Object.values(VIEWS).map(c => c.g))];
+    $("view").innerHTML = groups.map(g => `<optgroup label="${esc(g)}">${Object.entries(VIEWS).filter(([, c]) => c.g === g).map(([k, c]) => `<option value="${k}">${esc(c.label)}</option>`).join("")}</optgroup>`).join("")
+      + '<option value="" hidden>Custom (layers changed)</option>';
+    $("view").addEventListener("change", e => e.target.value && setView(e.target.value));
+    $("viewGo").addEventListener("click", viewGo);
     $("fuel").addEventListener("change", e => {
       fuelFilter = e.target.value;
       if (!$("lyr-power").checked) { $("lyr-power").checked = true; applyGroup("power"); }
@@ -1072,11 +2099,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         ensure(k).then(() => pushData(k));
       }));
 
-    const stBtns = { all: "st-all", op: "st-op", plan: "st-plan" };
-    Object.entries(stBtns).forEach(([k, id]) => $(id).addEventListener("click", () => {
-      Object.values(stBtns).forEach(b => $(b).setAttribute("aria-pressed", String(b === id)));
-      statusMode = k; PTS.concat(["pipelines"]).forEach(pushData);
-    }));
+    Object.keys(ST_BTNS).forEach(k => $(ST_BTNS[k]).addEventListener("click", () => setStatus(k)));
 
     // topmost first: queryRenderedFeatures returns features in draw order, top down
     const pointLayers = ["story-halo", "navy-pts", "aircraft-pts", "jets-pts", "airliners-pts", "ships-pts", "fires-pts", "bases-pts", "airports-l", "airports-m", "airports-s", "dc-pts"].concat(PTS.map(s => s + "-pts"), ["landings-pts", "ports-pts", "gw-mining", "events-pts"]);
@@ -1096,7 +2119,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       const box = [[e.point.x - 2, e.point.y - 2], [e.point.x + 2, e.point.y + 2]];
       let f = map.queryRenderedFeatures(e.point, { layers: visible(pointLayers) })[0]
         || map.queryRenderedFeatures(box, { layers: visible(lineLayers.concat(["lakes", "water-fill", "gw-fill"])) })[0];
-      map.getCanvas().style.cursor = f && !["water-fill", "gw-fill"].includes(f.layer.id) ? "pointer" : "";
+      map.getCanvas().style.cursor = simPicking ? "crosshair" : f && !["water-fill", "gw-fill"].includes(f.layer.id) ? "pointer" : "";
       hoverLine(f);
       if (!f) { tip.hidden = true; return; }
       tip.innerHTML = tipHTML(f); tip.hidden = false;
@@ -1109,6 +2132,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       const box = [[e.point.x - 3, e.point.y - 3], [e.point.x + 3, e.point.y + 3]];
       const hits = map.queryRenderedFeatures(box, { layers: visible(pointLayers) });
       const f = hits.find(h => !["foot-pts", "events-pts", "story-halo"].includes(h.layer.id)) || hits[0] || map.queryRenderedFeatures(box, { layers: visible(["pipes-oil", "pipes-gas", "cables", "cables-plan"]) })[0];
+      if (simPicking) { simPickAt(e, f); return; }
       if (f && f.source === "story") { storyGo(f.properties.i, true); return; }
       if (f) { showFeature(f); return; }
       const lake = $("lyr-lakes").checked && map.queryRenderedFeatures(e.point, { layers: ["lakes"] })[0];
@@ -1139,7 +2163,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
             const r = await fetch("https://photon.komoot.io/api/?" + new URLSearchParams({ q: raw, limit: "6", lang: "en" }));
             if (!r.ok) throw new Error(r.status);
             feats = ((await r.json()).features || []).filter(f => f.geometry && f.geometry.type === "Point"); geoCache.set(raw, feats);
-          } catch (e) { if (seq === geoSeq) note.textContent = "Couldn't reach the OpenStreetMap place search."; return; }
+          } catch (e) { if (seq === geoSeq) note.textContent = OFF ? "OpenStreetMap place search needs the internet; the matches above are from the map's own data." : "Couldn't reach the OpenStreetMap place search."; return; }
           if (seq !== geoSeq) return; note.remove();
         }
         if (seq !== geoSeq) return;
@@ -1182,7 +2206,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       cities.sort((a, b) => (b.fn.startsWith(fs) - a.fn.startsWith(fs)) || (a.r - b.r) || ((b.pop || 0) - (a.pop || 0))).splice(5);
       cities.forEach(l => hits.push(["city", l]));
       const seen = new Set();  // pipelines and cables are stored as many segments; list each name once
-      outer: for (const k of ["oilgas", "coal", "crit", "iron", "lng", "pipelines", "power", "steel", "cement", "chem", "ports", "bases", "airports", "dc", "cables", "landings", "navy", "events", "ships", "aircraft", "jets", "airliners"]) {
+      outer: for (const k of ["oilgas", "coal", "crit", "iron", "lng", "refinery", "pipelines", "power", "steel", "cement", "chem", "ports", "bases", "airports", "dc", "cables", "landings", "navy", "events", "ships", "aircraft", "jets", "airliners"]) {
         for (const f of (DATA[k] || empty).features) {
           const p = f.properties, keys = [p.n, p.i, p.ia, p.f, p.r, p.lo, p.h];
           if (!keys.some(v => v && String(v).toLowerCase().includes(s))) continue;
@@ -1244,6 +2268,9 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   }
 
   // ---------- tooltips / details ----------
+  // refinery configuration (Climate TRACE AssetType) and a typical diesel/gasoil yield per barrel of crude
+  const RTYPE = { d: "Deep conversion (coking / hydrocracking)", m: "Medium conversion (FCC)", h: "Hydroskimming" };
+  const RYIELD = { d: 0.38, m: 0.35, h: 0.30 };
   const FUEL = { coal: "Coal", gas: "Gas", oil: "Oil", nuclear: "Nuclear", hydro: "Hydro", solar: "Solar", wind: "Wind", geothermal: "Geothermal", bioenergy: "Bioenergy & waste", storage: "Storage", other: "Other" };
   const WS = ["Low (<10%)", "Low–medium (10–20%)", "Medium–high (20–40%)", "High (40–80%)", "Extremely high (>80%)"];
   const CAT5 = ["Low", "Low–medium", "Medium–high", "High", "Extremely high"];
@@ -1295,6 +2322,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     if (src === "ports") return `<b>${esc(p.n)}</b><div class="m">${HS_T[p.hs] || ""} seaport${p.c ? " · " + esc(p.c) : ""}</div>`;
     const Qk = Q[src];
     if (src === "foot") return `<b>Mined land</b><div class="m">${fmt(p.q, 2)} km²</div>`;
+    if (src === "refinery") return `<b>${esc(p.n || "Refinery")}</b><div class="m">${fmt(p.bd / 1000)}${p.ci ? "?" : ""} k bbl/d${p.c ? " · " + esc(p.c) : ""}</div>`;
     if (src === "chem") return `<b>${esc(p.n)}</b><div class="m">${esc(p.pp || "")}${p.c ? " · " + esc(p.c) : ""}</div>`;
     if (src === "crit") return `<b>${esc(p.n)}</b><div class="m">${esc((p.m || "").split("|").join(", "))}${p.c ? " · " + esc(p.c) : ""}</div>`;
     const extra = src === "power" ? ` · ${FUEL[p.f] || p.f}` : "";
@@ -1305,10 +2333,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   const row = (k, v, num) => v == null || v === "" ? "" : `<dt>${k}</dt><dd${num ? ' class="num"' : ""}>${v}</dd>`;
   function openDetail(kindLabel, color, title, rows, foot, extra) {
     detail.innerHTML = `<div class="detail-head"><div><div class="kind eyebrow"><i style="background:${color}"></i>${esc(kindLabel)}</div><h2>${esc(title)}</h2></div><button class="close" id="closeDetail" aria-label="Close details">×</button></div><dl class="kv">${rows}</dl>${extra || ""}${foot ? `<div class="foot">${foot}</div>` : ""}`;
-    detail.hidden = false; delete detail.dataset.story;
+    detail.hidden = false; delete detail.dataset.story; delete detail.dataset.sim;
     $("closeDetail").onclick = closeDetail;
   }
-  function closeDetail() { detail.hidden = true; delete detail.dataset.story; map.getSource("sel").setData(empty); selectCountry(null); }
+  function closeDetail() { detail.hidden = true; delete detail.dataset.story; delete detail.dataset.sim; map.getSource("sel").setData(empty); selectCountry(null); }
   const wiki = p => p.w ? `<a href="${esc(p.w)}" target="_blank" rel="noopener">GEM wiki page ↗</a>` : "";
   const T = v => v ? esc(v) : null;
 
@@ -1349,6 +2377,9 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       rows += row("Country", T(p.c)) + row("Direction", p.ft === "export" ? "Export (liquefaction)" : "Import (regasification)") + row("Status", cap(p.s))
         + row("Capacity", p.q != null ? smart(p.q) + " Mt/yr" : null, true) + row("≈ gas", p.q != null ? fmt(p.q * 1.36, 1) + " bcm/yr" : null, true)
         + row("Floating", p.fl ? "Yes (FSRU / FLNG)" : null) + row("Start year", p.sy, true) + row("Owner", T(p.o));
+    } else if (k === "refinery") {
+      rows += row("Country", T(p.c)) + row("Type", RTYPE[p.t]) + row("Crude capacity", p.bd != null ? fmt(p.bd) + " bbl/d" + (p.ci ? " (estimated)" : "") : null, true)
+        + row("≈ diesel &amp; gasoil", p.bd != null ? "~" + fmt(Math.round(p.bd * 0.82 * (RYIELD[p.t] || 0.35) / 1000) * 1000) + " bbl/d at 82% use" : null, true) + row("Owner", T(p.o));
     } else if (k === "power") {
       rows += row("Country", T(p.c)) + row("Fuel", FUEL[p.f] || p.f) + row("Status", cap(p.s)) + row("Capacity", p.mw != null ? fmt(p.mw) + " MW" : null, true) + row("Start year", p.sy ? Math.round(p.sy) : null, true) + row("Owner", T(p.o));
     } else if (k === "steel") {
@@ -1418,9 +2449,13 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       rows = row("Reports (events)", fmt(p.e), true) + row("News articles", fmt(p.a), true) + row("In the last 72 h", fmt(p.e3), true)
         + row("· assaults (CAMEO 18)", fmt(p.r18), true) + row("· fighting (19)", fmt(p.r19), true) + row("· mass violence (20)", fmt(p.r20), true)
         + row("Tone (Goldstein avg)", fmt(p.g, 1), true) + row("First seen", esc(p.d0) + " UTC", true) + row("Last seen", esc(p.d) + " UTC", true);
-      links = (p.u || []).map((u, i) => { let h = u; try { h = new URL(u).hostname.replace(/^www\./, ""); } catch (e) {} return link(u, h); }).join("");
+      // the map hands array properties of a clicked feature back as JSON text
+      let us = p.u || [];
+      if (typeof us === "string") try { us = JSON.parse(us); } catch (e) { us = []; }
+      links = (Array.isArray(us) ? us : []).map((u, i) => { let h = u; try { h = new URL(u).hostname.replace(/^www\./, ""); } catch (e) {} return link(u, h); }).join("");
       foot = "GDELT machine-codes these from news articles over the last 14 days. Many are duplicates or are placed at a city or country centre; read the sources.";
       news = p.n.split(",")[0];
+      rows += `<dt></dt><dd><button type="button" class="zoom-btn" id="evZone" style="margin:0" title="Open Scenarios with a 50 km zone here: people inside, facilities lost, road and rail detours">Use as scenario zone</button></dd>`;
     } else if (k === "fires") {
       title = p.ind ? "Heat at an industrial site" : p.cf ? "Fire near conflict reports" : "Fire / heat detection";
       rows = row("Fire radiative power", fmt(p.frp, 1) + " MW", true) + row("Brightness (I4)", p.ti4 ? fmt(p.ti4) + " K" : null, true) + row("Detected", `${esc(p.t)} (${ago(p.t)})`, true)
@@ -1469,6 +2504,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     rows += coordRow(g); links += mapLinks(c[0], c[1]);
     openDetail(kind, color, title || X.label, rows, foot, extra + `<ul class="links">${links}</ul>` + (news ? newsBlock() : ""));
     if (news) loadNews(news, k === "navy" ? "(navy OR warship OR deployed OR strike group)" : undefined);
+    if (k === "events") $("evZone").onclick = () => simZoneAt(+c[0], +c[1]);
   }
 
   // ---------- recent news (GDELT DOC 2.0; one request per 5 s) ----------
@@ -1564,7 +2600,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   // ---------- background shading (only one at a time) ----------
   const CHORO = { og: ["--oil", "M boe/yr"], coal: ["--coal", "Mt/yr"], iron: ["--iron", "Mt/yr"], crit_n: ["--crit", "deposits"], mine_km2: ["--foot", "km²"], lng_exp: ["--oil", "Mt/yr"], lng_imp: ["--oil", "Mt/yr"],
     fresh_km2: ["--river", "km²"], gw_basin_km2: ["--gw", "km²"], bws: ["--stress", "score 0–5"], pw_gw: ["--power", "GW"], pw_nuclear: ["--power", "GW"], pw_hydro: ["--river", "GW"],
-    steel: ["--steel", "Mt/yr"], cement: ["--cement", "Mt/yr"], chem_n: ["--chem", "plants"], ports: ["--lane", "ports"] };
+    kpop: ["--pop", "people"], kdens: ["--pop", "people/km²"], steel: ["--steel", "Mt/yr"], cement: ["--cement", "Mt/yr"], chem_n: ["--chem", "plants"], ports: ["--lane", "ports"] };
   const hex = h => { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map(x => x + x).join(""); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
   const mix = (a, b, t) => "rgb(" + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t)).join(",") + ")";
   const ramp = tok => [0.14, 0.32, 0.52, 0.74, 0.97].map(t => mix(css("--land"), css(tok), t));
@@ -1787,10 +2823,18 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       b31d: gb("MODIS_Terra_Brightness_Temp_Band31_Day", 7, "png", "day", "Terra MODIS surface temperature, day", "1 km brightness temperature at 11 µm, day pass.", "NASA"),
       dnb: gb("VIIRS_SNPP_DayNightBand", 7, "png", "day", "Suomi NPP night lights", "750 m low-light band: city lights, gas flares, fires and blackouts.", "NOAA/NASA"),
       dnb20: gb("VIIRS_NOAA20_DayNightBand", 7, "png", "day", "NOAA-20 night lights", "750 m low-light band: city lights, gas flares, fires and blackouts.", "NOAA/NASA")
+    }],
+    // NASA mosaics saved by tools/offline.py; listed only when the page is served with an offline store
+    ["Saved on this machine (works offline)", {
+      off_bm: { src: "off", key: "bm", kind: "base", label: "Blue Marble: relief & sea floor (NASA)", res: "About 500 m; cloud-free 2004 mosaic with shaded relief and ocean depth.", attr: "NASA Blue Marble, " + A_GIBS + " (saved copy)" },
+      off_bmng: { src: "off", key: "bmng", kind: "base", label: "Blue Marble: true colour (NASA)", res: "About 500 m; cloud-free 2004 mosaic.", attr: "NASA Blue Marble, " + A_GIBS + " (saved copy)" },
+      off_blk: { src: "off", key: "blk", kind: "base", label: "Black Marble: night lights 2016 (NASA)", res: "About 500 m; cloud-free composite of 2016 night lights. Compare with a live night-lights day to spot blackouts.", attr: "NASA Black Marble, " + A_GIBS + " (saved copy)" }
     }]
   ];
   const IMG = Object.assign({}, ...IMAGERY.map(([, o]) => o));
   const utcDay = d => new Date(Date.now() - d * 864e5).toISOString().slice(0, 10);
+  // the newest complete daily mosaic: GIBS finishes yesterday's western-hemisphere passes around midday UTC, so before 15:00 use the day before
+  const lastFullDay = () => utcDay(new Date().getUTCHours() < 15 ? 2 : 1);
   let imgSeq = 0, imgTimer = null, imgDay = "", imgTime = null;
   // GIBS edge caches disagree about "default" for a minute or two after each update, so ask once and pin the explicit time
   const gibsLatest = I => fetch(`${GIBS}${I.id}/default/default/GoogleMapsCompatible_Level${I.lvl}/0/0/0.${I.ext}`, { cache: "no-store" })
@@ -1821,7 +2865,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   }
   const pcAttr = I => PC[I.pc].attr(pcEnd.slice(0, 4));
   function pcHint() {
-    const I = IMG[$("imagery").value], h = $("imgHint"), z = map.getZoom();
+    const I = IMG[offKey], h = $("imgHint"), z = map.getZoom();
     h.hidden = !(I && I.src === "pc" && map.getLayer("imagery") && z < I.min - 0.5);
     if (!h.hidden) h.innerHTML = `${PC[I.pc].name} tiles load from zoom ${I.min}; you're at ${z.toFixed(1)}.<button type="button" class="sm" id="imgZoom">Zoom in</button>`;
   }
@@ -1867,6 +2911,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     if (I.src === "pc") return [`${PCAPI}/data/v1/mosaic/${time}/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=${PC[I.pc].coll}&${I.q}&format=png&exitwhenfull=False&skipcovered=False`];
     if (I.src === "xyz") return [I.tiles];
     if (I.src === "eum") return [EUM + I.id + "&_=" + Math.floor(Date.now() / 6e5)];
+    if (I.src === "off") return [offUrl(OFF.imagery[I.key].url)];
     return [`${GIBS}${I.id}/default/${time || "default"}/GoogleMapsCompatible_Level${I.lvl}/{z}/{y}/{x}.${I.ext}`];
   }
   function imgNote(I, time) {
@@ -1880,7 +2925,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         : P.days > 60 ? `Each spot shows its newest photo up to ${pcEnd}.`
         : `Each spot shows its newest pass from the ${P.days} days to ${pcEnd} (UTC).`;
     }
-    $("imgNote").innerHTML = `${I.res} ${when}${I.esri ? '<span id="esriWhen"></span>' : ""}<br>${I.src === "pc" ? pcAttr(I) : I.attr}`; $("imgNote").hidden = false;
+    const sub = I.src === "off" && $("imagery").value !== offKey ? `${esc(IMG[$("imagery").value].label)} is out of reach offline; showing the saved ${esc(I.label)} instead. ` : "";
+    $("imgNote").innerHTML = `${sub}${I.res} ${when}${I.esri ? '<span id="esriWhen"></span>' : ""}<br>${I.src === "pc" ? pcAttr(I) : I.attr}`; $("imgNote").hidden = false;
     if (I.esri) esriWhen();
   }
   // Esri's identify service names the photo under the map centre: its source, capture date and resolution
@@ -1898,8 +2944,11 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       el.textContent = !a ? "" : ` At the centre: ${a["RESOLUTION (M)"] ? fmt(+a["RESOLUTION (M)"], 2) + " m, " : ""}${d && !isNaN(d) ? `taken ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}` : "date unknown"}, ${a.SOURCE || "unknown source"}${a.DESCRIPTION ? ` (${a.DESCRIPTION})` : ""}.`;
     } catch (e) { if (seq === esriSeq && $("esriWhen")) $("esriWhen").textContent = ""; }
   }
+  let offKey = "";
   async function applyImagery(fromPicker) {
-    const I = IMG[$("imagery").value], seq = ++imgSeq;
+    // offline, an online choice is swapped for a saved mosaic (the picker keeps the choice for when the network is back)
+    offKey = offImg($("imagery").value);
+    const I = IMG[offKey], seq = ++imgSeq;
     clearInterval(imgTimer); imgTimer = null;
     if (map.getLayer("imagery")) map.removeLayer("imagery");
     if (map.getSource("imagery")) map.removeSource("imagery");
@@ -1913,7 +2962,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     $("imgDateLbl").textContent = I.kind === "pc" ? "Up to (UTC)" : "Day (UTC)";
     // time: the GIBS time or day, or for Sentinel the registered mosaic id
     let time = null;
-    if (I.kind === "day") { if (fromPicker) imgDay = pick.value; time = pick.value = imgDay || utcDay(1); }
+    if (I.kind === "day") { if (fromPicker) imgDay = pick.value; time = pick.value = imgDay || lastFullDay(); }
     else if (I.kind === "hls") time = fromPicker && pick.value ? pick.value : pick.value = ((await gibsLatest(I)) || utcDay(3)).slice(0, 10);
     else if (I.kind === "pc") {
       if (fromPicker) pcEnd = pick.value;
@@ -1925,7 +2974,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     else if (I.src === "gibs") time = await gibsLatest(I);
     if (seq !== imgSeq) return;
     imgTime = time;
-    map.addSource("imagery", { type: "raster", tiles: imgTiles(I, time), tileSize: 256, minzoom: I.min || 0, maxzoom: I.max, attribution: I.src === "pc" ? pcAttr(I) : I.attr });
+    map.addSource("imagery", { type: "raster", tiles: imgTiles(I, time), tileSize: 256, minzoom: I.min || 0, maxzoom: I.src === "off" ? OFF.imagery[I.key].maxzoom : I.max, attribution: I.src === "pc" ? pcAttr(I) : I.attr });
     map.addLayer({ id: "imagery", type: "raster", source: "imagery", paint: { "raster-opacity": +$("imgOpacity").value / 100, "raster-fade-duration": 150 } }, map.getLayer("agri") ? "agri" : "disputed");
     imgNote(I, time); pcHint();
     if (I.kind === "now") imgTimer = setInterval(async () => {
@@ -1937,8 +2986,9 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     }, 6e5);
   }
   function bindImagery() {
-    $("imagery").innerHTML = '<option value="">None (map only)</option>' + IMAGERY.map(([g, o]) =>
-      `<optgroup label="${esc(g)}">${Object.entries(o).map(([k, I]) => `<option value="${k}">${esc(I.label)}</option>`).join("")}</optgroup>`).join("");
+    const have = ([, I]) => I.src !== "off" || (OFF && OFF.imagery && OFF.imagery[I.key]);
+    $("imagery").innerHTML = '<option value="">None (map only)</option>' + IMAGERY.map(([g, o]) => [g, Object.entries(o).filter(have)]).filter(([, es]) => es.length).map(([g, es]) =>
+      `<optgroup label="${esc(g)}">${es.map(([k, I]) => `<option value="${k}">${esc(I.label)}</option>`).join("")}</optgroup>`).join("");
     $("imagery").addEventListener("change", () => applyImagery(false));
     $("imgDate").addEventListener("change", () => $("imgDate").value && applyImagery(true));
     $("imgOpacity").addEventListener("input", e => map.getLayer("imagery") && map.setPaintProperty("imagery", "raster-opacity", +e.target.value / 100));
@@ -1958,7 +3008,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   }
 
   // ---------- storyboard: surges in conflict reports by day, week and month ----------
-  let storyWin = "week", storyCur = -1, storyTimer = null, storyMarkers = [], storyOn = false, storyFC = empty, storySaved = null;
+  let storyWin = "week", storyCur = -1, storyTimer = null, storyMarkers = [], storyOn = false, storyFC = empty;
   // the storyboard quiets the map to a few context layers and puts the map layers back on exit
   const STORY_LAYERS = ["lakes", "ice", "choke", "lanes"];
   const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -2039,17 +3089,23 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     const n = storyItems().length; if (!n) return;
     storyGo(storyCur < 0 ? (d > 0 ? 0 : n - 1) : (storyCur + d + n) % n, true);
   }
+  // three modes: map layers, storyboard, scenarios. The storyboard and scenarios switch the map to their own few layers;
+  // the user's layer checkboxes are saved on leaving the map and put back on return.
+  let curMode = "map", modeSaved = null;
   function setMode(mode) {
-    storyOn = mode === "story";
+    if (mode === curMode) return;
+    const prev = curMode; curMode = mode;
     document.querySelectorAll(".seg.mode button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode ? "true" : "false"));
-    if (storyOn === !!storySaved) return;
-    $("sheetBody").hidden = storyOn; $("story").hidden = !storyOn;
-    map.setLayoutProperty("story-halo", "visibility", storyOn ? "visible" : "none");
-    if (storyOn) storySaved = Object.fromEntries(VIEW_KEYS.map(k => [k, $("lyr-" + k).checked]));
-    VIEW_KEYS.forEach(k => { $("lyr-" + k).checked = storyOn ? STORY_LAYERS.includes(k) : storySaved[k]; applyGroup(k); });
-    if (storyOn) { ensure("story").then(storyRender); return; }
-    storySaved = null; storyStop(); storyClear();
-    if (detail.dataset.story) closeDetail();
+    if (prev === "story") { storyOn = false; storyStop(); storyClear(); map.setLayoutProperty("story-halo", "visibility", "none"); }
+    if (prev === "sim") simExit();
+    if (detail.dataset.story || detail.dataset.sim) closeDetail();
+    $("sheetBody").hidden = mode !== "map"; $("story").hidden = mode !== "story"; $("sim").hidden = mode !== "sim";
+    if (prev === "map") modeSaved = Object.fromEntries(VIEW_KEYS.map(k => [k, $("lyr-" + k).checked]));
+    const keep = { story: STORY_LAYERS, sim: SIM_LAYERS }[mode];
+    VIEW_KEYS.forEach(k => { $("lyr-" + k).checked = keep ? keep.includes(k) : modeSaved[k]; applyGroup(k); });
+    if (mode === "map") modeSaved = null;
+    if (mode === "story") { storyOn = true; map.setLayoutProperty("story-halo", "visibility", "visible"); ensure("story").then(storyRender); }
+    if (mode === "sim") simEnter();
   }
   function bindStory() {
     document.querySelectorAll(".seg.mode button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
@@ -2070,19 +3126,643 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     };
   }
 
+  // ---------- scenarios: switch facilities off and re-route the oil and gas network ----------
+  // The solver runs in a Web Worker started from the #simWorker text (energy_graph.json). Power plants, mines, cable landings
+  // and the towns inside a zone need no network, so they are worked out here. Shocks live in the URL as #sim=kind.id.percent;…
+  const SIM_LAYERS = ["pipes", "refinery", "lng", "ports", "oilgas", "lanes", "choke", "lakes"];
+  const SIM_EXTRA = [["power", "Power plants"], ["coal", "Coal mines"], ["iron", "Iron ore"], ["cables", "Cables"]];
+  const SIM_GRAPH = ["refinery", "field", "port", "lng", "pipeline", "choke", "zone"];
+  const SIM_KIND = { refinery: "Refinery", field: "Oil & gas field", port: "Oil port", lng: "LNG terminal", pipeline: "Pipeline", choke: "Chokepoint",
+    zone: "Conflict or disaster zone", power: "Power plant", mine: "Mine", cable: "Cable landing", water: "River basin drought" };
+  const SIM_CHOKE = { malacca: "Strait of Malacca", hormuz: "Strait of Hormuz", suez: "Suez Canal & SUMED", bab: "Bab el-Mandeb", danish: "Danish Straits",
+    turkish: "Turkish Straits", panama: "Panama Canal", cape: "Cape of Good Hope" };
+  const SIM_PRESETS = [
+    ["Jamnagar refinery offline", [["refinery", "r3143912", 1]]],
+    ["Hormuz closed", [["choke", "hormuz", 1]]],
+    ["Red Sea closed", [["choke", "bab", 1], ["choke", "suez", 1]]],
+    ["Druzhba pipeline cut", [["pipeline", fnv36("Druzhba Oil Pipeline"), 1]]],
+    ["Fighting near Kharkiv", [["zone", [36.23, 49.99, 60], 1]]],
+    ["Three Gorges Dam offline", [["power", fnv36("Three Gorges Dam|CHN"), 1]]],
+    ["Flooding around Lyon", [["zone", [4.84, 45.76, 40], 0.7]]],
+    ["Indus drought", [["water", "456100", 0.4]]]
+  ];
+  // world rows: label, key, unit, decimals, whether a rise is bad
+  const SIM_WORLD = [["Crude oil produced", "crude", "kb/d", 0], ["Refinery runs", "run", "kb/d", 0], ["Diesel & gasoil made", "dsl", "kb/d", 0],
+    ["Oil left in ground or tanks", "stock", "kb/d", 0, 1], ["Gas delivered", "gas", "bcm/yr", 1], ["Gas shortfall", "gasShort", "bcm/yr", 1, 1],
+    ["Gas stranded", "strand", "bcm/yr", 1, 1], ["Gas power at risk", "gw", "GW", 1, 1]];
+  const GAS_KBD = 17.2;   // 1 bcm/yr of gas ≈ 17.2 kb/d of oil equivalent, so oil and gas flows share one line-width scale
+  let simPipeLook = null;   // pipeline opacity in map mode and, fainter, under scenario flows
+  let simShocks = [], simPicking = false, simB = null, simWB = null, simW = null, simReady = null, simInit = null, simId = 0, simBase = null, simG = null, simCE = null, simPipes = new Set(), simTimer = 0;
+  const simWait = {};
+
+  function fnv36(s) { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(36); }
+  function hav(x1, y1, x2, y2) {
+    const r = Math.PI / 180, a = Math.sin((y2 - y1) * r / 2) ** 2 + Math.cos(y1 * r) * Math.cos(y2 * r) * Math.sin((x2 - x1) * r / 2) ** 2;
+    return 12742 * Math.asin(Math.sqrt(a));
+  }
+  const sgn = (v, d = 0) => Math.abs(v) < 0.5 * 10 ** -d ? "0" : (v > 0 ? "+" : "−") + fmt(Math.abs(v), d);
+  const simTok = s => `${s.k}.${s.k === "zone" ? s.t.join("_") : s.t}.${Math.round(s.m * 100)}`;
+  const simCountry = k => (DATA.totals && DATA.totals[k] && DATA.totals[k].n) || k;
+  function nearestTown(x, y, max = 150) {
+    let best = null, bd = max;
+    for (const l of LABELS) if (l.t === "p" && (l.pop || 0) >= 20000) { const d = hav(x, y, l.x, l.y); if (d < bd) { bd = d; best = l; } }
+    return best;
+  }
+  function circlePoly(lon, lat, km) {
+    const ring = [];
+    for (let i = 0; i <= 64; i++) {
+      const a = i / 64 * 2 * Math.PI, dy = km / 111.32 * Math.sin(a), dx = km / (111.32 * Math.max(0.05, Math.cos((lat + dy) * Math.PI / 180))) * Math.cos(a);
+      ring.push([lon + dx, Math.max(-85, Math.min(85, lat + dy))]);
+    }
+    return { type: "Polygon", coordinates: [ring] };
+  }
+  const sig2 = v => v < 100 ? Math.round(v) : +v.toPrecision(2);
+
+  // ---- people: Kontur hexagons in 10° tiles (data/pop/, layout in pop/index.json), fetched when first needed ----
+  let popIdx = null;
+  const popTiles = new Map();
+  function popTile(name) {
+    if (!popTiles.has(name)) popTiles.set(name, fetch("data/pop/" + name + ".bin").then(r => { if (!r.ok) throw new Error(name); return r.arrayBuffer(); }).then(buf => {
+      const C = popIdx.tile ** 2, cnt = new Uint32Array(buf, 0, C), n = cnt.reduce((a, v) => a + v, 0), off = new Uint32Array(C + 1);
+      for (let i = 0; i < C; i++) off[i + 1] = off[i] + cnt[i];
+      return { off, dx: new Uint8Array(buf, 4 * C, n), dy: new Uint8Array(buf, 4 * C + n, n), q: new Uint16Array(buf.slice(4 * C + 2 * n, 4 * C + 4 * n)) };
+    }));
+    return popTiles.get(name);
+  }
+  // people living within km of a point (null if the data isn't there)
+  async function popInRadius(lon, lat, km) {
+    try {
+      popIdx = popIdx || await get("pop/index.json");
+      const T = popIdx.tile, Q = popIdx.q, dlat = km / 111.32, dlon = Math.min(180, km / (111.32 * Math.max(0.02, Math.cos(Math.min(89, Math.abs(lat) + dlat) * Math.PI / 180))));
+      const names = new Set();
+      for (let tx = Math.floor((lon - dlon) / T); tx <= Math.floor((lon + dlon) / T); tx++)
+        for (let ty = Math.floor(Math.max(-90, lat - dlat) / T); ty <= Math.floor(Math.min(89.99, lat + dlat) / T); ty++) {
+          const w = ((tx % (360 / T)) + 540 / T) % (360 / T) - 180 / T, nm = w + "_" + ty;
+          if (popIdx.tiles[nm]) names.add(nm);
+        }
+      const tiles = await Promise.all([...names].map(nm => popTile(nm).then(t => [nm, t])));
+      let sum = 0;
+      for (const [nm, t] of tiles) {
+        const [tx, ty] = nm.split("_").map(Number);
+        for (let c = 0; c < T * T; c++) {
+          if (t.off[c] === t.off[c + 1]) continue;
+          const x0 = tx * T + c % T, y0 = ty * T + Math.floor(c / T);
+          if (hav(lon, lat, x0 + 0.5, y0 + 0.5) > km + 80) continue;   // 80 km: half a 1° cell's diagonal, at most
+          for (let i = t.off[c]; i < t.off[c + 1]; i++)
+            if (hav(lon, lat, x0 + (t.dx[i] + 0.5) / 256, y0 + (t.dy[i] + 0.5) / 256) <= km) sum += Math.expm1(t.q[i] / Q);
+        }
+      }
+      return sum;
+    } catch (e) { return null; }
+  }
+
+  // ---- river basins: basins.json lines up with water_risk.geojson; the model itself is the #simWater script ----
+  let simBasinsP = null, basinGrid = null, basinBox = null;
+  function simBasins() {
+    if (!simBasinsP) simBasinsP = Promise.all([get("basins.json"), ensure("water_risk")]).then(([B, WR]) => {
+      if (!WR || WR.features.length !== B.n) throw new Error("basins.json doesn't match water_risk.geojson");
+      simWB = { wr: WR.features.map(f => f.properties.wr == null ? null : f.properties.wr), ws: WR.features.map(f => f.properties.ws) };
+      // 2° grid of basin bounding boxes, for finding the basin under a point
+      basinGrid = new Map(); basinBox = [];
+      WR.features.forEach((f, i) => {
+        let x0 = 180, y0 = 90, x1 = -180, y1 = -90;
+        const P = f.geometry.type === "MultiPolygon" ? f.geometry.coordinates : [f.geometry.coordinates];
+        for (const p of P) for (const [x, y] of p[0]) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+        basinBox.push([x0, y0, x1, y1]);
+        for (let gx = Math.floor(x0 / 2); gx <= Math.floor(x1 / 2); gx++) for (let gy = Math.floor(y0 / 2); gy <= Math.floor(y1 / 2); gy++) {
+          const k = gx + "," + gy; if (!basinGrid.has(k)) basinGrid.set(k, []); basinGrid.get(k).push(i);
+        }
+      });
+      return (simB = B);
+    });
+    simBasinsP.catch(() => { simBasinsP = null; });
+    return simBasinsP;
+  }
+  const inRing = (x, y, r) => { let o = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [a, b] = r[i], [c, d] = r[j]; if ((b > y) !== (d > y) && x < (c - a) * (y - b) / (d - b) + a) o = !o; } return o; };
+  // The simplified basin polygons leave thin gaps along shared edges (about 8% of big cities fall in one),
+  // so a point outside every basin takes the nearest edge within `tol` degrees.
+  function basinAt(x, y, tol = 0.25) {
+    const segD = (a, b, c, d) => { const dx = c - a, dy = d - b, L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, ((x - a) * dx + (y - b) * dy) / L)) : 0; return Math.hypot(a + t * dx - x, b + t * dy - y); };
+    const cand = new Set();
+    for (const gx of [Math.floor((x - tol) / 2), Math.floor((x + tol) / 2)]) for (const gy of [Math.floor((y - tol) / 2), Math.floor((y + tol) / 2)])
+      for (const i of basinGrid.get(gx + "," + gy) || []) cand.add(i);
+    let best = tol, bi = -1;
+    for (const i of cand) {
+      const [x0, y0, x1, y1] = basinBox[i];
+      if (x < x0 - tol || x > x1 + tol || y < y0 - tol || y > y1 + tol) continue;
+      const g = DATA.water_risk.features[i].geometry, P = g.type === "MultiPolygon" ? g.coordinates : [g.coordinates];
+      for (const p of P) {
+        let o = false; for (const r of p) if (inRing(x, y, r)) o = !o;
+        if (o) return i;
+        for (const r of p) for (let k = 1; k < r.length; k++) { const d = segD(r[k - 1][0], r[k - 1][1], r[k][0], r[k][1]); if (d < best) { best = d; bi = i; } }
+      }
+    }
+    return bi;
+  }
+  async function simWaterFacts(B, shocks, facts) {
+    const R = waterImpact(B, simWB, shocks.map(({ t, m }) => ({ t, m }))), out = [];
+    facts.water = R;
+    if (!R.basins.length) return out;
+    const share = v => R.people ? fmt(v / R.people * 100) + "%" : "–";
+    for (const s of shocks) out.push(`<li><b>${esc(s.n)}</b>: ${Math.round(s.m * 100)}% less water for it and every basin upstream.</li>`);
+    out.push(`<li>${fmt(R.basins.length)} river basin${R.basins.length > 1 ? "s" : ""} lose at least ${WATER.stop * 100}% of their water, home to ≈${fmt(sig2(R.people))} people. `
+      + `≈${fmt(sig2(R.exposed))} (${share(R.exposed)}) of them end up in basins newly under high or extremely high water stress, where use is over ${WATER.cut[2] * 100}% of the water available.</li>`);
+    const cs = Object.entries(R.countries).sort((a, b) => b[1].people - a[1].people).slice(0, 5);
+    if (cs.length > 1) out.push(`<li>By country: ${cs.map(([k, o]) => `${esc(simCountry(k))} ≈${fmt(sig2(o.people))} affected, ${fmt(sig2(o.exposed))} newly stressed`).join("; ")}.</li>`);
+    if (R.moved >= 1) out.push(`<li>If ${WATER.leave.map(([l, r]) => r * 100 + "%").join(", ")} of people leave basins that lose over ${WATER.leave.map(([l]) => l * 100 + "%").join(", ")} of their water and are highly stressed: ≈${fmt(sig2(R.moved))} people move. `
+      + (R.dest.length ? `Nearest cities with water to spare, by pull: ${R.dest.slice(0, WATER.show).map(d => `${esc(d.n)} ≈${fmt(sig2(d.people))}`).join(", ")}.` : "No unaffected city of 100,000+ within reach.") + "</li>");
+    // power plants that need river water: thermal plants for cooling, hydro for generation
+    const D = await ensure("power");
+    if (D) {
+      const hit = R.basins.filter(b => b.loss >= WATER.plant), lost = new Map(hit.map(b => [b.i, b.loss])), th = { gw: 0, n: [] }, hy = { gw: 0 };
+      const box = hit.reduce((a, b) => { const [x0, y0, x1, y1] = basinBox[b.i]; return [Math.min(a[0], x0), Math.min(a[1], y0), Math.max(a[2], x1), Math.max(a[3], y1)]; }, [180, 90, -180, -90]);
+      for (const f of hit.length ? D.features : []) {
+        const p = f.properties;
+        if (p.s !== "operating" || !p.mw || !["coal", "gas", "oil", "nuclear", "hydro"].includes(p.f)) continue;
+        const [x, y] = f.geometry.coordinates;
+        if (x < box[0] || x > box[2] || y < box[1] || y > box[3]) continue;
+        // a tight tolerance: coastal plants just outside a basin are usually cooled by the sea
+        const l = lost.get(basinAt(x, y, 0.03));
+        if (!l) continue;
+        if (p.f === "hydro") hy.gw += p.mw * l / 1000; else { th.gw += p.mw / 1000; th.n.push(p); }
+      }
+      if (th.gw || hy.gw) out.push("<li>Power: " + [th.gw && `${smart(th.gw)} GW of coal, gas, oil and nuclear plants in basins losing over ${fmt(WATER.plant * 100)}% of their water may have to cut output for want of cooling water (largest: ${th.n.sort((a, b) => b.mw - a.mw).slice(0, 3).map(p => esc(p.n)).join(", ")})`,
+        hy.gw && `hydro output could fall by ≈${smart(hy.gw)} GW of capacity`].filter(Boolean).join("; ") + ".</li>");
+    }
+    R.notes.forEach(n => out.push(`<li>${esc(n)}</li>`));
+    return out;
+  }
+  function simDrawWater(R) {
+    const WR = DATA.water_risk, fs = [], mv = [];
+    if (R && WR) {
+      for (const b of R.basins) fs.push({ type: "Feature", geometry: WR.features[b.i].geometry, properties: { l: Math.min(1, b.loss) } });
+      for (const d of R.dest.slice(0, WATER.show)) {
+        let x0 = d.from[0]; if (d.x - x0 > 180) x0 += 360; else if (x0 - d.x > 180) x0 -= 360;
+        mv.push({ type: "Feature", geometry: { type: "LineString", coordinates: [[x0, d.from[1]], [d.x, d.y]] }, properties: { p: d.people } });
+        mv.push({ type: "Feature", geometry: { type: "Point", coordinates: [d.x, d.y] }, properties: { p: d.people, n: d.n } });
+      }
+    }
+    map.getSource("sim-water").setData({ type: "FeatureCollection", features: fs });
+    map.getSource("sim-move").setData({ type: "FeatureCollection", features: mv });
+  }
+
+  // ---- roads and rail: the #simTransport model runs in its own worker, since a big network can take a second ----
+  let trW = null, trReady = null, trInfo = null, trId = 0;
+  const trWait = {}, trPartsC = {};
+  function simTransport() {
+    if (!trReady) {
+      trReady = new Promise((res, rej) => {
+        trW = new Worker(URL.createObjectURL(new Blob([$("simTransport").textContent, $("simTransportWorker").textContent], { type: "text/javascript" })));
+        trW.onmessage = ev => {
+          const d = ev.data;
+          if (d.type === "ready") { trInfo = d; return res(d); }
+          if (d.id == null) return rej(new Error(d.message));
+          for (const id in trWait) if (+id <= d.id) { trWait[id](+id === d.id ? d : null); delete trWait[id]; }
+        };
+        trW.onerror = e => rej(new Error(e.message || "worker error"));
+        trW.postMessage({ type: "init", url: new URL("data/transport_graph.json", location.href).href });
+      });
+      trReady.catch(() => { trReady = null; if (trW) trW.terminate(); trW = null; });
+    }
+    return trReady;
+  }
+  // the lines of roads.geojson or rail.geojson, one entry per part, as transport_graph.json counts them (null if they don't line up)
+  async function trParts(kind) {
+    if (kind in trPartsC) return trPartsC[kind];
+    const D = await ensure(kind === "road" ? "roads" : "rail"), out = [];
+    for (const f of (D && D.features) || []) { const g = f.geometry; if (g.type === "LineString") out.push(g.coordinates); else if (g.type === "MultiLineString") out.push(...g.coordinates); }
+    return (trPartsC[kind] = D && out.length === trInfo.check[kind] ? out : null);
+  }
+  // the stretch of a line between two stops; a key is 100 × the fractional vertex index
+  function trSlice(c, k0, k1) {
+    const at = k => { const i = Math.min(Math.floor(k / 100), c.length - 1), t = k / 100 - i, a = c[i], b = c[Math.min(i + 1, c.length - 1)]; return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; };
+    const out = [at(k0)];
+    for (let v = Math.floor(k0 / 100) + 1; v * 100 < k1 && v < c.length; v++) out.push(c[v]);
+    out.push(at(k1));
+    return out;
+  }
+  // zones: [{x, y, r, m}]; null if a newer run took over
+  async function simTraffic(zones) {
+    try { await simTransport(); } catch (e) { return { type: "error", message: e.message }; }
+    const id = ++trId, r = await new Promise(res => { trWait[id] = res; trW.postMessage({ type: "run", id, zones }); });
+    if (r && r.type === "result") { await Promise.all([trParts("road"), trParts("rail")]); r.n = zones.length; }
+    return r;
+  }
+  function simTrafficFacts(tr) {
+    if (tr.type !== "result") return [`<li>Road and rail detours couldn't be worked out (${esc(tr.message || "no result")}).</li>`];
+    const out = [], nm = i => esc(trInfo.names[i]), h = v => fmt(v, v < 10 ? 1 : 0) + " h";
+    for (const [k, label] of [["road", "Roads"], ["rail", "Rail"]]) {
+      const r = tr.out[k], pc = v => r.total ? fmt(v / r.total * 100, v / r.total < 0.1 ? 1 : 0) + "%" : "–";
+      if (!r.edges) { out.push(`<li>${label}: no mapped ${k === "road" ? "road" : "railway"} inside.</li>`); continue; }
+      let t = `<li>${label}: ${fmt(r.km)} km of mapped line inside. Of trips between cities within ${fmt(TRANSPORT.reach)} km of the zone${tr.n > 1 ? "s" : ""}, ${pc(r.inZone)} start or end inside`;
+      if (r.through > 0) {
+        t += `, and ${pc(r.through)} pass through and must re-route: `
+          + [r.slowW > 0 && `${fmt(r.slowW / r.through * 100)}% of those take ${r.h0 ? fmt(r.dh / r.h0 * 100) : 0}% longer (+${h(r.dh / r.slowW)} on average)`,
+            r.cutW > 0 && `${fmt(r.cutW / r.through * 100)}% have no practical detour`].filter(Boolean).join(", ") || "none of them lose time";
+      } else t += r.inZone < r.total ? ", and none pass through" : "";
+      t += ".";
+      if (r.pairs.length) t += " Hardest hit: " + r.pairs.slice(0, 4).map(p => `${nm(p.i)}–${nm(p.j)} ${h(p.h0)} → ${p.cut ? "no route" : h(p.h1)}`).join(", ") + ".";
+      if (!trPartsC[k]) t += ` The ${k === "road" ? "road" : "rail"} lines didn't line up with the network file, so changes are drawn as straight lines.`;
+      out.push(t + "</li>");
+    }
+    return out;
+  }
+  function simDrawTraffic(tr) {
+    const feats = [];
+    for (const k of tr && tr.type === "result" ? ["road", "rail"] : []) {
+      const r = tr.out[k], P = trPartsC[k], max = r.lines.reduce((a, l) => Math.max(a, Math.abs(l[3])), 0);
+      for (const [p, k0, k1, d, x1, y1, x2, y2] of r.lines) {
+        if (Math.abs(d) < max * 0.01) continue;
+        feats.push({ type: "Feature", geometry: { type: "LineString", coordinates: P ? trSlice(P[p], k0, k1) : [[x1, y1], [x2, y2]] }, properties: { d, w: Math.abs(d), c: k } });
+      }
+    }
+    map.getSource("sim-traffic").setData({ type: "FeatureCollection", features: feats });
+  }
+  function simZoneAt(lon, lat) {
+    closeDetail(); setMode("sim");
+    simAdd("zone", [+lon.toFixed(2), +lat.toFixed(2), 50], 1);
+    map.flyTo({ center: [lon, lat], zoom: Math.max(map.getZoom(), 5.5) });
+  }
+
+  // the feature of a layer the user clicked, found again in the full data (rendered coordinates are rounded to the tile grid)
+  function nearestFeat(fc, name, [x, y]) {
+    let best = null, bd = Infinity;
+    for (const f of (fc && fc.features) || []) {
+      if (f.properties.n !== name || f.geometry.type !== "Point") continue;
+      const [a, b] = f.geometry.coordinates, d = (a - x) ** 2 + (b - y) ** 2;
+      if (d < bd) { bd = d; best = f; }
+    }
+    return best;
+  }
+  const simSay = msg => { const h = $("simHint"); h.textContent = msg; h.hidden = false; $("simHintW").hidden = true; };
+  // on: false, true (any facility or a zone) or "water" (a river basin)
+  function simSetPick(on) {
+    simPicking = on;
+    $("simPick").setAttribute("aria-pressed", String(on === true));
+    $("simDry").setAttribute("aria-pressed", String(on === "water"));
+    const h = $("simHint"); h.textContent = h.dataset.text; h.hidden = on !== true;
+    $("simHintW").hidden = on !== "water";
+    if (on === "water") ensure("water_risk");
+    if (map.getLayer("sim-basin-line")) map.setLayoutProperty("sim-basin-line", "visibility", on === "water" ? "visible" : "none");
+    map.getCanvas().style.cursor = on ? "crosshair" : "";
+  }
+  function simHash() {
+    try {
+      const toks = location.hash.slice(1).split("&").filter(t => t && !t.startsWith("sim="));
+      if (curMode === "sim" && simShocks.length) toks.push("sim=" + simShocks.map(simTok).join(";"));
+      history.replaceState(null, "", "#" + toks.join("&"));
+    } catch (e) {}
+  }
+  function simFromHash() {
+    const m = location.hash.match(/(?:^#|&)sim=([^&]*)/);
+    if (!m) return [];
+    return decodeURIComponent(m[1]).split(";").map(tok => {
+      const a = tok.indexOf("."), b = tok.lastIndexOf(".");
+      if (a < 0 || b <= a) return null;
+      const k = tok.slice(0, a), t = tok.slice(a + 1, b), pct = +tok.slice(b + 1);
+      if (!SIM_KIND[k] || !isFinite(pct)) return null;
+      if (k === "zone") { const z = t.split("_").map(Number); return z.length === 3 && z.every(isFinite) ? [k, z, pct / 100] : null; }
+      return [k, t, Math.max(0, Math.min(100, pct)) / 100];
+    }).filter(Boolean);
+  }
+
+  function simMsg(ev) {
+    const d = ev.data;
+    if (d.type === "ready") { simBase = d.baseline; simAsm(d.baseline); simInit && simInit.res(d.baseline); simInit = null; return; }
+    if (d.type === "error" && d.id == null) { simInit && simInit.rej(new Error(d.message)); simInit = null; return; }
+    for (const id in simWait) if (+id <= d.id) { simWait[id](+id === d.id && d.type === "result" ? d : null); delete simWait[id]; }
+    if (d.type === "error") $("simSum").textContent = "The model failed on this scenario: " + d.message.split("\n")[0];
+  }
+  function simEnter() {
+    simChips(); simPipeTone();
+    if (!simReady) {
+      $("simSum").textContent = "Loading the energy network…";
+      simReady = (async () => {
+        const [G, E, T, P] = await Promise.all([get("energy_graph.json"), get("country_energy.json"), DATA.totals || get("country_totals.json"), ensure("pipelines")]);
+        const pipes = P ? P.features.map(f => f.properties.n) : [];
+        simG = G; simCE = E.countries;
+        simPipes = new Set(Object.values(G.edges.ref).map(r => pipes[r] && fnv36(pipes[r])).filter(Boolean));
+        const sel = $("simChoke");
+        Object.entries(SIM_CHOKE).forEach(([k, n]) => G.choke[k] && sel.add(new Option(n, k)));
+        $("simSum").textContent = "Solving today's oil and gas flows (a few seconds)…";
+        simW = new Worker(URL.createObjectURL(new Blob([$("simWorker").textContent], { type: "text/javascript" })));
+        simW.onmessage = simMsg;
+        simW.onerror = e => { simInit && simInit.rej(new Error(e.message || "worker error")); simInit = null; };
+        return new Promise((res, rej) => { simInit = { res, rej }; simW.postMessage({ type: "init", graph: G, energy: E, totals: T, pipes }); });
+      })();
+      simReady.catch(err => { $("simSum").textContent = "Couldn't start the scenario model (" + err.message + ")."; simReady = null; if (simW) simW.terminate(); simW = null; });
+    }
+    simReady.then(async () => {
+      if (curMode !== "sim") return;
+      if (!simShocks.length) for (const [k, t, m] of simFromHash()) await simAdd(k, t, m, false);
+      simRenderList(); simRun(0);
+    }, () => {});
+  }
+  // under scenario flows the pipelines go grey and faint, so the oil-orange "less flow" lines stand out
+  function simPipeTone() {
+    if (!simPipeLook) return;
+    const on = curMode === "sim";
+    ["pipes-oil", "pipes-gas"].forEach(l => { map.setPaintProperty(l, "line-color", css(on ? "--foot" : "--oil")); map.setPaintProperty(l, "line-opacity", on ? simPipeLook.sim : simPipeLook.map); });
+  }
+  function simExit() {
+    simSetPick(false); $("simHint").hidden = $("simHintW").hidden = true; simPipeTone();
+    ["sim-flow", "sim-zone", "sim-off", "sim-water", "sim-move", "sim-traffic"].forEach(s => map.getSource(s) && map.getSource(s).setData(empty));
+    simHash();
+  }
+  function simChips() {
+    const box = $("simShow");
+    box.innerHTML = '<span class="sum small">Also show:</span>';
+    SIM_EXTRA.forEach(([k, label]) => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = label;
+      b.setAttribute("aria-pressed", String($("lyr-" + k).checked));
+      b.onclick = () => { const c = $("lyr-" + k); c.checked = !c.checked; applyGroup(k); b.setAttribute("aria-pressed", String(c.checked)); };
+      box.appendChild(b);
+    });
+  }
+
+  // the name, place and drawing of one shock; null if the id isn't in the data
+  async function simResolve(k, t) {
+    const G = simG, node = i => ({ n: G.names[i] || t, x: G.nodes.x[i] / 100, y: G.nodes.y[i] / 100 });
+    const pt = f => f && { n: f.properties.n, x: f.geometry.coordinates[0], y: f.geometry.coordinates[1], f };
+    if (["refinery", "field", "port", "lng"].includes(k)) return G.ids[t] == null ? null : node(G.ids[t]);
+    if (k === "pipeline") {
+      const P = await ensure("pipelines"), fs = P ? P.features.filter(f => fnv36(f.properties.n) === t) : [];
+      return fs.length ? { n: fs[0].properties.n, geo: fs.map(f => f.geometry) } : null;
+    }
+    if (k === "choke") {
+      const C = await ensure("chokepoints"), f = C && C.features.find(f => f.properties.n === SIM_CHOKE[t]);
+      return SIM_CHOKE[t] ? { n: SIM_CHOKE[t], ...(f && { x: f.geometry.coordinates[0], y: f.geometry.coordinates[1] }) } : null;
+    }
+    if (k === "zone") { const l = nearestTown(t[0], t[1]); return { n: l ? "Near " + l.n : `At ${fmt(t[1], 2)}°, ${fmt(t[0], 2)}°`, x: t[0], y: t[1] }; }
+    if (k === "power") { const D = await ensure("power"); return pt(D && D.features.find(f => fnv36(f.properties.n + "|" + f.properties.k) === t)); }
+    if (k === "mine") {
+      const D = await ensure(t[0] === "c" ? "coal" : "iron"), h = t.slice(2);
+      return pt(D && D.features.find(f => fnv36(f.properties.n + "|" + f.properties.k) === h));
+    }
+    if (k === "cable") { const D = await ensure("landings"); return pt(D && D.features.find(f => f.properties.id === t)); }
+    if (k === "water") {
+      const B = await simBasins(), i = B.pf.indexOf(+t);
+      if (i < 0) return null;
+      const x = B.cx[i] / 100, y = B.cy[i] / 100, l = nearestTown(x, y, 300), c = B.k[i] >= 0 ? simCountry(B.countries[B.k[i]]) : "";
+      return { n: (l ? "Catchment above " + l.n : "River basin " + t) + (c && !(l && l.k === B.countries[B.k[i]]) ? ", " + c : ""), x, y, ua: B.ua[i] };
+    }
+    return null;
+  }
+  async function simAdd(k, t, m, run = true) {
+    if (!simReady) return;
+    try { await simReady; } catch (e) { return; }
+    const G = simG;
+    const why = { refinery: "That refinery has no capacity figure, so it isn't in the network.", field: "That field isn't in the network (not operating, or no reported output).",
+      port: "That port has no oil terminal in the network.", lng: "Only operating LNG terminals with a known capacity are in the network." };
+    if (why[k] && G.ids[t] == null) return simSay(why[k]);
+    if (k === "pipeline" && !simPipes.has(t)) return simSay("That pipeline isn't in the modelled network: only operating lines that join up with others are.");
+    if (k === "choke" && !G.choke[t]) return;
+    if (k === "water") try { await simBasins(); } catch (e) { return simSay("The river-basin data didn't load (" + e.message + ")."); }
+    const key = simTok({ k, t, m: 0 });
+    if (simShocks.some(s => simTok({ ...s, m: 0 }) === key)) return simSay("That one is already switched off.");
+    const r = await simResolve(k, t);
+    if (!r) return simSay("Couldn't find that in the data.");
+    simShocks.push({ k, t, m, ...r });
+    if (run) { simRenderList(); simRun(); }
+  }
+  function simPickAt(e, f) {
+    const p = f && f.properties, s = f && f.source, at = f && f.geometry.type === "Point" ? f.geometry.coordinates : [e.lngLat.lng, e.lngLat.lat];
+    const h = (n, k) => fnv36(n + "|" + k);
+    if (simPicking === "water") {
+      const ll = e.lngLat.wrap();
+      return simBasins().then(B => { const i = basinAt(ll.lng, ll.lat); return i < 0 ? simSay("No river basin there.") : simAdd("water", String(B.pf[i]), 0.5); },
+        err => simSay("The river-basin data didn't load (" + err.message + ")."));
+    }
+    if (!f) { const ll = e.lngLat.wrap(); return simAdd("zone", [+ll.lng.toFixed(2), +ll.lat.toFixed(2), 50], 1); }
+    if (s === "refinery") return simAdd("refinery", p.id, 1);
+    if (s === "ports") return simAdd("port", "p" + p.wpi, 1);
+    if (s === "pipelines") return simAdd("pipeline", fnv36(p.n), 1);
+    if (s === "lng") { const g = nearestFeat(DATA.lng, p.n, at); return simAdd("lng", "l" + DATA.lng.features.indexOf(g), 1); }
+    if (s === "oilgas") {
+      const g = nearestFeat(DATA.oilgas, p.n, at); if (!g) return;
+      const [x, y] = g.geometry.coordinates, k = g.properties.k == null ? "None" : g.properties.k;
+      return simAdd("field", `f:${k}:${Math.floor(x / 0.5)}:${Math.floor(y / 0.5)}`, 1);
+    }
+    if (s === "power") return simAdd("power", h(p.n, p.k), 1);
+    if (s === "coal" || s === "iron") return simAdd("mine", s[0] + "-" + h(p.n, p.k), 1);
+    if (s === "landings") return simAdd("cable", p.id, 1);
+    simSay("That can't be switched off here. Pick a facility listed above, or open ground for a zone.");
+  }
+
+  function simRenderList() {
+    const ul = $("simList"); ul.innerHTML = "";
+    simShocks.forEach((s, i) => {
+      const li = document.createElement("li"), pct = Math.round(s.m * 100);
+      li.innerHTML = `<span class="k">${SIM_KIND[s.k]}</span><button type="button" class="close" aria-label="Remove ${esc(s.n)}">×</button><b>${esc(s.n)}</b>`
+        + `<label>${s.k === "choke" ? "Closed" : s.k === "zone" ? "Damage" : s.k === "water" ? "Water lost" : "Outage"}<input type="range" min="0" max="100" step="5" value="${pct}" data-m><output>${pct}%</output></label>`
+        + (s.k === "zone" ? `<label>Radius<input type="range" min="5" max="200" step="5" value="${s.t[2]}" data-r><output>${s.t[2]} km</output></label>` : "");
+      li.querySelector(".close").onclick = () => { simShocks.splice(i, 1); simRenderList(); simRun(); };
+      li.querySelector("b").onclick = () => s.x != null && map.flyTo({ center: [s.x, s.y], zoom: Math.max(map.getZoom(), 5) });
+      li.querySelectorAll("input").forEach(inp => inp.oninput = () => {
+        const v = +inp.value;
+        if (inp.dataset.r != null) { s.t[2] = v; inp.nextElementSibling.textContent = v + " km"; }
+        else { s.m = v / 100; inp.nextElementSibling.textContent = v + "%"; }
+        simRun();
+      });
+      ul.appendChild(li);
+    });
+  }
+  function simDrawShocks() {
+    const pts = [], zones = [];
+    for (const s of simShocks) {
+      if (s.k === "zone") zones.push({ type: "Feature", geometry: circlePoly(s.t[0], s.t[1], s.t[2]), properties: { m: s.m } });
+      else if (s.k === "water") continue;   // drawn as basins by simDrawWater
+      else if (s.geo) s.geo.forEach(g => pts.push({ type: "Feature", geometry: g, properties: { m: s.m } }));
+      else if (s.x != null) pts.push({ type: "Feature", geometry: { type: "Point", coordinates: [s.x, s.y] }, properties: { m: s.m } });
+    }
+    map.getSource("sim-zone").setData({ type: "FeatureCollection", features: zones });
+    map.getSource("sim-off").setData({ type: "FeatureCollection", features: pts });
+  }
+  // edges whose flow moved: a pipeline is drawn along its real route (once, at its biggest change), anything else as a straight link
+  function simDraw(r) {
+    const P = DATA.pipelines, E = simG.edges, X = simG.nodes.x, Y = simG.nodes.y, byRef = new Map(), feats = [];
+    for (const [e, b, s, c] of r ? r.moved : []) {
+      const d = (Math.abs(s) - Math.abs(b)) * (c === "g" ? GAS_KBD : 1), props = { d, w: Math.abs(d), c };
+      if (props.w < 5) continue;
+      const ref = E.ref[e];
+      if (ref != null && P && P.features[ref]) {
+        const prev = byRef.get(ref + c);
+        if (!prev || props.w > prev.properties.w) byRef.set(ref + c, { type: "Feature", geometry: P.features[ref].geometry, properties: props });
+      } else {
+        // links through a country hub or across a border stand in for unmapped routes, so they are drawn faint
+        if ("hb".includes(E.t[e])) props.v = 1;
+        const a = E.a[e], z = E.b[e], x1 = X[a] / 100; let x2 = X[z] / 100;
+        if (x2 - x1 > 180) x2 -= 360; else if (x1 - x2 > 180) x2 += 360;
+        feats.push({ type: "Feature", geometry: { type: "LineString", coordinates: [[x1, Y[a] / 100], [x2, Y[z] / 100]] }, properties: props });
+      }
+    }
+    map.getSource("sim-flow").setData({ type: "FeatureCollection", features: feats.concat([...byRef.values()]) });
+  }
+
+  function simRun(delay = 150) {
+    clearTimeout(simTimer);
+    simTimer = setTimeout(async () => {
+      if (curMode !== "sim") return;
+      simHash(); simDrawShocks();
+      const id = ++simId, gs = simShocks.filter(s => SIM_GRAPH.includes(s.k)).map(({ k, t, m }) => ({ k, t, m }));
+      const local = simLocal();
+      let r = null;
+      if (gs.length) {
+        try { await simReady; } catch (e) { return; }
+        if (id !== simId) return;
+        $("simSum").textContent = "Re-routing…";
+        r = await new Promise(res => { simWait[id] = res; simW.postMessage({ type: "run", id, shocks: gs }); });
+        if (!r) return;
+      }
+      const facts = await local;
+      if (id !== simId || curMode !== "sim") return;
+      simRender(r, facts); simDraw(r); simDrawWater(facts.water); simDrawTraffic(facts.traffic);
+    }, delay);
+  }
+
+  // effects that need no network: power plants, mines, cable landings, towns inside zones
+  async function simLocal() {
+    const facts = [], T = DATA.totals || {}, zones = simShocks.filter(s => s.k === "zone"), own = k => simShocks.filter(s => s.k === k);
+    const trafficP = zones.length ? simTraffic(zones.map(z => ({ x: z.t[0], y: z.t[1], r: z.t[2], m: z.m }))) : null;
+    const inZones = (x, y) => { let f = 1; for (const z of zones) if (Math.abs(y - z.t[1]) < z.t[2] / 100 && hav(z.t[0], z.t[1], x, y) <= z.t[2]) f *= 1 - z.m; return f; };
+    for (const z of zones) {
+      const towns = LABELS.filter(l => l.t === "p" && l.pop && hav(z.t[0], z.t[1], l.x, l.y) <= z.t[2]).sort((a, b) => b.pop - a.pop);
+      const people = await popInRadius(z.t[0], z.t[1], z.t[2]);
+      facts.push(`<li><b>${esc(z.n)}</b>, ${z.t[2]} km: ${people == null ? "population data didn't load" : `≈${fmt(sig2(people))} people live inside`}${towns.length ? ` (largest towns: ${towns.slice(0, 3).map(l => esc(l.n)).join(", ")})` : ""}. `
+        + `Fields, refineries, ports, terminals, pipeline junctions and power plants inside lose ${Math.round(z.m * 100)}% of capacity.</li>`);
+    }
+    if (zones.length) {
+      const tr = await trafficP;
+      if (tr) { facts.traffic = tr; facts.push(...simTrafficFacts(tr)); }
+    }
+    const pw = own("power");
+    if (pw.length || zones.length) {
+      const D = await ensure("power");
+      if (D) {
+        const rem = new Map(), mul = (f, v) => rem.set(f, (rem.has(f) ? rem.get(f) : 1) * v);
+        pw.forEach(s => s.f && mul(s.f, 1 - s.m));
+        if (zones.length) for (const f of D.features) { const v = inZones(f.geometry.coordinates[0], f.geometry.coordinates[1]); if (v < 1) mul(f, v); }
+        const by = {};
+        rem.forEach((v, f) => { const p = f.properties; if (p.s !== "operating" || !p.mw || v >= 1) return; const o = by[p.k] = by[p.k] || { gw: 0, n: 0 }; o.gw += p.mw * (1 - v) / 1000; o.n++; });
+        Object.entries(by).sort((a, b) => b[1].gw - a[1].gw).slice(0, 6).forEach(([k, o]) => {
+          const c = T[k] || {}, sh = c.pw_gw ? Math.min(1, o.gw / c.pw_gw) : 0;
+          facts.push(`<li>Power, ${esc(simCountry(k))}: ${smart(o.gw)} GW offline at ${o.n} plant${o.n > 1 ? "s" : ""}`
+            + (sh ? `, ${fmt(sh * 100, sh < 0.1 ? 1 : 0)}% of the country's ${fmt(c.pw_gw)} GW, the supply of ≈${fmt(sig2((c.kpop || c.pop) * sh))} people if shared evenly` : "") + ".</li>");
+        });
+        pw.forEach(s => s.f && s.f.properties.s !== "operating" && facts.push(`<li>${esc(s.n)} isn't operating (${esc(s.f.properties.s || "status unknown")}), so nothing is lost.</li>`));
+      }
+    }
+    for (const s of own("mine")) {
+      const coal = s.t[0] === "c", p = s.f.properties, key = coal ? "coal" : "iron", mt = (p.pr || (!coal && p.cap) || 0) * s.m;
+      const ct = (T[p.k] || {})[key], wt = Object.values(T).reduce((a, c) => a + (c[key] || 0), 0);
+      facts.push(`<li>${coal ? "Coal" : "Iron ore"}, ${esc(p.n)}: ` + (mt ? `${smart(mt)} Mt/yr lost${ct ? `, ${fmt(mt / ct * 100, 1)}% of ${esc(simCountry(p.k))}'s output` : ""}${wt ? ` and ${fmt(mt / wt * 100, 2)}% of the world's` : ""}` : "no reported output")
+        + (/^operating$/i.test(p.s || "") ? "." : ` (status: ${esc(p.s || "unknown")}).`) + "</li>");
+    }
+    const cb = own("cable");
+    if (cb.length) {
+      const Ld = await ensure("landings");
+      if (Ld) {
+        const ctry = n => n.slice(n.lastIndexOf(", ") + 2), split = cs => (cs || "").split(", ").filter(Boolean);
+        const per = {}, cut = new Map();
+        Ld.features.forEach(f => { const c = ctry(f.properties.n); split(f.properties.cs).forEach(x => (per[c] = per[c] || new Set()).add(x)); });
+        cb.forEach(s => split(s.f.properties.cs).forEach(x => cut.set(x, Math.max(cut.get(x) || 0, s.m))));
+        const rows = Object.entries(per).map(([c, set]) => { let l = 0; set.forEach(x => l += cut.get(x) || 0); return [c, l, set.size]; })
+          .filter(r => r[1] > 0).sort((a, b) => b[1] / b[2] - a[1] / a[2] || b[1] - a[1]).slice(0, 6);
+        facts.push(`<li>Cables: ${fmt(cut.size)} system${cut.size > 1 ? "s" : ""} land${cut.size > 1 ? "" : "s"} there, counted as cut everywhere they land. Hardest hit: `
+          + rows.map(([c, l, n]) => `${esc(c)} ${fmt(l, l % 1 ? 1 : 0)} of ${n} (${fmt(l / n * 100)}%)`).join(", ") + ". Every cable counts the same here; real capacity varies a lot.</li>");
+      }
+    }
+    const wt = own("water");
+    if (wt.length) {
+      let B = null; try { B = await simBasins(); } catch (e) {}
+      if (B) facts.push(...await simWaterFacts(B, wt, facts));
+    }
+    return facts;
+  }
+
+  function simRender(r, facts) {
+    const out = [], B = simBase, w0 = B.world;
+    if (!simShocks.length) {
+      $("simSum").textContent = `Today's network: ${fmt(w0.crude[0])} kb/d of crude feeds ${fmt(w0.run[0])} kb/d of refinery runs (${fmt(w0.dsl[0])} kb/d diesel and gasoil), and ${fmt(w0.gas[0])} bcm/yr of gas reaches buyers. Pick something to switch off, close a chokepoint, or try an example.`;
+      $("simOut").innerHTML = ""; return;
+    }
+    $("simSum").textContent = r ? `${simShocks.length} change${simShocks.length > 1 ? "s" : ""}. Re-routed in ${fmt(r.ms)} ms.` : `${simShocks.length} change${simShocks.length > 1 ? "s" : ""}. None of them touch the oil and gas network.`;
+    const cls = (d, bad) => Math.abs(d) < 1e-6 ? "" : (bad ? d > 0 : d < 0) ? "dn" : "up";
+    if (r) {
+      const W = r.world;
+      out.push(`<div class="sec">World</div><table class="simt"><thead><tr><th></th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody>`
+        + SIM_WORLD.map(([label, key, unit, dd, bad]) => { const [b, s] = W[key], d = s - b;
+          return `<tr><td>${label} <small>${unit}</small></td><td>${fmt(b, dd)}</td><td>${fmt(s, dd)}</td><td class="${cls(d, bad)}">${sgn(d, dd)}</td></tr>`; }).join("")
+        + "</tbody></table>");
+      const score = x => Math.abs(x.dsl[1] - x.dsl[0]) + 0.3 * Math.abs(x.run[1] - x.run[0]) + GAS_KBD * Math.abs(x.gasShort[1] - x.gasShort[0]);
+      const top = r.rows.filter(x => score(x) > 1).sort((a, b) => score(b) - score(a)).slice(0, 8);
+      if (top.length) out.push(`<div class="sec">Countries</div><table class="simt"><thead><tr><th>Country</th><th>Diesel kb/d</th><th>of use</th><th>Gas short bcm/yr</th></tr></thead><tbody>`
+        + top.map(x => { const dd = x.dsl[1] - x.dsl[0], use = simCE && simCE[x.k] && simCE[x.k].dc, gs = x.gasShort[1] - x.gasShort[0];
+          return `<tr><td>${esc(simCountry(x.k))}</td><td class="${cls(dd)}">${sgn(dd)}</td><td>${use ? fmt(Math.abs(dd) / use * 100) + "%" : "–"}</td><td class="${cls(gs, 1)}">${sgn(gs, 1)}</td></tr>`; }).join("")
+        + "</tbody></table>");
+      const ch = Object.entries(r.chokes).filter(([, v]) => Math.abs(v.o[1] - v.o[0]) > 5 || Math.abs(v.g[1] - v.g[0]) > 0.2);
+      const gw = r.rows.filter(x => x.gw[1] > 0.05).sort((a, b) => b.gw[1] - a.gw[1]).slice(0, 5);
+      const lis = ch.map(([k, v]) => `<li>${SIM_CHOKE[k]}: ` + [Math.abs(v.o[1] - v.o[0]) > 5 && `oil ${fmt(v.o[0])} → ${fmt(v.o[1])} kb/d`, Math.abs(v.g[1] - v.g[0]) > 0.2 && `gas ${fmt(v.g[0], 1)} → ${fmt(v.g[1], 1)} bcm/yr`].filter(Boolean).join(", ") + "</li>");
+      if (gw.length) lis.push(`<li>Gas-fired power at risk from the gas shortfall: ${gw.map(x => `${esc(simCountry(x.k))} ${fmt(x.gw[1], 1)} GW`).join(", ")}.</li>`);
+      lis.push(`<li>Oil moved over unmapped links (rail, trucks, missing pipes): ${fmt(W.virt[0] * 100)}% of tonne-km before, ${fmt(W.virt[1] * 100)}% after. The higher this is, the rougher the routing.</li>`);
+      r.notes.forEach(n => lis.push(`<li>${esc(n)}</li>`));
+      out.push(`<div class="sec">Routes</div><ul class="facts">${lis.join("")}</ul>`);
+    }
+    if (facts.length) out.push(`<div class="sec">Local effects</div><ul class="facts">${facts.join("")}</ul>`);
+    if (facts.water) out.push(`<div class="sim-key"><span><i style="background:var(--sim-dry)"></i>basins losing water (darker: more)</span><span><i style="background:var(--sim-move)"></i>where people may move</span></div>`);
+    if (facts.traffic && facts.traffic.type === "result") out.push(`<div class="sim-key"><span><i style="background:var(--sim-up)"></i>more road or rail traffic</span><span><i style="background:var(--sim-down)"></i>less</span><span>dotted: rail</span></div>`);
+    if (r) out.push(`<div class="sim-key"><span><i style="background:var(--sim-up)"></i>more flow</span><span><i style="background:var(--sim-down)"></i>less flow</span><span>dashed: gas</span><span>faint straight lines: unmapped links</span></div>`);
+    $("simOut").innerHTML = out.join("");
+  }
+  function simAsm(b) {
+    const K = b.consts, pc = v => fmt(v * 100);
+    $("simAsm").querySelector("div").innerHTML = `<ul class="facts">
+      <li>The network is built from simplified pipeline lines joined where their ends lie within 0.1°, so some joins are guessed, and about a third of pipeline capacities are filled in from similar lines. Treat flows as indicative.</li>
+      <li>Oil (kb/d) and gas (bcm/yr) are routed separately at least cost. A pipeline km costs 1 up to ${pc(K.pipeHi)}% of capacity and ${K.pipeHiCost}× above that, so flow spreads out before a line fills.</li>
+      <li>Unmapped links (rail, trucks, missing pipes, within and between countries) cost ${K.hub}× a pipeline km. A sea km costs ${K.sea}, each port call adds ${K.port}, and liquefying then regasifying LNG adds ${K.lng}.</li>
+      <li>Refineries run at the world average of ${pc(b.u0)}% of nameplate, and up to ${pc(K.util)}% when crude is spare. Diesel is the country's EIA distillate share of refinery output, else ${pc(K.yield.h)}%, ${pc(K.yield.m)}% or ${pc(K.yield.d)}% for simple, medium and complex plants.</li>
+      <li>Shortages are shared: every buyer loses the last ${pc(K.tiers[2][0])}% of its demand before anyone loses more.</li>
+      <li>Gas power at risk is the new gas shortfall as a share of national gas use, times the country's gas-fired GW. People affected by a power outage are the population times the share of national capacity lost.</li>
+      <li>A zone knocks the chosen share off every field, refinery, port, LNG terminal, pipeline junction and power plant inside it. People inside are summed from Kontur's 2023 population hexagons.</li>
+      <li>A dried basin loses the chosen share of its water, and so does every basin upstream of it. A basin downstream loses that share times the dried basin's upstream area over its own, and the effect stops once it falls below ${pc(WATER.stop)}%. Water stress (use ÷ available) rises as water falls and is re-banded at Aqueduct's ${WATER.cut.map(pc).join(", ")}% thresholds.</li>
+      <li>Only basins that end up highly stressed lose people: ${WATER.leave.map(([l, r]) => pc(r) + "% if over " + pc(l) + "% of the water is gone").join(", ")}. They head for towns of 100,000+ within ${WATER.reach[0]} km (${WATER.reach[1]} km if none) in basins that are untouched and at most medium stress, weighted by population over distance squared. Real migration depends on far more than water.</li>
+      <li>Thermal plants in a basin losing over ${pc(WATER.plant)}% of its water may have to cut output for want of cooling water; hydro output falls with the water.</li>
+      <li>Road and rail: ${fmt(trInfo ? trInfo.names.length : 3089)} cities of 100,000+ are tied to the nearest line within ${trInfo ? trInfo.cityKm : 25} km, and line ends within ${trInfo ? trInfo.snapKm : 3} km are joined. Each city's trips go to its ${TRANSPORT.partners} strongest partners within ${fmt(TRANSPORT.reach)} km (population × population ÷ distance²), adding up to its population: a trip index, not vehicles. Trains run at ${TRANSPORT.speed.rail} km/h, cars at ${TRANSPORT.speed.road} km/h and ${TRANSPORT.speed.fast} km/h on expressways. A zone divides speeds inside it by (1 − damage) and closes the lines at ${pc(TRANSPORT.closed)}%. Trips to or from a city inside are counted as lost; trips through it take the fastest way round, and one over ${TRANSPORT.giveUp[0]} × today's time + ${TRANSPORT.giveUp[1]} h counts as no practical route, because the mapped network leaves out most minor roads.</li>
+      <li>Today's flows were solved in ${fmt(b.ms)} ms. All constants are illustrative.</li></ul>`;
+  }
+  function simBind() {
+    const h = $("simHint"); h.dataset.text = h.textContent;
+    $("simPick").onclick = () => simSetPick(simPicking === true ? false : true);
+    $("simDry").onclick = () => simSetPick(simPicking === "water" ? false : "water");
+    $("simClear").onclick = () => { simShocks = []; simRenderList(); simRun(0); };
+    $("simChoke").onchange = e => { const v = e.target.value; e.target.value = ""; if (v) simAdd("choke", v, 1); };
+    const box = $("simPresets");
+    box.innerHTML = '<span class="sum small">Examples:</span>';
+    SIM_PRESETS.forEach(([label, list, why]) => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = label;
+      if (!list) { b.disabled = true; b.title = why; }
+      else b.onclick = async () => { simShocks = []; for (const [k, t, m] of list) await simAdd(k, Array.isArray(t) ? t.slice() : t, m, false); simRenderList(); simRun(0); };
+      box.appendChild(b);
+    });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && simPicking) simSetPick(false); });
+  }
+
   // ---------- farmland & land cover (GIBS rasters, drawn above any satellite imagery) ----------
   const LC = [["Forest", "#218a21 #31cc31 #98cc31 #96fa96 #8dba8d"], ["Shrubland", "#ba8d8d #f5deb3"], ["Savanna", "#daeb9d #ffd500"], ["Grassland", "#f0b967"], ["Cropland", "#faef73"],
     ["Cropland & natural mosaic", "#999356"], ["Wetland", "#4783b5"], ["Urban", "#ff0000"], ["Snow & ice", "#ffffff"], ["Barren", "#bfbfbd"], ["Water", "#86cae3"]];
   const AGRI = {
-    crop: { id: "Agricultural_Lands_Croplands_2000", lvl: 7, colors: ["rgb(254,244,221)", "rgb(252,205,151)", "rgb(247,136,58)", "rgb(214,86,15)", "rgb(156,54,2)"],
+    crop: { id: "Agricultural_Lands_Croplands_2000", lvl: 7, ticks: ["&lt;10%", "25%", "45%", "65%", "85%+"], colors: ["rgb(254,244,221)", "rgb(252,205,151)", "rgb(247,136,58)", "rgb(214,86,15)", "rgb(156,54,2)"],
       note: "Share of each ~10 km cell used for crops around 2000, from farm census and satellite land cover. Ramankutty et al. 2010, NASA SEDAC, via GIBS.",
       attr: 'Croplands 2000: Ramankutty et al., <a href="https://doi.org/10.7927/H4C8276G" target="_blank" rel="noopener">NASA SEDAC</a>, CC BY 4.0, via ' + A_GIBS },
-    past: { id: "Agricultural_Lands_Pastures_2000", lvl: 7, colors: ["rgb(247,252,245)", "rgb(195,228,188)", "rgb(111,190,119)", "rgb(50,145,74)", "rgb(14,99,43)"],
+    past: { id: "Agricultural_Lands_Pastures_2000", lvl: 7, ticks: ["&lt;10%", "25%", "45%", "65%", "85%+"], colors: ["rgb(247,252,245)", "rgb(195,228,188)", "rgb(111,190,119)", "rgb(50,145,74)", "rgb(14,99,43)"],
       note: "Share of each ~10 km cell used as pasture for livestock around 2000. Ramankutty et al. 2010, NASA SEDAC, via GIBS.",
       attr: 'Pastures 2000: Ramankutty et al., <a href="https://doi.org/10.7927/H47H1GGR" target="_blank" rel="noopener">NASA SEDAC</a>, CC BY 4.0, via ' + A_GIBS },
     lc: { id: "MODIS_Combined_L3_IGBP_Land_Cover_Type_Annual", lvl: 8, years: [2001, 2024],
       note: "Dominant land cover in each 500 m cell for the year (IGBP classes), from Terra and Aqua MODIS. MCD12Q1 v061.",
-      attr: 'MODIS land cover <a href="https://doi.org/10.5067/MODIS/MCD12Q1.061" target="_blank" rel="noopener">MCD12Q1 v061</a>, NASA, via ' + A_GIBS }
+      attr: 'MODIS land cover <a href="https://doi.org/10.5067/MODIS/MCD12Q1.061" target="_blank" rel="noopener">MCD12Q1 v061</a>, NASA, via ' + A_GIBS },
+    pop: { id: "GPW_Population_Density_2020", lvl: 7, ticks: ["&lt;5", "10", "50", "200", "1000+ /km²"], colors: ["rgb(255,227,182)", "rgb(252,203,131)", "rgb(250,171,77)", "rgb(251,129,56)", "rgb(196,8,37)"],
+      note: "People per km² in 2020, from national censuses spread over ~1 km cells and adjusted to UN totals. GPW v4.11, CIESIN / NASA SEDAC.",
+      attr: 'Population density 2020: <a href="https://doi.org/10.7927/H49C6VHW" target="_blank" rel="noopener">GPW v4.11, CIESIN</a>, CC BY 4.0, via ' + A_GIBS }
   };
   function applyAgri() {
     const A = AGRI[$("agri").value], lg = $("agriLegend");
@@ -2091,12 +3771,13 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     $("agriCtl").hidden = lg.hidden = !A;
     if (!A) return;
     $("agriYearWrap").hidden = !A.years;
-    const time = A.years ? $("agriYear").value + "-01-01" : "default";
-    map.addSource("agri", { type: "raster", tiles: [`${GIBS}${A.id}/default/${time}/GoogleMapsCompatible_Level${A.lvl}/{z}/{y}/{x}.png`], tileSize: 256, maxzoom: A.lvl, attribution: A.attr });
+    const time = A.years ? $("agriYear").value + "-01-01" : "default", saved = offUse.imagery && OFF.imagery[$("agri").value];
+    // offline: the 2000 cropland and pasture maps and the population map can be saved by tools/offline.py; yearly land cover can't
+    map.addSource("agri", { type: "raster", tiles: [saved ? offUrl(saved.url) : `${GIBS}${A.id}/default/${time}/GoogleMapsCompatible_Level${A.lvl}/{z}/{y}/{x}.png`], tileSize: 256, maxzoom: saved ? saved.maxzoom : A.lvl, attribution: A.attr });
     map.addLayer({ id: "agri", type: "raster", source: "agri", paint: { "raster-opacity": +$("agriOpacity").value / 100, "raster-fade-duration": 150 } }, "disputed");
     lg.innerHTML = A.colors
       ? `<div class="bar" style="grid-template-columns:repeat(5,1fr)">${A.colors.map(c => `<i style="background:${c}"></i>`).join("")}</div>
-         <div class="ticks" style="grid-template-columns:repeat(5,1fr)"><span>&lt;10%</span><span>25%</span><span>45%</span><span>65%</span><span>85%+</span></div><div class="note">${A.note}</div>`
+         <div class="ticks" style="grid-template-columns:repeat(5,1fr)">${A.ticks.map(t => `<span>${t}</span>`).join("")}</div><div class="note">${A.note}</div>`
       : `<div class="lc-key">${LC.map(([n, c]) => `<span>${c.split(" ").map(x => `<i style="background:${x}"></i>`).join("")}${n}</span>`).join("")}</div><div class="note">${A.note}</div>`;
     lg.hidden = false;
   }
@@ -2111,6 +3792,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   // ---------- sources (sidebar) ----------
   // meta: a file in infra_meta.json or a live feed in the manifest, for the "retrieved" date
   const SOURCES = [
+    ["US EIA International Energy Data", "https://www.eia.gov/international/data/world", "country oil, products, distillate and gas balances (Scenarios)", "public domain", "latest year to 2025", "country_energy.json"],
+    ["Climate TRACE v6 assets", "https://climatetrace.org/data", "oil refineries: location, crude capacity, configuration, owner", "CC BY 4.0", "2024 inventory"],
+    ["Kontur Population 2023", "https://data.humdata.org/dataset/kontur-population-dataset", "people per 400 m hexagon (H3 r6 sums used here): country totals and density, people near a scenario zone or in a river basin", "CC BY 4.0", "Nov 2023", "pop/index.json"],
+    ["HydroSHEDS HydroBASINS v1c (level 6)", "https://www.hydrosheds.org/products/hydrobasins", "river basins and which basin drains into which (Scenarios: river basin drought)", "free with attribution, HydroSHEDS licence", "v1c", "basins.json"],
     ["Global Energy Monitor trackers", "https://globalenergymonitor.org/download-data", "oil & gas fields, coal & iron mines, mine boundaries, steel, cement, chemicals, pipelines, LNG terminals", "CC BY 4.0", "releases Sep 2025 – Sep 2026"],
     ["Maus et al. 2022, mining polygons v2", "https://doi.org/10.1594/PANGAEA.942325", "mined land", "CC BY-SA 4.0", "2022"],
     ["USGS critical minerals", "https://doi.org/10.5066/P9K1HBNT", "global deposits (2017) and US deposits v3", "public domain", "2017 & 2026"],
@@ -2143,10 +3828,14 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     ["Copernicus Sentinel-1 RTC (Catalyst), via Microsoft Planetary Computer", "https://planetarycomputer.microsoft.com/dataset/sentinel-1-rtc", "10 m radar scenes on demand", "CC BY 4.0", "live, last 30 days"],
     ["Ramankutty et al. 2010, Global Croplands 2000 (NASA SEDAC)", "https://doi.org/10.7927/H4C8276G", "cropland share, via GIBS", "CC BY 4.0", "2000"],
     ["Ramankutty et al. 2010, Global Pastures 2000 (NASA SEDAC)", "https://doi.org/10.7927/H47H1GGR", "pasture share, via GIBS", "CC BY 4.0", "2000"],
+    ["CIESIN Gridded Population of the World v4.11 (NASA SEDAC)", "https://doi.org/10.7927/H49C6VHW", "population density 2020, via GIBS", "CC BY 4.0", "2020"],
     ["NASA MODIS Land Cover (MCD12Q1 v061)", "https://doi.org/10.5067/MODIS/MCD12Q1.061", "land cover type, yearly, via GIBS", "NASA open data", "2001–2024"],
     ["Esri World Imagery", "https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9", "sharp base imagery", "Esri terms of use", "mixed dates"],
     ["OpenStreetMap via OpenFreeMap", "https://openfreemap.org/", "streets, buildings, rail, water and street names from zoom 6 (vector tiles rebuilt about weekly)", "ODbL; credit © OpenStreetMap contributors, © OpenMapTiles", "weekly"],
-    ["Mapterhorn terrain tiles", "https://mapterhorn.com/attribution", "elevation for terrain shading (Copernicus GLO-30 worldwide, national lidar and DEMs in places)", "open data: Copernicus DEM licence, CC BY 4.0, public domain and national open licences; credit © Mapterhorn", "2025"]
+    ["Mapterhorn terrain tiles", "https://mapterhorn.com/attribution", "elevation for terrain shading (Copernicus GLO-30 worldwide, national lidar and DEMs in places)", "open data: Copernicus DEM licence, CC BY 4.0, public domain and national open licences; credit © Mapterhorn", "2025"],
+    ["NASA Blue Marble & Black Marble", "https://www.earthdata.nasa.gov/gibs", "relief, sea floor and 2016 night-light mosaics, saved for offline use by tools/offline.py", "NASA open data", "2004, 2016"],
+    ["pmtiles.js (Protomaps)", "https://github.com/protomaps/PMTiles", "reads the offline street and terrain files", "BSD-3-Clause", "4.5.0"],
+    ["IBM Plex Sans, IBM Plex Mono, Archivo", "https://fonts.google.com/", "interface fonts, self-hosted", "SIL Open Font License 1.1", ""]
   ];
   Promise.all([get("infra_meta.json").catch(() => ({})), manifestP]).then(([meta, man]) => {
     $("sources").innerHTML = SOURCES.map(([n, url, what, lic, when, key]) => {
@@ -2167,7 +3856,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     set("osm-case", "line-color", css("--street-case")); set("osm-street", "line-color", ["match", ["get", "class"], ["motorway", "trunk", "primary"], css("--street-major"), css("--street")]);
     set("osm-rail", "line-color", css("--rail")); set("osm-names", "text-color", css("--street-ink")); set("osm-names", "text-halo-color", css("--halo"));
     set("lakes", "fill-color", css("--water")); set("lakes-line", "line-color", css("--river")); set("rivers", "line-color", css("--river"));
-    set("maritime", "line-color", css("--sea-ink")); set("borders", "line-color", css("--border")); set("disputed-lines", "line-color", css("--disputed"));
+    set("maritime", "line-color", css("--sea-ink")); set("borders", "line-color", css("--border")); set("disputed-lines", "line-color", css("--disputed")); set("disputed-edge", "line-color", css("--disputed"));
     set("lanes", "line-color", css("--lane")); set("roads", "line-color", css("--road")); set("rail", "line-color", css("--rail")); set("rail-ties", "line-color", css("--rail-tie"));
     set("ports-pts", "circle-color", css("--panel")); set("ports-pts", "circle-stroke-color", css("--lane"));
     set("gw-major", "line-color", css("--gw")); set("gw-mining", "circle-color", css("--panel")); set("gw-mining", "circle-stroke-color", css("--stress"));
@@ -2178,7 +3867,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       if (Q[s].ring) { set("lng-pts", "circle-stroke-color", col); return; }
       set(s + "-pts", "circle-color", col); set(s + "-pts", "circle-stroke-color", css("--mark-ring"));
     });
-    ["pipes-oil", "pipes-gas", "og-outline-line"].forEach(l => set(l, "line-color", css("--oil"))); set("og-outline", "fill-color", css("--oil"));
+    ["pipes-oil", "pipes-gas", "og-outline-line"].forEach(l => set(l, "line-color", css("--oil")));
+    simPipeTone(); set("og-outline", "fill-color", css("--oil"));
     set("cb-fill", "fill-color", css("--coal")); set("cb-line", "line-color", css("--coal"));
     ["foot_w", "foot_c", "foot_e"].forEach(id => { set(id + "-fill", "fill-color", css("--foot")); set(id + "-line", "line-color", css("--foot")); });
     Object.entries(ICONS).forEach(([id, [shape, tok]]) => map.updateImage(id, icon(shape, css(tok))));
@@ -2188,6 +3878,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
     set("cables", "line-color", css("--cable")); set("cables-plan", "line-color", css("--cable"));
     set("landings-pts", "circle-color", css("--panel")); set("landings-pts", "circle-stroke-color", css("--cable"));
     set("hover-line", "line-color", css("--ink")); set("story-halo", "circle-color", css("--conflict")); set("story-halo", "circle-stroke-color", css("--conflict"));
+    set("sim-zone-fill", "fill-color", css("--sim-zone")); set("sim-zone-line", "line-color", css("--sim-zone")); set("sim-off-line", "line-color", css("--sim-off"));
+    set("sim-basin-line", "line-color", css("--sim-dry")); set("sim-water-fill", "fill-color", css("--sim-dry")); set("sim-water-line", "line-color", css("--sim-dry"));
+    set("sim-move", "line-color", css("--sim-move")); set("sim-move-pts", "circle-color", css("--sim-move")); set("sim-move-pts", "circle-stroke-color", css("--mark-ring"));
+    ["sim-flow", "sim-flow-gas", "sim-traffic", "sim-traffic-rail"].forEach(l => set(l, "line-color", ["case", [">", ["get", "d"], 0], css("--sim-up"), css("--sim-down")]));
     ["airports-l", "airports-m", "airports-s"].forEach(l => {
       set(l, "circle-color", ["case", ["has", "mil"], css("--panel"), css("--air")]); set(l, "circle-stroke-color", ["case", ["has", "mil"], css("--air"), css("--mark-ring")]);
     });

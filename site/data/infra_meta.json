@@ -128,5 +128,90 @@
   "osm_dropped_disused": 224,
   "osm_dropped_police": 55
  },
- "_generated": "2026-10-09T02:23:18Z"
+ "_generated": "2026-10-14T02:21:25Z",
+ "refineries.geojson": {
+  "count": 728,
+  "bytes": 180191,
+  "sources": [
+   {
+    "url": "https://api.climatetrace.org/v6/assets?subsectors=oil-and-gas-refining&limit=2000&year=2024",
+    "retrieved": "2026-10-13T17:57:47Z",
+    "name": "Climate TRACE v6 assets (oil-and-gas-refining)",
+    "licence": "CC BY 4.0"
+   }
+  ],
+  "total_mbd": 109.86,
+  "imputed": 35
+ },
+ "energy_graph.json": {
+  "count": 12526,
+  "edges": 25766,
+  "bytes": 1157935,
+  "sources": [
+   {
+    "url": "https://www.eia.gov/opendata/bulk/INTL.zip",
+    "retrieved": "2026-10-13T19:02:46Z",
+    "name": "US EIA International Energy Data (bulk INTL.zip)",
+    "licence": "public domain"
+   },
+   {
+    "name": "built from pipelines, oilgas, refineries, ports_wpi, lng, shipping, chokepoints, power, labels"
+   }
+  ]
+ },
+ "country_energy.json": {
+  "count": 214,
+  "bytes": 48528,
+  "sources": [
+   {
+    "url": "https://www.eia.gov/opendata/bulk/INTL.zip",
+    "retrieved": "2026-10-13T19:02:46Z",
+    "name": "US EIA International Energy Data (bulk INTL.zip)",
+    "licence": "public domain"
+   }
+  ]
+ },
+ "pop/index.json": {
+  "count": 2016971,
+  "tiles": 383,
+  "bytes": 8221084,
+  "sources": [
+   {
+    "url": "https://geodata-eu-central-1-kontur-public.s3.eu-central-1.amazonaws.com/kontur_datasets/kontur_population_20231101_r6.gpkg.gz",
+    "retrieved": "2026-10-13T22:42:34Z",
+    "name": "Kontur Population 2023-11-01, H3 resolution 6",
+    "licence": "CC BY 4.0"
+   }
+  ]
+ },
+ "basins.json": {
+  "count": 16003,
+  "bytes": 695034,
+  "sources": [
+   {
+    "url": "https://data.hydrosheds.org/file/hydrobasins/standard/hybas_af_lev06_v1c.zip",
+    "retrieved": "2026-10-13T23:07:33Z",
+    "name": "HydroSHEDS HydroBASINS v1c, level 6 (9 regional files)",
+    "licence": "HydroSHEDS licence: free with attribution"
+   },
+   {
+    "url": "https://geodata-eu-central-1-kontur-public.s3.eu-central-1.amazonaws.com/kontur_datasets/kontur_population_20231101_r6.gpkg.gz",
+    "retrieved": "2026-10-13T22:42:34Z",
+    "name": "Kontur Population 2023-11-01, H3 resolution 6",
+    "licence": "CC BY 4.0"
+   },
+   {
+    "name": "basin polygons from water_risk.geojson (WRI Aqueduct 4.0)"
+   }
+  ]
+ },
+ "transport_graph.json": {
+  "count": 45832,
+  "bytes": 1745817,
+  "sources": [
+   {
+    "name": "built from roads, rail and labels (Natural Earth 10m)"
+   }
+  ]
+ }
 }

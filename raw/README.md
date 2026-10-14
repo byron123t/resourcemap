@@ -60,6 +60,28 @@ Outputs: `site/data/bases.geojson`, `airports.geojson`, `ports_wpi.geojson`, `da
 
 Licence note: PeeringDB data is not openly licensed. Its AUP (peeringdb.com/aup) forbids reproducing the data or passing it on in bulk without PeeringDB's permission, except for approved "Internet operational purposes". So the default build is OSM-only. Only use `--with-peeringdb` for local work, or once PeeringDB has given permission to publish (`src:"p"` marks those points).
 
+## raw/net/ — step 6 (downloaded automatically)
+
+`pipeline/step6_network_pop.py` downloads these itself and caches them here; `--offline` rebuilds from the cache and `--only=refineries`, `--only=energy`, `--only=pop,water` or `--only=transport` runs one section. The big Kontur and HydroBASINS files are downloaded once and kept. Its counts and sources are merged into `infra_meta.json`.
+
+```
+raw/net/
+  ct_refining.json              Climate TRACE v6 assets, subsector oil-and-gas-refining (CC BY 4.0)
+                                api.climatetrace.org/v6/assets?subsectors=oil-and-gas-refining&limit=2000&year=2024
+  eia_intl.zip                  US EIA International Energy Data, bulk file (public domain, ~24 MB)
+                                www.eia.gov/opendata/bulk/INTL.zip
+  kontur/kontur_population_20231101_r6.gpkg.gz
+                                Kontur Population 2023, H3 resolution 6 (CC BY 4.0, ~185 MB)
+                                geodata-eu-central-1-kontur-public.s3.eu-central-1.amazonaws.com/kontur_datasets/
+                                Unpacked (~1 GB) to <system temp>/atlas-kontur/ when needed, never into the repo.
+  hydrobasins/hybas_{af,ar,as,au,eu,gr,na,sa,si}_lev06_v1c.zip
+                                HydroSHEDS HydroBASINS v1c level 6, 9 regions (free with attribution, ~91 MB)
+                                data.hydrosheds.org/file/hydrobasins/standard/
+  _fetch.json                   URL and retrieval time of each download
+```
+
+Output: `site/data/refineries.geojson`, `country_energy.json` and `energy_graph.json` (`--only=energy`, built from the EIA file plus the pipelines, fields, refineries, WPI ports, LNG, shipping lanes, chokepoints, power plants and city labels already in `site/data/`). `--only=pop` writes `site/data/pop/` (10° binary tiles of Kontur hexagon centres and people) and adds `kpop`/`kdens` to `country_totals.json`; `--only=water` writes `basins.json`, which matches each `water_risk.geojson` basin to a HydroBASINS basin to get its downstream neighbour, upstream area and population. Both need `numpy` and `matplotlib`. `--only=transport` downloads nothing: it snaps `roads.geojson` and `rail.geojson` into graphs and ties `labels.json` cities of 100,000+ to them, writing `transport_graph.json`.
+
 ## raw/live_cache/ — live feeds (downloaded automatically)
 
 `pipeline/live/fetch_live.py` keeps its downloads here so reruns only fetch what's new: `gdelt/` (GDELT 2.0 15-minute event files, used for conflict reports and the day/week storyboard), `gdelt1/` (GDELT 1.0 daily files, used for the month storyboard), `firms/` and `ais_static.json`. The farmland and land-cover layers have no raw files: the browser loads them as tiles from NASA GIBS.
@@ -67,7 +89,7 @@ Licence note: PeeringDB data is not openly licensed. Its AUP (peeringdb.com/aup)
 ## Suggested additions (not wired in yet)
 
 - **GEM Global Integrated Power Tracker** (solar, wind and every other fuel; Sep 2026). Use it to replace the WRI 2021 plants in step 3. globalenergymonitor.org/download-data
-- **Climate TRACE**: refineries and other manufacturing sites with coordinates and emissions. climatetrace.org/data
+- **Climate TRACE**: other manufacturing sites with coordinates and emissions (refineries are already used by step 6). climatetrace.org/data
 - **US DOE/NETL Global Oil & Gas Infrastructure**: refineries worldwide. doi.org/10.18141/1427300
 - **Oxford Spatial Finance Initiative GeoAsset databases**: pulp & paper and ethylene plants. sustainablefinance.ox.ac.uk/geoasset-databases/
 - **TransitionZero Solar Asset Mapper**: solar farms detected from satellite imagery. zenodo.org/records/11368204
