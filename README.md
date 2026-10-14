@@ -174,7 +174,7 @@ Zones also re-route road and rail traffic. The model is the classic `<script id=
    - The US critical-minerals set is far denser than the global one.
    - About two thirds of oil and gas fields report no production.
    - Military bases come from Wikidata plus OpenStreetMap `military=base|airfield|naval_base` (deduplicated within 3 km). Still incomplete: OSM mapping is uneven and few secret or foreign-operated sites are tagged.
-   - Data centres are OSM only, so coverage is uneven. PeeringDB has better coverage but its AUP forbids republishing, so it is off by default (`--with-peeringdb`).
+   - Data centres in the repo are OSM only, so coverage is uneven. The Pages build adds PeeringDB facilities to the deployed copy (see the PeeringDB source note below); a local checkout shows them only after `step5_defense_infra.py --only=datacenters --with-peeringdb --no-osm`, whose output must not be committed.
 4. **Live feeds are snapshots, not streams.** Fires, events, ships and aircraft are as fresh as the last Pages build (every 30 min when GitHub runs the schedule on time). Global ships need the `AISSTREAM_API_KEY` secret and cover terrestrial AIS only, so open ocean is sparse and warships usually don't broadcast. Warship positions come from the weekly USNI tracker instead (US Navy only, place names rather than coordinates). Aircraft are the adsb.lol military filter plus about 35 business-jet and 60 airliner types, and only show transponders near volunteer receivers. Light jets, turboprops and piston planes aren't fetched, and opted-out (LADD/PIA) aircraft are left out on purpose.
 5. **Storyboard headlines are guessed from article URLs.** GDELT gives no titles, so `slug_title()` rebuilds one from the URL path and `slug_case()` restores capitals for known places and actors. Some headlines stay lower case or describe a different event at the same place.
 6. **Sentinel tiles need zoom 8–9 and are slow.** Planetary Computer renders each tile on request (about 1–2 s each), so a full screen takes a few seconds. It is a free public service with no uptime promise. Free sharper imagery is limited to Esri's mosaic (often several years old) and NAIP (US only, every 2–3 years). Fresh sub-metre imagery (Vantor/Maxar, Planet SkySat, Airbus Pléiades, or resellers such as SkyFi and UP42) is paid per km² and needs an API key, so it would need a small backend to hold the key and should be an explicit "order this view" button, never loaded on zoom.
@@ -212,7 +212,7 @@ Short property keys keep the files small. Every point feature has `q` (the quant
 | ports_wpi.geojson | 3,807 | NGA World Port Index: `hs` harbour size L/M/S/V, `q` 4/3/2/1 from size, `ht` harbour type, `cd` channel depth m, `od` oil terminal depth m, `mv` max vessel length m, `lo` UN/LOCODE, `wpi` index number, `c` country |
 | bases.geojson | 11,741 | military installations: `t` air/naval/army/missile/other, `src` w=Wikidata / o=OSM, `op` operator, `c` country (Wikidata only), `w` Wikidata QID, `osm` element id (n/w/r + id); closed bases dropped |
 | airports.geojson | 29,431 | OurAirports: `t` L/M/S (large/medium/small), `mil`=1 military or joint use, `rw` longest runway m, `p`=1 paved, `i` ICAO, `ia` IATA, `c` country; small fields without a runway record pruned |
-| datacenters.geojson | 4,692 | OSM `telecom=data_center`: `o` operator, `osm` element id, `src` o=OSM / p=PeeringDB |
+| datacenters.geojson | 4,692 | OSM `telecom=data_center`: `o` operator, `osm` element id, `src` o=OSM / p=PeeringDB. The deployed copy adds ~5,300 PeeringDB facilities (`c` country, `ci` city, `net` networks, `ix` exchanges, `id` PeeringDB id) and drops OSM points within 300 m of them |
 | cables.geojson | 733 | TeleGeography submarine cables, split at the antimeridian: `id`, `n`, `col`, `km`, `rfs` ready-for-service year, `own` owners, `sup` suppliers, `lp` landing point count, `pl`=1 planned, `url` |
 | landings.geojson | 1,926 | cable landing stations: `id`, `n`, `k` cables landing, `cs` cable names, `tbd`=1 planned only |
 | infra_meta.json | | per step-5 file: count, size, source URLs, retrieval time, licence |
@@ -265,6 +265,7 @@ Infrastructure (step 5):
 - **OurAirports**, https://ourairports.com/data/ (public domain).
 - **NGA World Port Index**, Pub 150, https://msi.nga.mil/Publications/WPI (public domain, US Government).
 - **OpenStreetMap** `telecom=data_center` via Overpass, © OpenStreetMap contributors (ODbL 1.0).
+- **PeeringDB** facilities, https://www.peeringdb.com/api/fac (PeeringDB AUP, https://www.peeringdb.com/aup; not openly licensed). Merged into `datacenters.geojson` by the Pages workflow at deploy time and never committed. The AUP forbids republishing the data in bulk without PeeringDB's permission, and the published site is public, so this is a deliberate choice by the site owner; drop the "Add PeeringDB data centres" workflow step if PeeringDB objects.
 
 Live feeds (fetched every 30 min by the Pages workflow, or live from the browser):
 

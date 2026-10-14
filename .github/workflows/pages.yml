@@ -8,6 +8,8 @@
 # Optional: Settings → Secrets and variables → Actions → AISSTREAM_API_KEY (free key from
 # aisstream.io) for worldwide ships; without it the ships layer falls back to the Baltic
 # feed. Warship positions (USNI) are global and need no key.
+# PeeringDB data centres are merged into the deployed datacenters.geojson here and never committed
+# (the repo copy stays OSM-only). Optional secret PEERINGDB_API_KEY raises PeeringDB's anonymous rate limit.
 name: Pages
 
 on:
@@ -45,6 +47,8 @@ jobs:
           path: |
             raw/live_cache
             site/data/live
+            raw/infra/peeringdb_fac.json
+            raw/infra/_fetch.json
           key: live-${{ github.run_id }}
           restore-keys: live-
 
@@ -54,6 +58,13 @@ jobs:
           AISSTREAM_API_KEY: ${{ secrets.AISSTREAM_API_KEY }}
         run: python3 -I pipeline/live/fetch_live.py
 
+      # Refetched at most once a day (step 5 reuses a download under 24 h old); on failure the OSM-only file ships
+      - name: Add PeeringDB data centres
+        continue-on-error: true
+        env:
+          PEERINGDB_API_KEY: ${{ secrets.PEERINGDB_API_KEY }}
+        run: python3 -I pipeline/step5_defense_infra.py --only=datacenters --with-peeringdb --no-osm
+
       # Saved even if the Pages steps below fail: the AIS ship-type cache builds up across runs
       - uses: actions/cache/save@v4
         if: always()
@@ -61,6 +72,8 @@ jobs:
           path: |
             raw/live_cache
             site/data/live
+            raw/infra/peeringdb_fac.json
+            raw/infra/_fetch.json
           key: live-${{ github.run_id }}
 
       # Lets a dev pull the latest snapshots without the API keys: gh run download -n live-data -D site/data/live

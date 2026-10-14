@@ -11,9 +11,14 @@ Writes to site/data/:
 
 Raw downloads are cached in raw/infra/. Flags:
   --offline        use only the cache (fail if a required file is missing)
-  --with-peeringdb add PeeringDB facilities. Off by default: the PeeringDB AUP forbids
-                   republishing its data without permission, so don't deploy that build
-  --no-osm         skip the Overpass requests (and leave OSM bases out)
+  --with-peeringdb add PeeringDB facilities (PeeringDB AUP, not openly licensed). Off by
+                   default so the committed datacenters.geojson stays OSM-only; the Pages
+                   workflow adds them to the deployed copy. Reuses a download under a day old.
+                   Sends PEERINGDB_API_KEY from the environment if set.
+  --no-osm         skip the Overpass requests (and leave OSM bases out). Data centres then
+                   keep the OSM points already in site/data/datacenters.geojson
+  --only=a,b       run only these sections (airports, ports, datacenters, cables, bases);
+                   the other entries in infra_meta.json are kept
 """
 import os
 ROOT = os.environ.get("ATLAS_ROOT", os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -27,9 +32,11 @@ UA = "resourcemap-pipeline/1.0 (+https://github.com/byron123t/resourcemap)"
 OFFLINE = "--offline" in sys.argv
 NO_PDB = "--with-peeringdb" not in sys.argv
 NO_OSM = "--no-osm" in sys.argv
+ONLY = next((a.split("=", 1)[1].split(",") for a in sys.argv if a.startswith("--only=")), None)
 FETCHLOG = f"{RAW}/_fetch.json"
 fetchlog = json.load(open(FETCHLOG)) if os.path.exists(FETCHLOG) else {}
-meta = {}
+META = f"{OUT}/infra_meta.json"
+meta = json.load(open(META)) if ONLY and os.path.exists(META) else {}
 
 def now_utc():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -439,7 +446,17 @@ def dist_m(a, b):
 def datacenters():
     feats, srcs = [], []
     if not NO_PDB:
-        d = json.loads(cached("peeringdb_fac.json", PDB, timeout=180))
+        p = f"{RAW}/peeringdb_fac.json"
+        if not OFFLINE and os.path.exists(p) and time.time() - os.path.getmtime(p) < 86400:
+            print("  using PeeringDB download from the last 24 h"); b = open(p, "rb").read()
+        else:
+            key = os.environ.get("PEERINGDB_API_KEY")
+            try:
+                b = cached("peeringdb_fac.json", PDB, timeout=180, headers={"Authorization": f"Api-Key {key}"} if key else None)
+            except Exception as e:
+                if not os.path.exists(p): raise
+                print(f"  PeeringDB failed ({e}); using the older download"); b = open(p, "rb").read()
+        d = json.loads(b)
         assert "data" in d, d
         for f in d["data"]:
             if f.get("status") != "ok" or f.get("latitude") is None or f.get("longitude") is None: continue
@@ -469,6 +486,18 @@ def datacenters():
                     if k == 0: time.sleep(30)
         if osm is None and os.path.exists(p):
             print("  using cached OSM data"); osm = json.load(open(p))
+    old = f"{OUT}/datacenters.geojson"
+    if osm is None and os.path.exists(old):
+        # no Overpass and no cache (as in CI): keep the OSM points of the current output
+        print("  reusing OSM points from site/data/datacenters.geojson")
+        T = {"n": "node", "w": "way", "r": "relation"}
+        osm = {"elements": [{"type": T[f["properties"]["osm"][0]], "id": int(f["properties"]["osm"][1:]),
+                             "lat": f["geometry"]["coordinates"][1], "lon": f["geometry"]["coordinates"][0],
+                             "tags": {"name": f["properties"].get("n"), "operator": f["properties"].get("o")}}
+                            for f in json.load(open(old, encoding="utf-8"))["features"] if f["properties"].get("src") == "o"]}
+        osm_src = next((s for s in meta.get("datacenters.geojson", {}).get("sources", []) if "OpenStreetMap" in (s.get("licence") or "")), None)
+    else:
+        osm_src = srcinfo("osm_datacenters.json", licence="ODbL 1.0, © OpenStreetMap contributors", query=OVQ)
     nosm = skipped = 0
     if osm:
         # grid index of PeeringDB points for the 300 m proximity test
@@ -485,7 +514,7 @@ def datacenters():
             feats.append(pt(xy[0], xy[1], {"n": (tg.get("name") or tg.get("operator") or "Data center").strip(),
                                            "o": tg.get("operator"), "q": 1, "src": "o", "osm": e["type"][0] + str(e["id"])}))
             nosm += 1
-        srcs.append(srcinfo("osm_datacenters.json", licence="ODbL 1.0, © OpenStreetMap contributors", query=OVQ))
+        if osm_src: srcs.append(osm_src)
     print(f"datacenters: PeeringDB {npdb}, OSM added {nosm} (skipped {skipped} within 300 m of PeeringDB)")
     json.dump(fetchlog, open(FETCHLOG, "w"), indent=1)
     feats.sort(key=lambda f: f["properties"]["q"])
@@ -493,11 +522,9 @@ def datacenters():
 
 if __name__ == "__main__":
     print("step5", "(offline)" if OFFLINE else "")
-    airports(); json.dump(fetchlog, open(FETCHLOG, "w"), indent=1)
-    ports(); json.dump(fetchlog, open(FETCHLOG, "w"), indent=1)
-    datacenters()
-    cables(); json.dump(fetchlog, open(FETCHLOG, "w"), indent=1)
-    bases()
+    for name, fn in {"airports": airports, "ports": ports, "datacenters": datacenters, "cables": cables, "bases": bases}.items():
+        if ONLY and name not in ONLY: continue
+        fn(); json.dump(fetchlog, open(FETCHLOG, "w"), indent=1)
     meta["_generated"] = now_utc()
-    json.dump(meta, open(f"{OUT}/infra_meta.json", "w"), indent=1, ensure_ascii=False)
+    json.dump(meta, open(META, "w"), indent=1, ensure_ascii=False)
     print("wrote infra_meta.json")

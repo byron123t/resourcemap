@@ -58,7 +58,7 @@ raw/infra/
 
 Outputs: `site/data/bases.geojson`, `airports.geojson`, `ports_wpi.geojson`, `datacenters.geojson`, `cables.geojson`, `landings.geojson`, and `infra_meta.json`, which holds counts, sources and retrieval times.
 
-Licence note: PeeringDB data is not openly licensed. Its AUP (peeringdb.com/aup) forbids reproducing the data or passing it on in bulk without PeeringDB's permission, except for approved "Internet operational purposes". So the default build is OSM-only. Only use `--with-peeringdb` for local work, or once PeeringDB has given permission to publish (`src:"p"` marks those points).
+Licence note: PeeringDB data is not openly licensed. Its AUP (peeringdb.com/aup) forbids reproducing the data or passing it on in bulk without PeeringDB's permission, except for approved "Internet operational purposes". So the committed build is OSM-only. The Pages workflow runs `step5_defense_infra.py --only=datacenters --with-peeringdb --no-osm` at deploy time, so the published site does carry PeeringDB points (`src:"p"`). That is the owner's call; don't commit a `--with-peeringdb` build of `site/data/datacenters.geojson`.
 
 ## raw/net/ — step 6 (downloaded automatically)
 

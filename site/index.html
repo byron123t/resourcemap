@@ -503,7 +503,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
           <label class="layer" for="airMode"><span></span><span></span><select id="airMode" aria-label="Which airports">
             <option value="LM">Large &amp; medium airports</option><option value="">All, including small strips</option><option value="mil">Military airfields only</option><option value="L">Large airports only</option>
           </select></label>
-          <label class="layer"><input type="checkbox" id="lyr-dc"><svg class="sw" viewBox="0 0 14 14"><rect x="3" y="3" width="8" height="8" rx="1" fill="var(--dc)" stroke="var(--mark-ring)"/></svg><span class="name">Data centres<small>OpenStreetMap</small></span><span class="count" id="n-dc"></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-dc"><svg class="sw" viewBox="0 0 14 14"><rect x="3" y="3" width="8" height="8" rx="1" fill="var(--dc)" stroke="var(--mark-ring)"/></svg><span class="name">Data centres<small>PeeringDB &amp; OpenStreetMap</small></span><span class="count" id="n-dc"></span></label>
         </div>
       </section>
 
@@ -2442,9 +2442,11 @@ onmessage = async ev => {
       foot = "OurAirports (public domain), updated nightly by volunteers.";
     } else if (k === "dc") {
       title = p.n || "Data centre";
-      rows = row("Operator", T(p.o));
+      rows = row("Operator", T(p.o)) + row("City", T(p.ci)) + row("Country", T(p.c)) + row("Networks present", p.net ? fmt(p.net) : null, true) + row("Internet exchanges", p.ix ? fmt(p.ix) : null, true);
       if (p.osm) links = link(`https://www.openstreetmap.org/${{ n: "node", w: "way", r: "relation" }[p.osm[0]]}/${p.osm.slice(1)}`, "OpenStreetMap feature");
-      foot = "OpenStreetMap (telecom=data_center), © OpenStreetMap contributors, ODbL. Coverage is uneven and many facilities are unmapped.";
+      if (p.src === "p" && p.id) links = link("https://www.peeringdb.com/fac/" + p.id, "PeeringDB record");
+      foot = p.src === "p" ? "PeeringDB facility record, used under the PeeringDB AUP. Locations are self-reported by operators."
+        : "OpenStreetMap (telecom=data_center), © OpenStreetMap contributors, ODbL. Coverage is uneven and many facilities are unmapped.";
     } else if (k === "events") {
       rows = row("Reports (events)", fmt(p.e), true) + row("News articles", fmt(p.a), true) + row("In the last 72 h", fmt(p.e3), true)
         + row("· assaults (CAMEO 18)", fmt(p.r18), true) + row("· fighting (19)", fmt(p.r19), true) + row("· mass violence (20)", fmt(p.r20), true)
@@ -3809,6 +3811,7 @@ onmessage = async ev => {
     ["TeleGeography Submarine Cable Map", "https://www.submarinecablemap.com/", "undersea cables & landing stations", "CC BY-NC-SA 3.0", "", "cables.geojson"],
     ["OurAirports", "https://ourairports.com/data/", "airports & airstrips", "public domain", "", "airports.geojson"],
     ["NGA World Port Index (Pub. 150)", "https://msi.nga.mil/Publications/WPI", "seaports", "public domain", "", "ports_wpi.geojson"],
+    ["PeeringDB", "https://www.peeringdb.com/", "data centres (added at deploy time)", "PeeringDB AUP (peeringdb.com/aup), not openly licensed", "", "datacenters.geojson"],
     ["OpenStreetMap", "https://www.openstreetmap.org/copyright", "data centres, military bases", "ODbL, © OpenStreetMap contributors", "", "datacenters.geojson"],
     ["Photon geocoder (komoot)", "https://photon.komoot.io/", "place search, on OpenStreetMap data", "ODbL, © OpenStreetMap contributors", "live, as you type"],
     ["NASA FIRMS", "https://firms.modaps.eosdis.nasa.gov/", "fires & heat (VIIRS 375 m)", "NASA open data", "", "live:fires"],
@@ -3840,7 +3843,7 @@ onmessage = async ev => {
   Promise.all([get("infra_meta.json").catch(() => ({})), manifestP]).then(([meta, man]) => {
     $("sources").innerHTML = SOURCES.map(([n, url, what, lic, when, key]) => {
       if (key && key.startsWith("live:")) { const f = man && man.feeds && man.feeds[key.slice(5)]; when = f ? (f.updated ? "snapshot " + f.updated.slice(0, 16).replace("T", " ") + " UTC, every 30 min" : f.status || "no snapshot") : "no snapshot"; }
-      else if (key) { const s = meta[key] && meta[key].sources && meta[key].sources[0]; when = s && s.retrieved ? "retrieved " + s.retrieved.slice(0, 10) : when; }
+      else if (key) { const ss = (meta[key] && meta[key].sources) || [], s = ss.find(s => (s.licence || "").includes(n)) || ss[0]; when = s && s.retrieved ? "retrieved " + s.retrieved.slice(0, 10) : when; }
       return `<li><b><a href="${esc(url)}" target="_blank" rel="noopener">${esc(n)}</a></b>: ${esc(what)}<div class="m">${esc(lic)}${when ? " · " + esc(when) : ""}</div></li>`;
     }).join("") + `<li class="m">Static layers rebuild with <code>pipeline/run_all.sh</code>; live snapshots with <code>pipeline/live/fetch_live.py</code>, run every 30 min by the site's GitHub Action.</li>`;
   });
