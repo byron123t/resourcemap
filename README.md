@@ -279,7 +279,9 @@ Conversions: gas is converted at 6,000 cf per barrel of oil equivalent (million 
 - **Wikipedia, Biosafety level: list of BSL-4 facilities** (CC BY-SA 4.0): top-containment labs.
 - **OpenFlights routes** (ODbL), openflights.org/data, frozen in 2014: airline routes summed by country pair (`air.json`).
 - **epiparameterDB** (CC0 1.0), github.com/epiverse-trace/epiparameterDB: generation times and serial intervals behind the outbreak presets.
-- **World Bank World Development Indicators** (CC BY 4.0): people online, fixed broadband, secure servers, hospital beds, doctors.
+- **World Bank World Development Indicators** (CC BY 4.0): people online, fixed broadband, secure servers, hospital beds, doctors, and mineral rents (% of GDP).
+- **Wikipedia, "Internet censorship and surveillance by country"** (CC BY-SA 4.0): a hand-listed per-country internet censorship level (0 open to 100 sealed), approximating the article's pervasive/substantial/selective classes.
+- **TWNIC Taiwan Internet Report 2024** (report, cited): Taiwan's internet-use figure, since Taiwan is absent from the World Bank WDI.
 - **FAOSTAT** production (QCL) and detailed trade matrix (TM), 2023 (CC BY 4.0): wheat, maize, rice, soy, bananas, chicken meat.
 - **USGS earthquake catalogue** (public domain) with PAGER alerts, and **NASA EONET** (public domain) storms and floods: news scenarios.
 - **Global Shipping Lanes**, Benden 2022, https://doi.org/10.5281/zenodo.6361763 (CC BY 4.0, excluding Statista).

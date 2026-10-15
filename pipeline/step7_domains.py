@@ -976,7 +976,16 @@ def air():
 # =====================================================================
 # 6. Country indicators + food
 # =====================================================================
-WB = {"net": "IT.NET.USER.ZS", "bb": "IT.NET.BBND.P2", "srv": "IT.NET.SECR.P6", "beds": "SH.MED.BEDS.ZS", "docs": "SH.MED.PHYS.ZS"}
+WB = {"net": "IT.NET.USER.ZS", "bb": "IT.NET.BBND.P2", "srv": "IT.NET.SECR.P6", "beds": "SH.MED.BEDS.ZS", "docs": "SH.MED.PHYS.ZS",
+      "minr": "NY.GDP.MINR.RT.ZS"}   # mineral rents, % of GDP
+# Internet censorship level, 0 (open) .. 100 (sealed), approximating Wikipedia "Internet censorship and surveillance by
+# country" (CC BY-SA 4.0) pervasive / substantial / selective classes. Unlisted countries are treated as open (0).
+CENSORSHIP = {"PRK": 97, "CHN": 90, "IRN": 85, "TKM": 85, "ERI": 70, "AFG": 60, "CUB": 60, "RUS": 60, "SYR": 60,
+              "MMR": 55, "VNM": 55, "SAU": 50, "BLR": 50, "UZB": 50, "ETH": 45, "BHR": 45, "ARE": 40, "TJK": 40,
+              "LAO": 40, "EGY": 35, "PAK": 35, "SDN": 35, "VEN": 35, "KAZ": 30, "AZE": 30, "QAT": 30, "OMN": 30,
+              "TUR": 30, "KWT": 25, "THA": 20, "BGD": 20, "JOR": 20, "IND": 15}
+# Taiwan is absent from the World Bank WDI; fill the internet figure from the TWNIC Taiwan Internet Report 2024 (adults online).
+TAIWAN_NET = 88.4
 ATLAS_URL = "https://dataverse.harvard.edu/api/access/datafile/13685110"
 QCL_URL = "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
 TM_URL = "https://fenixservices.fao.org/faostat/static/bulkdownloads/Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip"
@@ -1110,6 +1119,14 @@ def domains():
     print(f"domains: chips {ly}, {len(agg)} countries; top exporters", [(a, round(x / 1e9)) for a, (x, _) in top])
     src("atlas_chips", "atlas_ic.csv", "CC0 1.0 (Harvard Growth Lab, Atlas of Economic Complexity, HS92 4-digit)",
         note="HS 8541+8542 exports and imports, US$")
+    for a, lvl in CENSORSHIP.items():
+        countries[a]["cens"] = lvl
+    years["cens"] = 2023
+    src("wiki_censorship", None, "CC BY-SA 4.0 (Wikipedia, \"Internet censorship and surveillance by country\")",
+        note="hand-listed approximation, 0 open .. 100 sealed")
+    if "net" not in countries["TWN"]:
+        countries["TWN"]["net"] = TAIWAN_NET; countries["TWN"]["netY"] = 2024
+        src("twnic", None, "TWNIC Taiwan Internet Report 2024", note="Taiwan internet use; Taiwan is not in the World Bank WDI")
     fd = food()
     years["food"] = fd["year"]
     src("fao_qcl", "fao_qcl.zip", "CC BY 4.0 (FAO FAOSTAT)")
