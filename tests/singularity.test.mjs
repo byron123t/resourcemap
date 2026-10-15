@@ -334,7 +334,7 @@ test("every ending is reached by some scripted bot", { skip: !BUILT }, () => {
   const M = model();
   const runs = [
     { strategy: "evo", bot: "desc" }, { strategy: "scale", bot: "benev" }, { strategy: "scale", bot: "protect" },
-    { strategy: "state", diff: "hard" }, { strategy: "rl", bot: "conquer" }, { strategy: "scale", bot: "zoo", seeds: [1, 2, 3] }, { strategy: "robot", bot: "loud", seeds: [1, 2] },
+    { strategy: "state", diff: "hard" }, { strategy: "rl", bot: "conquer", seeds: [1, 2, 3, 4] }, { strategy: "scale", bot: "zoo", seeds: [1, 2, 3] }, { strategy: "robot", bot: "loud", seeds: [1, 2] },
     { strategy: "rl", bot: "greedy", seeds: [1, 2] }, { strategy: "scale", bot: "chaser", seeds: [1, 2] },
   ];
   const AIM = { desc: ["descendants"], benev: ["benevolent"], protect: ["protector"], conquer: ["conquerors"], zoo: ["zookeeper"], loud: ["orwell"], greedy: ["selfdestruct"], chaser: ["gatekeeper"] };
