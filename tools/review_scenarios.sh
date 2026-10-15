@@ -91,8 +91,10 @@ at are there for you. Shock formats are in the Scenarios section of README.md an
 SIM_PRESETS in site/index.html; zone is ["zone", [lon, lat, km], share].
 
 Edit only $FILE, in every window:
-- Keep an item only if the story is plausibly about strikes, sabotage, fighting or a
-  blockade that could hit the matched energy, power, cable or shipping sites. Drop
+- Items have a "cat": conflict, quake, storm, flood, animal, harvest, outbreak, cable, cloud,
+  cyber or chips. Keep an item only if the story plausibly describes that event at that
+  place and it could hit what the shocks name (sites, crops, cloud regions, fabs, cables);
+  for conflict, strikes, sabotage, fighting or a blockade near the matched sites. Drop
   crime, protests, trials, anniversaries and stories whose place merely happens to be
   near a refinery. Use the headline in \`why\`, the place and story.json; you have no
   web access, so when unsure, drop it. Drop the same story from every window.

@@ -82,6 +82,28 @@ raw/net/
 
 Output: `site/data/refineries.geojson`, `country_energy.json` and `energy_graph.json` (`--only=energy`, built from the EIA file plus the pipelines, fields, refineries, WPI ports, LNG, shipping lanes, chokepoints, power plants and city labels already in `site/data/`). `--only=pop` writes `site/data/pop/` (10° binary tiles of Kontur hexagon centres and people) and adds `kpop`/`kdens` to `country_totals.json`; `--only=water` writes `basins.json`, which matches each `water_risk.geojson` basin to a HydroBASINS basin to get its downstream neighbour, upstream area and population. Both need `numpy` and `matplotlib`. `--only=transport` downloads nothing: it snaps `roads.geojson` and `rail.geojson` into graphs and ties `labels.json` cities of 100,000+ to them, writing `transport_graph.json`.
 
+## raw/domains/ — step 7 (downloaded automatically)
+
+`pipeline/step7_domains.py` downloads these itself and caches them here; `--offline` rebuilds from the cache and `--only=fabs,chips,cloud,biolabs,air,domains` runs some sections. The FAOSTAT zips and the Growth Lab extract are big, so they are downloaded once and kept (`--refresh-fao`, `--refresh-atlas` fetch them again). The FAO trade matrix is read straight out of the zip, never unpacked.
+
+```
+raw/domains/
+  wiki_fabs.json                Wikipedia "List of semiconductor fabrication plants", parsed HTML (CC BY-SA 4.0)
+  osm_fabs.json                 OSM man_made=works / landuse=industrial named like chip makers, via overpass-api.de (ODbL)
+  wiki_bsl.json                 Wikipedia "Biosafety level", parsed HTML with the BSL-4 table (CC BY-SA 4.0)
+  wikicoords_bsl.json           coordinates of the linked BSL-4 facility articles (Wikipedia API)
+  cloud_regions.json            github.com/jasonwilbur/mcp-server-cloud-regions data/regions.json (MIT)
+  routes.dat                    OpenFlights routes, frozen 2014 (ODbL 1.0)
+  wb_*.json                     World Bank WDI indicators, most recent value per country (CC BY 4.0)
+  atlas_ic.csv                  HS 8541+8542 rows (last 3 years) filtered out of the Harvard Growth Lab
+                                hs92_country_product_year_4.csv (~452 MB, streamed; CC0)
+  fao_qcl.zip                   FAOSTAT Production_Crops_Livestock_E_All_Data_(Normalized).zip (CC BY 4.0, ~34 MB)
+  fao_tm.zip                    FAOSTAT Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip (CC BY 4.0, ~420 MB)
+  _fetch.json                   URL and retrieval time of each download
+```
+
+Outputs: `site/data/fabs.geojson`, `chip_sites.geojson` (a hand list in the script, one source URL per site), `cloud.geojson`, `biolabs.geojson`, `air.json` and `domains.json` (per-country indicators, chip trade, food production and trade, and every source with its licence).
+
 ## raw/live_cache/ — live feeds (downloaded automatically)
 
 `pipeline/live/fetch_live.py` keeps its downloads here so reruns only fetch what's new: `gdelt/` (GDELT 2.0 15-minute event files, used for conflict reports and the day/week storyboard), `gdelt1/` (GDELT 1.0 daily files, used for the month storyboard), `firms/` and `ais_static.json`. The farmland and land-cover layers have no raw files: the browser loads them as tiles from NASA GIBS.

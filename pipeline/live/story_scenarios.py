@@ -76,6 +76,8 @@ STRIKE = [(r"\bdrones?\b|\buavs?\b", "Drone strikes"), (r"\bmissiles?\b|\bprojec
 NOISE = r"\bschool\b|\bshooting\b|\bshooter\b|\bgunman\b|\bexecution\b|\btrial\b|\bcourt\b|\blawsuit\b|\bcharges?\b|\barrest(ed|s)?\b|\bprotests?\b|\bmurder\b|\bhostage\b|\bjournalist\b|\belection\b|\bsettlers?\b|\bfarmers?\b|\bsynagogue\b|\bchurch\b|\bmosque\b|\btemple\b"
 # weapons news that isn't a strike on anything: tests, launches into the sea, drills, interceptions
 NOT_STRIKE = r"\btests?\b|\btested\b|\btest-fires?\b|\bfires? (a )?\w* ?(missile|projectile|rocket)s? (toward|into)\b|\bdrills?\b|\bshoots? down\b|\bdowns?\b|\bintercept(s|ed|ion)?\b|\bairspace\b"
+# a conflict surge only becomes a scenario if its headline is about infrastructure or names the place itself
+INFRA = r"refiner|\boil\b|\bgas\b|fuel|\bports?\b|harbou?r|power|\bgrid\b|electric|\bplants?\b|substation|pipeline|terminal|depot|\bdams?\b|bridge|rail|airport|factor(y|ies)|\bcables?\b|tanker|\bships?\b|energy|infrastructure|blackout"
 SEA = r"\bships?\b|\btankers?\b|\bvessels?\b|\bstrait\b|\bmaritime\b|\bhouthis?\b|\bnavy\b|\bnaval\b|\bshipping\b|\bport\b"
 
 
@@ -148,10 +150,12 @@ def classify(item):
     r = item.get("r") or [0, 0, 0]
     heavy = (r[1] + r[2]) / max(1, sum(r))
     if not title:
-        return ("Fighting", False) if heavy >= 0.9 and item.get("e", 0) >= 20 else None
+        return None  # no headline: nothing says what was hit
     verb = next((v for pat, v in STRIKE if re.search(pat, title)), None)
     if not verb:
         return None
+    if not re.search(INFRA, title) and place(item).lower() not in title:
+        return None  # e.g. a Kyiv headline geocoded to Sochi, or a strike story with no target named
     if re.search(NOT_STRIKE, title):
         return None  # "North Korea fires projectile toward Eastern sea", "NATO jets down drone"
     if re.search(NOISE, title) and verb in ("Attacks", "Fighting"):
@@ -270,16 +274,27 @@ def region(lon, lat):
     return "East Asia & Pacific" if lon >= 92 or lat < 0 else "Russia & Central Asia"
 
 
-def spread(items, n):
-    """Up to n items, taking each region's next-best in turn (items arrive best first)."""
-    by = {}
-    for x in items:
-        by.setdefault(region(*x["at"]), []).append(x)
+def _rr(groups, n):
+    """Round-robin over lists (each best first), lists in the order of their best item."""
     out, k = [], 0
-    while len(out) < n and any(len(v) > k for v in by.values()):
-        out += [v[k] for v in sorted(by.values(), key=lambda v: items.index(v[0])) if len(v) > k][: n - len(out)]
+    while len(out) < n and any(len(v) > k for v in groups):
+        out += [v[k] for v in groups if len(v) > k][: n - len(out)]
         k += 1
     return out
+
+
+def spread(items, n):
+    """Up to n items, mixing kinds of news (conflict, quake, storm, outbreak, ...) and, within each, world regions."""
+    cats = {}
+    for x in items:
+        cats.setdefault(x.get("cat", "conflict"), []).append(x)
+    lists = []
+    for v in cats.values():
+        by = {}
+        for x in v:
+            by.setdefault(region(*x["at"]), []).append(x)
+        lists.append(_rr(list(by.values()), len(v)))
+    return _rr(lists, n)
 
 
 def build(cand, grids, now):
@@ -318,7 +333,7 @@ def build(cand, grids, now):
         if headline:
             why += f" In the news: {headline[:110] + '…' if len(headline) > 110 else headline + '.'}"
         urls = [u for u in (it.get("u") or []) if isinstance(u, str) and re.match(r"https?://", u)]
-        out.append({"label": f"{verb} near {name}", "why": why, "url": urls[0] if urls else None, "shocks": shocks,
+        out.append({"cat": "conflict", "label": f"{verb} near {name}", "why": why, "url": urls[0] if urls else None, "shocks": shocks,
                     "levels": lv, "lv": txt, "trend": tr, "likely": {"rising": "esc", "easing": "de"}.get(tr, "cur"),
                     "at": [round(lon, 2), round(lat, 2)], "months": [(it.get("t") or now.strftime("%Y-%m"))[:7]],
                     "place": it.get("n"), "t": it.get("t"), "z": it.get("z"),
@@ -327,8 +342,9 @@ def build(cand, grids, now):
     return out
 
 
-def windows(story, days, grids, prev):
-    """{"week", "month", "year"} item lists. prev: last run's file (for the year list) or None."""
+def windows(story, days, grids, prev, extra=()):
+    """{"week", "month", "year"} item lists. prev: last run's file (for the year list) or None.
+    extra: non-conflict items (news_topics.py), sorted into the windows by their date."""
     now = ts(story["updated"])
     W = story.get("windows", {})
     wk, mo = list(W.get("week", {}).get("items", [])), list(W.get("month", {}).get("items", []))
@@ -341,6 +357,14 @@ def windows(story, days, grids, prev):
             pass
     week = build(wk + recent, grids, now)
     month = build(wk + mo, grids, now)
+    def within(x, d):
+        try:
+            return ts(x["t"]) >= now - timedelta(days=d)
+        except (KeyError, ValueError, TypeError):
+            return False
+    week += sorted([x for x in extra if within(x, days)], key=lambda x: -(x.get("z") or 0))
+    month += sorted([x for x in extra if within(x, 30)], key=lambda x: -(x.get("z") or 0))
+    older = [x for x in extra if not within(x, 30) and within(x, 365)]
     # year: this month's items plus last year's list, one per place (the newest wins; the months it surged in add up)
     old = []
     for x in ((prev or {}).get("windows", {}).get("year", {}).get("items", []) if isinstance(prev, dict) else []):
@@ -350,8 +374,9 @@ def windows(story, days, grids, prev):
         except (KeyError, ValueError, TypeError):
             pass
     year = []
-    for x in month + sorted(old, key=lambda x: x["t"], reverse=True):
-        twin = next((y for y in year if haversine_km(x["at"][1], x["at"][0], y["at"][1], y["at"][0]) < MERGE_KM), None)
+    for x in month + sorted(older + old, key=lambda x: x["t"], reverse=True):
+        twin = next((y for y in year if y.get("cat", "conflict") == x.get("cat", "conflict")
+                     and haversine_km(x["at"][1], x["at"][0], y["at"][1], y["at"][0]) < MERGE_KM), None)
         if twin:
             twin["months"] = sorted(set(twin["months"]) | set(x.get("months") or []))
         else:
@@ -360,7 +385,7 @@ def windows(story, days, grids, prev):
     return {"week": spread(week, MAX_ITEMS), "month": spread(month, MAX_ITEMS), "year": spread(year, MAX_ITEMS)}
 
 
-SIM_KINDS = {"refinery", "field", "port", "lng", "pipeline", "choke", "zone", "power", "mine", "cable", "water"}
+SIM_KINDS = {"refinery", "field", "port", "lng", "pipeline", "choke", "zone", "power", "mine", "cable", "water", "fab", "chip", "cloud", "outbreak", "crop"}
 
 
 def bad_shocks(sh):
@@ -376,6 +401,11 @@ def bad_shocks(sh):
             ok = isinstance(s[1], str) and s[1] != ""
         if ok and s[0] == "choke":
             ok = s[1] in CHOKES
+        if ok and s[0] == "outbreak":
+            ph, *xy = s[1].split("_")
+            ok = ph in ("flu", "cov", "sev") and len(xy) == 2 and all(re.match(r"^-?\d+(\.\d+)?$", v) for v in xy)
+        if ok and s[0] == "crop":
+            ok = bool(re.match(r"^(wheat|maize|rice|soy|banana|chicken)_[A-Z0-9]{3}$", s[1]))
         if not ok:
             out.append(s)
     return out
@@ -457,12 +487,40 @@ def backfill_year(grids, until):
     return items
 
 
+def news_items(grids, now, offline):
+    """Earthquakes, storms, floods and topic news (news_topics.py), matched against the same site grids."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import news_topics as nt
+    energy, power, cables, cities = grids
+    def sites(lon, lat, km):
+        hits = energy.within(lon, lat, km) + power.within(lon, lat, km) + cities.within(lon, lat, km)
+        return [p["n"] + (" (city)" if p["k"] == "city" else "") for _, p in sorted(hits, key=lambda h: h[0])]
+    opt = lambda f: load(f) if os.path.exists(os.path.join(DATA, f)) else None
+    labels, totals = load("labels.json"), load("country_totals.json")
+    G = nt.Gazetteer(labels, totals)
+    pts = lambda fc, fn: [dict(fn(f["properties"]), x=f["geometry"]["coordinates"][0], y=f["geometry"]["coordinates"][1]) for f in (fc or {}).get("features", [])]
+    def land_cc(p):
+        tail = (p.get("n") or "").rsplit(", ", 1)[-1]
+        return {"id": p["id"], "n": p["n"], "cc": dict(G.cnames).get(tail)}
+    fabs_fc = opt("fabs.geojson") or {"features": []}
+    data = {"food": (opt("domains.json") or {}).get("food") or {},
+            "landings": pts(opt("landings.geojson"), land_cc),
+            "cloud": pts(opt("cloud.geojson"), lambda p: {"id": p["id"], "n": f"{p.get('p', '')} {p.get('code', '')}".strip(), "cc": p.get("cc")}),
+            "chipsites": [f["properties"] for f in (opt("chip_sites.geojson") or {}).get("features", [])],
+            "fabs": [f["properties"] for f in fabs_fc["features"]]}
+    F = nt.Fetch(os.path.join(ROOT, "raw", "live_cache", "news"), log, offline)
+    out = nt.quakes(F, sites, fabs_fc["features"], now, log) + nt.storms(F, sites, fabs_fc["features"], now, log) + nt.topics(F, G, data, now, log)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--days", type=int, default=7, help="also take month-window surges that ended this many days back (default 7)")
     ap.add_argument("--story", default=os.path.join(DATA, "live", "story.json"))
     ap.add_argument("--out", default=os.path.join(DATA, "scenarios_weekly.json"))
     ap.add_argument("--check", action="store_true", help="only validate --out and exit 1 on problems")
+    ap.add_argument("--no-topics", action="store_true", help="conflict surges only: skip earthquakes, storms and the GDELT topic searches")
+    ap.add_argument("--offline-news", action="store_true", help="use the cached topic and disaster answers in raw/live_cache/news/")
     ap.add_argument("--backfill-year", action="store_true", help="also seed the year list from a year of GDELT 1.0 daily files (slow, one-off)")
     args = ap.parse_args()
     if args.check:
@@ -485,7 +543,8 @@ def main():
     if args.backfill_year:
         old = backfill_year(grids, ts(story["updated"]))
         prev = {"windows": {"year": {"items": old + (((prev or {}).get("windows") or {}).get("year") or {}).get("items", [])}}}
-    wins = windows(story, args.days, grids, prev)
+    extra = [] if args.no_topics else news_items(grids, ts(story["updated"]), args.offline_news)
+    wins = windows(story, args.days, grids, prev, extra)
     for w, items in wins.items():
         for x in items:
             log(f"{w}: {x['label']}: {x['trend']}, {len(x['months'])} month(s), z {x['z']}")

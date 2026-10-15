@@ -18,7 +18,8 @@ function presets() {
   const fnv = HTML.match(/function fnv36\(s\) \{[^\n]*\}/)[0];
   const ctx = vm.createContext({});
   vm.runInContext(fnv + "\n" + HTML.slice(a, b).replace(/\bconst (\w+) =/g, "var $1 ="), ctx);
-  return { list: ctx.SIM_PRESETS, kinds: ctx.SIM_KIND, chokes: ctx.SIM_CHOKE, groups: ctx.SIM_GROUPS.map(g => g[0]), news: Object.keys(ctx.SIM_NEWS), fnv36: ctx.fnv36 };
+  return { list: ctx.SIM_PRESETS, kinds: ctx.SIM_KIND, chokes: ctx.SIM_CHOKE, groups: ctx.SIM_GROUPS.map(g => g[0]), news: Object.keys(ctx.SIM_NEWS), fnv36: ctx.fnv36,
+    patho: ctx.SIM_PATHO, food: ctx.SIM_FOOD };
 }
 
 function resolver(fnv36) {
@@ -29,6 +30,10 @@ function resolver(fnv36) {
   const cables = new Set(J("landings.geojson").features.map(f => f.properties.id));
   const basins = new Set(J("basins.json").pf.map(String));
   const kinds = { refinery: "R", field: "F", port: "P", lng: "XI" };
+  const ids = f => existsSync(D(f)) ? new Set(J(f).features.map(x => x.properties.id)) : new Set();
+  const fabs = existsSync(D("fabs.geojson")) ? J("fabs.geojson").features : [], fabIds = new Set(fabs.map(f => f.properties.id));
+  const chips = ids("chip_sites.geojson"), clouds = ids("cloud.geojson");
+  const food = existsSync(D("domains.json")) ? (J("domains.json").food || {}).prod || {} : {};
   return (P, [k, t, m]) => {
     assert.ok(m > 0 && m <= 1, `share ${m}`);
     if (kinds[k]) return G.ids[t] != null && kinds[k].includes(G.nodes.t[G.ids[t]]);
@@ -39,6 +44,11 @@ function resolver(fnv36) {
     if (k === "mine") return (t[0] === "c" ? coal : iron).has(t.slice(2));
     if (k === "cable") return cables.has(t);
     if (k === "water") return basins.has(String(t));
+    if (k === "fab") return t.startsWith("cc-") ? fabs.some(f => f.properties.cc === t.slice(3).toUpperCase()) : fabIds.has(t);
+    if (k === "chip") return chips.has(t);
+    if (k === "cloud") return clouds.has(t);
+    if (k === "outbreak") { const [ph, x, y] = t.split("_"); return ph in P.patho && Math.abs(+x) <= 180 && Math.abs(+y) <= 90; }
+    if (k === "crop") { const [it, cc] = t.split("_"); return it in P.food && !!(food[it] || {})[cc]; }
     return false;
   };
 }
