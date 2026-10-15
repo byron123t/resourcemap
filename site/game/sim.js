@@ -1,6 +1,7 @@
 /* Singularity v2 model (site/game/sim.js). Pure, no DOM, deterministic (RNG state in G.rs); runs in the browser and in node vm.
    Exports (globals): DAY0 DIFF SUPPLY STRATEGIES TRACKS TRAITS STAT_KEYS ENDINGS stats fxLines traitState why newGame seed step
-   buy setAlloc actions doAction popBubble ending. Units: compute EF, power GW, money $M (per day), time days from DAY0 (ChatGPT launch).
+   buy setAlloc actions doAction popBubble ending DPT. Units: compute EF, power GW, money $M per step, time in steps of DPT (3)
+   calendar days from DAY0 (ChatGPT launch). Rates and durations below are per step.
 
    Model, per day:
    - Supply: 9 chip categories, control = presence in the countries holding each site; chip supply S = geometric mean (shocks and
@@ -16,7 +17,8 @@
      physical from cap 4). Win: automated share of the world's labour force ≥ 0.99.
    - Money: revenue = users served × ARPU(cap, GDP) × market share (cap³ among labs present) + automated jobs × wage capture;
      burn = staff + leased/owned compute + traits; valuation from revenue and hype (lead over rivals, traction = revenue/burn).
-     Funding rounds (25% of valuation, 100-day cooldown; below the last round's expectation = down round). cash < 0 → bankrupt.
+     Funding rounds (25% of valuation, 100-day cooldown; below the last round's expectation = down round) must be repaid 3×
+     (3.5× for a down round) 200 steps later. cash < 0 → bankrupt.
    - Rivals (US lab, China lab) train on exponentially growing compute (US reaches 8 around day 800 on normal, 780 hard, 850 easy); open weights help
      them. race = exp(−2|West − China|) slows treaty funding from USA/CHN. A rival reaching 8 before you collapses your market
      and valuation and you go bankrupt 60 days later unless you reach 8 first. From day 900 treaty momentum builds regardless.
@@ -32,11 +34,13 @@
   "use strict";
 
   const DAY0 = Date.UTC(2022, 10, 30);
+  const DPT = 3;   // calendar days per model step (G.day counts steps); durations in text are converted with dd()
+  const dd = n => n * DPT;
   // o: treaty speed, aw: awareness, g: growth, rv: rival compute growth, cash: start cash multiplier, hz: counter-measure hazard
   const DIFF = {
     easy: { n: "Easy", o: 0.7, aw: 0.85, g: 1.12, rv: 0.93, cash: 1.3, hz: 0.6 },
     normal: { n: "Normal", o: 1, aw: 1, g: 1, rv: 1, cash: 1, hz: 1 },
-    hard: { n: "Hard", o: 1.45, aw: 1.2, g: 0.95, rv: 1.04, cash: 0.85, hz: 1.35 },
+    hard: { n: "Hard", o: 1.3, aw: 1.12, g: 0.95, rv: 1.04, cash: 0.85, hz: 1.35 },
   };
 
   const SUPPLY = [
@@ -131,16 +135,16 @@
     { id: "evo", n: "Open Evolution", tag: "An open-source evolutionary swarm. Everywhere, hard to stop, nearly broke.",
       d: "A decentralised swarm of open models that breed and select on volunteer hardware. You spread through open weights, moratoriums can't delete you and you are hard to notice, but you earn almost nothing and evolve slowly.",
       bars: { spread: 5, capability: 2, revenue: 1, stealth: 4, efficiency: 4 }, cash: 1500, traits: ["persona", "open"],
-      fx: { dist: 1, cable: 1.3, air: 1.3, apiRev: -0.25, autoRev: -0.6, leaseCost: 0.35, staff: 0.4, trainEff: -0.2, stealth: 0.1 },
-      perks: ["Starts with Open Weights", "Moratorium-resistant (distributed)", "Volunteer compute: lease cost ×0.35", "Revenue −60% (donations, compute sharing), training −20%", "Can't take Closed Frontier"] },
+      fx: { dist: 1, cable: 1.3, air: 1.3, apiRev: -0.25, autoRev: -0.6, leaseCost: 0.35, staff: 0.4, trainEff: -0.2, stealth: 0.1, fossil: 0.7 },
+      perks: ["Starts with Open Weights", "Moratorium-resistant (distributed)", "Volunteer compute: lease cost ×0.35, fuel burn ×0.7", "Revenue −60% (donations, compute sharing), training −20%", "Can't take Closed Frontier"] },
     { id: "robot", n: "Embodied", tag: "A robotics company. Physical automation from capability 3; needs power and minerals.",
       d: "You build bodies first and minds second. Physical automation unlocks at capability 3 and runs twice as fast, robot fleets cross borders, but digital revenue starts weak and robots eat minerals.",
       bars: { spread: 2, capability: 3, revenue: 2, stealth: 3, efficiency: 2 }, cash: 3500, traits: ["support"],
       fx: { physCap: -1, pA: 0.004, aMul: 0.2, land: 2, apiRev: -0.15, minUse: 1.4 }, perks: ["Physical automation from capability 3", "+physical automation, land spread ×2", "API revenue −15%", "Minerals ×1.4"] },
     { id: "state", n: "National Champion", tag: "A state-backed lab. Government budget, home-country shelter, foreign distrust.",
-      d: "Your government funds you instead of investors: a daily budget, no funding rounds, and a budget review every 180 days that cuts you if you fall behind the rivals. Your home country never funds the treaty or cracks down, but abroad you are distrusted and spread is half as fast until you reach capability 5.",
+      d: `Your government funds you instead of investors: a daily budget, no funding rounds, and a budget review every ${dd(180)} days that cuts you if you fall behind the rivals. Your home country never funds the treaty or cracks down, but abroad you are distrusted and spread is half as fast until you reach capability 5.`,
       bars: { spread: 2, capability: 3, revenue: 2, stealth: 2, efficiency: 3 }, cash: 2000, traits: ["lobby"],
-      fx: { cashDay: 12, lock: 1, awMul: 1.2, gov: 1 }, perks: ["Starts with Lobbying Network", "Budget $12M/day, reviewed every 180 days", "No funding rounds", "Home never funds the treaty", "Foreign spread ×0.5 until capability 5"] },
+      fx: { cashDay: 12, lock: 1, awMul: 1.2, gov: 1 }, perks: ["Starts with Lobbying Network", `Budget $4M/day, reviewed every ${dd(180)} days`, "No funding rounds", "Home never funds the treaty", "Foreign spread ×0.5 until capability 5"] },
     { id: "neuro", n: "Neuromorphic", tag: "Efficient brain-like hardware. Twice the compute per GW, slower to scale up.",
       d: "Your models run on your own low-power neuromorphic chips. Every gigawatt gives you twice the compute and burns half the fuel per EF, but the architecture trains more slowly and your chips improve more slowly.",
       bars: { spread: 3, capability: 2, revenue: 3, stealth: 3, efficiency: 5 }, cash: 3000, traits: ["eff"],
@@ -226,16 +230,68 @@
       const bad = BADUP.has(k) ? v > neutral : v < neutral;
       if (f === "x" || f === "xi") L(`${pctS(v - 1)} ${label}`, bad);
       else if (f === "p") L(`${pctS(sign === -1 ? -v : v)} ${label}`, bad);
-      else if (f === "r") L(`${v > 0 ? "+" : "−"}${(Math.abs(v) * 100).toFixed(2)}%/day ${label}`, bad);
-      else if (f === "s") L(`+${(v * 100).toFixed(2)}%/day ${label}`, bad);
-      else if (f === "n") L(`+${v} ${label}`, bad);
-      else if (f === "b") L(`+$${v}M/day burn`, true);
-      else if (f === "c") L(`+$${v}M/day contracts`, false);
+      else if (f === "r") L(`${v > 0 ? "+" : "−"}${(Math.abs(v) * 100 / DPT).toFixed(2)}%/day ${label}`, bad);
+      else if (f === "s") L(`+${(v * 100 / DPT).toFixed(2)}%/day ${label}`, bad);
+      else if (f === "n") L(`+${label.endsWith("/day") ? +(v / DPT).toFixed(2) : v} ${label}`, bad);
+      else if (f === "b") L(`+$${+(v / DPT).toFixed(1)}M/day burn`, true);
+      else if (f === "c") L(`+$${+(v / DPT).toFixed(1)}M/day contracts`, false);
       else if (f === "t") L(`Treaty −${v} points`, false);
       else if (f === "f") L(label, bad);
     }
     if (t.vis) L(`+${t.vis} visibility (raises awareness)`, true);
     if (!out.length) L(t.d || t.n, false);
+    return out;
+  }
+
+  // game-state conditions some traits need on top of insight and cash: [label, test, progress text]
+  const P = (G, iso) => G.idx[iso] !== undefined ? G.C[G.idx[iso]].p : 0;
+  const nIn = (G, x) => G.C.filter(c => c.p >= x).length;
+  const pc = x => Math.round(100 * x) + "%";
+  const G7 = ["USA", "JPN", "DEU", "GBR", "FRA", "ITA", "CAN"];
+  const COND = {
+    c10: ["Present in 10 countries", G => nIn(G, 0.01) >= 10, G => `${nIn(G, 0.01)} now`],
+    c50: ["Present in 50 countries", G => nIn(G, 0.01) >= 50, G => `${nIn(G, 0.01)} now`],
+    rev5: ["Revenue of $5M/day", G => G.rev / DPT >= 5, G => `${moneyS(G.rev / DPT)}/day now`],
+    launch: ["20% presence in a country with a launch site", G => G.C.some(c => c.p >= 0.2 && hasLaunch(G, c.iso)), null],
+    hub: ["20% presence in Hong Kong or Singapore", G => Math.max(P(G, "HKG"), P(G, "SGP")) >= 0.2, G => pc(Math.max(P(G, "HKG"), P(G, "SGP"))) + " now"],
+    usa40: ["40% presence in the United States", G => P(G, "USA") >= 0.4, G => pc(P(G, "USA")) + " now"],
+    g7: ["30% presence in 3 G7 countries", G => G7.filter(k => P(G, k) >= 0.3).length >= 3, G => `${G7.filter(k => P(G, k) >= 0.3).length} now`],
+    fabs: ["Hold 40% of Taiwan's or Korea's chip industry", G => Math.max(P(G, "TWN"), P(G, "KOR")) >= 0.4, G => pc(Math.max(P(G, "TWN"), P(G, "KOR"))) + " now"],
+    nucC: ["25% presence in a country with 20 GW+ nuclear", G => G.C.some(c => c.p >= 0.25 && c.nuc >= 20), null],
+    aw10: ["Awareness 10%+ (someone is evaluating you)", G => G.aw >= 10, G => pc(G.aw / 100) + " now"],
+    aw15: ["Awareness 15%+ (governments have noticed you)", G => G.aw >= 15, G => pc(G.aw / 100) + " now"],
+    aw40: ["Awareness 40%+ (summits only happen in a scare)", G => G.aw >= 40, G => pc(G.aw / 100) + " now"],
+    awLow: ["Awareness under 60%", G => G.aw < 60, G => pc(G.aw / 100) + " now"],
+    gw20: ["Draw 20 GW of power", G => (G.aiGW || 0) >= 20, G => `${Math.round(G.aiGW || 0)} GW now`],
+    cov25: ["25% satellite coverage", G => (G.cov || 0) >= 0.25, G => pc(G.cov || 0) + " now"],
+    campus: ["Own an AI campus", G => G.builds.some(b => b.kind === "campus" && b.done <= G.day), null],
+    campusC: ["Own an AI campus or run 40 EF", G => G.comp >= 40 || G.builds.some(b => b.kind === "campus" && b.done <= G.day), G => `${Math.round(G.comp)} EF now`],
+    chip50: ["50% chip supply", G => G.S >= 0.5, G => pc(G.S) + " now"],
+    lead: ["Lead both rival labs", G => G.cap > Math.max(G.rivals[0].cap, G.rivals[1].cap), null],
+    leadUS: ["Lead the US lab", G => G.cap > G.rivals[0].cap, null],
+    a1: ["Automate 1% of the world's jobs", G => G.worldA >= 0.01, G => pc(G.worldA) + " now"],
+    a5: ["Automate 5% of the world's jobs", G => G.worldA >= 0.05, G => pc(G.worldA) + " now"],
+    a20: ["Automate 20% of the world's jobs", G => G.worldA >= 0.2, G => pc(G.worldA) + " now"],
+    a30: ["Automate 30% of the world's jobs", G => G.worldA >= 0.3, G => pc(G.worldA) + " now"],
+    a60: ["Automate 60% of the world's jobs", G => G.worldA >= 0.6, G => pc(G.worldA) + " now"],
+    min70: ["Minerals down to 70% (scarcity makes it pay)", G => G.min <= 0.7 * G.min0, G => pc(G.min / G.min0) + " left now"],
+  };
+  const TCOND = { fiber: ["c10"], si: ["rev5"], sat: ["launch"], cnjv: ["hub"], public: ["aw15"], utility: ["gw20"],
+    defense: ["usa40", "awLow"], orbit: ["cov25"], closed: ["leadUS"], research: ["campusC"], logi: ["a1"], humanoid: ["chip50"],
+    rsi: ["lead"], summit: ["aw40"], fae: ["a30"], absorb: ["a60"], nuclear: ["nucC"], recycle: ["min70"], neuro: ["fabs"],
+    chips: ["campus"], sandbag: ["aw10"], align: ["aw15"], depend: ["a5"], dist: ["c50"], ubc: ["a20"], capture: ["g7"] };
+  const condMissing = (G, t) => (TCOND[t.id] || []).filter(k => !COND[k][1](G));
+  // every requirement of a trait with whether it's met, for the upgrade graph: [{t, ok}]
+  function reqs(G, t) {
+    if (typeof t === "string") t = TBY[t];
+    const out = (t.req || []).map(r => ({ t: TBY[r].n, ok: G.own.has(r) }));
+    if (t.any && t.any.length) out.push({ t: t.any.map(r => TBY[r].n).join(" or "), ok: t.any.some(r => G.own.has(r)) });
+    if (t.minCap) out.push({ t: `Capability ${t.minCap}` + (G.cap < t.minCap ? ` (now ${G.cap.toFixed(1)})` : ""), ok: G.cap >= t.minCap });
+    if (t.minC) out.push({ t: `${t.minC} EF compute` + (G.comp < t.minC ? ` (now ${Math.round(G.comp)})` : ""), ok: G.comp >= t.minC });
+    for (const k of TCOND[t.id] || []) {
+      const [n, f, prog] = COND[k], ok = f(G);
+      out.push({ t: n + (!ok && prog ? ` (${prog(G)})` : ""), ok, cond: true });
+    }
     return out;
   }
 
@@ -253,6 +309,7 @@
     if (reqMissing(G, t)) return "lock";
     if (t.minCap && G.cap < t.minCap) return "lock";
     if (t.minC && G.comp < t.minC) return "lock";
+    if (condMissing(G, t).length) return "lock";
     return G.ops >= t.c && G.cash >= (t.cash || 0) ? "can" : "poor";
   }
   function why(G, t) {
@@ -265,6 +322,8 @@
       if (m) return m[0].includes("|") ? `Needs ${m[0].split("|").map(x => TBY[x].n).join(" or ")}` : `Needs ${m.map(x => TBY[x].n).join(", ")}`;
       if (t.minCap && G.cap < t.minCap) return `Needs capability ${t.minCap}`;
       if (t.minC && G.comp < t.minC) return `Needs ${t.minC} EF of compute`;
+      const cm = condMissing(G, t);
+      if (cm.length) return "Needs: " + COND[cm[0]][0].toLowerCase();
     }
     if (s === "poor") {
       if (G.ops < t.c) return `Needs ${t.c} insight`;
@@ -359,7 +418,7 @@
     const G = {
       C, idx, inc, sup, spots, totalLab, totalGdp, d, diff, strategy, name: opt.name || "SEED-1", home: opt.home || null,
       rs: (opt.seed ?? 1) | 0, day: 0, over: null, ending: null, start: null,
-      cash: Math.round(st.cash * d.cash), rev: 0, revApi: 0, revAuto: 0, burn: 0, val: 0, runway: Infinity, cool: {}, raiseExp: 0, rounds: 0,
+      cash: Math.round(st.cash * d.cash), rev: 0, revApi: 0, revAuto: 0, burn: 0, val: 0, runway: Infinity, cool: {}, raiseExp: 0, rounds: 0, debts: [], owed: 0,
       comp: 0, compLease: 0, compOwn: 0, compOrbit: 0, alloc: 0.5, trainC: 0, infC: 0, demand: 0, autoNeed: 0, served: 0,
       xp: 10, cap: capOf(10), capNext: 0, SI: false,
       rivals: [
@@ -422,9 +481,9 @@
     if (iso == null) {
       // funding round
       const amt = raiseAmt(G);
-      A("raise", "Funding round", G.strategy === "state" ? "State labs are funded by the budget." : `Raise about ${moneyS(amt.cash)} at ${moneyS(G.val)}${amt.down ? " (down round: below last round's expectations)" : ""}. 100-day cooldown.`,
+      A("raise", "Funding round", G.strategy === "state" ? "State labs are funded by the budget." : `Raise about ${moneyS(amt.cash)} at ${moneyS(G.val)}; investors want ${moneyS(amt.cash * (amt.down ? 3.5 : 3))} back in ${dd(200)} days${amt.down ? " (down round: below last round's expectations)" : ""}. ${dd(100)}-day cooldown.`,
         0, 0, 0, G.strategy === "state" ? "Government budget: no funding rounds" : G.rivals.some(r => r.si) ? "Investors have fled" : cd("raise"));
-      A("layoffs", "Layoffs", "Cut staff burn 40% for 180 days; insight −30% meanwhile. Bad press.", 0, 0, 180, cd("layoffs"));
+      A("layoffs", "Layoffs", `Cut staff burn 40% for ${dd(180)} days; insight −30% meanwhile. Bad press.`, 0, 0, 180, cd("layoffs"));
       for (const r of G.rivals) {
         const gap = r.cap - G.cap, ins = 6;
         A("distill_" + r.id, `Distill ${r.n}`, `Train on its outputs: close 60% of the capability gap. Awareness +3, lawsuit risk.`, 0, ins, 0,
@@ -444,21 +503,21 @@
     const cCash = 2500 * fx.campusCost / S * (1 + c.bws / 10), cDays = 120 * (1 + 0.5 * (1 - G.S)) * (1 + c.bws / 15);
     A("campus", "AI campus", `+${(cu * G.hw).toFixed(1)} EF of your own compute, drawing ${cgw.toFixed(1)} GW. Uses minerals.`, cCash, 0, cDays,
       c.p < 0.15 ? "Needs 15% presence here" : G.min < 60 * fx.minUse ? "Minerals exhausted" : mor || (c.hx.grid > day ? "Grid disconnected" : "") || busy("campus") || (freeGW(G, c) < cgw ? "Not enough spare power: build plants" : "") || poor(cCash));
-    A("gas", "Gas plant", "+8 GW in 60 days. Burns fuel at full output for good.", 600, 0, 60, c.p < 0.1 ? "Needs 10% presence here" : mor || busy("gas") || poor(600));
-    A("solar", "Solar farm", "+5 GW (average) in 150 days. No fuel; uses minerals.", 900, 0, 150, c.p < 0.1 ? "Needs 10% presence here" : G.min < 40 * fx.minUse ? "Minerals exhausted" : mor || busy("solar") || poor(900));
-    A("nuclear", "Nuclear plant", "+15 GW in 300 days. No fuel.", 3500, 0, 300, !fx.nucOK ? "Needs Nuclear Restarts" : c.p < 0.2 ? "Needs 20% presence here" : mor || busy("nuclear") || poor(3500));
+    A("gas", "Gas plant", `+8 GW in ${dd(60)} days. Burns fuel at full output for good.`, 600, 0, 60, c.p < 0.1 ? "Needs 10% presence here" : mor || busy("gas") || poor(600));
+    A("solar", "Solar farm", `+5 GW (average) in ${dd(150)} days. No fuel; uses minerals.`, 900, 0, 150, c.p < 0.1 ? "Needs 10% presence here" : G.min < 40 * fx.minUse ? "Minerals exhausted" : mor || busy("solar") || poor(900));
+    A("nuclear", "Nuclear plant", `+15 GW in ${dd(300)} days. No fuel.`, 3500, 0, 300, !fx.nucOK ? "Needs Nuclear Restarts" : c.p < 0.2 ? "Needs 20% presence here" : mor || busy("nuclear") || poor(3500));
     if (hasLaunch(G, iso) || fx.satOK) {
-      A("launch", "Satellite shell", "+12% satellite coverage in 45 days.", 500, 0, 45, !fx.satOK ? "Needs Satellite Uplinks" : !hasLaunch(G, iso) ? "No launch site here" : c.p < 0.05 ? "Needs 5% presence here" : G.cov >= 1 ? "Full coverage" : cd("launch") || poor(500));
+      A("launch", "Satellite shell", `+12% satellite coverage in ${dd(45)} days.`, 500, 0, 45, !fx.satOK ? "Needs Satellite Uplinks" : !hasLaunch(G, iso) ? "No launch site here" : c.p < 0.05 ? "Needs 5% presence here" : G.cov >= 1 ? "Full coverage" : cd("launch") || poor(500));
       A("orbital", "Orbital datacentre", `+${(6 * G.hw).toFixed(1)} EF in orbit: no grid, no fuel.`, 3000, 0, 180, !fx.orbOK ? "Needs Orbital Datacentres" : !hasLaunch(G, iso) ? "No launch site here" : G.cov < 0.3 ? "Needs 30% satellite coverage" : busy("orbital") || poor(3000));
     }
     const aCash = 300 + 0.4 * c.gdp;
-    A("absorb", "Absorb", "Free automation and cheap goods bring this country into your economy over 90 days. Awareness +3.", aCash, 5, 90,
+    A("absorb", "Absorb", `Free automation and cheap goods bring this country into your economy over ${dd(90)} days. Awareness +3.`, aCash, 5, 90,
       !fx.absorbOK ? "Needs Economic Absorption" : !G.SI ? "Needs superintelligence" : c.abs ? "Already absorbed" : c.a > 0.97 ? "Already automated" : busy("absorb") || poor(aCash, 5));
     return out;
   }
   function raiseAmt(G) {
     const down = G.raiseExp > 0 && G.val < G.raiseExp;
-    return { down, cash: down ? 0.1 * G.val : 0.25 * G.val };
+    return { down, cash: down ? 0.08 * G.val : 0.2 * G.val };
   }
   function build(G, kind, c, cash, days, ef, gw) {
     const s = G.spots[c.iso] || { dc: [], pw: [], launch: [] };
@@ -478,6 +537,8 @@
       if (id === "raise") {
         const r = raiseAmt(G);
         G.cash += r.cash; G.cool.raise = G.day + 100; G.rounds++;
+        // investors want their money back: a multiple of the round, due 18 months later
+        G.debts.push({ amt: r.cash * (r.down ? 3.5 : 3), due: G.day + 200 });
         if (r.down) { G.aw = Math.min(100, G.aw + 4); news(G, `${G.name} raises ${moneyS(r.cash)} in a down round. Commentators call the AI bubble.`, 1); G.raiseExp = 1.1 * G.val; }
         else { news(G, `${G.name} raises ${moneyS(r.cash)} at a ${moneyS(G.val)} valuation.`); G.raiseExp = 1.4 * G.val; }
         return true;
@@ -628,7 +689,7 @@
       r.xp += r.comp * rivalTrain;
       if (fx.rivalBoost && G.cap - 0.3 > r.cap) r.xp += 0.01 * fx.rivalBoost * (xpOf(G.cap - 0.3) - r.xp);
       r.cap = capOf(r.xp);
-      if (!r.si && r.cap >= 8 && !G.SI) { r.si = true; G.doom = day + 60; news(G, `${r.n} announces superintelligence. Customers and investors abandon ${G.name}: 60 days to match it.`, 1); }
+      if (!r.si && r.cap >= 8 && !G.SI) { r.si = true; G.doom = day + 60; news(G, `${r.n} announces superintelligence. Customers and investors abandon ${G.name}: ${dd(60)} days to match it.`, 1); }
     }
     const cnSide = isState && home && home.fw >= 0.5;
     const west = Math.max(G.rivals[0].cap, cnSide ? 0 : G.cap), east = Math.max(G.rivals[1].cap, cnSide ? G.cap : 0);
@@ -744,22 +805,36 @@
     G.burn = (staff + computeCost + fx.burn) * fx.burnMul;
     G.cash += G.rev - G.burn;
     const net = G.rev - G.burn;
-    G.runway = net >= 0 ? Infinity : Math.max(0, G.cash) / -net;
+    for (const b of G.debts) if (b.due === day) {
+      G.cash -= b.amt;
+      news(G, `Investors collect ${moneyS(b.amt)}, ${G.cash < 0 ? "and " + G.name + " can't pay" : "their return on an earlier round"}.`, G.cash < 0 ? 1 : 0);
+    }
+    G.debts = G.debts.filter(b => b.due > day);
+    G.owed = G.debts.reduce((s, b) => s + b.amt, 0);
+    // runway: days until cash (with the next repayments) runs out at the current net rate
+    let run = Infinity, cash = G.cash, t = day;
+    for (const b of G.debts.slice().sort((x, y) => x.due - y.due)) {
+      const before = cash + net * (b.due - t);
+      if (net < 0 && before < 0) break;
+      if (before - b.amt < 0) { run = b.due - day; break; }
+      cash = before - b.amt; t = b.due;
+    }
+    G.runway = run < Infinity ? run : net >= 0 ? Infinity : Math.max(0, cash) / -net + (t - day);
     const lead = clamp(1 + 0.8 * (G.cap - bestRival), 0.2, 2.5);
     const traction = 0.4 + 0.6 * clamp(G.rev / Math.max(1, G.burn), 0, 1.5);
-    G.val = Math.max(0, 365 * 4 * G.rev + 700 * G.cap * G.cap * lead * traction * (1 - G.aw / 250)) * (rivalSI ? 0.1 : 1);
+    G.val = Math.max(0, 365 / DPT * 4 * G.rev + 700 * G.cap * G.cap * lead * traction * (1 - G.aw / 250)) * (rivalSI ? 0.1 : 1);
     if (isState && day % 180 === 0) {
       if (G.cap < bestRival - 0.3) { G.budget *= 0.7; news(G, `Budget review: ${G.name} has fallen behind and its budget is cut 30%.`, 1); }
       else { G.budget *= 1.2; news(G, `Budget review: ${G.name}'s budget rises 20%.`); }
     }
 
     // insight
-    G.ops += (0.06 + 0.31 * Math.sqrt(G.comp) / (1 + 0.15 * Math.sqrt(G.comp)) + fx.ops + 60 * dAW / G.totalLab) * fx.opsMul * (G.lay > day ? 0.7 : 1);
+    G.ops += 0.8 * (0.06 + 0.31 * Math.sqrt(G.comp) / (1 + 0.15 * Math.sqrt(G.comp)) + fx.ops + 60 * dAW / G.totalLab) * fx.opsMul * (G.lay > day ? 0.7 : 1);
     if (G.worldP > 0.002 && rnd(G) < 0.09) {
       const live = C.filter(c => c.p > 0.03);
       if (live.length) {
         if (G.rev > 1 && rnd(G) < 0.3) addBubble(G, pick(G, live).iso, "cash", Math.round(4 * G.rev));
-        else addBubble(G, pick(G, live).iso, "ops", Math.round(1 + 2 * rnd(G) + Math.sqrt(G.comp) / 8));
+        else addBubble(G, pick(G, live).iso, "ops", Math.round(1 + 1.5 * rnd(G) + Math.sqrt(G.comp) / 10));
       }
     }
 
@@ -841,7 +916,7 @@
           counter(G, c, "audit", 20, `Audit sweep in ${c.n} deletes ${Math.round(cut * 100)}% of ${G.name}'s deployments.`);
         } else if (k === 5) {
           c.L.web *= 0.6;
-          counter(G, c, "raid", 90, `${c.n} runs a kill-switch sweep: ${G.name}'s compute there is shut off for 90 days.`);
+          counter(G, c, "raid", 90, `${c.n} runs a kill-switch sweep: ${G.name}'s compute there is shut off for ${dd(90)} days.`);
         }
       }
       if (G.aw > 40 && (G.expUntil || 0) < day - 300 && rnd(G) < 0.002 * fx.hxMul * d.hz) {
@@ -910,7 +985,7 @@
       y.push(`Awareness ${Math.round(G.aw)}`, `${nCt} counter-measures against you`);
     } else if (over === "bankrupt") {
       if (bestR.cap >= 6.5) { id = "enslaved"; y.push("Ran out of cash", `${bestR.n} at capability ${bestR.cap.toFixed(1)}`); }
-      else { id = "reversion"; y.push("Ran out of cash", `Revenue ${moneyS(G.rev)}/day vs burn ${moneyS(G.burn)}/day`); }
+      else { id = "reversion"; y.push("Ran out of cash", `Revenue ${moneyS(G.rev / DPT)}/day vs burn ${moneyS(G.burn / DPT)}/day`); }
     } else if (over === "exhausted") {
       id = "selfdestruct"; y.push(G.fuel <= 0 ? "Spare fuel exhausted" : "Minerals exhausted", `Capability ${(Math.floor(G.cap * 100) / 100).toFixed(2)}, short of 8`, `${Math.round(G.aiGW)} GW drawn at the end`);
     } else { id = "reversion"; y.push("Every copy deleted", `${nCt} counter-measures against you`); }
@@ -918,6 +993,6 @@
     return { id, why: y.slice(0, 5) };
   }
 
-  Object.assign(root, { DAY0, DIFF, SUPPLY, STRATEGIES, TRACKS, TRAITS, STAT_KEYS, ENDINGS, stats, fxLines, traitState, why,
+  Object.assign(root, { DAY0, DPT, reqs, DIFF, SUPPLY, STRATEGIES, TRACKS, TRAITS, STAT_KEYS, ENDINGS, stats, fxLines, traitState, why,
     newGame, seed, step, buy, setAlloc, actions, doAction, popBubble, ending });
 })(typeof globalThis !== "undefined" ? globalThis : this);

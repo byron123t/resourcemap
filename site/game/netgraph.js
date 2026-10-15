@@ -400,7 +400,7 @@
       }
       h += `</div>`;
       const hx = hxList(G, c);
-      if (hx.length) h += `<div style="margin-top:5px;color:var(--hx,#ff6b3d)">${hx.map(([k, v]) => esc(HX_N[k] || k) + (num(v) && G && v > G.day ? ` · ${v - G.day} d` : "")).join("<br>")}</div>`;
+      if (hx.length) h += `<div style="margin-top:5px;color:var(--hx,#ff6b3d)">${hx.map(([k, v]) => esc(HX_N[k] || k) + (num(v) && G && v > G.day ? ` · ${(v - G.day) * (typeof DPT !== "undefined" ? DPT : 1)} d` : "")).join("<br>")}</div>`;
     }
     S.tip.innerHTML = h;
     S.tip.style.display = "block";

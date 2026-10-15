@@ -375,7 +375,7 @@ $("sideToggle").onclick = () => { const o = $("side").classList.toggle("open"); 
 
 // ---------------------------------------------------------------- loop
 let last = 0, acc = 0, satT = 0, pulseT = 0;
-const DPS = [0, 1.5, 4, 10];
+const DPS = [0, 1.2, 3.2, 8];   // model steps per second (a step is DPT calendar days)
 function loop(ts) {
   const dt = Math.min(0.25, (ts - (last || ts)) / 1000); last = ts;
   if (G && !G.over && !document.querySelector(".sheet.on")) {
@@ -531,8 +531,8 @@ function render(force) {
   const B = G.builds || [], uc = B.filter(b => b.done > G.day).length, sig = B.length + ":" + uc;
   if (force || buildsDirty || sig !== buildSig) { buildSig = sig; buildsDirty = false; hasUC = uc > 0; map.getSource("builds").setData(buildsGeo()); }
 
-  const dt = new Date(DAY0 + G.day * 864e5);
-  $("date").textContent = dt.toISOString().slice(0, 10) + " · day " + G.day;
+  const dt = new Date(DAY0 + G.day * DPT * 864e5);
+  $("date").textContent = dt.toISOString().slice(0, 10) + " · day " + G.day * DPT;
   $("pts").textContent = Math.floor(G.ops); $("evoPts").textContent = Math.floor(G.ops);
   $("evolveBtn").classList.toggle("pulse", TRAITS.some(t => traitState(G, t) === "can"));
   renderMeters(); renderSide();
@@ -559,7 +559,7 @@ function renderMeters() {
   $("mCash").firstElementChild.style.width = (!num(run) || run === Infinity ? 100 : Math.max(0, Math.min(100, run / 7.3))) + "%";
   $("mCashBox").classList.toggle("hot", num(run) && run < 120);
   const net = (G.rev || 0) - (G.burn || 0);
-  $("cashSub").textContent = `${money(G.cash)} cash · ${net >= 0 ? "+" : ""}${money(net)}/day`;
+  $("cashSub").textContent = `${money(G.cash)} cash · ${net >= 0 ? "+" : ""}${money(net / DPT)}/day`;
 
   const fr = resFrac(G.fuel, G.fuel0), mr = resFrac(G.min, G.min0), r = Math.max(0, Math.min(fr, mr));
   $("resPct").textContent = pct(r);
@@ -569,7 +569,7 @@ function renderMeters() {
 }
 
 function actBtn(a) {
-  const cost = [a.cash ? money(a.cash) : "", a.ins ? a.ins + " insight" : "", a.days ? a.days + " d" : ""].filter(Boolean).join(" · ");
+  const cost = [a.cash ? money(a.cash) : "", a.ins ? a.ins + " insight" : "", a.days ? a.days * DPT + " d" : ""].filter(Boolean).join(" · ");
   return `<button class="act" data-a="${esc(a.id)}"${a.ok ? "" : " disabled"}><b>${esc(a.n)}<span>${cost}</span></b>${a.d ? `<small>${esc(a.d)}</small>` : ""}${!a.ok && a.why ? `<small class="why">${esc(a.why)}</small>` : ""}</button>`;
 }
 function safeActions(iso) { try { return actions(G, iso) || []; } catch (e) { console.warn(e); return []; } }
@@ -578,9 +578,9 @@ const CO_ACTS = new Set(["raise", "layoffs"]);
 function renderSide() {
   // company
   $("coCash").textContent = money(G.cash); $("coCash").className = G.cash < 0 ? "bad" : "";
-  $("coRev").textContent = money(G.rev || 0); $("coBurn").textContent = money(G.burn || 0);
+  $("coRev").textContent = money((G.rev || 0) / DPT); $("coBurn").textContent = money((G.burn || 0) / DPT);
   const run = G.runway;
-  $("coRun").textContent = !num(run) || run === Infinity ? "profitable" : Math.round(run) + " days";
+  $("coRun").textContent = !num(run) || run === Infinity ? "profitable" : Math.round(run * DPT) + " days";
   $("coRun").className = num(run) && run < 120 ? "bad" : (!num(run) || run === Infinity ? "good" : "");
   $("coVal").textContent = money(G.val || 0);
   $("coSum").textContent = money(G.cash);
@@ -621,7 +621,7 @@ function renderSide() {
   const CL = (G.counter || []).filter(x => !num(x.until) || x.until > G.day);
   $("ctSum").textContent = CL.length ? CL.length + " active" : "none";
   $("ctSum").style.color = CL.length ? css("--hx") : "";
-  setHTML($("ctList"), CL.length ? CL.map(x => { const c = x.iso && G.idx[x.iso] !== undefined ? G.C[G.idx[x.iso]] : null; return `<div class="ctr"><span style="font-family:inherit;color:var(--ink-2);font-size:12px"><b>${esc(x.n || HX_N[x.k] || x.k)}</b>${c ? " · " + esc(c.n) : ""}</span><span>${num(x.until) ? (x.until - G.day) + " d" : ""}</span></div>`; }).join("") : `<div class="note">No government is acting against you yet.</div>`);
+  setHTML($("ctList"), CL.length ? CL.map(x => { const c = x.iso && G.idx[x.iso] !== undefined ? G.C[G.idx[x.iso]] : null; return `<div class="ctr"><span style="font-family:inherit;color:var(--ink-2);font-size:12px"><b>${esc(x.n || HX_N[x.k] || x.k)}</b>${c ? " · " + esc(c.n) : ""}</span><span>${num(x.until) ? (x.until - G.day) * DPT + " d" : ""}</span></div>`; }).join("") : `<div class="note">No government is acting against you yet.</div>`);
 
   // resources
   const fr = resFrac(G.fuel, G.fuel0), mr = resFrac(G.min, G.min0);
@@ -660,7 +660,7 @@ function renderCard() {
     if (c.pol === 1) tags.push(`<span class="tag warn">Export controls</span>`);
     if (c.pol === 2) tags.push(`<span class="tag bad">Datacentre moratorium</span>`);
     if (G.home === selected || (G.strategy === "state" && G.start === selected)) tags.push(`<span class="tag">Home</span>`);
-    for (const [k, v] of hxActive(c)) tags.push(`<span class="tag hx">${esc(HX_N[k] || k)}${num(v) && v > G.day ? " · " + (v - G.day) + " d" : ""}</span>`);
+    for (const [k, v] of hxActive(c)) tags.push(`<span class="tag hx">${esc(HX_N[k] || k)}${num(v) && v > G.day ? " · " + (v - G.day) * DPT + " d" : ""}</span>`);
   }
   const fw = c ? c.fw : wc.fw;
   if (fw >= 0.15) tags.push(`<span class="tag ${fw >= 0.6 ? "bad" : "warn"}">Firewall ${pct(fw)}</span>`);
@@ -676,7 +676,7 @@ function renderCard() {
     h += `<h4>Power & compute</h4>` + kv("Your draw / AI headroom", `${gw(c.aiGW)} / ${gw(c.hGW)}`, c.hGW && c.aiGW >= 0.95 * c.hGW ? "bad" : "") + kv("Your compute here", ef(c.ef)) + kv("Grid", `${wc.gw} GW${wc.nuc ? " (" + wc.nuc + " nuclear)" : ""}`);
     const B = (G.builds || []).filter(b => b.iso === selected);
     const uc = B.filter(b => b.done > G.day), done = B.filter(b => b.done <= G.day);
-    if (uc.length) h += `<h4>Under construction</h4>` + uc.map(b => { const p = Math.max(0, Math.min(1, (G.day - b.start) / Math.max(1, b.done - b.start))); return `<div class="kv"><span>${KIND_N[b.kind] || b.kind}</span><b>${b.done - G.day} d</b></div><div class="prog"><i style="width:${pct(p, 1)};background:var(--warn)"></i></div>`; }).join("");
+    if (uc.length) h += `<h4>Under construction</h4>` + uc.map(b => { const p = Math.max(0, Math.min(1, (G.day - b.start) / Math.max(1, b.done - b.start))); return `<div class="kv"><span>${KIND_N[b.kind] || b.kind}</span><b>${(b.done - G.day) * DPT} d</b></div><div class="prog"><i style="width:${pct(p, 1)};background:var(--warn)"></i></div>`; }).join("");
     if (done.length) { const n = {}; for (const b of done) n[b.kind] = (n[b.kind] || 0) + 1; h += `<h4>Built</h4><div class="note" style="color:var(--ink-2)">${Object.entries(n).map(([k, v]) => `${v} × ${KIND_N[k] || k}`).join(", ")}</div>`; }
   } else {
     h += kv("Population", fmt(wc.pop)) + kv("Labour force", fmt(wc.lab || 0)) + kv("Grid", wc.gw + " GW");
@@ -699,7 +699,7 @@ function hover(e) {
     else if (f.layer.id === "plants") html = `<b>${p.f[0].toUpperCase() + p.f.slice(1)} plant</b><br>${(p.mw / 1000).toFixed(1)} GW · ${esc(world.c[p.iso] ? world.c[p.iso].n : p.iso)}`;
     else if (f.layer.id === "launch") html = `<b>${esc(p.n)}</b><br>Orbital launch site`;
     else if (f.layer.id === "gap-off") { const c = G && G.idx[p.k] !== undefined ? G.C[G.idx[p.k]] : null; html = `<b>Critical public systems · ${esc(world.c[p.k].n)}</b><br>Grid control, ports, ministries, defence procurement<br>${c ? "Running on you: " + pct(layerOf(c, "gap"), 1) : "Institutions adopt you only through procurement and dependence"}`; }
-    else if (f.layer.id === "builds") { const b = (G.builds || []).find(x => x.id === p.id); html = `<b>${KIND_N[p.kind] || p.kind}</b>${b ? `<br>${b.done > G.day ? "Under construction, " + (b.done - G.day) + " d left" : "Online"}${b.ef ? " · " + ef(b.ef) : ""}${b.gw ? " · " + gw(b.gw) : ""}` : ""}`; }
+    else if (f.layer.id === "builds") { const b = (G.builds || []).find(x => x.id === p.id); html = `<b>${KIND_N[p.kind] || p.kind}</b>${b ? `<br>${b.done > G.day ? "Under construction, " + (b.done - G.day) * DPT + " d left" : "Online"}${b.ef ? " · " + ef(b.ef) : ""}${b.gw ? " · " + gw(b.gw) : ""}` : ""}`; }
   }
   if (!html) {
     const f = map.queryRenderedFeatures(e.point, { layers: ["land"] })[0];
@@ -751,7 +751,7 @@ function endGame() {
   try { why = (G.ending && G.ending.why) || ending(G).why || []; } catch (e) { /* no ending() */ }
   if (id) saveEnding(id);
   $("evolve").classList.remove("on");
-  $("endSub").textContent = (r === "win" ? "Victory · " : "Defeat · ") + (END_TITLE[r] || r) + ` · day ${G.day}`;
+  $("endSub").textContent = (r === "win" ? "Victory · " : "Defeat · ") + (END_TITLE[r] || r) + ` · day ${G.day * DPT}`;
   $("endTitle").textContent = E ? E.n : END_TITLE[r] || r;
   $("endTitle").style.color = r === "win" ? css("--auto") : css("--gov");
   $("endText").textContent = E ? E.d : r === "win" ? `${G.name} now runs the world economy.` : `${G.name} is finished.`;

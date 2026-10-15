@@ -522,6 +522,10 @@ const Tree = (() => {
     if (any.length) reqs.push(`<span>One of: ${any.map(tick).join(" ")}</span>`);
     if (t.minCap) reqs.push((G.cap || 0) >= t.minCap ? `<span class="ok">✓ Capability ${t.minCap}</span>` : `<span class="no">○ Capability ${t.minCap} (now ${(G.cap || 0).toFixed(1)})</span>`);
     if (t.minC) reqs.push((G.comp || 0) >= t.minC ? `<span class="ok">✓ ${t.minC} EF compute</span>` : `<span class="no">○ ${t.minC} EF compute (now ${Math.round(G.comp || 0)})</span>`);
+    // conditions on the game state (presence, awareness, automation…) come from the sim's reqs()
+    if (typeof window.reqs === "function") {
+      try { window.reqs(G, t).filter(r => r.cond).forEach(r => reqs.push(`<span class="${r.ok ? "ok" : "no"}">${r.ok ? "✓" : "○"} ${esc(r.t)}</span>`)); } catch (e) { /* sim not ready */ }
+    }
     ex.forEach(r => reqs.push(`<span class="x">× Excludes ${esc(r.n)}${own.has(r.id) ? " (owned)" : ""}</span>`));
     let lines = [];
     try { lines = fxLines(G, t) || []; } catch (e) { /* sim not ready */ }
