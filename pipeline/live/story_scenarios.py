@@ -51,7 +51,7 @@ from datetime import datetime, timedelta, timezone
 
 ROOT = os.environ.get("ATLAS_ROOT", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 DATA = os.path.join(ROOT, "site", "data")
-MAX_ITEMS = 12
+MAX_ITEMS = {"week": 12, "month": 20, "year": 30}  # per window; the page shows the same numbers
 ENERGY_KM, POWER_KM, CABLE_KM, CHOKE_KM, CITY_KM = 75, 75, 50, 150, 30
 POWER_MIN_MW = 300
 CITY_MIN_POP = 1_000_000  # a big city alone qualifies: the zone still cuts its power, roads and rail
@@ -382,7 +382,7 @@ def windows(story, days, grids, prev, extra=()):
         else:
             year.append(dict(x, months=list(x.get("months") or [])))
     year.sort(key=lambda x: (-len(x["months"]), -(x.get("z") or 0)))
-    return {"week": spread(week, MAX_ITEMS), "month": spread(month, MAX_ITEMS), "year": spread(year, MAX_ITEMS)}
+    return {w: spread(v, MAX_ITEMS[w]) for w, v in (("week", week), ("month", month), ("year", year))}
 
 
 SIM_KINDS = {"refinery", "field", "port", "lng", "pipeline", "choke", "zone", "power", "mine", "cable", "water", "fab", "chip", "cloud", "outbreak", "crop"}
@@ -423,8 +423,8 @@ def check(doc):
         if w not in ("week", "month", "year") or not isinstance(v, dict) or not isinstance(v.get("items"), list):
             bad.append(f"windows.{w}: must be week, month or year with an items list")
             continue
-        if len(v["items"]) > MAX_ITEMS:
-            bad.append(f"{w}: {len(v['items'])} items; the page shows only the first {MAX_ITEMS}")
+        if len(v["items"]) > MAX_ITEMS[w]:
+            bad.append(f"{w}: {len(v['items'])} items; the page shows only the first {MAX_ITEMS[w]}")
         for i, x in enumerate(v["items"]):
             tag = f"{w} item {i} ({x.get('label') if isinstance(x, dict) else x!r})"
             if not isinstance(x, dict) or not isinstance(x.get("label"), str) or not x["label"].strip():

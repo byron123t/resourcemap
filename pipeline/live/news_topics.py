@@ -108,16 +108,18 @@ class Gazetteer:
                 self.biggest[l["k"]] = l
 
     def find(self, title):
-        """(ISO3, lon, lat, place name, city?) or None."""
+        """(ISO3, lon, lat, place name, city?) for the place named first in the headline, or None."""
+        best = None  # (start, -length, result)
         for l in self.cities:
-            if re.search(r"\b" + re.escape(l["n"]) + r"\b", title):
-                return l.get("k"), l["x"], l["y"], l["n"], True
+            m = re.search(r"\b" + re.escape(l["n"]) + r"\b", title)
+            if m and (best is None or (m.start(), -len(l["n"])) < best[:2]):
+                best = (m.start(), -len(l["n"]), (l.get("k"), l["x"], l["y"], l["n"], True))
         for n, k in self.cnames:
-            if re.search(r"\b" + re.escape(n) + r"\b", title):
-                c = self.biggest.get(k) or self.countries.get(k)
-                if c:
-                    return k, c["x"], c["y"], n, False
-        return None
+            m = re.search(r"\b" + re.escape(n) + r"\b", title)
+            c = m and (self.biggest.get(k) or self.countries.get(k))
+            if c and (best is None or (m.start(), -len(n)) < best[:2]):
+                best = (m.start(), -len(n), (k, c["x"], c["y"], n, False))
+        return best[2] if best else None
 
 
 # --- earthquakes and storms: zones over the place, plus chip fabs inside them ---------------------------
@@ -146,14 +148,14 @@ def _zone_levels(lon, lat, km, m, fabs, what):
 
 def quakes(F, sites, fabs, now, log):
     url = USGS + "?" + urllib.parse.urlencode({"format": "geojson", "starttime": (now - timedelta(days=365)).strftime("%Y-%m-%d"),
-                                                 "minmagnitude": "6.5", "orderby": "magnitude"})
+                                                 "minmagnitude": "6.0", "orderby": "magnitude"})
     d = F.json("usgs_quakes.json", url)
     out = []
     alert_m = {"green": 0.15, "yellow": 0.3, "orange": 0.5, "red": 0.7}
     for f in (d or {}).get("features", []):
         p, (lon, lat) = f["properties"], f["geometry"]["coordinates"][:2]
         mag = p.get("mag") or 0
-        km = 40 if mag < 7 else 70 if mag < 7.5 else 120 if mag < 8 else 180
+        km = 25 if mag < 6.5 else 40 if mag < 7 else 70 if mag < 7.5 else 120 if mag < 8 else 180
         near = sites(lon, lat, km)
         fs, _ = _fab_shocks(fabs, lon, lat, km, 0.5)
         if not near and not fs:
@@ -199,7 +201,30 @@ def storms(F, sites, fabs, now, log):
         out.append(_item(kind, title, f"{', '.join(near[:3])}{' and more' if len(near) > 3 else ''} within {km} km"
                          + (f"; winds up to {kts:.0f} knots" if kts else "") + " (NASA EONET).",
                          src, lv, txt, lon, lat, best["date"], kts or 40, title, near[:8]))
-    log(f"EONET: {len(out)} storm/flood scenario(s)")
+    # large wildfires (not prescribed burns) within 30 km of a city, power plant or energy site, newest first
+    url = EONET + "?" + urllib.parse.urlencode({"status": "all", "days": "365", "category": "wildfires"})
+    d = F.json("eonet_fires.json", url)
+    fires = []
+    for e in (d or {}).get("events", []):
+        g = (e.get("geometry") or [None])[-1]
+        if not g or g.get("type") != "Point" or re.search(r"prescribed|\bRX\b", e.get("title", ""), re.I):
+            continue
+        size = (g.get("magnitudeValue") or 0) * (0.405 if (g.get("magnitudeUnit") or "").startswith("acre") else 1)  # hectares
+        if size < 2000:
+            continue
+        lon, lat = g["coordinates"]
+        near = sites(lon, lat, 30)
+        if not near:
+            continue
+        km = 15 if size < 10000 else 25 if size < 50000 else 40
+        lv, txt = _zone_levels(lon, lat, km, 0.3, fabs, "fire")
+        title = re.sub(r"\s+\d{5,}$", "", e["title"]).strip()
+        src = next((s.get("url") for s in e.get("sources", []) if s.get("url")), None)
+        fires.append(_item("fire", title, f"{', '.join(near[:3])}{' and more' if len(near) > 3 else ''} within 30 km; about {size:,.0f} hectares burnt (NASA EONET).",
+                           src, lv, txt, lon, lat, g["date"], min(100, size / 1000), title, near[:8]))
+    fires.sort(key=lambda x: x["t"], reverse=True)
+    out += fires[:40]
+    log(f"EONET: {len(out)} storm/flood/fire scenario(s)")
     return out
 
 
@@ -224,6 +249,14 @@ TOPICS = [
     ("cyber", '(ransomware OR cyberattack OR "cyber attack" OR hackers) (port OR pipeline OR "power grid" OR refinery OR airport OR hospital OR water) sourcelang:english'),
     ("chips", '(semiconductor OR chip OR gallium OR germanium OR "rare earth") ("export controls" OR "export ban" OR shortage OR "fab fire" OR "plant shut") sourcelang:english'),
 ]
+# a headline must also say something happened, not just mention the topic
+MUST = {"animal": r"cull|outbreak|detect|confirm|infect|spread|farm",
+        "harvest": r"drought|frost|flood|pest|rust|locust|armyworm|fail|loss|lost|damage|slump|plunge|fall|shortfall|disease",
+        "outbreak": r"outbreak|case|confirm|spread|death|died|kill",
+        "cable": r"\bcut\b|damag|sever|outage|sabotag|disrupt",
+        "cloud": r"outage|\bdown\b|went down|fire|disrupt|fail",
+        "cyber": r"attack|ransomware|hack|breach|shut",
+        "chips": r"\bban\b|banned|curb|control|restrict|shortage|halt|\bfire\b|shut|outage|quake|earthquake|suspend"}
 NOT_NEWS = r"\b(drill|exercise|simulation|anniversary|lessons|years after|stock|shares|earnings|opinion|explainer)\b"
 
 
@@ -238,7 +271,7 @@ def topics(F, G, data, now, log, timespan="3months"):
         groups = {}
         for a in arts:
             title = (a.get("title") or "").strip()
-            if not title or re.search(NOT_NEWS, title, re.I):
+            if not title or re.search(NOT_NEWS, title, re.I) or not re.search(MUST[cat], title, re.I):
                 continue
             hit = G.find(title)
             if not hit:

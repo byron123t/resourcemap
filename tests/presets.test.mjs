@@ -74,12 +74,13 @@ test("every preset target exists in the built data", { skip: !REAL && "site/data
 
 test("news scenarios resolve", { skip: (!REAL || !existsSync(D("scenarios_weekly.json"))) && "no scenarios_weekly.json" }, () => {
   const P = presets(), ok = resolver(P.fnv36), W = J("scenarios_weekly.json");
-  assert.ok(Array.isArray(W.items) && W.items.length <= 12, "items: a list of at most 12");
+  const MAX = { week: 12, month: 20, year: 30 };
+  assert.ok(Array.isArray(W.items) && W.items.length <= MAX.week, "items: a list of at most 12");
   const wins = W.windows || { week: { items: W.items } };
   for (const w of Object.keys(wins)) assert.ok(P.news.includes(w), `window ${w} has no tab`);
   const bad = [], good = s => Array.isArray(s) && s.length === 3 && s[0] in P.kinds && ok(P, s);
   for (const [w, { items }] of Object.entries(wins)) {
-    assert.ok(Array.isArray(items) && items.length <= 12, `${w}: a list of at most 12`);
+    assert.ok(Array.isArray(items) && items.length <= MAX[w], `${w}: a list of at most ${MAX[w]}`);
     for (const x of items) {
       assert.ok(typeof x.label === "string" && x.label.trim(), "label");
       assert.ok(x.url == null || /^https?:\/\//.test(x.url), `${x.label}: url`);

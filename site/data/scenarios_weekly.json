@@ -156,6 +156,60 @@
    ]
   },
   {
+   "cat": "outbreak",
+   "label": "Outbreak in Kenya",
+   "why": "1 recent article on an outbreak in Kenya. Modelled as a severe virus starting there. In the news: WHO urges vigilance after Kenya confirms second Ebola case.",
+   "url": "https://www.globalissues.org/news/2026/10/15/44353",
+   "shocks": [
+    [
+     "outbreak",
+     "sev_36.81_-1.28",
+     0.55
+    ]
+   ],
+   "levels": {
+    "de": [
+     [
+      "outbreak",
+      "sev_36.81_-1.28",
+      0.3
+     ]
+    ],
+    "cur": [
+     [
+      "outbreak",
+      "sev_36.81_-1.28",
+      0.55
+     ]
+    ],
+    "esc": [
+     [
+      "outbreak",
+      "sev_36.81_-1.28",
+      1.0
+     ]
+    ]
+   },
+   "lv": {
+    "de": "Contained: tracing and isolation keep it mostly local.",
+    "cur": "Partly controlled: it spreads, but slower than it could.",
+    "esc": "Uncontrolled: it spreads as fast as the virus allows."
+   },
+   "trend": "steady",
+   "likely": "cur",
+   "at": [
+    36.81,
+    -1.28
+   ],
+   "months": [
+    "2026-10"
+   ],
+   "place": "Kenya",
+   "t": "2026-10-15T20:45:00Z",
+   "z": 1,
+   "matched": []
+  },
+  {
    "cat": "conflict",
    "label": "Strikes near Dammam",
    "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 24 more within 75 km. In the news: Passenger terminal at Riyadh airport is struck again a Day after were killed.",
@@ -313,6 +367,60 @@
     "Barry Steam Plant",
     "Barry Steam Plant"
    ]
+  },
+  {
+   "cat": "outbreak",
+   "label": "Outbreak in Congo",
+   "why": "1 recent article on an outbreak in Congo. Modelled as a severe virus starting there. In the news: Congo Ebola outbreak spreads to province bordering Central African Republic.",
+   "url": "https://www.sowetan.co.za/news/africa/2026-10-15-congo-ebola-outbreak-spreads-to-province-bordering-central-african-republic/",
+   "shocks": [
+    [
+     "outbreak",
+     "sev_15.31_-4.33",
+     0.55
+    ]
+   ],
+   "levels": {
+    "de": [
+     [
+      "outbreak",
+      "sev_15.31_-4.33",
+      0.3
+     ]
+    ],
+    "cur": [
+     [
+      "outbreak",
+      "sev_15.31_-4.33",
+      0.55
+     ]
+    ],
+    "esc": [
+     [
+      "outbreak",
+      "sev_15.31_-4.33",
+      1.0
+     ]
+    ]
+   },
+   "lv": {
+    "de": "Contained: tracing and isolation keep it mostly local.",
+    "cur": "Partly controlled: it spreads, but slower than it could.",
+    "esc": "Uncontrolled: it spreads as fast as the virus allows."
+   },
+   "trend": "steady",
+   "likely": "cur",
+   "at": [
+    15.31,
+    -4.33
+   ],
+   "months": [
+    "2026-10"
+   ],
+   "place": "Congo",
+   "t": "2026-10-15T20:45:00Z",
+   "z": 1,
+   "matched": []
   },
   {
    "cat": "storm",
@@ -551,6 +659,60 @@
      ]
     },
     {
+     "cat": "outbreak",
+     "label": "Outbreak in Kenya",
+     "why": "1 recent article on an outbreak in Kenya. Modelled as a severe virus starting there. In the news: WHO urges vigilance after Kenya confirms second Ebola case.",
+     "url": "https://www.globalissues.org/news/2026/10/15/44353",
+     "shocks": [
+      [
+       "outbreak",
+       "sev_36.81_-1.28",
+       0.55
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "outbreak",
+        "sev_36.81_-1.28",
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "outbreak",
+        "sev_36.81_-1.28",
+        0.55
+       ]
+      ],
+      "esc": [
+       [
+        "outbreak",
+        "sev_36.81_-1.28",
+        1.0
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Contained: tracing and isolation keep it mostly local.",
+      "cur": "Partly controlled: it spreads, but slower than it could.",
+      "esc": "Uncontrolled: it spreads as fast as the virus allows."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      36.81,
+      -1.28
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Kenya",
+     "t": "2026-10-15T20:45:00Z",
+     "z": 1,
+     "matched": []
+    },
+    {
      "cat": "conflict",
      "label": "Strikes near Dammam",
      "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 24 more within 75 km. In the news: Passenger terminal at Riyadh airport is struck again a Day after were killed.",
@@ -708,6 +870,60 @@
       "Barry Steam Plant",
       "Barry Steam Plant"
      ]
+    },
+    {
+     "cat": "outbreak",
+     "label": "Outbreak in Congo",
+     "why": "1 recent article on an outbreak in Congo. Modelled as a severe virus starting there. In the news: Congo Ebola outbreak spreads to province bordering Central African Republic.",
+     "url": "https://www.sowetan.co.za/news/africa/2026-10-15-congo-ebola-outbreak-spreads-to-province-bordering-central-african-republic/",
+     "shocks": [
+      [
+       "outbreak",
+       "sev_15.31_-4.33",
+       0.55
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "outbreak",
+        "sev_15.31_-4.33",
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "outbreak",
+        "sev_15.31_-4.33",
+        0.55
+       ]
+      ],
+      "esc": [
+       [
+        "outbreak",
+        "sev_15.31_-4.33",
+        1.0
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Contained: tracing and isolation keep it mostly local.",
+      "cur": "Partly controlled: it spreads, but slower than it could.",
+      "esc": "Uncontrolled: it spreads as fast as the virus allows."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      15.31,
+      -4.33
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Congo",
+     "t": "2026-10-15T20:45:00Z",
+     "z": 1,
+     "matched": []
     },
     {
      "cat": "storm",
@@ -946,6 +1162,132 @@
      ]
     },
     {
+     "cat": "fire",
+     "label": "Wildfire in Indonesia",
+     "why": "Pertamina Plaju Refinery within 30 km; about 7,295 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032521",
+     "shocks": [
+      [
+       "zone",
+       [
+        105.06,
+        -3.07,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         105.06,
+         -3.07,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         105.06,
+         -3.07,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         105.06,
+         -3.07,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      105.06,
+      -3.07
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Wildfire in Indonesia",
+     "t": "2026-09-24T19:00:00Z",
+     "z": 7.295,
+     "matched": [
+      "Pertamina Plaju Refinery"
+     ]
+    },
+    {
+     "cat": "outbreak",
+     "label": "Outbreak in Kenya",
+     "why": "1 recent article on an outbreak in Kenya. Modelled as a severe virus starting there. In the news: WHO urges vigilance after Kenya confirms second Ebola case.",
+     "url": "https://www.globalissues.org/news/2026/10/15/44353",
+     "shocks": [
+      [
+       "outbreak",
+       "sev_36.81_-1.28",
+       0.55
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "outbreak",
+        "sev_36.81_-1.28",
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "outbreak",
+        "sev_36.81_-1.28",
+        0.55
+       ]
+      ],
+      "esc": [
+       [
+        "outbreak",
+        "sev_36.81_-1.28",
+        1.0
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Contained: tracing and isolation keep it mostly local.",
+      "cur": "Partly controlled: it spreads, but slower than it could.",
+      "esc": "Uncontrolled: it spreads as fast as the virus allows."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      36.81,
+      -1.28
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Kenya",
+     "t": "2026-10-15T20:45:00Z",
+     "z": 1,
+     "matched": []
+    },
+    {
      "cat": "conflict",
      "label": "Drone strikes near Nizhnekamsk",
      "why": "Taneco Nizhnekamsk Refinery, TAIF Nizhnekamsk Refinery, Shegurchinskoye Oil Field (Russia) (oil/gas field) and 6 more within 70 km. In the news: Ukrainian drones kill in Russia as Moscow hits main Port hub in Black sea.",
@@ -1104,6 +1446,132 @@
      ]
     },
     {
+     "cat": "fire",
+     "label": "Wildfire in Zimbabwe",
+     "why": "Hwange power station within 30 km; about 6,260 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032462",
+     "shocks": [
+      [
+       "zone",
+       [
+        26.58,
+        -18.59,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         26.58,
+         -18.59,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         26.58,
+         -18.59,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         26.58,
+         -18.59,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      26.58,
+      -18.59
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Wildfire in Zimbabwe",
+     "t": "2026-09-25T19:00:00Z",
+     "z": 6.26,
+     "matched": [
+      "Hwange power station"
+     ]
+    },
+    {
+     "cat": "outbreak",
+     "label": "Outbreak in Congo",
+     "why": "1 recent article on an outbreak in Congo. Modelled as a severe virus starting there. In the news: Congo Ebola outbreak spreads to province bordering Central African Republic.",
+     "url": "https://www.sowetan.co.za/news/africa/2026-10-15-congo-ebola-outbreak-spreads-to-province-bordering-central-african-republic/",
+     "shocks": [
+      [
+       "outbreak",
+       "sev_15.31_-4.33",
+       0.55
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "outbreak",
+        "sev_15.31_-4.33",
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "outbreak",
+        "sev_15.31_-4.33",
+        0.55
+       ]
+      ],
+      "esc": [
+       [
+        "outbreak",
+        "sev_15.31_-4.33",
+        1.0
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Contained: tracing and isolation keep it mostly local.",
+      "cur": "Partly controlled: it spreads, but slower than it could.",
+      "esc": "Uncontrolled: it spreads as fast as the virus allows."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      15.31,
+      -4.33
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Congo",
+     "t": "2026-10-15T20:45:00Z",
+     "z": 1,
+     "matched": []
+    },
+    {
      "cat": "conflict",
      "label": "Drone strikes near Volyn",
      "why": "Shchekinskaya SDPS power station (0.4 GW, gas) and Cherepetskaya power station (0.5 GW, coal) within 60 km. In the news: Ukrainian drones kill in Russia as Moscow hits main Port hub in Black sea.",
@@ -1251,6 +1719,78 @@
       "Vizag Steel Plant power station",
       "Vizag Thermal Power Plant",
       "Simhadri power station"
+     ]
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in United States",
+     "why": "[Field not stated] - Denbury Onshore, (Offshore) Oil Asset (Texas, United States) within 30 km; about 5,038 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032281",
+     "shocks": [
+      [
+       "zone",
+       [
+        -94.34,
+        29.59,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         -94.34,
+         29.59,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         -94.34,
+         29.59,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         -94.34,
+         29.59,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      -94.34,
+      29.59
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Wildfire in United States",
+     "t": "2026-09-19T19:00:00Z",
+     "z": 5.038,
+     "matched": [
+      "[Field not stated] - Denbury Onshore, (Offshore) Oil Asset (Texas, United States)"
      ]
     },
     {
@@ -1405,6 +1945,81 @@
       "Joseph M Farley",
       "Barry Steam Plant",
       "Barry Steam Plant"
+     ]
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in China",
+     "why": "Jinneng Guojin power station, Shanxi Guofeng power station, Jiexiu Chongguang power station and more within 30 km; about 6,298 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032580",
+     "shocks": [
+      [
+       "zone",
+       [
+        111.93,
+        37.26,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         111.93,
+         37.26,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         111.93,
+         37.26,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         111.93,
+         37.26,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      111.93,
+      37.26
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Wildfire in China",
+     "t": "2026-09-25T19:00:00Z",
+     "z": 6.298,
+     "matched": [
+      "Jinneng Guojin power station",
+      "Shanxi Guofeng power station",
+      "Jiexiu Chongguang power station",
+      "Xiaoyi Xinyang power station"
      ]
     },
     {
@@ -1563,6 +2178,78 @@
      ]
     },
     {
+     "cat": "fire",
+     "label": "Wildfire in Zambia",
+     "why": "Kafue Gorge within 30 km; about 5,147 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032235",
+     "shocks": [
+      [
+       "zone",
+       [
+        28.66,
+        -15.8,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         28.66,
+         -15.8,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         28.66,
+         -15.8,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         28.66,
+         -15.8,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      28.66,
+      -15.8
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Wildfire in Zambia",
+     "t": "2026-09-13T19:00:00Z",
+     "z": 5.147,
+     "matched": [
+      "Kafue Gorge"
+     ]
+    },
+    {
      "cat": "storm",
      "label": "Cyclone Rachel",
      "why": "Costa Azul LNG Terminal — Import Terminal, Baja California III power station, Presidente Juárez power station and more within 150 km; winds up to 50 knots (NASA EONET).",
@@ -1639,6 +2326,150 @@
       "Otay Mesa Generating Project",
       "Tijuana (city)",
       "Termoelectrica de Mexicali power station"
+     ]
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire Mud Bayou, Chambers, Texas",
+     "why": "[Field not stated] - Denbury Onshore, (Offshore) Oil Asset (Texas, United States) within 30 km; about 3,935 hectares burnt (NASA EONET).",
+     "url": "https://irwin.doi.gov/observer/incidents/2026-TXMCR-000389",
+     "shocks": [
+      [
+       "zone",
+       [
+        -94.37,
+        29.57,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         -94.37,
+         29.57,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         -94.37,
+         29.57,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         -94.37,
+         29.57,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      -94.37,
+      29.57
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Wildfire Mud Bayou, Chambers, Texas",
+     "t": "2026-09-19T23:01:00Z",
+     "z": 3.935385,
+     "matched": [
+      "[Field not stated] - Denbury Onshore, (Offshore) Oil Asset (Texas, United States)"
+     ]
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in Indonesia",
+     "why": "Kota Baru within 30 km; about 5,325 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032802",
+     "shocks": [
+      [
+       "zone",
+       [
+        116.26,
+        -3.46,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         116.26,
+         -3.46,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         116.26,
+         -3.46,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         116.26,
+         -3.46,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      116.26,
+      -3.46
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Wildfire in Indonesia",
+     "t": "2026-10-02T19:00:00Z",
+     "z": 5.325,
+     "matched": [
+      "Kota Baru"
      ]
     }
    ]
@@ -1886,6 +2717,79 @@
      ]
     },
     {
+     "cat": "fire",
+     "label": "Wildfire in Zimbabwe",
+     "why": "Hwange power station within 30 km; about 6,260 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032462",
+     "shocks": [
+      [
+       "zone",
+       [
+        26.58,
+        -18.59,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         26.58,
+         -18.59,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         26.58,
+         -18.59,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         26.58,
+         -18.59,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      26.58,
+      -18.59
+     ],
+     "months": [
+      "2026-08",
+      "2026-09"
+     ],
+     "place": "Wildfire in Zimbabwe",
+     "t": "2026-09-25T19:00:00Z",
+     "z": 6.26,
+     "matched": [
+      "Hwange power station"
+     ]
+    },
+    {
      "cat": "quake",
      "label": "M7.5 earthquake near Catia La Mar",
      "why": "Catia La Mar, Caracas (city), Maracay (city) and more within 120 km (USGS, red alert for damage).",
@@ -1963,6 +2867,60 @@
       "Venterminals",
       "Valencia (city)"
      ]
+    },
+    {
+     "cat": "outbreak",
+     "label": "Outbreak in Kenya",
+     "why": "1 recent article on an outbreak in Kenya. Modelled as a severe virus starting there. In the news: WHO urges vigilance after Kenya confirms second Ebola case.",
+     "url": "https://www.globalissues.org/news/2026/10/15/44353",
+     "shocks": [
+      [
+       "outbreak",
+       "sev_36.81_-1.28",
+       0.55
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "outbreak",
+        "sev_36.81_-1.28",
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "outbreak",
+        "sev_36.81_-1.28",
+        0.55
+       ]
+      ],
+      "esc": [
+       [
+        "outbreak",
+        "sev_36.81_-1.28",
+        1.0
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Contained: tracing and isolation keep it mostly local.",
+      "cur": "Partly controlled: it spreads, but slower than it could.",
+      "esc": "Uncontrolled: it spreads as fast as the virus allows."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      36.81,
+      -1.28
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Kenya",
+     "t": "2026-10-15T20:45:00Z",
+     "z": 1,
+     "matched": []
     },
     {
      "cat": "conflict",
@@ -2195,6 +3153,79 @@
      ]
     },
     {
+     "cat": "fire",
+     "label": "Wildfire in Bosnia and Herzegovina",
+     "why": "Gacko Thermal Power Plant within 30 km; about 5,314 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1031787",
+     "shocks": [
+      [
+       "zone",
+       [
+        18.46,
+        43.06,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         18.46,
+         43.06,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         18.46,
+         43.06,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         18.46,
+         43.06,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      18.46,
+      43.06
+     ],
+     "months": [
+      "2026-08",
+      "2026-09"
+     ],
+     "place": "Wildfire in Bosnia and Herzegovina",
+     "t": "2026-09-03T19:00:00Z",
+     "z": 5.314,
+     "matched": [
+      "Gacko Thermal Power Plant"
+     ]
+    },
+    {
      "cat": "quake",
      "label": "M6.8 earthquake near Kumamoto",
      "why": "Ohira within 40 km (USGS, red alert for damage).",
@@ -2340,6 +3371,60 @@
      "matched": [
       "Ohira"
      ]
+    },
+    {
+     "cat": "outbreak",
+     "label": "Outbreak in Congo",
+     "why": "1 recent article on an outbreak in Congo. Modelled as a severe virus starting there. In the news: Congo Ebola outbreak spreads to province bordering Central African Republic.",
+     "url": "https://www.sowetan.co.za/news/africa/2026-10-15-congo-ebola-outbreak-spreads-to-province-bordering-central-african-republic/",
+     "shocks": [
+      [
+       "outbreak",
+       "sev_15.31_-4.33",
+       0.55
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "outbreak",
+        "sev_15.31_-4.33",
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "outbreak",
+        "sev_15.31_-4.33",
+        0.55
+       ]
+      ],
+      "esc": [
+       [
+        "outbreak",
+        "sev_15.31_-4.33",
+        1.0
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Contained: tracing and isolation keep it mostly local.",
+      "cur": "Partly controlled: it spreads, but slower than it could.",
+      "esc": "Uncontrolled: it spreads as fast as the virus allows."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      15.31,
+      -4.33
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Congo",
+     "t": "2026-10-15T20:45:00Z",
+     "z": 1,
+     "matched": []
     },
     {
      "cat": "conflict",
@@ -2627,6 +3712,78 @@
      ]
     },
     {
+     "cat": "fire",
+     "label": "Wildfire Ross, Palo Pinto, Texas",
+     "why": "R W Miller power station within 30 km; about 32,400 hectares burnt (NASA EONET).",
+     "url": "https://irwin.doi.gov/observer/incidents/2026-TXTXS-267549",
+     "shocks": [
+      [
+       "zone",
+       [
+        -98.34,
+        32.76,
+        25
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         -98.34,
+         32.76,
+         15
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         -98.34,
+         32.76,
+         25
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         -98.34,
+         32.76,
+         40
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 15 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 25 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 40 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      -98.34,
+      32.76
+     ],
+     "months": [
+      "2026-08"
+     ],
+     "place": "Wildfire Ross, Palo Pinto, Texas",
+     "t": "2026-08-24T14:12:00Z",
+     "z": 32.400000000000006,
+     "matched": [
+      "R W Miller power station"
+     ]
+    },
+    {
      "cat": "quake",
      "label": "M7.2 earthquake near San Felipe",
      "why": "PDVSA El Palito Refinery, El Palito, Venterminals and more within 70 km (USGS, red alert for damage).",
@@ -2701,6 +3858,984 @@
       "Puerto Cabello",
       "Puerto Borburata",
       "Valencia (city)"
+     ]
+    },
+    {
+     "cat": "conflict",
+     "label": "Drone strikes near Nizhnekamsk",
+     "why": "Taneco Nizhnekamsk Refinery, TAIF Nizhnekamsk Refinery, Shegurchinskoye Oil Field (Russia) (oil/gas field) and 6 more within 70 km. In the news: Ukrainian drones kill in Russia as Moscow hits main Port hub in Black sea.",
+     "url": "https://www.winnipegfreepress.com/world/2026/09/13/ukrainian-drones-kill-2-in-russia-as-moscow-hits-main-port-hub-in-black-sea",
+     "shocks": [
+      [
+       "zone",
+       [
+        51.82,
+        55.64,
+        70
+       ],
+       0.6
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         51.82,
+         55.64,
+         15
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         51.82,
+         55.64,
+         70
+        ],
+        0.6
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         51.82,
+         55.64,
+         130
+        ],
+        0.85
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Nizhnekamsk 1 power station, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 9 sites within 70 km, 60% damage.",
+      "esc": "Spreads to 130 km, 85% damage, reaching 2 more sites (Novo-Yelkhovskoye Oil Field (Republic of Tatarstan, Russia) +1, Romashkinskoye Oil Field (Republic of Tatarstan, Russia))."
+     },
+     "trend": "easing",
+     "likely": "de",
+     "at": [
+      51.82,
+      55.64
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Nizhnekamsk, Tatarstan, Russia",
+     "t": "2026-09-12T00:00:00Z",
+     "z": 432.9,
+     "matched": [
+      "Taneco Nizhnekamsk Refinery",
+      "TAIF Nizhnekamsk Refinery",
+      "Shegurchinskoye Oil Field (Russia)",
+      "Nizhnekamsk 1 power station",
+      "Nizhnekamsk 2 power station",
+      "Nizhnekamsk Petrochemical power station",
+      "Nizhnekamsk hydroelectric power station",
+      "Zainsk GRES power station"
+     ]
+    },
+    {
+     "cat": "flood",
+     "label": "Flood in Vietnam",
+     "why": "Dai Ninh, Ham Thuan - Da Mi, Dong Nai 4 within 80 km (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103896",
+     "shocks": [
+      [
+       "zone",
+       [
+        108.13,
+        11.66,
+        80
+       ],
+       0.4
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         108.13,
+         11.66,
+         50
+        ],
+        0.2
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         108.13,
+         11.66,
+         80
+        ],
+        0.4
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         108.13,
+         11.66,
+         120
+        ],
+        0.65
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 50 km around the flood, 20% damage, repaired fast.",
+      "cur": "As reported: 80 km around the flood, 40% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 120 km at 65% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      108.13,
+      11.66
+     ],
+     "months": [
+      "2025-12",
+      "2026-05"
+     ],
+     "place": "Flood in Vietnam",
+     "t": "2026-05-22T20:00:00Z",
+     "z": 40,
+     "matched": [
+      "Dai Ninh",
+      "Ham Thuan - Da Mi",
+      "Dong Nai 4"
+     ]
+    },
+    {
+     "cat": "storm",
+     "label": "Tropical Cyclone 01B",
+     "why": "Vishakhapatnam, HPCL Visakh Refinery, Vishakhapatnam (city) and more within 150 km; winds up to 45 knots (NASA EONET).",
+     "url": "https://www.metoc.navy.mil/jtwc/products/io0126.tcw",
+     "shocks": [
+      [
+       "zone",
+       [
+        84,
+        17.8,
+        150
+       ],
+       0.2
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         84,
+         17.8,
+         90
+        ],
+        0.1
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         84,
+         17.8,
+         150
+        ],
+        0.2
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         84,
+         17.8,
+         200
+        ],
+        0.45
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 90 km around the storm's landfall, 10% damage, repaired fast.",
+      "cur": "As reported: 150 km around the storm's landfall, 20% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 200 km at 45% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      84,
+      17.8
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Tropical Cyclone 01B",
+     "t": "2026-09-23T12:00:00Z",
+     "z": 45.0,
+     "matched": [
+      "Vishakhapatnam",
+      "HPCL Visakh Refinery",
+      "Vishakhapatnam (city)",
+      "Vizag Steel Plant power station",
+      "Vizag Thermal Power Plant",
+      "Simhadri power station"
+     ]
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in Türkiye",
+     "why": "Erzin power station within 30 km; about 7,417 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1031706",
+     "shocks": [
+      [
+       "zone",
+       [
+        36.08,
+        37.15,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         36.08,
+         37.15,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         36.08,
+         37.15,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         36.08,
+         37.15,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      36.08,
+      37.15
+     ],
+     "months": [
+      "2026-08"
+     ],
+     "place": "Wildfire in Türkiye",
+     "t": "2026-08-29T19:00:00Z",
+     "z": 7.417,
+     "matched": [
+      "Erzin power station"
+     ]
+    },
+    {
+     "cat": "quake",
+     "label": "M7.8 earthquake near Kablalan",
+     "why": "Davao San Miguel power station within 120 km (USGS, orange alert for damage).",
+     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000srb1",
+     "shocks": [
+      [
+       "zone",
+       [
+        125.06,
+        5.6,
+        120
+       ],
+       0.5
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         125.06,
+         5.6,
+         75
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         125.06,
+         5.6,
+         120
+        ],
+        0.5
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         125.06,
+         5.6,
+         180
+        ],
+        0.75
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 75 km around the epicentre, 25% damage, repaired fast.",
+      "cur": "As reported: 120 km around the epicentre, 50% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 180 km at 75% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      125.06,
+      5.6
+     ],
+     "months": [
+      "2026-06"
+     ],
+     "place": "Kablalan, Philippines",
+     "t": "2026-06-07T23:37:41Z",
+     "z": 108.0,
+     "matched": [
+      "Davao San Miguel power station"
+     ]
+    },
+    {
+     "cat": "conflict",
+     "label": "Missile strikes near Lviv",
+     "why": "Ukrtransneft Drogobych Refinery and Lubaczów Gas Field (Poland) (oil/gas field) within 70 km. In the news: Russian missile barrage hits energy.",
+     "url": "https://www.yahoo.com/news/articles/russian-missile-barrage-hits-energy-094146642.html",
+     "shocks": [
+      [
+       "zone",
+       [
+        24.03,
+        49.84,
+        70
+       ],
+       0.6
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         24.03,
+         49.84,
+         70
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         24.03,
+         49.84,
+         70
+        ],
+        0.6
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         24.03,
+         49.84,
+         130
+        ],
+        0.85
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Lubaczów Gas Field (Poland), is hit, 25% damage within 70 km.",
+      "cur": "As reported: 2 sites within 70 km, 60% damage.",
+      "esc": "Spreads to 130 km, 85% damage, reaching 3 more sites (Przemyśl Gas Field (Poland) +2, Dzików Gas Field (Poland) +7 …)."
+     },
+     "trend": "easing",
+     "likely": "de",
+     "at": [
+      24.03,
+      49.84
+     ],
+     "months": [
+      "2026-02"
+     ],
+     "place": "Lviv, L'vivs'ka Oblast', Ukraine",
+     "t": "2026-02-21T00:00:00Z",
+     "z": 367.4,
+     "matched": [
+      "Lubaczów Gas Field (Poland)",
+      "Ukrtransneft Drogobych Refinery"
+     ]
+    },
+    {
+     "cat": "flood",
+     "label": "Flood in Pakistan",
+     "why": "Peshawar (city), Tolanj West Gas Field Oil and Gas Field (Pakistan) +1, Nashpa Oil and Gas Field (Pakistan) +4 and more within 80 km (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103877",
+     "shocks": [
+      [
+       "zone",
+       [
+        71.27,
+        33.71,
+        80
+       ],
+       0.4
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         71.27,
+         33.71,
+         50
+        ],
+        0.2
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         71.27,
+         33.71,
+         80
+        ],
+        0.4
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         71.27,
+         33.71,
+         120
+        ],
+        0.65
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 50 km around the flood, 20% damage, repaired fast.",
+      "cur": "As reported: 80 km around the flood, 40% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 120 km at 65% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      71.27,
+      33.71
+     ],
+     "months": [
+      "2026-03",
+      "2026-05"
+     ],
+     "place": "Flood in Pakistan",
+     "t": "2026-05-09T20:00:00Z",
+     "z": 40,
+     "matched": [
+      "Peshawar (city)",
+      "Tolanj West Gas Field Oil and Gas Field (Pakistan) +1",
+      "Nashpa Oil and Gas Field (Pakistan) +4",
+      "Mardankhel Oil and Gas Field (Pakistan) +1",
+      "Mela Oil and Gas Field (Pakistan)"
+     ]
+    },
+    {
+     "cat": "storm",
+     "label": "Tropical Storm Melissa",
+     "why": "Port Kaiser, Montego Bay LNG Terminal, Rocky Point and more within 150 km; winds up to 160 knots (NASA EONET).",
+     "url": "https://www.nhc.noaa.gov/archive/2025/MELISSA.shtml",
+     "shocks": [
+      [
+       "zone",
+       [
+        -77.9,
+        17.9,
+        150
+       ],
+       0.7
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         -77.9,
+         17.9,
+         90
+        ],
+        0.35
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         -77.9,
+         17.9,
+         150
+        ],
+        0.7
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         -77.9,
+         17.9,
+         200
+        ],
+        0.95
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 90 km around the storm's landfall, 35% damage, repaired fast.",
+      "cur": "As reported: 150 km around the storm's landfall, 70% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 200 km at 95% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      -77.9,
+      17.9
+     ],
+     "months": [
+      "2025-10"
+     ],
+     "place": "Tropical Storm Melissa",
+     "t": "2025-10-28T15:00:00Z",
+     "z": 160.0,
+     "matched": [
+      "Port Kaiser",
+      "Montego Bay LNG Terminal",
+      "Rocky Point",
+      "Port Esquivel",
+      "Old Harbour FSRU",
+      "Petrojam Kingston Refinery",
+      "Kingston"
+     ]
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in Australia",
+     "why": "Gove within 30 km; about 7,369 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032175",
+     "shocks": [
+      [
+       "zone",
+       [
+        136.64,
+        -12.35,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         136.64,
+         -12.35,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         136.64,
+         -12.35,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         136.64,
+         -12.35,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      136.64,
+      -12.35
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Wildfire in Australia",
+     "t": "2026-09-11T19:00:00Z",
+     "z": 7.369,
+     "matched": [
+      "Gove"
+     ]
+    },
+    {
+     "cat": "quake",
+     "label": "M7.6 earthquake near 2025 Aomori Prefecture",
+     "why": "Higashi-Dori, Hachinohe LNG Terminal, Hachinohe thermal power station within 120 km (USGS, yellow alert for damage).",
+     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000rtdt",
+     "shocks": [
+      [
+       "zone",
+       [
+        142.18,
+        41.0,
+        120
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         142.18,
+         41.0,
+         75
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         142.18,
+         41.0,
+         120
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         142.18,
+         41.0,
+         180
+        ],
+        0.55
+       ],
+       [
+        "fab",
+        "japan-semiconductor-iwate",
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 75 km around the epicentre, 15% damage, repaired fast.",
+      "cur": "As reported: 120 km around the epicentre, 30% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 180 km at 55% damage. Chip fabs inside: Iwate."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      142.18,
+      41.0
+     ],
+     "months": [
+      "2025-12"
+     ],
+     "place": "2025 Aomori Prefecture, Japan",
+     "t": "2025-12-08T14:15:09Z",
+     "z": 91.0,
+     "matched": [
+      "Higashi-Dori",
+      "Hachinohe LNG Terminal",
+      "Hachinohe thermal power station"
+     ]
+    },
+    {
+     "cat": "conflict",
+     "label": "Fighting near Sichuan",
+     "why": "Gangu power station (0.7 GW, coal) within 55 km. In the news: Fresh off commissioning new aircraft carrier China starts sea trials of amphibious assault ship.",
+     "url": "https://www.winnipegfreepress.com/world/2025/11/14/fresh-off-commissioning-new-aircraft-carrier-china-starts-sea-trials-of-amphibious-assault-ship",
+     "shocks": [
+      [
+       "zone",
+       [
+        105.48,
+        35.12,
+        55
+       ],
+       0.35
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         105.48,
+         35.12,
+         55
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         105.48,
+         35.12,
+         55
+        ],
+        0.35
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         105.48,
+         35.12,
+         100
+        ],
+        0.6
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Gangu power station, is hit, 15% damage within 55 km.",
+      "cur": "As reported: 1 site within 55 km, 35% damage.",
+      "esc": "Spreads to 100 km, 60% damage."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      105.48,
+      35.12
+     ],
+     "months": [
+      "2025-11"
+     ],
+     "place": "Sichuan, Gansu, China",
+     "t": "2025-11-14T00:00:00Z",
+     "z": 233.1,
+     "matched": [
+      "Gangu power station"
+     ]
+    },
+    {
+     "cat": "flood",
+     "label": "Flood in Kenya",
+     "why": "Nairobi (city) within 80 km (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103792",
+     "shocks": [
+      [
+       "zone",
+       [
+        36.83,
+        -1.3,
+        80
+       ],
+       0.4
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         36.83,
+         -1.3,
+         50
+        ],
+        0.2
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         36.83,
+         -1.3,
+         80
+        ],
+        0.4
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         36.83,
+         -1.3,
+         120
+        ],
+        0.65
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 50 km around the flood, 20% damage, repaired fast.",
+      "cur": "As reported: 80 km around the flood, 40% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 120 km at 65% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      36.83,
+      -1.3
+     ],
+     "months": [
+      "2026-02",
+      "2026-03"
+     ],
+     "place": "Flood in Kenya",
+     "t": "2026-03-04T20:00:00Z",
+     "z": 40,
+     "matched": [
+      "Nairobi (city)"
+     ]
+    },
+    {
+     "cat": "storm",
+     "label": "Tropical Cyclone Narelle",
+     "why": "Goodwyn Oil and Gas Field (Western Australia, Australia), Perseus Oil and Gas Field (Western Australia, Australia) +1, John Brookes Gas Field (Western Australia, Australia) and more within 150 km; winds up to 110 knots (NASA EONET).",
+     "url": "https://science.nasa.gov/earth/earth-observatory/tropical-cyclone-narelle-crosses-australia/",
+     "shocks": [
+      [
+       "zone",
+       [
+        115.4,
+        -19.6,
+        150
+       ],
+       0.5
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         115.4,
+         -19.6,
+         90
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         115.4,
+         -19.6,
+         150
+        ],
+        0.5
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         115.4,
+         -19.6,
+         200
+        ],
+        0.75
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 90 km around the storm's landfall, 25% damage, repaired fast.",
+      "cur": "As reported: 150 km around the storm's landfall, 50% damage.",
+      "esc": "Worse: aftershocks, landslides or flooding spread it to 200 km at 75% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      115.4,
+      -19.6
+     ],
+     "months": [
+      "2026-03"
+     ],
+     "place": "Tropical Cyclone Narelle",
+     "t": "2026-03-26T06:00:00Z",
+     "z": 110.0,
+     "matched": [
+      "Goodwyn Oil and Gas Field (Western Australia, Australia)",
+      "Perseus Oil and Gas Field (Western Australia, Australia) +1",
+      "John Brookes Gas Field (Western Australia, Australia)",
+      "Hermes Oil and Gas Field (Western Australia, Australia)",
+      "Barrow Island LNG power station",
+      "Gorgon LNG Terminal — T1",
+      "Gorgon LNG Terminal — T2",
+      "Gorgon LNG Terminal — T3"
      ]
     }
    ]
