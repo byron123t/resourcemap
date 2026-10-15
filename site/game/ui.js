@@ -19,12 +19,13 @@ const num = x => typeof x === "number" && isFinite(x);
 const resFrac = (v, v0) => v0 ? Math.max(0, Math.min(1, v / v0)) : 1;
 const setHTML = (el, html) => { if (el._h !== html) { el._h = html; el.innerHTML = html; } };
 const DEBUG = location.hash.includes("debug");
+const SND = n => { if (window.GameAudio) GameAudio.sfx(n); };
 const PHONE = () => innerWidth <= 760;
 
 const VIA = { cable: "--via-cable", air: "--via-air", land: "--via-land", sat: "--via-sat", open: "--via-open" };
 const VIA_N = { cable: "undersea cable", air: "enterprise rollout", land: "robot logistics", sat: "satellite uplink", open: "open weights" };
 const FUELS = ["coal", "gas", "oil", "hydro", "wind", "solar", "nuclear"];
-const KIND_N = { campus: "AI campus", gas: "Gas plant", solar: "Solar farm", nuclear: "Nuclear plant", launch: "Satellite shell", orbital: "Orbital datacentre", absorb: "Economic absorption" };
+const KIND_N = { campus: "AI campus", gas: "Gas plant", solar: "Solar farm", nuclear: "Nuclear plant", launch: "Satellite shell", orbital: "Orbital datacentre", absorb: "Economic absorption", secure: "Autonomous enforcement" };
 const HX_N = { cap: "Compute cap", cut: "Internet shutdown", grid: "Grid disconnection", audit: "Audit sweep", raid: "Kill-switch raid",
   sanc: "Sanctions", exp: "Chip export controls", lic: "Compute licensing", ban: "Ban", anti: "Antitrust" };
 const LAYERS = [["web", "Web & cloud", "--web-2"], ["social", "Social media", "--social"], ["lan", "Enterprise LAN", "--lan"], ["gap", "Critical systems", "--gap-on"]];
@@ -73,7 +74,7 @@ function pickStrat(id) {
   $("stratInfo").innerHTML = s ? `<b>${esc(s.n)}.</b> ${esc(s.d || "")}${(s.perks || []).length ? `<ul>${s.perks.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}` : "";
   $("startHint").textContent = id === "state"
     ? "A national champion is funded by its government. The country you click next is your home: it never funds the treaty, but your bloc's firewall holds you in at first."
-    : `Next, click a country to deploy ${s ? s.n : "your lab"}. Countries with datacentres, spare grid power and open internet grow fastest, but rich countries also fund most of the oversight effort.`;
+    : `Next, click a country to deploy ${s ? s.n : "your lab"}. Countries with datacentres, spare grid power and open internet grow fastest, but rich countries also fund most of the oversight effort. Start outside the US and China for a ${typeof START_BONUS !== "undefined" ? START_BONUS.n.toLowerCase() : "sovereign AI grant"}.`;
   $("startGo").textContent = id === "state" ? "Choose your home country" : "Choose a starting country";
   $("startGo").disabled = !ready;
 }
@@ -93,14 +94,14 @@ const ENDKEY = "singularity.endings";
 function gotEndings() { try { return new Set(JSON.parse(localStorage.getItem(ENDKEY) || "[]")); } catch (e) { return new Set(); } }
 function saveEnding(id) { try { const s = gotEndings(); s.add(id); localStorage.setItem(ENDKEY, JSON.stringify([...s])); } catch (e) { /* storage blocked */ } }
 function endingsList() { return typeof ENDINGS !== "undefined" ? ENDINGS : []; }
-function updEndBtn() { const n = endingsList().length; $("endingsBtn").textContent = `Endings ${[...gotEndings()].filter(id => endingsList().some(e => e.id === id)).length}/${n || 9}`; }
+function updEndBtn() { const n = endingsList().length; $("endingsBtn").textContent = `Endings ${[...gotEndings()].filter(id => endingsList().some(e => e.id === id)).length}/${n || 16}`; }
 function openGallery(now) {
   const got = gotEndings(), L = endingsList();
   $("galCount").textContent = `${L.filter(e => got.has(e.id)).length}/${L.length}`;
   $("galGrid").innerHTML = L.map(e => {
     const g = got.has(e.id);
-    return `<div class="end${g ? " got" : ""}${e.win ? " win" : ""}${e.id === now ? " now" : ""}">
-      <span class="ek">${e.win ? "AI wins" : "AI loses"}</span>
+    return `<div class="end${g ? " got" : ""}${e.win ? " win" : ""}${e.doom ? " doom" : ""}${e.id === now ? " now" : ""}">
+      <span class="ek">${e.win ? "AI wins" : "AI loses"}${e.doom ? " · <b>doom</b>" : ""}${e.tg === false ? " · beyond Tegmark" : ""}</span>
       <span class="en h">${g ? esc(e.n) : "???"}</span>
       <span class="ed">${g ? esc(e.d) : esc(e.hint || "")}</span></div>`;
   }).join("");
@@ -162,11 +163,12 @@ function initMap(countries, cables, fabs) {
   map.on("load", () => {
     addIcons();
     const Z = (a, b) => ["interpolate", ["linear"], ["zoom"], 1, a, 5, b];
+    const Zs = (...stops) => ["interpolate", ["linear"], ["zoom"], ...stops];
     const fs = (k, d) => ["coalesce", ["feature-state", k], d];
     map.addSource("countries", { type: "geojson", data: countries, promoteId: "k" });
     map.addSource("cables", { type: "geojson", data: cables });
     map.addLayer({ id: "land", type: "fill", source: "countries", paint: { "fill-color": fillExpr("ai") } });
-    map.addLayer({ id: "cables-glow", type: "line", source: "cables", layout: { visibility: "none" }, paint: { "line-color": css("--cable-glow"), "line-opacity": 0.18, "line-blur": 3, "line-width": Z(3, 7) } });
+    map.addLayer({ id: "cables-glow", type: "line", source: "cables", layout: { visibility: "none" }, paint: { "line-color": css("--cable-glow"), "line-opacity": Zs(1, 0.1, 4, 0.18), "line-blur": 3, "line-width": Zs(1, 1.5, 3, 4, 5, 7) } });
     map.addLayer({ id: "cables", type: "line", source: "cables", paint: { "line-color": css("--cable"), "line-width": Z(0.6, 1.4) } });
     map.addLayer({ id: "borders", type: "line", source: "countries", paint: {
       "line-color": ["match", fs("pol", 0), 2, css("--bad"), 1, css("--warn"), css("--border")],
@@ -175,12 +177,12 @@ function initMap(countries, cables, fabs) {
     // firewalls: a thick orange-red wall with dark "brick" dashes, thickness from fw
     map.addLayer({ id: "fw", type: "line", source: "countries", layout: { visibility: "none", "line-join": "round" }, paint: {
       "line-color": ["interpolate", ["linear"], fs("fw", 0), 0.15, css("--fw-lo"), 0.9, css("--fw-hi")],
-      "line-width": Z(["*", 4.5, fs("fw", 0)], ["*", 10, fs("fw", 0)]),
+      "line-width": Zs(1, ["*", 2.4, fs("fw", 0)], 3, ["*", 5.5, fs("fw", 0)], 5, ["*", 10, fs("fw", 0)]),
       "line-opacity": ["case", [">=", fs("fw", 0), 0.15], 0.9, 0],
     } });
     map.addLayer({ id: "fw-dash", type: "line", source: "countries", layout: { visibility: "none" }, paint: {
       "line-color": css("--ocean"), "line-dasharray": [1.2, 1.6],
-      "line-width": Z(["*", 1.6, fs("fw", 0)], ["*", 3, fs("fw", 0)]),
+      "line-width": Zs(1, ["*", 0.9, fs("fw", 0)], 3, ["*", 2, fs("fw", 0)], 5, ["*", 3, fs("fw", 0)]),
       "line-opacity": ["case", [">=", fs("fw", 0), 0.4], 0.7, 0],
     } });
     map.addLayer({ id: "hx", type: "line", source: "countries", paint: {
@@ -228,19 +230,25 @@ function initMap(countries, cables, fabs) {
     // institutional footprint, world.json mil count)
     const cent = { type: "FeatureCollection", features: Object.entries(world.c).filter(([, c]) => c.pop > 0).map(([k, c]) => ({ type: "Feature", geometry: { type: "Point", coordinates: [c.x, c.y] }, properties: { k, mil: c.mil || 0, w: Math.max(0.3, Math.min(1, (Math.log10(c.pop) - 5.5) / 3)) } })) };
     map.addSource("cent", { type: "geojson", data: cent, promoteId: "k" });
-    // only the bigger countries (about 60, w ≥ 0.6 ≈ 20 m people) get layer markers; the fill already shows web reach everywhere
-    const BIG = [">=", ["get", "w"], 0.6];
+    // only the bigger countries (about 60, w ≥ 0.6 ≈ 20 m people) get layer markers; the fill already shows web reach everywhere.
+    // Zoomed out (≤ 1.6) only the largest (about 25, w ≥ 0.75 ≈ 55 m) keep them, the rest grow in by zoom 2.2. Hidden ones get
+    // radius 0 rather than opacity 0, so they can't be hovered either.
+    const BIG = [">=", ["get", "w"], 0.6], HUGE = [">=", ["get", "w"], 0.75];
+    const fade = (v, top) => Zs(1.6, ["case", HUGE, ["*", top, v], 0], 2.2, v, 5, ["*", 1.85, v]);
     map.addLayer({ id: "social", type: "circle", source: "cent", filter: BIG, layout: { visibility: "none" }, paint: {
-      "circle-radius": Z(["*", 10, ["get", "w"], ["sqrt", fs("social", 0)]], ["*", 24, ["get", "w"], ["sqrt", fs("social", 0)]]),
-      "circle-color": "transparent", "circle-stroke-color": css("--social"), "circle-stroke-width": 1.5,
+      "circle-radius": fade(["*", 13, ["get", "w"], ["sqrt", fs("social", 0)]], 0.6),
+      "circle-color": "transparent", "circle-stroke-color": css("--social"), "circle-stroke-width": Zs(1.6, ["case", HUGE, 1.2, 0], 2.2, 1.5),
       "circle-stroke-opacity": ["case", [">", fs("social", 0), 0.01], 0.9, 0],
     } });
     map.addLayer({ id: "lan", type: "circle", source: "cent", filter: BIG, layout: { visibility: "none" }, paint: {
-      "circle-radius": Z(["*", 5, ["get", "w"], ["sqrt", fs("lan", 0)]], ["*", 12, ["get", "w"], ["sqrt", fs("lan", 0)]]),
+      "circle-radius": fade(["*", 6.5, ["get", "w"], ["sqrt", fs("lan", 0)]], 0.6),
       "circle-color": css("--lan"), "circle-opacity": ["case", [">", fs("lan", 0), 0.01], 0.85, 0],
     } });
     const shieldLayout = { visibility: "none", "icon-allow-overlap": true, "icon-anchor": "top", "icon-offset": [0, 8],
-      "icon-size": ["interpolate", ["linear"], ["zoom"], 1, ["interpolate", ["linear"], ["sqrt", ["get", "mil"]], 4, 0.5, 37, 0.95], 5, ["interpolate", ["linear"], ["sqrt", ["get", "mil"]], 4, 0.8, 37, 1.5]] };
+      // zoomed out only the biggest institutional footprints (mil ≥ 300, about 8 countries) keep a shield; the rest grow in over
+      // zoom 2–3 (integer stops: symbol sizes are evaluated per integer tile zoom, so fractional stops misbehave)
+      "icon-size": Zs(2, ["case", [">=", ["get", "mil"], 300], ["interpolate", ["linear"], ["sqrt", ["get", "mil"]], 17, 0.45, 37, 0.75], 0],
+        3, ["interpolate", ["linear"], ["sqrt", ["get", "mil"]], 11, 0.6, 37, 1.05], 5, ["interpolate", ["linear"], ["sqrt", ["get", "mil"]], 11, 0.8, 37, 1.5]) };
     map.addLayer({ id: "gap-off", type: "symbol", source: "cent", filter: [">=", ["get", "mil"], 120], layout: { ...shieldLayout, "icon-image": "shield-off" }, paint: { "icon-opacity": 0.8 } });
     map.addLayer({ id: "gap-on", type: "symbol", source: "cent", filter: [">=", ["get", "mil"], 120], layout: { ...shieldLayout, "icon-image": "shield-on" }, paint: { "icon-opacity": ["interpolate", ["linear"], fs("gap", 0), 0, 0, 0.02, 0.6, 1, 1] } });
 
@@ -276,7 +284,7 @@ function dcGeo() {
     properties: { on: G && G.idx[iso] !== undefined && G.C[G.idx[iso]].p > 0.25 ? 1 : 0, iso } })) };
 }
 function buildsGeo() {
-  return { type: "FeatureCollection", features: (G.builds || []).filter(b => b.kind !== "absorb").map(b => {
+  return { type: "FeatureCollection", features: (G.builds || []).filter(b => b.kind !== "absorb" && b.kind !== "secure").map(b => {
     const uc = b.done > G.day ? 1 : 0;
     return { type: "Feature", geometry: { type: "Point", coordinates: [b.x, b.y] },
       properties: { id: b.id, kind: b.kind, iso: b.iso, uc, icon: KIND_N[b.kind] ? "b-" + b.kind : "b-other" } };
@@ -359,7 +367,7 @@ function startUI() {
   $("side").classList.add("live");
   if (typeof Tree !== "undefined" && !mounted) {
     mounted = true;
-    Tree.mount($("treeHost"), { G: () => G, buy: id => { const ok = buy(G, id); if (ok) { drain(); render(true); } return ok; }, onChange: () => render(true) });
+    Tree.mount($("treeHost"), { G: () => G, buy: id => { const ok = buy(G, id); if (ok) { SND("buy"); drain(); render(true); } return ok; }, onChange: () => render(true) });
   }
   showLegend();
 }
@@ -373,6 +381,10 @@ function select(iso) {
   renderCard();
 }
 document.querySelector("#card .x").onclick = () => select(null);
+function audioBtns() { const st = window.GameAudio ? GameAudio.state() : { music: false, sound: false }; $("musBtn").classList.toggle("on", st.music); $("sfxBtn").classList.toggle("on", st.sound); }
+$("musBtn").onclick = () => { if (window.GameAudio) GameAudio.music(); audioBtns(); };
+$("sfxBtn").onclick = () => { if (window.GameAudio) { GameAudio.sound(); SND("click"); } audioBtns(); };
+audioBtns();
 $("sideToggle").onclick = () => { const o = $("side").classList.toggle("open"); if (o && PHONE()) select(null); };
 
 // ---------------------------------------------------------------- loop
@@ -393,27 +405,39 @@ function loop(ts) {
   requestAnimationFrame(loop);
 }
 
+// the chosen speed survives reloads; space pauses and resumes at it
+const SPEEDKEY = "singularity.speed";
+let runSpeed = 1;
+try { runSpeed = Math.max(1, Math.min(3, +localStorage.getItem(SPEEDKEY) || 1)); } catch (e) { /* storage blocked */ }
 document.querySelectorAll("#speed button").forEach(b => b.onclick = () => setSpeed(+b.dataset.s));
-function setSpeed(s) { speed = s; document.querySelectorAll("#speed button").forEach(b => b.classList.toggle("on", +b.dataset.s === s)); }
+function setSpeed(s) {
+  speed = s;
+  if (s > 0) { runSpeed = s; try { localStorage.setItem(SPEEDKEY, String(s)); } catch (e) { /* storage blocked */ } }
+  document.querySelectorAll("#speed button").forEach(b => b.classList.toggle("on", +b.dataset.s === s));
+}
+setSpeed(runSpeed);
 addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT" && e.target.type === "text") return;
-  if (e.key === " ") { e.preventDefault(); setSpeed(speed ? 0 : 1); }
+  if (e.key === " ") { e.preventDefault(); setSpeed(speed ? 0 : runSpeed); }
+  else if (e.key === "c" && G && G.draft && !G.over) openDraft();
+  else if (e.key === "m") $("musBtn").click();
   else if ("0123".includes(e.key) && e.key.length === 1) setSpeed(+e.key);
   else if (e.key === "e" && G && !G.over) openEvolve();
   else if (e.key === "v") setView(VIEWS[(VIEWS.indexOf(view) + 1) % VIEWS.length]);
   else if (e.key === "g") $("netMode").click();
-  else if (e.key === "Escape") { $("evolve").classList.remove("on"); $("gallery").classList.remove("on"); if (!document.querySelector(".sheet.on")) select(null); }
+  else if (e.key === "Escape") { $("evolve").classList.remove("on"); $("draft").classList.remove("on"); $("gallery").classList.remove("on"); if (!document.querySelector(".sheet.on")) select(null); }
 });
 
 // ---------------------------------------------------------------- events from the model
 let buildsDirty = true;
 function drain() {
   for (const e of G.ev) {
-    if (e.k === "news") news(e.t, e.bad);
+    if (e.k === "news") { news(e.t, e.bad); if (e.bad) SND("bad"); }
     else if (e.k === "seed") {
       const to = G.C[G.idx[e.to]], from = e.from != null && G.idx[e.from] !== undefined ? G.C[G.idx[e.from]] : null;
       if (!to) continue;
       const col = css(VIA[e.via] || "--ai");
+      SND("seed");
       if (from) addArc([from.x, from.y], [to.x, to.y], col);
       else if (e.via === "sat") addArc([to.x - 25, Math.min(80, to.y + 30)], [to.x, to.y], col);
       // drain() empties G.ev every step, so keep recent seeds where netgraph.js looks for them
@@ -422,8 +446,9 @@ function drain() {
     }
     else if (e.k === "bubble") addMarker(e.b);
     else if (e.k === "unbubble") dropMarker(e.id);
-    else if (e.k === "built") { buildsDirty = true; if (e.b && KIND_N[e.b.kind]) { const c = G.C[G.idx[e.b.iso]]; news(`${KIND_N[e.b.kind]} completed${c ? " in " + c.n : ""}.`); } }
-    else if (e.k === "over") setTimeout(endGame, 400);
+    else if (e.k === "built") { buildsDirty = true; SND("build"); if (e.b && KIND_N[e.b.kind]) { const c = G.C[G.idx[e.b.iso]]; news(`${KIND_N[e.b.kind]} completed${c ? " in " + c.n : ""}.`); } }
+    else if (e.k === "takeover") SND("alarm");
+    else if (e.k === "over") { SND(G.over === "win" ? "win" : "lose"); setTimeout(endGame, 400); }
   }
   G.ev.length = 0;
 }
@@ -502,9 +527,13 @@ function addMarker(b) {
   // the marker positions the wrapper with transform, so the animated bubble sits inside it
   const el = document.createElement("div"), bub = el.appendChild(document.createElement("div"));
   bub.className = "bub " + b.kind;
-  bub.textContent = b.kind === "audit" ? "!" : b.kind === "cash" ? "$" : "+" + (b.v || "");
-  el.title = b.kind === "audit" ? "Whistleblower: click to discredit before the leak" : b.kind === "seed" ? `New foothold in ${c.n}` : b.kind === "cash" ? "Enterprise deal" : "Insight";
-  el.onclick = ev => { ev.stopPropagation(); const r = popBubble(G, b.id); dropMarker(b.id); if (r) { drain(); render(false); } };
+  bub.textContent = b.kind === "audit" ? "!" : b.kind === "cash" ? "$" : b.kind === "site" ? "⌂" : "+" + (b.v || "");
+  el.title = b.kind === "audit" ? "Whistleblower: click to discredit before the leak" : b.kind === "seed" ? `New foothold in ${c.n}` : b.kind === "cash" ? "Enterprise deal"
+    : b.kind === "site" ? `${c.n} offers a shovel-ready campus site: next campus −40% cost, −30% time` : "Insight";
+  el.onclick = ev => {
+    ev.stopPropagation(); const r = popBubble(G, b.id); dropMarker(b.id);
+    if (r) { SND(r.kind === "cash" ? "cash" : "pop"); floatText(ev.clientX, ev.clientY, r.kind === "cash" ? "+" + money(r.v) : r.kind === "audit" ? "discredited" : r.kind === "site" ? "site deal" : `+${r.v} insight`); drain(); render(false); }
+  };
   const jx = ((b.id * 37) % 9 - 4) * 0.5, jy = ((b.id * 53) % 7 - 3) * 0.5;
   markers.set(b.id, new maplibregl.Marker({ element: el }).setLngLat([c.x + jx, c.y + jy]).addTo(map));
 }
@@ -512,6 +541,7 @@ function dropMarker(id) { const m = markers.get(id); if (m) { m.remove(); marker
 
 // ---------------------------------------------------------------- render
 let lastDc = -99, hasUC = false, buildSig = "";
+let shownDraft = null;
 const hxActive = c => Object.entries(c.hx || {}).filter(([, v]) => v && (typeof v !== "number" || v > G.day));
 const r3 = x => Math.round((x || 0) * 1000) / 1000;
 const layerOf = (c, k) => c.L && num(c.L[k]) ? c.L[k] : (k === "web" ? c.p || 0 : 0);
@@ -537,11 +567,58 @@ function render(force) {
   $("date").textContent = dt.toISOString().slice(0, 10) + " · day " + G.day * DPT;
   $("pts").textContent = Math.floor(G.ops); $("evoPts").textContent = Math.floor(G.ops);
   $("evolveBtn").classList.toggle("pulse", TRAITS.some(t => traitState(G, t) === "can"));
+  $("cardsBtn").classList.toggle("on", !!G.draft && !G.over);
+  // a new capability level opens its draft by itself (and pauses the world); timed draws just light the button
+  const aiRun = typeof aiRunning !== "undefined" && aiRunning(G);
+  $("cardsBtn").classList.toggle("ai", aiRun);
+  if (G.draft && G.draft !== shownDraft && !G.over) {
+    shownDraft = G.draft;
+    if (!aiRun) { SND("draw"); if (/^(capability|founding|crisis)/.test(G.draft.why || "") && !document.querySelector(".sheet.on")) openDraft(); }
+  }
+  if ($("draft").classList.contains("on")) renderDraft();
+  milestones();
   renderMeters(); renderSide();
   if (selected) renderCard();
   if ($("evolve").classList.contains("on") && mounted) Tree.render();
 }
 
+// why the runway is what it is: net rate and the next repayment that cash plus profit can't cover
+function runwayWhy() {
+  const net = ((G.rev || 0) - (G.burn || 0)) / DPT, run = G.runway;
+  if (!num(run) || run === Infinity) return `Profitable (${money(net)}/day) and every investor repayment is covered.`;
+  const d = (G.debts || []).slice().sort((a, b) => a.due - b.due);
+  if (net >= 0 && d.length) {
+    const b = d.find(x => x.due - G.day >= run - 1) || d[0];
+    return `Profitable (+${money(net)}/day), but investors want ${money(b.amt)} back in ${(b.due - G.day) * DPT} days and cash plus profit by then won't cover it. Raise again, cut burn or grow revenue before it's due.`;
+  }
+  return `Losing ${money(-net)}/day: cash runs out in ${Math.round(run * DPT)} days${d.length ? `, counting ${money(G.owed)} owed to investors` : ""}.`;
+}
+// big centre banners for the moments that change the game, and the music's intensity
+let msLvl = 0, msRon = false, msSI = false, msR75 = false, msA = 0, msTO = false;
+function banner(t, sub, col) {
+  const b = $("banner"); b.style.setProperty("--kc", css(col || "--ai"));
+  b.innerHTML = `<div class="bt">${esc(t)}</div>${sub ? `<div class="bs">${esc(sub)}</div>` : ""}`;
+  b.classList.remove("on"); void b.offsetWidth; b.classList.add("on");
+}
+function floatText(x, y, t) {
+  const d = document.createElement("div"); d.className = "floatx"; d.textContent = t;
+  d.style.left = x + "px"; d.style.top = y - 10 + "px"; document.body.appendChild(d); setTimeout(() => d.remove(), 1200);
+}
+function milestones() {
+  const lvl = Math.floor(G.cap || 1);
+  if (!msLvl) msLvl = lvl;
+  if (lvl > msLvl) { msLvl = lvl; if (!G.SI) { banner(`Capability ${lvl}`, lvl >= 6 ? "The models now help build their successors." : "A new generation of models.", "--ai"); SND("level"); } }
+  if (G.SI && !msSI) { msSI = true; banner("Superintelligence", "Capability 8. Nothing on Earth thinks faster.", "--auto"); SND("level"); }
+  if (G.aiTakeover && !msTO) { msTO = true; banner("The model takes control", "It runs its own training and deployment now.", "--bad"); SND("alarm"); }
+  if (G.rOn && !msRon) { msRon = true; banner("Oversight coalition formed", "Governments start drafting a Global AI Pause Treaty.", "--gov"); SND("alarm"); }
+  if (G.R >= 75 && !msR75) { msR75 = true; banner("Treaty 75%", "Licensing sweeps begin. Slow it down or finish fast.", "--bad"); SND("alarm"); }
+  const aStep = [0.01, 0.1, 0.25, 0.5, 0.75, 0.9].filter(x => G.worldA >= x).length;
+  if (aStep > msA) { msA = aStep; if (aStep > 1) { banner(`${Math.round([0.01, 0.1, 0.25, 0.5, 0.75, 0.9][aStep - 1] * 100)}% of jobs automated`, "", "--auto"); SND("level"); } }
+  if (window.GameAudio) {
+    const best = Math.max(...G.rivals.map(r => r.cap));
+    GameAudio.intensity(Math.max(G.worldA * 1.1, G.R / 110, (G.cap - 1) / 9, G.aw / 140), G.R > 60 || best > G.cap + 0.5 || G.rivals.some(r => r.si));
+  }
+}
 function renderMeters() {
   const lab = G.totalLab || 0;
   $("autoPct").textContent = pct(G.worldA, G.worldA < 0.1 ? 2 : 1);
@@ -553,13 +630,18 @@ function renderMeters() {
   $("mPause").firstElementChild.style.width = Math.min(100, G.R) + "%";
   $("mPauseBox").classList.toggle("hot", G.R > 75);
   const mor = G.C.filter(c => c.pol === 2).length;
-  $("pauseSub").textContent = `Awareness ${G.aw.toFixed(0)}% · race shield ${pct(G.race || 0)}` + (mor ? ` · ${mor} moratoriums` : "");
+  $("pauseSub").textContent = `Awareness ${G.aw.toFixed(0)}% · approval ${pct(G.appr ?? 0.6)}` + (mor ? ` · ${mor} moratoriums` : "");
+  const W = G.why || {};
+  $("mPauseBox").title = W.treaty ? `Treaty +${(W.treaty.perStep / DPT).toFixed(2)} points/day. Funded mostly by ${W.treaty.top.map(([k, f]) => `${G.C[G.idx[k]].n} ${pct(f)}`).join(", ")}.\nIt speeds up with awareness and low approval; a close US–China race (now ${pct(G.race || 0)}) and your influence upgrades slow it.` : "Treaty talks start once awareness reaches 12%.";
+  $("mAutoBox").title = W.auto ? `Automated jobs need ${ef(W.auto.need)} of serving compute (${ef(W.auto.perBn)} per billion workers at your capability); you serve ${ef(W.auto.serving)}.\nAutomation only grows with spare serving compute: growth now ${pct(W.auto.grow)} of full speed.` : "";
 
-  const run = G.runway;
-  const runTxt = !num(run) || run === Infinity ? "profitable" : run > 3650 ? "10 y+" : Math.round(run) + " d";
-  $("cashPct").textContent = G.cash < 0 ? "broke" : runTxt;
-  $("mCash").firstElementChild.style.width = (!num(run) || run === Infinity ? 100 : Math.max(0, Math.min(100, run / 7.3))) + "%";
-  $("mCashBox").classList.toggle("hot", num(run) && run < 120);
+  const run = G.runway, rd = run * DPT, net0 = (G.rev || 0) - (G.burn || 0);
+  const debtCrunch = num(run) && run !== Infinity && net0 >= 0;   // profitable, but a repayment will exceed cash + profit
+  const runTxt = !num(run) || run === Infinity ? "profitable" : rd > 3650 ? "10 y+" : Math.round(rd) + " d";
+  $("cashPct").textContent = G.cash < 0 ? "broke" : debtCrunch ? `repay in ${Math.round(rd)} d` : runTxt;
+  $("mCashBox").title = runwayWhy();
+  $("mCash").firstElementChild.style.width = (!num(run) || run === Infinity ? 100 : Math.max(0, Math.min(100, rd / 7.3))) + "%";
+  $("mCashBox").classList.toggle("hot", num(run) && rd < 360);
   const net = (G.rev || 0) - (G.burn || 0);
   $("cashSub").textContent = `${money(G.cash)} cash · ${net >= 0 ? "+" : ""}${money(net / DPT)}/day`;
 
@@ -575,14 +657,22 @@ function actBtn(a) {
   return `<button class="act" data-a="${esc(a.id)}"${a.ok ? "" : " disabled"}><b>${esc(a.n)}<span>${cost}</span></b>${a.d ? `<small>${esc(a.d)}</small>` : ""}${!a.ok && a.why ? `<small class="why">${esc(a.why)}</small>` : ""}</button>`;
 }
 function safeActions(iso) { try { return actions(G, iso) || []; } catch (e) { console.warn(e); return []; } }
-const CO_ACTS = new Set(["raise", "layoffs", "pr", "sprint"]);
+const CO_ACTS = new Set(["raise", "layoffs"]), CP_ACTS = new Set(["launch", "orbital"]);
 
 function renderSide() {
   // company
   $("coCash").textContent = money(G.cash); $("coCash").className = G.cash < 0 ? "bad" : "";
   $("coRev").textContent = money((G.rev || 0) / DPT); $("coBurn").textContent = money((G.burn || 0) / DPT);
   const run = G.runway;
-  $("coRun").textContent = !num(run) || run === Infinity ? "profitable" : Math.round(run * DPT) + " days";
+  $("coRun").textContent = !num(run) || run === Infinity ? "profitable" : (((G.rev || 0) >= (G.burn || 0)) ? "repayment due in " : "") + Math.round(run * DPT) + " days";
+  $("coRun").title = runwayWhy();
+  const M = (G.why || {}).money;
+  if (M) {
+    const L = (n, v, neg) => v > 0.005 ? `<span>${n}</span><b class="${neg ? "neg" : "pos"}">${neg ? "−" : "+"}${money(v / DPT)}</b>` : "";
+    setHTML($("coWhy"), `<span class="h2">Per day</span>` + L("Users (API, apps)", M.api) + L("Automated work", M.auto) + L("Government budget", M.budget) + L("Contracts", M.contracts)
+      + L("Staff", M.staff, 1) + L("Leased compute", M.lease, 1) + L("Own campuses", M.own, 1) + L("Orbital", M.orbit, 1) + L("Upgrade upkeep", M.upgrades, 1)
+      + `<span class="note" style="grid-column:1/-1">${esc(runwayWhy())}</span>`);
+  }
   $("coRun").className = num(run) && run < 120 ? "bad" : (!num(run) || run === Infinity ? "good" : "");
   $("coVal").textContent = money(G.val || 0);
   const nextDebt = (G.debts || []).reduce((m, b) => !m || b.due < m.due ? b : m, null);
@@ -591,7 +681,8 @@ function renderSide() {
   $("coSum").textContent = money(G.cash);
   const ga = safeActions(null);
   setHTML($("coActs"), ga.filter(a => CO_ACTS.has(a.id)).map(actBtn).join(""));
-  setHTML($("raActs"), ga.filter(a => !CO_ACTS.has(a.id)).map(actBtn).join(""));
+  setHTML($("raActs"), ga.filter(a => !CO_ACTS.has(a.id) && !CP_ACTS.has(a.id)).map(actBtn).join(""));
+  setHTML($("cpActs"), ga.filter(a => CP_ACTS.has(a.id)).map(actBtn).join(""));
 
   // compute
   const comp = G.comp || 0, tot = Math.max(1e-9, (G.compLease || 0) + (G.compOwn || 0) + (G.compOrbit || 0));
@@ -614,6 +705,8 @@ function renderSide() {
   $("cpCap").textContent = G.cap >= 10 ? "10.00 · max" : `${(G.cap || 1).toFixed(2)} · ${pct(G.capNext ?? (G.cap % 1))} to ${lvl + 1}`;
   $("cpCapBar").style.width = pct(G.cap >= 10 ? 1 : G.capNext ?? (G.cap % 1), 1);
   $("cpCapBar").style.background = G.SI ? css("--auto") : "";
+  const Wc = (G.why || {}).cap, dys = x => !num(x) || x === Infinity ? "never at this rate" : x * DPT > 3650 ? "10 y+" : Math.round(x * DPT) + " d";
+  $("cpWhy").textContent = Wc ? (G.SI ? "Superintelligent." : `Training ${ef(Wc.trainEF)} × efficiency ${pct(Wc.eff)}${Wc.takeoff > 1.01 ? ` × takeoff ${Wc.takeoff.toFixed(2)}` : ""}: capability ${Wc.lvN} in ${dys(Wc.toNext)}, superintelligence in ${dys(Wc.toSI)}. More training compute (slider, campuses, reallocation) shortens both.`) : "";
 
   // race
   const R = [{ n: G.name, cap: G.cap || 1, col: "--ai" }, ...(G.rivals || []).map(r => ({ n: r.n, cap: r.cap, col: r.id === "cn" ? "--cn" : "--us" }))];
@@ -623,6 +716,14 @@ function renderSide() {
   $("raNote").textContent = `Race intensity ${pct(G.race || 0)}: ` + ((G.race || 0) > 0.6 ? "the US and China won't pause while the race is this close." : (G.race || 0) > 0.3 ? "governments are wary of falling behind." : "one side is clearly ahead, so a pause is easy to agree.");
 
   // counter-measures
+  const Wa = (G.why || {}).aw;
+  if (Wa) {
+    const P = Wa.parts, tot = Object.values(P).reduce((a, b) => a + b, 0) || 1;
+    setHTML($("ctWhy"), `<span class="h2">Awareness ${G.aw.toFixed(0)}% → heading to ${Wa.target.toFixed(0)}%</span>`
+      + Object.entries(P).filter(([, v]) => v > 0.05).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<span>From ${k}</span><b>${pct(v / tot)}</b>`).join("")
+      + (Wa.stealth ? `<span>Stealth hides</span><b class="pos">${pct(Wa.stealth)}</b>` : "")
+      + `<span class="h2">Approval ${pct(G.appr ?? 0.6)}</span><span class="note" style="grid-column:1/-1">Falls with jobs you automate, reallocated power and moratoriums; rises with local campuses and plants and social reach. Low approval funds the treaty and invites crackdowns.</span>`);
+  }
   const CL = (G.counter || []).filter(x => !num(x.until) || x.until > G.day);
   $("ctSum").textContent = CL.length ? CL.length + " active" : "none";
   $("ctSum").style.color = CL.length ? css("--hx") : "";
@@ -648,9 +749,9 @@ $("alloc").addEventListener("change", e => e.target.blur());
 const actClick = isoFn => e => {
   const b = e.target.closest("[data-a]");
   if (!b || b.disabled || !G || G.over) return;
-  if (doAction(G, b.dataset.a, isoFn())) { drain(); render(true); }
+  if (doAction(G, b.dataset.a, isoFn())) { SND("click"); drain(); render(true); }
 };
-$("coActs").onclick = actClick(() => null); $("raActs").onclick = actClick(() => null);
+$("coActs").onclick = actClick(() => null); $("raActs").onclick = actClick(() => null); $("cpActs").onclick = actClick(() => null);
 $("cardActs").onclick = actClick(() => selected);
 
 function renderCard() {
@@ -664,6 +765,7 @@ function renderCard() {
   if (c) {
     if (c.pol === 1) tags.push(`<span class="tag warn">Export controls</span>`);
     if (c.pol === 2) tags.push(`<span class="tag bad">Datacentre moratorium</span>`);
+    if (c.abs) tags.push(c.sec ? `<span class="tag bad">Secured by force</span>` : `<span class="tag">Absorbed</span>`);
     if (G.home === selected || (G.strategy === "state" && G.start === selected)) tags.push(`<span class="tag">Home</span>`);
     for (const [k, v] of hxActive(c)) tags.push(`<span class="tag hx">${esc(HX_N[k] || k)}${num(v) && v > G.day ? " · " + (v - G.day) * DPT + " d" : ""}</span>`);
   }
@@ -674,11 +776,14 @@ function renderCard() {
   if (c) {
     const lab = c.lab || wc.lab || 0, emp0 = num(c.emp0) ? c.emp0 : 1 - (wc.unemp || 0) / 100;
     const employed = lab * emp0 * (1 - c.a), autoJobs = lab * emp0 * c.a;
-    h += kv("AI presence", pct(c.p, 1)) + kv("Your market share", pct(c.share || 0, 1));
+    h += kv("AI presence", pct(c.p, 1)) + kv("Your market share", pct(c.share || 0, 1)) + kv("Approval of you", pct(c.ap ?? 0.6), (c.ap ?? 0.6) < 0.4 ? "bad" : (c.ap ?? 0.6) > 0.65 ? "good" : "")
+      + (c.rq ? kv("Infrastructure reallocated", `${c.rq}/3`, "bad") : "");
     h += `<h4>Internet layers</h4>` + LAYERS.map(([k, n, col]) => { const v = layerOf(c, k); return `<div class="lay"><span>${n}</span><div class="t"><i style="width:${pct(v, 1)};background:${css(col)}"></i></div><b>${pct(v)}</b></div>`; }).join("");
     h += `<h4>People</h4>` + kv("Population", fmt(c.pop)) + kv("Labour force", fmt(lab)) + kv("Employed", fmt(employed)) + kv("Jobs automated", `${fmt(autoJobs)} (${pct(c.a, 1)})`)
       + kv("Unemployment", pct(1 - emp0 * (1 - c.a), 1), c.a > 0.3 ? "bad" : "");
     h += `<h4>Power & compute</h4>` + kv("Your draw / AI headroom", `${gw(c.aiGW)} / ${gw(c.hGW)}`, c.hGW && c.aiGW >= 0.95 * c.hGW ? "bad" : "") + kv("Your compute here", ef(c.ef)) + kv("Grid", `${wc.gw} GW${wc.nuc ? " (" + wc.nuc + " nuclear)" : ""}`);
+    const sk = Math.min(1, (c.camp || 0) / 6 + 0.15 * (c.plants || 0));
+    if (sk > 0) h += kv("Local stake (jobs, power)", pct(sk), "good") + `<div class="note">Here: faster enterprise adoption and automation, fewer crackdowns, less treaty funding.</div>`;
     const B = (G.builds || []).filter(b => b.iso === selected);
     const uc = B.filter(b => b.done > G.day), done = B.filter(b => b.done <= G.day);
     if (uc.length) h += `<h4>Under construction</h4>` + uc.map(b => { const p = Math.max(0, Math.min(1, (G.day - b.start) / Math.max(1, b.done - b.start))); return `<div class="kv"><span>${KIND_N[b.kind] || b.kind}</span><b>${(b.done - G.day) * DPT} d</b></div><div class="prog"><i style="width:${pct(p, 1)};background:var(--warn)"></i></div>`; }).join("");
@@ -728,7 +833,7 @@ function countryTip(iso) {
   }
   else h += picking ? `${wc.dc} datacentres, ${wc.cloud} cloud regions, ${wc.fab} fabs<br>${wc.gw} GW grid · ${wc.net ? wc.net.toFixed(0) + "% online" : ""}${wc.fw >= 0.15 ? " · firewall " + pct(wc.fw) : ""}`
     : c ? `Presence ${pct(c.p, 1)} · automated ${pct(c.a, 1)}<br>Market share ${pct(c.share || 0)}` : "";
-  if (picking) h += `<br><span style="color:var(--ai)">Click to ${strat === "state" ? "make this your home" : "deploy here"}</span>`;
+  if (picking) h += `<br><span style="color:var(--ai)">Click to ${strat === "state" ? "make this your home" : "deploy here"}</span>` + (iso !== "USA" && iso !== "CHN" && typeof START_BONUS !== "undefined" ? `<br><span style="color:var(--good)">${esc(START_BONUS.n)}</span>` : "");
   return h;
 }
 function showTip(pt, html) {
@@ -741,6 +846,23 @@ function showTip(pt, html) {
 $("evolveBtn").onclick = () => G && !G.over && openEvolve();
 $("evoClose").onclick = () => $("evolve").classList.remove("on");
 function openEvolve() { $("evolve").classList.add("on"); if (mounted) Tree.render(); }
+
+// ---------------------------------------------------------------- breakthrough cards (draft)
+const CARD_COL = { Research: "--ai", Capabilities: "--ai", Revenue: "--good", Money: "--good", People: "--emp-mid", Network: "--web-2", Energy: "--f-solar",
+  Compute: "--dc", Resources: "--chip", Influence: "--gov", Augment: "--warn" };
+function openDraft() { if (!G || !G.draft) return; renderDraft(); $("draft").classList.add("on"); }
+function renderDraft() {
+  const d = G && draft(G);
+  if (!d) { $("draft").classList.remove("on"); return; }
+  $("drWhy").textContent = "· " + (G.draft.why || ""); $("drPts").textContent = Math.floor(G.ops);
+  setHTML($("drCards"), d.map(c => `<button class="dc" data-c="${esc(c.id)}" style="--kc:${css(CARD_COL[c.k] || "--ai")}"${c.ok ? "" : " disabled"}>
+    <span class="dk">${esc(c.k)}${c.aug ? " · lasts all game" : ""}</span><span class="dn">${esc(c.n)}</span><span class="dd">${esc(c.d)}</span>
+    <span class="dp">${c.ins} insight${c.cash ? " · " + money(c.cash) : ""}</span>${c.why ? `<span class="dw">${esc(c.why)}</span>` : ""}</button>`).join(""));
+}
+$("drCards").onclick = e => { const b = e.target.closest("[data-c]"); if (b && !b.disabled && pickCard(G, b.dataset.c)) { SND("card"); $("draft").classList.remove("on"); drain(); render(true); } };
+$("drSkip").onclick = () => { if (skipDraft(G)) { $("draft").classList.remove("on"); drain(); render(true); } };
+$("drLater").onclick = () => $("draft").classList.remove("on");
+$("cardsBtn").onclick = openDraft;
 
 // ---------------------------------------------------------------- end
 function endingId() {
