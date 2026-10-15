@@ -2,15 +2,22 @@
 
 Reads layers the earlier steps wrote to site/data/ and condenses them into one per-country table
 plus the links the AI spreads along:
-  countries.geojson, country_totals.json (population, power), domains.json (internet, servers, chip trade),
-  datacenters.geojson, cloud.geojson, fabs.geojson, chip_sites.geojson, cables.geojson, air.json
+  countries.geojson, country_totals.json (population, power by fuel, coal output, minerals, water stress),
+  domains.json (internet, servers, chip trade, labour force, unemployment, GDP), country_energy.json (gas, oil),
+  datacenters.geojson, cloud.geojson, fabs.geojson, chip_sites.geojson, cables.geojson, air.json, power.geojson
+Two short hand lists live here: FIREWALL (game levels for national internet filtering) and LAUNCH (orbital launch sites).
 
 Writes site/data/game/world.json:
-  c      {iso: {n, x, y, pop, net, srv, gw, dc, cloud, fab, cap, nm, chip:[site ids], crit}}
+  c      {iso: {n, x, y, pop, net, srv, gw, nuc, dc, cloud, fab, cap, nm, chip:[site ids], crit, chipX,
+                lab (labour force; pop*0.47 where World Bank has none, labE=1), unemp (% of labour force),
+                gdp (US$ bn), pw {coal, gas, oil, hydro, wind, solar, nuclear} GW, gasP (bcm/yr), oilP (kb/d),
+                coalP (Mt/yr mine capacity), bws (water stress 0-5), min (chip/grid mineral deposit count), fw (0-1)}}
   nb     land neighbours  [[a, b], ...]   (countries whose outlines share border vertices)
   cab    cable links      [[a, b, cable count], ...]
   air    air links        [[a, b, routes], ...]   (OpenFlights 2014, same as air.json)
   dcs    datacentre points [[lng, lat, iso], ...]
+  pw     power plants of 1 GW+ [[lng, lat, fuel, MW, iso], ...]
+  launch orbital launch sites [[name, iso, lng, lat], ...]
 """
 import json, math, os
 from collections import defaultdict
@@ -18,6 +25,24 @@ from collections import defaultdict
 ROOT = os.environ.get("ATLAS_ROOT", os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 D = f"{ROOT}/site/data"
 OUT = f"{D}/game"; os.makedirs(OUT, exist_ok=True)
+
+# Game approximation of national internet filtering (0 open .. 1 sealed), after Wikipedia "Internet censorship and
+# surveillance by country" (CC BY-SA 4.0) and its pervasive/substantial/selective classes. Unlisted countries are 0.
+FIREWALL = {"PRK": 0.97, "CHN": 0.9, "IRN": 0.85, "TKM": 0.85, "ERI": 0.7, "AFG": 0.6, "CUB": 0.6, "RUS": 0.6, "SYR": 0.6,
+            "MMR": 0.55, "VNM": 0.55, "SAU": 0.5, "BLR": 0.5, "UZB": 0.5, "ETH": 0.45, "BHR": 0.45, "ARE": 0.4, "TJK": 0.4,
+            "LAO": 0.4, "EGY": 0.35, "PAK": 0.35, "SDN": 0.35, "VEN": 0.35, "KAZ": 0.3, "AZE": 0.3, "QAT": 0.3, "OMN": 0.3,
+            "TUR": 0.3, "KWT": 0.25, "THA": 0.2, "BGD": 0.2, "JOR": 0.2, "IND": 0.15}
+# Orbital launch sites, from Wikipedia "List of rocket launch sites" (CC BY-SA 4.0)
+LAUNCH = [["Cape Canaveral", "USA", -80.6, 28.5], ["Vandenberg", "USA", -120.6, 34.7], ["Starbase", "USA", -97.15, 25.99],
+          ["Wallops", "USA", -75.46, 37.94], ["Baikonur", "KAZ", 63.3, 45.9], ["Vostochny", "RUS", 128.3, 51.9],
+          ["Plesetsk", "RUS", 40.6, 62.9], ["Kourou", "FRA", -52.77, 5.24], ["Jiuquan", "CHN", 100.3, 40.96],
+          ["Xichang", "CHN", 102.03, 28.25], ["Taiyuan", "CHN", 111.6, 38.85], ["Wenchang", "CHN", 110.95, 19.6],
+          ["Sriharikota", "IND", 80.23, 13.72], ["Tanegashima", "JPN", 130.97, 30.4], ["Mahia", "NZL", 177.86, -39.26],
+          ["Naro", "KOR", 127.53, 34.43], ["Semnan", "IRN", 53.92, 35.23], ["Palmachim", "ISR", 34.68, 31.88],
+          ["Sohae", "PRK", 124.7, 39.66], ["SaxaVord", "GBR", -0.85, 60.82], ["Andøya", "NOR", 16.02, 69.29]]
+# deposits that chips, datacentres and grids draw on (country_totals crit_m counts)
+GRID_MINERALS = ("copper", "gallium", "germanium", "REE", "cobalt", "lithium", "tantalum", "tungsten", "graphite", "nickel",
+                 "silver", "tin", "indium", "high purity quartz")
 
 def load(name):
     with open(f"{D}/{name}", encoding="utf-8") as f:
@@ -45,6 +70,7 @@ def in_ring(x, y, ring):
 countries = load("countries.geojson")["features"]
 totals = load("country_totals.json")
 dom = load("domains.json")["countries"]
+energy = load("country_energy.json")["countries"]
 
 shapes = []   # (iso, bbox, [polygon rings])
 C = {}
@@ -62,7 +88,15 @@ for f in countries:
         "dc": 0, "cloud": 0, "fab": 0, "cap": 0, "nm": 0, "chip": [],
         "crit": sum((t.get("crit_m") or {}).get(m, 0) for m in ("gallium", "germanium", "REE", "rare earths", "tungsten", "PGE", "tantalum", "cobalt", "lithium")),
         "chipX": d.get("chipX", 0),
+        "lab": round(d["lab"]) if d.get("lab") else round((t.get("pop") or 0) * 0.47),
+        "unemp": d.get("unemp", 6.0), "gdp": round((d.get("gdp") or 0) / 1e9, 1),
+        "pw": {k: round(t.get("pw_" + k) or 0, 1) for k in ("coal", "gas", "oil", "hydro", "wind", "solar", "nuclear")},
+        "gasP": round(energy.get(iso, {}).get("gp", 0), 1), "oilP": round(energy.get(iso, {}).get("cr", 0), 1),
+        "coalP": round(t.get("coal") or 0, 1), "bws": t.get("bws") or 0,
+        "min": sum((t.get("crit_m") or {}).get(m, 0) for m in GRID_MINERALS), "fw": FIREWALL.get(iso, 0),
     }
+    if not d.get("lab"):
+        C[iso]["labE"] = 1
 
 def country_at(x, y):
     for iso, (x0, y0, x1, y1), ps in shapes:
@@ -145,9 +179,17 @@ for f in load("cables.geojson")["features"]:
             cab[(ends[i], ends[j])] += 1
 cab = sorted([a, b, k] for (a, b), k in cab.items())
 
+pw = []
+for f in load("power.geojson")["features"]:
+    p = f["properties"]
+    if (p.get("mw") or 0) >= 1000 and p.get("s") == "operating" and p.get("k") in C:
+        x, y = f["geometry"]["coordinates"][:2]
+        pw.append([round(x, 2), round(y, 2), p.get("f"), round(p["mw"]), p["k"]])
+launch = [l for l in LAUNCH if l[1] in C]
+
 air = [p for p in load("air.json")["pairs"] if p[0] in C and p[1] in C and p[0] != p[1]]
 
-out = {"c": C, "nb": nb, "cab": cab, "air": air, "dcs": dcs}
+out = {"c": C, "nb": nb, "cab": cab, "air": air, "dcs": dcs, "pw": pw, "launch": launch}
 with open(f"{OUT}/world.json", "w", encoding="utf-8") as f:
     json.dump(out, f, separators=(",", ":"))
-print(f"world.json: {len(C)} countries, {len(nb)} borders, {len(cab)} cable links, {len(air)} air links, {len(dcs)} datacentres")
+print(f"world.json: {len(C)} countries, {len(nb)} borders, {len(cab)} cable links, {len(air)} air links, {len(dcs)} datacentres, {len(pw)} plants of 1 GW+, {len(launch)} launch sites")

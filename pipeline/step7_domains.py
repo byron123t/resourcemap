@@ -976,7 +976,8 @@ def air():
 # =====================================================================
 # 6. Country indicators + food
 # =====================================================================
-WB = {"net": "IT.NET.USER.ZS", "bb": "IT.NET.BBND.P2", "srv": "IT.NET.SECR.P6", "beds": "SH.MED.BEDS.ZS", "docs": "SH.MED.PHYS.ZS"}
+WB = {"net": "IT.NET.USER.ZS", "bb": "IT.NET.BBND.P2", "srv": "IT.NET.SECR.P6", "beds": "SH.MED.BEDS.ZS", "docs": "SH.MED.PHYS.ZS",
+      "lab": "SL.TLF.TOTL.IN", "unemp": "SL.UEM.TOTL.ZS", "gdp": "NY.GDP.MKTP.CD"}   # last three: labour force, unemployment %, GDP US$ (Singularity game)
 ATLAS_URL = "https://dataverse.harvard.edu/api/access/datafile/13685110"
 QCL_URL = "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
 TM_URL = "https://fenixservices.fao.org/faostat/static/bulkdownloads/Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip"
