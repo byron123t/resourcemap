@@ -328,6 +328,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .steps button { font: inherit; font-size: 11.5px; min-width: 40px; padding: 4px 6px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; font-variant-numeric: tabular-nums; }
 .steps button[aria-pressed="true"] { background: var(--sim-zone); border-color: var(--sim-zone); color: #fff; }
 .sim-news { display: flex; flex-direction: column; gap: 6px; }
+.sim-back { align-self: flex-start; font: inherit; font-size: 12px; padding: 5px 10px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
 .sim-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .sim-levels button { font: inherit; text-align: left; padding: 7px 8px; border: 1px solid var(--panel-line); border-radius: 6px; background: var(--land); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 44px; }
 .sim-levels button[aria-checked="true"] { border-color: var(--sim-zone); box-shadow: inset 0 0 0 1px var(--sim-zone); background: color-mix(in srgb, var(--sim-zone) 8%, var(--land)); }
@@ -365,6 +366,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
   .steps button { min-height: 36px; min-width: 46px; }
   .sim-levels button { min-height: 50px; }
   .shocks .close { min-width: 36px; min-height: 36px; }
+  .sim-back { min-height: 38px; padding-inline: 12px; }
   .sim .simt { display: block; overflow-x: auto; }
   .sheet .eyebrow { display: none; }
   .sheet:has(.sim:not([hidden])) h1, .sheet:has(.story:not([hidden])) h1 { font-size: 17px; }
@@ -440,6 +442,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       <p class="sum small">Each card is a place where conflict reports (assaults, fighting, mass violence) jumped well above that place's own usual level in that hour, day or three days. Picked from GDELT, which codes events from news articles automatically, so read the linked articles. The headline comes from the most-cited article and can be about a different event in the same place.</p>
     </div>
     <div class="sim" id="sim" hidden>
+      <button type="button" class="sim-back" id="simBack" hidden>← All scenarios</button>
       <p class="sum" id="simSum">What breaks if something stops? Pick a ready-made scenario, or build your own: the model re-routes oil and gas, roads and rail, and river water around it.</p>
       <div class="sim-news" id="simNews" hidden>
         <div class="sim-levels" id="simLevels" role="radiogroup" aria-label="How the story could go"></div>
@@ -457,12 +460,13 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       </div>
       <ul class="shocks" id="simList"></ul>
       <div class="row" id="simBar" hidden>
-        <button type="button" id="simClear">Start over</button>
+        <button type="button" id="simClear" hidden>Start over</button>
         <button type="button" id="simCopy">Copy link</button>
+        <button type="button" id="simMore" aria-expanded="false">+ Add more</button>
       </div>
       <p class="hint" id="simHint" hidden></p>
       <div id="simOut"></div>
-      <section class="sim-start">
+      <section class="sim-start" id="simStart">
         <div class="sec">Try a scenario</div>
         <div class="sim-tabs" id="simGroups" role="tablist" aria-label="Scenario groups"></div>
         <div class="sim-cards" id="simPresets"></div>
@@ -582,7 +586,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
           <label class="layer"><input type="checkbox" id="lyr-ports"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="4.5" fill="var(--panel)" stroke="var(--lane)" stroke-width="2"/></svg><span class="name">Seaports<small>World Port Index; size = harbour size</small></span><span class="count" id="n-ports"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-rail"><svg class="sw" viewBox="0 0 14 14"><path d="M1 7h12" stroke="var(--rail)" stroke-width="3"/><path d="M1 7h12" stroke="var(--rail-tie)" stroke-width="1.2" stroke-dasharray="2 2"/></svg><span class="name">Railways<small>zoom 3+</small></span><span class="count" id="n-rail"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-roads"><svg class="sw" viewBox="0 0 14 14"><path d="M1 7h12" stroke="var(--road)" stroke-width="2.2"/></svg><span class="name">Major roads<small>zoom 3+</small></span><span class="count" id="n-roads"></span></label>
-          <label class="layer"><input type="checkbox" id="lyr-osm"><svg class="sw" viewBox="0 0 14 14"><rect x="1.5" y="1.5" width="4.5" height="4" fill="var(--building)" stroke="var(--building-line)"/><rect x="8" y="8.5" width="4.5" height="4" fill="var(--building)" stroke="var(--building-line)"/><path d="M1 8h12M7 1v12" stroke="var(--street-case)" stroke-width="3"/><path d="M1 8h12M7 1v12" stroke="var(--street-major)" stroke-width="1.6"/></svg><span class="name">Streets &amp; buildings<small>OpenStreetMap, updated weekly; zoom 6+, buildings 13+</small></span></label>
+          <label class="layer"><input type="checkbox" id="lyr-osm"><svg class="sw" viewBox="0 0 14 14"><rect x="1.5" y="1.5" width="4.5" height="4" fill="var(--building)" stroke="var(--building-line)"/><rect x="8" y="8.5" width="4.5" height="4" fill="var(--building)" stroke="var(--building-line)"/><path d="M1 8h12M7 1v12" stroke="var(--street-case)" stroke-width="3"/><path d="M1 8h12M7 1v12" stroke="var(--street-major)" stroke-width="1.6"/></svg><span class="name">Streets &amp; buildings<small>OpenStreetMap, updated weekly; zoom 6+ when ticked, always from zoom 11; buildings 13+</small></span></label>
           <label class="layer"><input type="checkbox" id="lyr-choke"><svg class="sw" viewBox="0 0 14 14"><rect x="3.5" y="3.5" width="7" height="7" transform="rotate(45 7 7)" fill="var(--ink)"/></svg><span class="name">Shipping chokepoints<small>oil &amp; LNG flow, 1H 2025</small></span><span class="count">8</span></label>
           <label class="layer"><input type="checkbox" id="lyr-rivers"><svg class="sw" viewBox="0 0 14 14"><path d="M1 10c3-6 6 2 12-6" fill="none" stroke="var(--river)" stroke-width="2"/></svg><span class="name">Rivers<small>width by river size</small></span><span class="count" id="n-rivers"></span></label>
         </div>
@@ -2107,8 +2111,11 @@ onmessage = async ev => {
   }
 
   // ---------- visibility ----------
+  // streets and buildings come in at street scale in every view; the checkbox brings them in from zoom 6
+  const OSM_AUTO = 11;
+  const osmOn = () => $("lyr-osm").checked || (!!map && map.getZoom() >= OSM_AUTO);
   function applyGroup(k) {
-    const on = $("lyr-" + k).checked, g = GROUPS[k];
+    const on = k === "osm" ? osmOn() : $("lyr-" + k).checked, g = GROUPS[k];
     if (on) g.data.forEach(ensure);
     g.layers.forEach(id => map.getLayer(id) && map.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
     if (k === "foot") maybeLoadPolys();
@@ -2117,7 +2124,7 @@ onmessage = async ev => {
     if (k === "ships" && DATA.ships) pollShips();
     // Natural Earth roads and rail are too coarse to sit beside OSM streets, so they hand over at zoom 9
     if (k === "osm" || k === "roads" || k === "rail") {
-      const top = $("lyr-osm").checked ? 9 : 24;
+      const top = $("lyr-osm").checked ? 9 : OSM_AUTO;
       [["roads", 3], ["rail", 3], ["rail-ties", 5]].forEach(([id, lo]) => map.getLayer(id) && map.setLayerZoomRange(id, lo, top));
     }
     renderSizes();
@@ -2249,6 +2256,8 @@ onmessage = async ev => {
     $("dt-main").addEventListener("click", () => setDetail("main"));
     $("dt-all").addEventListener("click", () => setDetail("all"));
     map.on("zoomend", () => syncMain(false));
+    let osmWas = null;
+    map.on("zoom", () => { const v = osmOn(); if (v !== osmWas) { osmWas = v; applyGroup("osm"); } });
 
     // topmost first: queryRenderedFeatures returns features in draw order, top down
     const pointLayers = ["story-halo", "navy-pts", "aircraft-pts", "jets-pts", "airliners-pts", "ships-pts", "fires-pts", "bases-pts", "airports-l", "airports-m", "airports-s", "dc-pts"].concat(PTS.map(s => s + "-pts"), ["landings-pts", "ports-pts", "gw-mining", "events-pts"]);
@@ -3325,6 +3334,15 @@ onmessage = async ev => {
     ["conflict", "Taiwan blockade", "Everything within 200 km of Taiwan shut: its ports, LNG imports and power plants.", [["zone", [121, 23.7, 200], 1]]],
     ["conflict", "Hurricane on the Texas coast", "A storm between Houston and Port Arthur: refineries, LNG terminals and ports at 40% output.", [["zone", [-94.6, 29.6, 110], 0.6]]],
     ["conflict", "Flooding around Lyon", "A 40 km flood zone: towns, roads and rail.", [["zone", [4.84, 45.76, 40], 0.7]]],
+    ["conflict", "Fighting around Goma", "Eastern Congo: the city, its power and the roads that carry the region's minerals.", [["zone", [29.23, -1.68, 60], 0.7]]],
+    ["conflict", "War in Khartoum", "Sudan's capital at the Niles' meeting point: its refinery, power and roads.", [["zone", [32.55, 15.6, 60], 0.8]]],
+    ["conflict", "Niger Delta pipeline sabotage", "Pipelines, terminals and refineries around Port Harcourt, Nigeria's oil heartland.", [["zone", [6.95, 4.8, 90], 0.5]]],
+    ["conflict", "Libya's oil crescent blockaded", "Es Sider, Ras Lanuf and Brega: the export terminals that rival factions shut.", [["zone", [19.0, 30.5, 130], 0.9]]],
+    ["conflict", "Insurgency at Mozambique LNG", "Cabo Delgado, where Africa's biggest LNG projects sit.", [["zone", [40.45, -10.8, 60], 0.7]]],
+    ["conflict", "Cartel attacks on Mexico's fuel hub", "Salamanca refinery and the pipelines that feed central Mexico.", [["zone", [-101.2, 20.57, 50], 0.6]]],
+    ["conflict", "Fighting at Kyaukphyu", "Myanmar's coast, where the oil and gas pipelines to China begin.", [["zone", [93.55, 19.43, 60], 0.7]]],
+    ["conflict", "Earthquake in Tokyo Bay", "Refineries, power plants and ports around Tokyo and Yokohama.", [["zone", [139.85, 35.55, 50], 0.5]]],
+    ["conflict", "Venezuela's oil belt shut", "The Orinoco belt and the upgraders at Jose that ship its heavy crude.", [["zone", [-64.8, 9.0, 120], 0.8]]],
     ["water", "Indus drought", "The Indus loses 40% of its water: Pakistan's farms, cities and power plants.", [["water", "456100", 0.4]]],
     ["water", "Nile runs low", "The Nile above Aswan loses 30%, as a long drought in Ethiopia could do.", [["water", "172119", 0.3]]],
     ["water", "Euphrates cut upstream", "Dams in Türkiye hold back 40% of the Euphrates before it reaches Syria and Iraq.", [["water", "294790", 0.4]]],
@@ -3345,7 +3363,7 @@ onmessage = async ev => {
     ["net", "Largest US coal mine shut", "North Antelope Rochelle in Wyoming's Powder River Basin.", [["mine", "c-1rwos51", 1]]],
     ["net", "Carajás iron ore halted", "Vale's Serra Norte mines in Brazil.", [["mine", "i-1pakmck", 1]]]
   ];
-  let simGroup = "routes", simNewsDoc = null, simNews = null;
+  let simGroup = "routes", simNewsDoc = null, simNews = null, simMore = false;
   // the consequence chain: steps, the one shown, whether the next result starts it again, the Play timer, and the farmland/population overlay to put back on leaving
   let simSteps = [], simStep = 0, simFresh = false, simPlayT = 0, simAgri0 = null, simBoxes = {};
   const SIM_STEP_M = [25, 50, 75, 100], SIM_STEP_R = [10, 25, 50, 100, 150, 200];
@@ -3775,6 +3793,10 @@ onmessage = async ev => {
     const ul = $("simList"); ul.innerHTML = "";
     $("simBar").hidden = !simShocks.length;
     ul.hidden = !!(simNews && simNews.x.levels);   // a news scenario is set by its three levels instead
+    // while a scenario runs, the picker folds away: "← All scenarios" goes back to it, "+ Add more" adds to this one
+    $("simBack").hidden = !simShocks.length;
+    $("simStart").hidden = !!simShocks.length && !simMore;
+    $("simMore").setAttribute("aria-expanded", String(simMore)); $("simMore").textContent = simMore ? "Done adding" : "+ Add more";
     const steps = (label, vals, cur, unit, attr) => `<div class="steps" ${attr} role="group" aria-label="${label}"><span>${label}</span>`
       + [...new Set(vals.concat(cur))].sort((a, b) => a - b).map(v => `<button type="button" data-v="${v}" aria-pressed="${v === cur}">${v}${unit}</button>`).join("") + "</div>";
     simShocks.forEach((s, i) => {
@@ -4004,7 +4026,7 @@ onmessage = async ev => {
   }
   // replace whatever is switched off with a ready-made scenario, and fly to it (fly false: keep the camera, e.g. when changing a news level)
   async function simPreset(list, fly = true) {
-    simSetPick(false); simShocks = [];
+    simSetPick(false); simShocks = []; simMore = false;
     for (const [k, t, m] of list) await simAdd(k, Array.isArray(t) ? t.slice() : t, m, false);
     simFresh = fly; simRenderList(); simRun(0);
     if (fly) { $("sim").scrollTop = 0; const b = simShockBox(simShocks); if (b) simFit(b, simShocks.some(s => s.k === "zone") ? 7 : 5); }
@@ -4083,7 +4105,7 @@ onmessage = async ev => {
     // 3. power plants
     if (facts.power) {
       const P = facts.power, top = P.rows[0];
-      st.push({ k: "power", title: "Power plants go dark", big: smart(P.gw) + " GW offline",
+      st.push({ k: "power", title: "Power plants go dark", big: (P.gw < 1 ? fmt(P.gw * 1000) + " MW" : smart(P.gw) + " GW") + " offline",
         text: P.rows.map(o => `${simCountry(o.k)} loses ${o.sh ? pc(o.sh) + " of its power capacity" : smart(o.gw) + " GW"}${o.people >= 1000 ? `, the supply of ≈${simBig(o.people)} people` : ""}`).join("; ") + ".",
         on: ["power", "lakes"], cty: Object.fromEntries(P.rows.filter(o => o.sh).map(o => [o.k, Math.max(0.15, o.sh * 3)])), box: simUnion(P.box, simShockBox(simShocks)) || (top && simCountryBox([top.k])), z: 7 });
     }
@@ -4199,7 +4221,9 @@ onmessage = async ev => {
       const on = b.getAttribute("aria-pressed") === "true";
       simSetPick(on ? false : b.dataset.pick);
     });
-    $("simClear").onclick = () => { simSetPick(false); simShocks = []; simNews = null; simNewsRender(); simRenderList(); simRun(0); };
+    $("simClear").onclick = () => { simSetPick(false); simShocks = []; simNews = null; simMore = false; simNewsRender(); simRenderList(); simRun(0); };
+    $("simBack").onclick = () => { $("simClear").click(); $("sim").scrollTop = 0; };
+    $("simMore").onclick = () => { simMore = !simMore; if (!simMore) simSetPick(false); simRenderList(); if (simMore) $("simStart").scrollIntoView({ block: "start", behavior: "smooth" }); };
     $("simPrev").onclick = () => { simPlay(false); simShowStep((simStep - 1 + simSteps.length) % simSteps.length, true); };
     $("simNext").onclick = () => { simPlay(false); simShowStep((simStep + 1) % simSteps.length, true); };
     $("simPlay").onclick = () => { const on = !simPlayT; simPlay(on); if (on) simShowStep((simStep + 1) % simSteps.length, true); };

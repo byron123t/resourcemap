@@ -4,7 +4,7 @@
  "items": [
   {
    "label": "Attacks near Riyadh",
-   "why": "Saudi Aramco Riyadh Refinery, Riyadh 7 power plant (1.3 GW, gas), Riyadh PP11 power station (1.8 GW, gas) and 4 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
+   "why": "Saudi Aramco Riyadh Refinery, Riyadh 5 power plant (0.6 GW, oil), Riyadh 7 power plant (1.3 GW, gas) and 6 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
    "url": "https://www.dunfermlinepress.com/news/national/26625812.12-killed-attack-riyadh-airport---saudi-authorities/",
    "shocks": [
     [
@@ -24,7 +24,7 @@
       [
        46.77,
        24.64,
-       20
+       15
       ],
       0.25
      ]
@@ -53,9 +53,9 @@
     ]
    },
    "lv": {
-    "de": "Calms down: only the nearest site, Riyadh 7 power plant, is hit, 25% damage within 20 km.",
-    "cur": "As reported: 7 sites within 65 km, 65% damage.",
-    "esc": "Spreads to 120 km, 90% damage, reaching 2 more sites (Riyadh City-13 power station, Riyadh 12 power plant)."
+    "de": "Calms down: only the nearest site, Riyadh, is hit, 25% damage within 15 km.",
+    "cur": "As reported: 9 sites within 65 km, 65% damage.",
+    "esc": "Spreads to 120 km, 90% damage, reaching 3 more sites (Jafurah Cogeneration power plant, Riyadh City-13 power station …)."
    },
    "trend": "rising",
    "likely": "esc",
@@ -71,6 +71,7 @@
    "z": 1011.4,
    "matched": [
     "Saudi Aramco Riyadh Refinery",
+    "Riyadh 5 power plant",
     "Riyadh 7 power plant",
     "Riyadh PP11 power station",
     "Riyadh 8 power plant",
@@ -81,7 +82,7 @@
   },
   {
    "label": "Strikes near Kremenchuk",
-   "why": "Ukrtatnafta Kremenchuk Refinery within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+   "why": "Ukrtatnafta Kremenchuk Refinery and Kremenchug (0.6 GW, hydro) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
    "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
    "shocks": [
     [
@@ -131,7 +132,7 @@
    },
    "lv": {
     "de": "Calms down: only the nearest site, Ukrtatnafta Kremenchuk Refinery, is hit, 25% damage within 20 km.",
-    "cur": "As reported: 1 site within 25 km, 60% damage.",
+    "cur": "As reported: 2 sites within 25 km, 60% damage.",
     "esc": "Spreads to 45 km, 85% damage."
    },
    "trend": "rising",
@@ -147,12 +148,92 @@
    "t": "2026-10-06T00:00:00Z",
    "z": 264.8,
    "matched": [
-    "Ukrtatnafta Kremenchuk Refinery"
+    "Ukrtatnafta Kremenchuk Refinery",
+    "Kremenchug"
+   ]
+  },
+  {
+   "label": "Strikes near Dammam",
+   "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 24 more within 75 km. In the news: Passenger terminal at Riyadh airport is struck again a Day after were killed.",
+   "url": "https://tert.am/en/news/2026/10/12/Riyadh%20airport/4286553",
+   "shocks": [
+    [
+     "zone",
+     [
+      50.1,
+      26.43,
+      75
+     ],
+     0.7
+    ]
+   ],
+   "levels": {
+    "de": [
+     [
+      "zone",
+      [
+       50.1,
+       26.43,
+       10
+      ],
+      0.3
+     ]
+    ],
+    "cur": [
+     [
+      "zone",
+      [
+       50.1,
+       26.43,
+       75
+      ],
+      0.7
+     ]
+    ],
+    "esc": [
+     [
+      "zone",
+      [
+       50.1,
+       26.43,
+       135
+      ],
+      0.95
+     ]
+    ]
+   },
+   "lv": {
+    "de": "Calms down: only the nearest site, Dammam, is hit, 30% damage within 10 km.",
+    "cur": "As reported: 27 sites within 75 km, 70% damage.",
+    "esc": "Spreads to 135 km, 95% damage, reaching 10 more sites (Al Jubayl, SATORP Saudi Aramco Total Jubail Refinery …)."
+   },
+   "trend": "rising",
+   "likely": "esc",
+   "at": [
+    50.1,
+    26.43
+   ],
+   "months": [
+    "2026-10"
+   ],
+   "place": "Dammam, Ash Sharqiyah, Saudi Arabia",
+   "t": "2026-10-12T00:00:00Z",
+   "z": 76.3,
+   "matched": [
+    "Ras  Tannurah",
+    "Saudi Aramco Ras Tanura Refinery",
+    "Qatif Oil Field (Saudi Arabia)",
+    "Abqaiq Oil Field (Saudi Arabia)",
+    "Ju Aymah Lpg Terminal",
+    "Abu Sa`fah Oil Field (Saudi Arabia, Bahrain)",
+    "Ju Aymah Oil Terminal",
+    "Bahrain Petroleum Company Refinery",
+    "Al Khobar, Saudi Arabia"
    ]
   },
   {
    "label": "Strikes near Novorossiysk",
-   "why": "Slavyansk Refinery, KNGK Group Ilsky Refinery and Novorossiysk (oil port) within 70 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+   "why": "Slavyansk Refinery, KNGK Group Ilsky Refinery, Novorossiysk (oil port) and 1 more within 70 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
    "url": "https://www.romfordrecorder.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-24-attack-kyiv-saw-coming/",
    "shocks": [
     [
@@ -202,7 +283,7 @@
    },
    "lv": {
     "de": "Calms down: only the nearest site, Novorossiysk, is hit, 30% damage within 10 km.",
-    "cur": "As reported: 3 sites within 70 km, 70% damage.",
+    "cur": "As reported: 4 sites within 70 km, 70% damage.",
     "esc": "Spreads to 130 km, 95% damage, reaching 5 more sites (SAFMAR Afipsky Refinery, Russneft Krasnodar Refinery …)."
    },
    "trend": "rising",
@@ -220,7 +301,80 @@
    "matched": [
     "Novorossiysk",
     "Slavyansk Refinery",
-    "KNGK Group Ilsky Refinery"
+    "KNGK Group Ilsky Refinery",
+    "Udarnaya power station"
+   ]
+  },
+  {
+   "label": "Strikes near Sochi",
+   "why": "Adler power station (0.4 GW, gas) within 30 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+   "url": "https://www.romfordrecorder.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-24-attack-kyiv-saw-coming/",
+   "shocks": [
+    [
+     "zone",
+     [
+      39.73,
+      43.6,
+      30
+     ],
+     0.7
+    ]
+   ],
+   "levels": {
+    "de": [
+     [
+      "zone",
+      [
+       39.73,
+       43.6,
+       30
+      ],
+      0.3
+     ]
+    ],
+    "cur": [
+     [
+      "zone",
+      [
+       39.73,
+       43.6,
+       30
+      ],
+      0.7
+     ]
+    ],
+    "esc": [
+     [
+      "zone",
+      [
+       39.73,
+       43.6,
+       55
+      ],
+      0.95
+     ]
+    ]
+   },
+   "lv": {
+    "de": "Calms down: only the nearest site, Adler power station, is hit, 30% damage within 30 km.",
+    "cur": "As reported: 1 site within 30 km, 70% damage.",
+    "esc": "Spreads to 55 km, 95% damage."
+   },
+   "trend": "easing",
+   "likely": "de",
+   "at": [
+    39.73,
+    43.6
+   ],
+   "months": [
+    "2026-10"
+   ],
+   "place": "Sochi, Krasnodarskiy Kray, Russia",
+   "t": "2026-10-07T00:00:00Z",
+   "z": 128.7,
+   "matched": [
+    "Adler power station",
+    "Sochi, Russia"
    ]
   },
   {
@@ -293,85 +447,6 @@
    "matched": [
     "Linos Lisichansk Refinery"
    ]
-  },
-  {
-   "label": "Strikes near Dammam",
-   "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 17 more within 75 km. In the news: Passenger terminal at Riyadh airport is struck again a Day after were killed.",
-   "url": "https://tert.am/en/news/2026/10/12/Riyadh%20airport/4286553",
-   "shocks": [
-    [
-     "zone",
-     [
-      50.1,
-      26.43,
-      75
-     ],
-     0.7
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "zone",
-      [
-       50.1,
-       26.43,
-       30
-      ],
-      0.3
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       50.1,
-       26.43,
-       75
-      ],
-      0.7
-     ]
-    ],
-    "esc": [
-     [
-      "zone",
-      [
-       50.1,
-       26.43,
-       135
-      ],
-      0.95
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Calms down: only the nearest site, Ras  Tannurah, is hit, 30% damage within 30 km.",
-    "cur": "As reported: 20 sites within 75 km, 70% damage.",
-    "esc": "Spreads to 135 km, 95% damage, reaching 6 more sites (Al Jubayl, SATORP Saudi Aramco Total Jubail Refinery …)."
-   },
-   "trend": "rising",
-   "likely": "esc",
-   "at": [
-    50.1,
-    26.43
-   ],
-   "months": [
-    "2026-10"
-   ],
-   "place": "Dammam, Ash Sharqiyah, Saudi Arabia",
-   "t": "2026-10-12T00:00:00Z",
-   "z": 76.3,
-   "matched": [
-    "Ras  Tannurah",
-    "Saudi Aramco Ras Tanura Refinery",
-    "Qatif Oil Field (Saudi Arabia)",
-    "Abqaiq Oil Field (Saudi Arabia)",
-    "Ju Aymah Lpg Terminal",
-    "Abu Sa`fah Oil Field (Saudi Arabia, Bahrain)",
-    "Ju Aymah Oil Terminal",
-    "Bahrain Petroleum Company Refinery",
-    "Al Khobar, Saudi Arabia"
-   ]
   }
  ],
  "windows": {
@@ -379,7 +454,7 @@
    "items": [
     {
      "label": "Attacks near Riyadh",
-     "why": "Saudi Aramco Riyadh Refinery, Riyadh 7 power plant (1.3 GW, gas), Riyadh PP11 power station (1.8 GW, gas) and 4 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
+     "why": "Saudi Aramco Riyadh Refinery, Riyadh 5 power plant (0.6 GW, oil), Riyadh 7 power plant (1.3 GW, gas) and 6 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
      "url": "https://www.dunfermlinepress.com/news/national/26625812.12-killed-attack-riyadh-airport---saudi-authorities/",
      "shocks": [
       [
@@ -399,7 +474,7 @@
         [
          46.77,
          24.64,
-         20
+         15
         ],
         0.25
        ]
@@ -428,9 +503,9 @@
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Riyadh 7 power plant, is hit, 25% damage within 20 km.",
-      "cur": "As reported: 7 sites within 65 km, 65% damage.",
-      "esc": "Spreads to 120 km, 90% damage, reaching 2 more sites (Riyadh City-13 power station, Riyadh 12 power plant)."
+      "de": "Calms down: only the nearest site, Riyadh, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 9 sites within 65 km, 65% damage.",
+      "esc": "Spreads to 120 km, 90% damage, reaching 3 more sites (Jafurah Cogeneration power plant, Riyadh City-13 power station …)."
      },
      "trend": "rising",
      "likely": "esc",
@@ -446,6 +521,7 @@
      "z": 1011.4,
      "matched": [
       "Saudi Aramco Riyadh Refinery",
+      "Riyadh 5 power plant",
       "Riyadh 7 power plant",
       "Riyadh PP11 power station",
       "Riyadh 8 power plant",
@@ -456,7 +532,7 @@
     },
     {
      "label": "Strikes near Kremenchuk",
-     "why": "Ukrtatnafta Kremenchuk Refinery within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "why": "Ukrtatnafta Kremenchuk Refinery and Kremenchug (0.6 GW, hydro) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
      "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
      "shocks": [
       [
@@ -506,7 +582,7 @@
      },
      "lv": {
       "de": "Calms down: only the nearest site, Ukrtatnafta Kremenchuk Refinery, is hit, 25% damage within 20 km.",
-      "cur": "As reported: 1 site within 25 km, 60% damage.",
+      "cur": "As reported: 2 sites within 25 km, 60% damage.",
       "esc": "Spreads to 45 km, 85% damage."
      },
      "trend": "rising",
@@ -522,12 +598,92 @@
      "t": "2026-10-06T00:00:00Z",
      "z": 264.8,
      "matched": [
-      "Ukrtatnafta Kremenchuk Refinery"
+      "Ukrtatnafta Kremenchuk Refinery",
+      "Kremenchug"
+     ]
+    },
+    {
+     "label": "Strikes near Dammam",
+     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 24 more within 75 km. In the news: Passenger terminal at Riyadh airport is struck again a Day after were killed.",
+     "url": "https://tert.am/en/news/2026/10/12/Riyadh%20airport/4286553",
+     "shocks": [
+      [
+       "zone",
+       [
+        50.1,
+        26.43,
+        75
+       ],
+       0.7
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         50.1,
+         26.43,
+         10
+        ],
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         50.1,
+         26.43,
+         75
+        ],
+        0.7
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         50.1,
+         26.43,
+         135
+        ],
+        0.95
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Dammam, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 27 sites within 75 km, 70% damage.",
+      "esc": "Spreads to 135 km, 95% damage, reaching 10 more sites (Al Jubayl, SATORP Saudi Aramco Total Jubail Refinery …)."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      50.1,
+      26.43
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Dammam, Ash Sharqiyah, Saudi Arabia",
+     "t": "2026-10-12T00:00:00Z",
+     "z": 76.3,
+     "matched": [
+      "Ras  Tannurah",
+      "Saudi Aramco Ras Tanura Refinery",
+      "Qatif Oil Field (Saudi Arabia)",
+      "Abqaiq Oil Field (Saudi Arabia)",
+      "Ju Aymah Lpg Terminal",
+      "Abu Sa`fah Oil Field (Saudi Arabia, Bahrain)",
+      "Ju Aymah Oil Terminal",
+      "Bahrain Petroleum Company Refinery",
+      "Al Khobar, Saudi Arabia"
      ]
     },
     {
      "label": "Strikes near Novorossiysk",
-     "why": "Slavyansk Refinery, KNGK Group Ilsky Refinery and Novorossiysk (oil port) within 70 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "why": "Slavyansk Refinery, KNGK Group Ilsky Refinery, Novorossiysk (oil port) and 1 more within 70 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
      "url": "https://www.romfordrecorder.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-24-attack-kyiv-saw-coming/",
      "shocks": [
       [
@@ -577,7 +733,7 @@
      },
      "lv": {
       "de": "Calms down: only the nearest site, Novorossiysk, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 3 sites within 70 km, 70% damage.",
+      "cur": "As reported: 4 sites within 70 km, 70% damage.",
       "esc": "Spreads to 130 km, 95% damage, reaching 5 more sites (SAFMAR Afipsky Refinery, Russneft Krasnodar Refinery …)."
      },
      "trend": "rising",
@@ -595,7 +751,80 @@
      "matched": [
       "Novorossiysk",
       "Slavyansk Refinery",
-      "KNGK Group Ilsky Refinery"
+      "KNGK Group Ilsky Refinery",
+      "Udarnaya power station"
+     ]
+    },
+    {
+     "label": "Strikes near Sochi",
+     "why": "Adler power station (0.4 GW, gas) within 30 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "url": "https://www.romfordrecorder.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-24-attack-kyiv-saw-coming/",
+     "shocks": [
+      [
+       "zone",
+       [
+        39.73,
+        43.6,
+        30
+       ],
+       0.7
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         39.73,
+         43.6,
+         30
+        ],
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         39.73,
+         43.6,
+         30
+        ],
+        0.7
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         39.73,
+         43.6,
+         55
+        ],
+        0.95
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Adler power station, is hit, 30% damage within 30 km.",
+      "cur": "As reported: 1 site within 30 km, 70% damage.",
+      "esc": "Spreads to 55 km, 95% damage."
+     },
+     "trend": "easing",
+     "likely": "de",
+     "at": [
+      39.73,
+      43.6
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Sochi, Krasnodarskiy Kray, Russia",
+     "t": "2026-10-07T00:00:00Z",
+     "z": 128.7,
+     "matched": [
+      "Adler power station",
+      "Sochi, Russia"
      ]
     },
     {
@@ -668,85 +897,6 @@
      "matched": [
       "Linos Lisichansk Refinery"
      ]
-    },
-    {
-     "label": "Strikes near Dammam",
-     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 17 more within 75 km. In the news: Passenger terminal at Riyadh airport is struck again a Day after were killed.",
-     "url": "https://tert.am/en/news/2026/10/12/Riyadh%20airport/4286553",
-     "shocks": [
-      [
-       "zone",
-       [
-        50.1,
-        26.43,
-        75
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         50.1,
-         26.43,
-         30
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         50.1,
-         26.43,
-         75
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         50.1,
-         26.43,
-         135
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Ras  Tannurah, is hit, 30% damage within 30 km.",
-      "cur": "As reported: 20 sites within 75 km, 70% damage.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 6 more sites (Al Jubayl, SATORP Saudi Aramco Total Jubail Refinery …)."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      50.1,
-      26.43
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Dammam, Ash Sharqiyah, Saudi Arabia",
-     "t": "2026-10-12T00:00:00Z",
-     "z": 76.3,
-     "matched": [
-      "Ras  Tannurah",
-      "Saudi Aramco Ras Tanura Refinery",
-      "Qatif Oil Field (Saudi Arabia)",
-      "Abqaiq Oil Field (Saudi Arabia)",
-      "Ju Aymah Lpg Terminal",
-      "Abu Sa`fah Oil Field (Saudi Arabia, Bahrain)",
-      "Ju Aymah Oil Terminal",
-      "Bahrain Petroleum Company Refinery",
-      "Al Khobar, Saudi Arabia"
-     ]
     }
    ]
   },
@@ -754,7 +904,7 @@
    "items": [
     {
      "label": "Attacks near Riyadh",
-     "why": "Saudi Aramco Riyadh Refinery, Riyadh 7 power plant (1.3 GW, gas), Riyadh PP11 power station (1.8 GW, gas) and 4 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
+     "why": "Saudi Aramco Riyadh Refinery, Riyadh 5 power plant (0.6 GW, oil), Riyadh 7 power plant (1.3 GW, gas) and 6 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
      "url": "https://www.dunfermlinepress.com/news/national/26625812.12-killed-attack-riyadh-airport---saudi-authorities/",
      "shocks": [
       [
@@ -774,7 +924,7 @@
         [
          46.77,
          24.64,
-         20
+         15
         ],
         0.25
        ]
@@ -803,9 +953,9 @@
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Riyadh 7 power plant, is hit, 25% damage within 20 km.",
-      "cur": "As reported: 7 sites within 65 km, 65% damage.",
-      "esc": "Spreads to 120 km, 90% damage, reaching 2 more sites (Riyadh City-13 power station, Riyadh 12 power plant)."
+      "de": "Calms down: only the nearest site, Riyadh, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 9 sites within 65 km, 65% damage.",
+      "esc": "Spreads to 120 km, 90% damage, reaching 3 more sites (Jafurah Cogeneration power plant, Riyadh City-13 power station …)."
      },
      "trend": "rising",
      "likely": "esc",
@@ -821,6 +971,7 @@
      "z": 1011.4,
      "matched": [
       "Saudi Aramco Riyadh Refinery",
+      "Riyadh 5 power plant",
       "Riyadh 7 power plant",
       "Riyadh PP11 power station",
       "Riyadh 8 power plant",
@@ -831,7 +982,7 @@
     },
     {
      "label": "Drone strikes near Nizhnekamsk",
-     "why": "Taneco Nizhnekamsk Refinery, TAIF Nizhnekamsk Refinery, Shegurchinskoye Oil Field (Russia) (oil/gas field) and 3 more within 70 km. In the news: Ukrainian drones kill in Russia as Moscow hits main Port hub in Black sea.",
+     "why": "Taneco Nizhnekamsk Refinery, TAIF Nizhnekamsk Refinery, Shegurchinskoye Oil Field (Russia) (oil/gas field) and 6 more within 70 km. In the news: Ukrainian drones kill in Russia as Moscow hits main Port hub in Black sea.",
      "url": "https://www.winnipegfreepress.com/world/2026/09/13/ukrainian-drones-kill-2-in-russia-as-moscow-hits-main-port-hub-in-black-sea",
      "shocks": [
       [
@@ -880,8 +1031,8 @@
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Taneco Nizhnekamsk Refinery, is hit, 25% damage within 15 km.",
-      "cur": "As reported: 6 sites within 70 km, 60% damage.",
+      "de": "Calms down: only the nearest site, Nizhnekamsk 1 power station, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 9 sites within 70 km, 60% damage.",
       "esc": "Spreads to 130 km, 85% damage, reaching 2 more sites (Novo-Yelkhovskoye Oil Field (Republic of Tatarstan, Russia) +1, Romashkinskoye Oil Field (Republic of Tatarstan, Russia))."
      },
      "trend": "easing",
@@ -900,22 +1051,24 @@
       "Taneco Nizhnekamsk Refinery",
       "TAIF Nizhnekamsk Refinery",
       "Shegurchinskoye Oil Field (Russia)",
+      "Nizhnekamsk 1 power station",
+      "Nizhnekamsk 2 power station",
+      "Nizhnekamsk Petrochemical power station",
       "Nizhnekamsk hydroelectric power station",
-      "Zainsk GRES power station",
-      "Naberezhnye Chelny power station"
+      "Zainsk GRES power station"
      ]
     },
     {
-     "label": "Drone strikes near Vilnius",
-     "why": "Lietuvos power station (1.0 GW, gas) within 45 km. In the news: NATO jets down drone.",
-     "url": "https://www.wgauradio.com/news/business/nato-jets-down-drone/OXDPOCJBWM4LRKVEBRYSMGSXDQ/",
+     "label": "Drone strikes near Volyn",
+     "why": "Shchekinskaya SDPS power station (0.4 GW, gas) and Cherepetskaya power station (0.5 GW, coal) within 60 km. In the news: Ukrainian drones kill in Russia as Moscow hits main Port hub in Black sea.",
+     "url": "https://www.winnipegfreepress.com/world/2026/09/13/ukrainian-drones-kill-2-in-russia-as-moscow-hits-main-port-hub-in-black-sea",
      "shocks": [
       [
        "zone",
        [
-        25.32,
-        54.68,
-        45
+        37.4,
+        54.15,
+        60
        ],
        0.65
       ]
@@ -925,9 +1078,9 @@
        [
         "zone",
         [
-         25.32,
-         54.68,
-         45
+         37.4,
+         54.15,
+         35
         ],
         0.25
        ]
@@ -936,9 +1089,9 @@
        [
         "zone",
         [
-         25.32,
-         54.68,
-         45
+         37.4,
+         54.15,
+         60
         ],
         0.65
        ]
@@ -947,181 +1100,39 @@
        [
         "zone",
         [
-         25.32,
-         54.68,
-         85
+         37.4,
+         54.15,
+         110
         ],
         0.9
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Lietuvos power station, is hit, 25% damage within 45 km.",
-      "cur": "As reported: 1 site within 45 km, 65% damage.",
-      "esc": "Spreads to 85 km, 90% damage."
+      "de": "Calms down: only the nearest site, Shchekinskaya SDPS power station, is hit, 25% damage within 35 km.",
+      "cur": "As reported: 2 sites within 60 km, 65% damage.",
+      "esc": "Spreads to 110 km, 90% damage."
      },
      "trend": "easing",
      "likely": "de",
      "at": [
-      25.32,
-      54.68
+      37.4,
+      54.15
      ],
      "months": [
       "2026-09"
      ],
-     "place": "Vilnius, Vilniaus Apskritis, Lithuania",
-     "t": "2026-09-15T00:00:00Z",
-     "z": 269.0,
+     "place": "Volyn, Tul'skaya Oblast', Russia",
+     "t": "2026-09-12T00:00:00Z",
+     "z": 310.9,
      "matched": [
-      "Lietuvos power station"
-     ]
-    },
-    {
-     "label": "Strikes near Kremenchuk",
-     "why": "Ukrtatnafta Kremenchuk Refinery within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
-     "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
-     "shocks": [
-      [
-       "zone",
-       [
-        33.43,
-        49.07,
-        25
-       ],
-       0.6
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         33.43,
-         49.07,
-         20
-        ],
-        0.25
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         33.43,
-         49.07,
-         25
-        ],
-        0.6
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         33.43,
-         49.07,
-         45
-        ],
-        0.85
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Ukrtatnafta Kremenchuk Refinery, is hit, 25% damage within 20 km.",
-      "cur": "As reported: 1 site within 25 km, 60% damage.",
-      "esc": "Spreads to 45 km, 85% damage."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      33.43,
-      49.07
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Kremenchuk, Poltavs'ka Oblast', Ukraine",
-     "t": "2026-10-06T00:00:00Z",
-     "z": 264.8,
-     "matched": [
-      "Ukrtatnafta Kremenchuk Refinery"
-     ]
-    },
-    {
-     "label": "Drone strikes near Mecca",
-     "why": "Jeddah PP3 power plant (1.3 GW, oil) and Jeddah South power plant (2.6 GW, oil) within 75 km. In the news: Saudi led coalition says it destroys Houthi drone south of Mecca.",
-     "url": "https://economictimes.indiatimes.com/news/defence/saudi-led-coalition-says-it-destroys-houthi-drone-south-of-mecca/articleshow/134275846.cms",
-     "shocks": [
-      [
-       "zone",
-       [
-        39.83,
-        21.43,
-        75
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         39.83,
-         21.43,
-         70
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         39.83,
-         21.43,
-         75
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         39.83,
-         21.43,
-         135
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Jeddah PP3 power plant, is hit, 30% damage within 70 km.",
-      "cur": "As reported: 2 sites within 75 km, 70% damage.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 2 more sites (Saudi Aramco Jeddah Refinery, Shoaiba II CCPP Project)."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      39.83,
-      21.43
-     ],
-     "months": [
-      "2026-09"
-     ],
-     "place": "Mecca, Makkah, Saudi Arabia",
-     "t": "2026-09-15T00:00:00Z",
-     "z": 257.1,
-     "matched": [
-      "Jeddah PP3 power plant",
-      "Jeddah South power plant"
+      "Shchekinskaya SDPS power station",
+      "Cherepetskaya power station"
      ]
     },
     {
      "label": "Air strikes near Hangu",
-     "why": "PetroChina Tianjin Dagang Refinery, Sinopec Tianjin Petrochemical Refinery, Tianjin LNG Terminal (PipeChina) — Phase 2 and 15 more within 75 km. In the news: Pakistan says airstrikes Afghanistan kill militants Kabul reports.",
+     "why": "PetroChina Tianjin Dagang Refinery, Sinopec Tianjin Petrochemical Refinery, Tianjin LNG Terminal (PipeChina) — Phase 2 and 31 more within 75 km. In the news: Pakistan says airstrikes Afghanistan kill militants Kabul reports.",
      "url": "https://www.nbcnews.com/world/afghanistan/pakistan-says-airstrikes-afghanistan-kill-28-militants-kabul-reports-3-rcna599089",
      "shocks": [
       [
@@ -1171,8 +1182,8 @@
      },
      "lv": {
       "de": "Calms down: only the nearest site, Tianjin Beijiang power station, is hit, 25% damage within 20 km.",
-      "cur": "As reported: 18 sites within 75 km, 65% damage.",
-      "esc": "Spreads to 135 km, 90% damage, reaching 17 more sites (Hebei Kaiyi New Material Technology Refinery, Hebei Xinqiyuan Energy Technology Development Refinery …)."
+      "cur": "As reported: 34 sites within 75 km, 65% damage.",
+      "esc": "Spreads to 135 km, 90% damage, reaching 27 more sites (Hebei Kaiyi New Material Technology Refinery, Hebei Xinqiyuan Energy Technology Development Refinery …)."
      },
      "trend": "easing",
      "likely": "de",
@@ -1198,8 +1209,307 @@
      ]
     },
     {
+     "label": "Air strikes near Islamabad",
+     "why": "Attock Refinery, Adhi Oil and Gas Field (Pakistan) (oil/gas field), Tarbela (3.5 GW, hydro) and 1 more within 65 km. In the news: At least Three killed in Pakistani airstrikes on Afghanistan officials say.",
+     "url": "https://www.straitstimes.com/asia/at-least-three-killed-in-pakistani-airstrikes-on-afghanistan-officials-say",
+     "shocks": [
+      [
+       "zone",
+       [
+        73.17,
+        33.7,
+        65
+       ],
+       0.6
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         73.17,
+         33.7,
+         25
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         73.17,
+         33.7,
+         65
+        ],
+        0.6
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         73.17,
+         33.7,
+         120
+        ],
+        0.85
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Rawalpindi, is hit, 25% damage within 25 km.",
+      "cur": "As reported: 4 sites within 65 km, 60% damage.",
+      "esc": "Spreads to 120 km, 85% damage, reaching 3 more sites (Mangla, Ghazi Barotha …)."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      73.17,
+      33.7
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Islamabad, Islamabad, Pakistan",
+     "t": "2026-09-21T00:00:00Z",
+     "z": 204.2,
+     "matched": [
+      "Attock Refinery",
+      "Adhi Oil and Gas Field (Pakistan)",
+      "Tarbela",
+      "Rawalpindi"
+     ]
+    },
+    {
+     "label": "Drone strikes near Mecca",
+     "why": "Makkah 2 power plant (0.3 GW, oil), Jeddah PP3 power plant (1.3 GW, oil), Jeddah South power plant (2.6 GW, oil) and 1 more within 75 km. In the news: Saudi led coalition says it destroys Houthi drone south of Mecca.",
+     "url": "https://economictimes.indiatimes.com/news/defence/saudi-led-coalition-says-it-destroys-houthi-drone-south-of-mecca/articleshow/134275846.cms",
+     "shocks": [
+      [
+       "zone",
+       [
+        39.83,
+        21.43,
+        75
+       ],
+       0.7
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         39.83,
+         21.43,
+         10
+        ],
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         39.83,
+         21.43,
+         75
+        ],
+        0.7
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         39.83,
+         21.43,
+         135
+        ],
+        0.95
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Makkah, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 4 sites within 75 km, 70% damage.",
+      "esc": "Spreads to 135 km, 95% damage, reaching 3 more sites (Saudi Aramco Jeddah Refinery, Shuaiba SWCC power plant …)."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      39.83,
+      21.43
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Mecca, Makkah, Saudi Arabia",
+     "t": "2026-09-15T00:00:00Z",
+     "z": 257.1,
+     "matched": [
+      "Makkah 2 power plant",
+      "Jeddah PP3 power plant",
+      "Jeddah South power plant",
+      "Makkah"
+     ]
+    },
+    {
+     "label": "Strikes near Kremenchuk",
+     "why": "Ukrtatnafta Kremenchuk Refinery and Kremenchug (0.6 GW, hydro) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
+     "shocks": [
+      [
+       "zone",
+       [
+        33.43,
+        49.07,
+        25
+       ],
+       0.6
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         33.43,
+         49.07,
+         20
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         33.43,
+         49.07,
+         25
+        ],
+        0.6
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         33.43,
+         49.07,
+         45
+        ],
+        0.85
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Ukrtatnafta Kremenchuk Refinery, is hit, 25% damage within 20 km.",
+      "cur": "As reported: 2 sites within 25 km, 60% damage.",
+      "esc": "Spreads to 45 km, 85% damage."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      33.43,
+      49.07
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Kremenchuk, Poltavs'ka Oblast', Ukraine",
+     "t": "2026-10-06T00:00:00Z",
+     "z": 264.8,
+     "matched": [
+      "Ukrtatnafta Kremenchuk Refinery",
+      "Kremenchug"
+     ]
+    },
+    {
+     "label": "Strikes near Dammam",
+     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 24 more within 75 km. In the news: Passenger terminal at Riyadh airport is struck again a Day after were killed.",
+     "url": "https://tert.am/en/news/2026/10/12/Riyadh%20airport/4286553",
+     "shocks": [
+      [
+       "zone",
+       [
+        50.1,
+        26.43,
+        75
+       ],
+       0.7
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         50.1,
+         26.43,
+         10
+        ],
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         50.1,
+         26.43,
+         75
+        ],
+        0.7
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         50.1,
+         26.43,
+         135
+        ],
+        0.95
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Dammam, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 27 sites within 75 km, 70% damage.",
+      "esc": "Spreads to 135 km, 95% damage, reaching 10 more sites (Al Jubayl, SATORP Saudi Aramco Total Jubail Refinery …)."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      50.1,
+      26.43
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Dammam, Ash Sharqiyah, Saudi Arabia",
+     "t": "2026-10-12T00:00:00Z",
+     "z": 76.3,
+     "matched": [
+      "Ras  Tannurah",
+      "Saudi Aramco Ras Tanura Refinery",
+      "Qatif Oil Field (Saudi Arabia)",
+      "Abqaiq Oil Field (Saudi Arabia)",
+      "Ju Aymah Lpg Terminal",
+      "Abu Sa`fah Oil Field (Saudi Arabia, Bahrain)",
+      "Ju Aymah Oil Terminal",
+      "Bahrain Petroleum Company Refinery",
+      "Al Khobar, Saudi Arabia"
+     ]
+    },
+    {
      "label": "Strikes near Novorossiysk",
-     "why": "Slavyansk Refinery, KNGK Group Ilsky Refinery and Novorossiysk (oil port) within 70 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "why": "Slavyansk Refinery, KNGK Group Ilsky Refinery, Novorossiysk (oil port) and 1 more within 70 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
      "url": "https://www.romfordrecorder.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-24-attack-kyiv-saw-coming/",
      "shocks": [
       [
@@ -1249,7 +1559,7 @@
      },
      "lv": {
       "de": "Calms down: only the nearest site, Novorossiysk, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 3 sites within 70 km, 70% damage.",
+      "cur": "As reported: 4 sites within 70 km, 70% damage.",
       "esc": "Spreads to 130 km, 95% damage, reaching 5 more sites (SAFMAR Afipsky Refinery, Russneft Krasnodar Refinery …)."
      },
      "trend": "rising",
@@ -1267,22 +1577,23 @@
      "matched": [
       "Novorossiysk",
       "Slavyansk Refinery",
-      "KNGK Group Ilsky Refinery"
+      "KNGK Group Ilsky Refinery",
+      "Udarnaya power station"
      ]
     },
     {
-     "label": "Air strikes near Islamabad",
-     "why": "Attock Refinery, Adhi Oil and Gas Field (Pakistan) (oil/gas field) and Tarbela (3.5 GW, hydro) within 65 km. In the news: At least Three killed in Pakistani airstrikes on Afghanistan officials say.",
-     "url": "https://www.straitstimes.com/asia/at-least-three-killed-in-pakistani-airstrikes-on-afghanistan-officials-say",
+     "label": "Strikes near Sochi",
+     "why": "Adler power station (0.4 GW, gas) within 30 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "url": "https://www.romfordrecorder.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-24-attack-kyiv-saw-coming/",
      "shocks": [
       [
        "zone",
        [
-        73.17,
-        33.7,
-        65
+        39.73,
+        43.6,
+        30
        ],
-       0.6
+       0.7
       ]
      ],
      "levels": {
@@ -1290,57 +1601,56 @@
        [
         "zone",
         [
-         73.17,
-         33.7,
-         25
+         39.73,
+         43.6,
+         30
         ],
-        0.25
+        0.3
        ]
       ],
       "cur": [
        [
         "zone",
         [
-         73.17,
-         33.7,
-         65
+         39.73,
+         43.6,
+         30
         ],
-        0.6
+        0.7
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         73.17,
-         33.7,
-         120
+         39.73,
+         43.6,
+         55
         ],
-        0.85
+        0.95
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Attock Refinery, is hit, 25% damage within 25 km.",
-      "cur": "As reported: 3 sites within 65 km, 60% damage.",
-      "esc": "Spreads to 120 km, 85% damage, reaching 2 more sites (Mangla, Ghazi Barotha)."
+      "de": "Calms down: only the nearest site, Adler power station, is hit, 30% damage within 30 km.",
+      "cur": "As reported: 1 site within 30 km, 70% damage.",
+      "esc": "Spreads to 55 km, 95% damage."
      },
-     "trend": "steady",
-     "likely": "cur",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      73.17,
-      33.7
+      39.73,
+      43.6
      ],
      "months": [
-      "2026-09"
+      "2026-10"
      ],
-     "place": "Islamabad, Islamabad, Pakistan",
-     "t": "2026-09-21T00:00:00Z",
-     "z": 204.2,
+     "place": "Sochi, Krasnodarskiy Kray, Russia",
+     "t": "2026-10-07T00:00:00Z",
+     "z": 128.7,
      "matched": [
-      "Attock Refinery",
-      "Adhi Oil and Gas Field (Pakistan)",
-      "Tarbela"
+      "Adler power station",
+      "Sochi, Russia"
      ]
     },
     {
@@ -1413,103 +1723,24 @@
      "matched": [
       "Linos Lisichansk Refinery"
      ]
-    },
-    {
-     "label": "Strikes near Dammam",
-     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 17 more within 75 km. In the news: Passenger terminal at Riyadh airport is struck again a Day after were killed.",
-     "url": "https://tert.am/en/news/2026/10/12/Riyadh%20airport/4286553",
-     "shocks": [
-      [
-       "zone",
-       [
-        50.1,
-        26.43,
-        75
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         50.1,
-         26.43,
-         30
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         50.1,
-         26.43,
-         75
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         50.1,
-         26.43,
-         135
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Ras  Tannurah, is hit, 30% damage within 30 km.",
-      "cur": "As reported: 20 sites within 75 km, 70% damage.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 6 more sites (Al Jubayl, SATORP Saudi Aramco Total Jubail Refinery …)."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      50.1,
-      26.43
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Dammam, Ash Sharqiyah, Saudi Arabia",
-     "t": "2026-10-12T00:00:00Z",
-     "z": 76.3,
-     "matched": [
-      "Ras  Tannurah",
-      "Saudi Aramco Ras Tanura Refinery",
-      "Qatif Oil Field (Saudi Arabia)",
-      "Abqaiq Oil Field (Saudi Arabia)",
-      "Ju Aymah Lpg Terminal",
-      "Abu Sa`fah Oil Field (Saudi Arabia, Bahrain)",
-      "Ju Aymah Oil Terminal",
-      "Bahrain Petroleum Company Refinery",
-      "Al Khobar, Saudi Arabia"
-     ]
     }
    ]
   },
   "year": {
    "items": [
     {
-     "label": "Attacks near Riyadh",
-     "why": "Saudi Aramco Riyadh Refinery, Riyadh 7 power plant (1.3 GW, gas), Riyadh PP11 power station (1.8 GW, gas) and 4 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
-     "url": "https://www.dunfermlinepress.com/news/national/26625812.12-killed-attack-riyadh-airport---saudi-authorities/",
+     "label": "Air strikes near Beirut",
+     "why": "Bayrut (oil port), Sidon/zahrani Terminal (oil port), Tarabulus (oil port) and 5 more within 75 km. In the news: Israeli airstrike on Southern Lebanon kills people Lebanese State media say.",
+     "url": "https://krmg.com/2026/08/15/israeli-airstrike-on-southern-lebanon-kills-7-people-lebanese-state-media-say/",
      "shocks": [
       [
        "zone",
        [
-        46.77,
-        24.64,
-        65
+        35.51,
+        33.87,
+        75
        ],
-       0.65
+       0.85
       ]
      ],
      "levels": {
@@ -1517,347 +1748,83 @@
        [
         "zone",
         [
-         46.77,
-         24.64,
-         20
+         35.51,
+         33.87,
+         10
         ],
-        0.25
+        0.35
        ]
       ],
       "cur": [
        [
         "zone",
         [
-         46.77,
-         24.64,
-         65
+         35.51,
+         33.87,
+         75
         ],
-        0.65
+        0.85
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         46.77,
-         24.64,
-         120
+         35.51,
+         33.87,
+         135
         ],
-        0.9
+        1.0
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Riyadh 7 power plant, is hit, 25% damage within 20 km.",
-      "cur": "As reported: 7 sites within 65 km, 65% damage.",
-      "esc": "Spreads to 120 km, 90% damage, reaching 2 more sites (Riyadh City-13 power station, Riyadh 12 power plant)."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      46.77,
-      24.64
-     ],
-     "months": [
-      "2026-03",
-      "2026-09",
-      "2026-10"
-     ],
-     "place": "Riyadh, Ar Riya?, Saudi Arabia",
-     "t": "2026-10-09T00:00:00Z",
-     "z": 1011.4,
-     "matched": [
-      "Saudi Aramco Riyadh Refinery",
-      "Riyadh 7 power plant",
-      "Riyadh PP11 power station",
-      "Riyadh 8 power plant",
-      "Riyadh 10 power plant",
-      "Riyadh 9 power plant",
-      "Riyadh City-14 power station"
-     ]
-    },
-    {
-     "label": "Missile strikes near Tel Aviv",
-     "why": "Paz Oil Ashdod Refinery, Ashdod (oil port), Hadera (oil port) and 6 more within 70 km. In the news: Israel and Iran exchange missile fire threatening middle east truce.",
-     "url": "https://www.wgcu.org/2026-06-08/israel-and-iran-exchange-missile-fire-threatening-middle-east-truce",
-     "shocks": [
-      [
-       "zone",
-       [
-        34.77,
-        32.07,
-        70
-       ],
-       0.65
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         34.77,
-         32.07,
-         30
-        ],
-        0.25
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         34.77,
-         32.07,
-         70
-        ],
-        0.65
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         34.77,
-         32.07,
-         130
-        ],
-        0.9
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Gezer power station, is hit, 25% damage within 30 km.",
-      "cur": "As reported: 9 sites within 70 km, 65% damage.",
-      "esc": "Spreads to 130 km, 90% damage, reaching 6 more sites (Bazan Haifa Refinery, Tamar Oil and Gas Field (Israel) …)."
+      "de": "Calms down: only the nearest site, Beirut, is hit, 35% damage within 10 km.",
+      "cur": "As reported: 8 sites within 75 km, 85% damage.",
+      "esc": "Spreads to 135 km, 100% damage, reaching 8 more sites (Tartus, Bazan Haifa Refinery …)."
      },
      "trend": "steady",
      "likely": "cur",
      "at": [
-      34.77,
-      32.07
-     ],
-     "months": [
-      "2026-02",
-      "2026-03",
-      "2026-06"
-     ],
-     "place": "Tel Aviv, Tel Aviv, Israel",
-     "t": "2026-06-06T00:00:00Z",
-     "z": 303.5,
-     "matched": [
-      "Paz Oil Ashdod Refinery",
-      "Ashdod",
-      "Hadera",
-      "Ashqelon",
-      "Gezer power station",
-      "Eshkol power station",
-      "Orot Rabin power station",
-      "Orot Rabin power station",
-      "Tel Aviv, Israel",
-      "Rishon Le’Zion, Israel",
-      "Herzeliyya, Israel"
-     ]
-    },
-    {
-     "label": "Fighting near Arab Salim",
-     "why": "Sidon/zahrani Terminal (oil port), Bayrut (oil port) and Zouk power plant (1.0 GW, oil) within 65 km. In the news: Fighting persists in Lebanon despite a ceasefire as the us Iran deal is under threat.",
-     "url": "https://www.stcatharinesstandard.ca/business/fighting-persists-in-lebanon-despite-a-ceasefire-as-the-us-iran-deal-is-under-threat/article_3ba30b3a-74da-5b35-8c3c-b7cd0f4d1d8a.html",
-     "shocks": [
-      [
-       "zone",
-       [
-        35.52,
-        33.43,
-        65
-       ],
-       0.65
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         35.52,
-         33.43,
-         30
-        ],
-        0.25
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         35.52,
-         33.43,
-         65
-        ],
-        0.65
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         35.52,
-         33.43,
-         120
-        ],
-        0.9
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Sidon/zahrani Terminal, is hit, 25% damage within 30 km.",
-      "cur": "As reported: 3 sites within 65 km, 65% damage.",
-      "esc": "Spreads to 120 km, 90% damage, reaching 7 more sites (Bazan Haifa Refinery, Karish Oil and Gas Field (Israel) …)."
-     },
-     "trend": "easing",
-     "likely": "de",
-     "at": [
-      35.52,
-      33.43
+      35.51,
+      33.87
      ],
      "months": [
       "2025-11",
+      "2026-01",
       "2026-03",
-      "2026-06"
+      "2026-04",
+      "2026-06",
+      "2026-08"
      ],
-     "place": "Arab Salim, Nabatî, Lebanon",
-     "t": "2026-06-18T00:00:00Z",
-     "z": 274.0,
+     "place": "Beirut, Beyrouth, Lebanon",
+     "t": "2026-08-14T00:00:00Z",
+     "z": 146.3,
      "matched": [
-      "Sidon/zahrani Terminal",
       "Bayrut",
+      "Sidon/zahrani Terminal",
+      "Tarabulus",
       "Zouk power plant",
+      "Jieh power plant",
+      "Zahrani power plant",
+      "Deir Ammar power plant",
+      "Beirut",
+      "Beirut, Lebanon",
+      "Jdaide, Lebanon",
       "Saida, Lebanon"
      ]
     },
     {
-     "label": "Attacks near Shinas",
-     "why": "ORPIC Sohar Refinery, Ecomar Fujairah Refinery, Uniper Fujairah Refinery and 7 more within 65 km. In the news: India condemns attack commercial vessel off Oman Coast.",
-     "url": "https://www.newkerala.com/news/a/india-condemns-attack-commercial-vessel-off-oman-coast-715.htm",
+     "label": "Missile strikes near Pyongyang",
+     "why": "Pyongyang power station (0.7 GW, coal), Unbong (0.4 GW, hydro), Huichon (0.3 GW, hydro) and 1 more within 75 km. In the news: Nkorean missiles used in Russian attack on Ukraine.",
+     "url": "https://www.bendigoadvertiser.com.au/story/9328594/nkorean-missiles-used-in-russian-attack-on-ukraine/",
      "shocks": [
       [
        "zone",
        [
-        56.47,
-        24.74,
-        65
-       ],
-       0.7
-      ],
-      [
-       "cable",
-       "kalba-united-arab-emirates",
-       1
-      ],
-      [
-       "cable",
-       "fujairah-united-arab-emirates",
-       1
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         56.47,
-         24.74,
-         35
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         56.47,
-         24.74,
-         65
-        ],
-        0.7
-       ],
-       [
-        "cable",
-        "kalba-united-arab-emirates",
-        1
-       ],
-       [
-        "cable",
-        "fujairah-united-arab-emirates",
-        1
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         56.47,
-         24.74,
-         120
-        ],
-        0.95
-       ],
-       [
-        "cable",
-        "kalba-united-arab-emirates",
-        1
-       ],
-       [
-        "cable",
-        "fujairah-united-arab-emirates",
-        1
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Port Of Sohar, is hit, 30% damage within 35 km.",
-      "cur": "As reported: 10 sites within 65 km, 70% damage. Nearby cables cut.",
-      "esc": "Spreads to 120 km, 95% damage, reaching 2 more sites (Sajaa Oil and Gas Field (United Arab Emirates), Al Aweer H Power and Desalination Station). Nearby cables cut."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      56.47,
-      24.74
-     ],
-     "months": [
-      "2026-03",
-      "2026-05",
-      "2026-06"
-     ],
-     "place": "Shinas, Al Batinah, Oman",
-     "t": "2026-06-09T00:00:00Z",
-     "z": 255.5,
-     "matched": [
-      "Port Of Sohar",
-      "ORPIC Sohar Refinery",
-      "Al Fujayrah",
-      "Ecomar Fujairah Refinery",
-      "Uniper Fujairah Refinery",
-      "VTTI Fujairah Refinery",
-      "Sohar III power plant",
-      "Sohar Aluminum power plant",
-      "Kalba, United Arab Emirates",
-      "Fujairah, United Arab Emirates"
-     ]
-    },
-    {
-     "label": "Strikes near Novorossiysk",
-     "why": "Slavyansk Refinery, KNGK Group Ilsky Refinery and Novorossiysk (oil port) within 70 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
-     "url": "https://www.romfordrecorder.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-24-attack-kyiv-saw-coming/",
-     "shocks": [
-      [
-       "zone",
-       [
-        37.77,
-        44.72,
-        70
+        125.75,
+        39.02,
+        75
        ],
        0.7
       ]
@@ -1867,8 +1834,8 @@
        [
         "zone",
         [
-         37.77,
-         44.72,
+         125.75,
+         39.02,
          10
         ],
         0.3
@@ -1878,9 +1845,9 @@
        [
         "zone",
         [
-         37.77,
-         44.72,
-         70
+         125.75,
+         39.02,
+         75
         ],
         0.7
        ]
@@ -1889,52 +1856,55 @@
        [
         "zone",
         [
-         37.77,
-         44.72,
-         130
+         125.75,
+         39.02,
+         135
         ],
         0.95
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Novorossiysk, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 3 sites within 70 km, 70% damage.",
-      "esc": "Spreads to 130 km, 95% damage, reaching 5 more sites (SAFMAR Afipsky Refinery, Russneft Krasnodar Refinery …)."
+      "de": "Calms down: only the nearest site, Pyongyang, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 4 sites within 75 km, 70% damage.",
+      "esc": "Spreads to 135 km, 95% damage, reaching 1 more site (Pukchang power station)."
      },
      "trend": "rising",
      "likely": "esc",
      "at": [
-      37.77,
-      44.72
+      125.75,
+      39.02
      ],
      "months": [
-      "2025-11",
-      "2026-08",
-      "2026-10"
+      "2025-10",
+      "2026-01",
+      "2026-03",
+      "2026-04",
+      "2026-08"
      ],
-     "place": "Novorossiysk, Krasnodarskiy Kray, Russia",
-     "t": "2026-10-06T00:00:00Z",
-     "z": 220.1,
+     "place": "Pyongyang, P'yongyang-si, North Korea",
+     "t": "2026-08-11T00:00:00Z",
+     "z": 186.0,
      "matched": [
-      "Novorossiysk",
-      "Slavyansk Refinery",
-      "KNGK Group Ilsky Refinery"
+      "Pyongyang power station",
+      "Unbong",
+      "Huichon",
+      "Pyongyang"
      ]
     },
     {
-     "label": "Air strikes near Islamabad",
-     "why": "Attock Refinery, Adhi Oil and Gas Field (Pakistan) (oil/gas field) and Tarbela (3.5 GW, hydro) within 65 km. In the news: At least Three killed in Pakistani airstrikes on Afghanistan officials say.",
-     "url": "https://www.straitstimes.com/asia/at-least-three-killed-in-pakistani-airstrikes-on-afghanistan-officials-say",
+     "label": "Strikes near Kabul",
+     "why": "Kabul (≈3.3 M people) within 25 km. In the news: Pakistan says it carried out ground operation strikes along Afghan border killing militants.",
+     "url": "https://www.wsls.com/news/world/2026/06/28/pakistan-says-it-carried-out-ground-operation-strikes-along-afghan-border-killing-29-militants/",
      "shocks": [
       [
        "zone",
        [
-        73.17,
-        33.7,
-        65
+        69.18,
+        34.52,
+        25
        ],
-       0.6
+       0.65
       ]
      ],
      "levels": {
@@ -1942,9 +1912,9 @@
        [
         "zone",
         [
-         73.17,
-         33.7,
-         25
+         69.18,
+         34.52,
+         10
         ],
         0.25
        ]
@@ -1953,317 +1923,48 @@
        [
         "zone",
         [
-         73.17,
-         33.7,
-         65
-        ],
-        0.6
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         73.17,
-         33.7,
-         120
-        ],
-        0.85
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Attock Refinery, is hit, 25% damage within 25 km.",
-      "cur": "As reported: 3 sites within 65 km, 60% damage.",
-      "esc": "Spreads to 120 km, 85% damage, reaching 2 more sites (Mangla, Ghazi Barotha)."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      73.17,
-      33.7
-     ],
-     "months": [
-      "2025-10",
-      "2026-02",
-      "2026-09"
-     ],
-     "place": "Islamabad, Islamabad, Pakistan",
-     "t": "2026-09-21T00:00:00Z",
-     "z": 204.2,
-     "matched": [
-      "Attock Refinery",
-      "Adhi Oil and Gas Field (Pakistan)",
-      "Tarbela"
-     ]
-    },
-    {
-     "label": "Fighting near Bandar Abbas",
-     "why": "NIORDC Bandar Abbas Refinery, Persian Gulf Star Refinery, Bandar Abbas (oil port) and 3 more within 25 km. In the news: Israel closely monitors u s Iran fighting warns it could be drawn in.",
-     "url": "https://www.worthynews.com/115880-israel-closely-monitors-u-s-iran-fighting-warns-it-could-be-drawn-in",
-     "shocks": [
-      [
-       "zone",
-       [
-        56.28,
-        27.19,
-        25
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         56.28,
-         27.19,
-         15
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         56.28,
-         27.19,
+         69.18,
+         34.52,
          25
         ],
-        0.7
+        0.65
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         56.28,
-         27.19,
+         69.18,
+         34.52,
          45
         ],
-        0.95
+        0.9
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Bandar Abbas, is hit, 30% damage within 15 km.",
-      "cur": "As reported: 6 sites within 25 km, 70% damage.",
-      "esc": "Spreads to 45 km, 95% damage."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      56.28,
-      27.19
-     ],
-     "months": [
-      "2026-06",
-      "2026-07"
-     ],
-     "place": "Bandar Abbas, Hormozgan, Iran",
-     "t": "2026-07-12T00:00:00Z",
-     "z": 567.9,
-     "matched": [
-      "Bandar Abbas",
-      "Sarkhun Gas Field (Iran)",
-      "NIORDC Bandar Abbas Refinery",
-      "Bandar-E Shahid Rejaie",
-      "Persian Gulf Star Refinery",
-      "Bandar Abbas power station",
-      "Bandar Abbas, Iran",
-      "Strait of Hormuz"
-     ]
-    },
-    {
-     "label": "Missile strikes near Kharg Island",
-     "why": "Kharg Island Oil Terminal, Barkan Oil-loading Terminal, Doroud Oil and Gas Field (Iran) (oil/gas field) and 3 more within 75 km. In the news: US strikes Iranian tankers missile attacks navy warship.",
-     "url": "https://www.wcvb.com/article/us-strikes-iranian-tankers-missile-attacks-navy-warship/73645182",
-     "shocks": [
-      [
-       "zone",
-       [
-        50.32,
-        29.25,
-        75
-       ],
-       0.7
-      ],
-      [
-       "cable",
-       "khark-island-iran",
-       1
-      ],
-      [
-       "cable",
-       "ganaveh-iran",
-       1
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         50.32,
-         29.25,
-         10
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         50.32,
-         29.25,
-         75
-        ],
-        0.7
-       ],
-       [
-        "cable",
-        "khark-island-iran",
-        1
-       ],
-       [
-        "cable",
-        "ganaveh-iran",
-        1
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         50.32,
-         29.25,
-         135
-        ],
-        0.95
-       ],
-       [
-        "cable",
-        "khark-island-iran",
-        1
-       ],
-       [
-        "cable",
-        "ganaveh-iran",
-        1
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Kharg Island Oil Terminal, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 6 sites within 75 km, 70% damage. Nearby cables cut.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 9 more sites (Abuzar Oil Field (Iran) +1, Sirus Oil Terminal …). Nearby cables cut."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      50.32,
-      29.25
-     ],
-     "months": [
-      "2026-03",
-      "2026-09"
-     ],
-     "place": "Kharg Island, Bushehr, Iran",
-     "t": "2026-09-07T00:00:00Z",
-     "z": 502.3,
-     "matched": [
-      "Kharg Island Oil Terminal",
-      "Doroud Oil and Gas Field (Iran)",
-      "Barkan Oil-loading Terminal",
-      "Binak Oil and Gas Field (Iran)",
-      "Gulkhari Oil Field (Iran)",
-      "Bushehr",
-      "Khark Island, Iran",
-      "Ganaveh, Iran"
-     ]
-    },
-    {
-     "label": "Drone strikes near Kuwait International",
-     "why": "KNPC Mina Al-Ahmadi Refinery, KNPC Shuaiba Refinery, KNPC Mina Abdullah Refinery and 14 more within 75 km. In the news: Iran united States war Israel drone strikes gulf conflict.",
-     "url": "https://www.bostonglobe.com/2026/06/03/world/iran-us-war/",
-     "shocks": [
-      [
-       "zone",
-       [
-        47.98,
-        29.24,
-        75
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         47.98,
-         29.24,
-         25
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         47.98,
-         29.24,
-         75
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         47.98,
-         29.24,
-         135
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Magwa Oil and Gas Field (Kuwait) +2, is hit, 30% damage within 25 km.",
-      "cur": "As reported: 17 sites within 75 km, 70% damage.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 13 more sites (South Umm-Gudair Oil and Gas Field (Kuwait, Saudi Arabia), Siba Gas Field (Iraq) …)."
+      "de": "Calms down: only the nearest site, Kabul, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 1 site within 25 km, 65% damage.",
+      "esc": "Spreads to 45 km, 90% damage."
      },
      "trend": "easing",
      "likely": "de",
      "at": [
-      47.98,
-      29.24
+      69.18,
+      34.52
      ],
      "months": [
+      "2026-01",
+      "2026-02",
       "2026-03",
+      "2026-04",
       "2026-06"
      ],
-     "place": "Kuwait International, Kuwait (general), Kuwait",
-     "t": "2026-06-03T00:00:00Z",
-     "z": 485.2,
+     "place": "Kabul, Kabol, Afghanistan",
+     "t": "2026-06-27T00:00:00Z",
+     "z": 169.0,
      "matched": [
-      "Magwa Oil and Gas Field (Kuwait) +2",
-      "KNPC Mina Al-Ahmadi Refinery",
-      "Mina Al Ahmadi",
-      "KNPC Shuaiba Refinery",
-      "Mina Ash Shuaybah",
-      "KNPC Mina Abdullah Refinery",
-      "Mina Abd Allah",
-      "Wafra Oil Field (Kuwait, Saudi Arabia) +1",
-      "Al Safat, Kuwait",
-      "Kuwait City, Kuwait"
+      "Kabul"
      ]
     },
     {
@@ -2329,6 +2030,7 @@
      ],
      "months": [
       "2026-02",
+      "2026-05",
       "2026-07"
      ],
      "place": "Lviv, L'vivs'ka Oblast', Ukraine",
@@ -2340,16 +2042,96 @@
      ]
     },
     {
-     "label": "Air strikes near Tehran",
-     "why": "NIORDC Isfahan Refinery, Montazere Ghaem power station (1.6 GW, gas), Damavand power station (2.9 GW, gas) and 3 more within 70 km. In the news: UK withdraws diplomatic staff Iran us airstrikes continue.",
-     "url": "https://www.burytimes.co.uk/news/national/26402042.uk-withdraws-diplomatic-staff-iran-us-airstrikes-continue/",
+     "label": "Drone strikes near Tripoli",
+     "why": "NOC Zawia Refinery, Mina Tarabulus (Tripoli) (oil port), Az Zawiya (oil port) and 6 more within 60 km. In the news: Drone strike sparks massive blaze at Libyas zawiya refinery.",
+     "url": "https://www.wsls.com/news/world/2026/08/11/drone-strike-sparks-massive-blaze-at-libyas-zawiya-refinery/",
      "shocks": [
       [
        "zone",
        [
-        51.51,
-        35.75,
-        70
+        13.18,
+        32.89,
+        60
+       ],
+       0.55
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         13.18,
+         32.89,
+         10
+        ],
+        0.2
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         13.18,
+         32.89,
+         60
+        ],
+        0.55
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         13.18,
+         32.89,
+         110
+        ],
+        0.8
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Tripoli, is hit, 20% damage within 10 km.",
+      "cur": "As reported: 9 sites within 60 km, 55% damage.",
+      "esc": "Spreads to 110 km, 80% damage, reaching 1 more site (Bahr Es Salam (Structures B&C) Oil and Gas Field (Libya))."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      13.18,
+      32.89
+     ],
+     "months": [
+      "2026-03",
+      "2026-08"
+     ],
+     "place": "Tripoli, Tarabulus, Libya",
+     "t": "2026-08-11T00:00:00Z",
+     "z": 327.8,
+     "matched": [
+      "Mina Tarabulus (Tripoli)",
+      "Az Zawiya",
+      "NOC Zawia Refinery",
+      "Tahara Oil and Gas Field (Libya)",
+      "South Tripoli power station",
+      "West Tripoli power station",
+      "West Tripoli Thermal power station",
+      "Al Zawiya power station",
+      "Tripoli, Libya"
+     ]
+    },
+    {
+     "label": "Attacks near Havana",
+     "why": "CUPET Nico Lopez Refinery, Bahai De La Habana (oil port), Canasi Oil Field (Cuba) +2 (oil/gas field) and 2 more within 65 km. In the news: Thirty two cuban security officials killed in Venezuelan attack.",
+     "url": "http://www.coloradostar.com/news/278791331/thirty-two-cuban-security-officials-killed-in-venezuelan-attack",
+     "shocks": [
+      [
+       "zone",
+       [
+        -82.36,
+        23.13,
+        65
        ],
        0.65
       ]
@@ -2359,9 +2141,9 @@
        [
         "zone",
         [
-         51.51,
-         35.75,
-         30
+         -82.36,
+         23.13,
+         10
         ],
         0.25
        ]
@@ -2370,9 +2152,9 @@
        [
         "zone",
         [
-         51.51,
-         35.75,
-         70
+         -82.36,
+         23.13,
+         65
         ],
         0.65
        ]
@@ -2381,52 +2163,365 @@
        [
         "zone",
         [
-         51.51,
-         35.75,
-         130
+         -82.36,
+         23.13,
+         120
         ],
         0.9
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, NIORDC Isfahan Refinery, is hit, 25% damage within 30 km.",
-      "cur": "As reported: 6 sites within 70 km, 65% damage.",
-      "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shahid Rajaee power station)."
+      "de": "Calms down: only the nearest site, Havana, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 5 sites within 65 km, 65% damage.",
+      "esc": "Spreads to 120 km, 90% damage, reaching 3 more sites (Matanzas, Varadero West Oil Field (Cuba) …)."
      },
      "trend": "steady",
      "likely": "cur",
      "at": [
-      51.51,
-      35.75
+      -82.36,
+      23.13
      ],
      "months": [
-      "2026-03",
-      "2026-07"
+      "2026-01"
      ],
-     "place": "Tehran, Tehran, Iran",
-     "t": "2026-07-21T00:00:00Z",
-     "z": 364.8,
+     "place": "Havana, Ciudad de La Habana, Cuba",
+     "t": "2026-01-04T00:00:00Z",
+     "z": 491.6,
      "matched": [
-      "NIORDC Isfahan Refinery",
-      "Montazere Ghaem power station",
-      "Damavand power station",
-      "Siahbishe",
-      "Parand power station",
-      "Rudshur power station"
+      "Bahai De La Habana",
+      "CUPET Nico Lopez Refinery",
+      "Canasi Oil Field (Cuba) +2",
+      "Boca de Jaruco power station",
+      "Havana"
      ]
     },
     {
-     "label": "Strikes near Aqaba",
-     "why": "Aqaba Jordan FSRU (LNG import terminal), Al Aqabah (oil port) and Elat (oil port) within 25 km. In the news: US military completes latest strikes against Iran.",
-     "url": "https://www.merimbulanewsweekly.com.au/story/9341967/us-military-completes-latest-strikes-against-iran/",
+     "label": "Drone strikes near Nizhnekamsk",
+     "why": "Taneco Nizhnekamsk Refinery, TAIF Nizhnekamsk Refinery, Shegurchinskoye Oil Field (Russia) (oil/gas field) and 6 more within 70 km. In the news: Ukrainian drones kill in Russia as Moscow hits main Port hub in Black sea.",
+     "url": "https://www.winnipegfreepress.com/world/2026/09/13/ukrainian-drones-kill-2-in-russia-as-moscow-hits-main-port-hub-in-black-sea",
      "shocks": [
       [
        "zone",
        [
-        35.01,
-        29.53,
-        25
+        51.82,
+        55.64,
+        70
+       ],
+       0.6
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         51.82,
+         55.64,
+         15
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         51.82,
+         55.64,
+         70
+        ],
+        0.6
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         51.82,
+         55.64,
+         130
+        ],
+        0.85
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Nizhnekamsk 1 power station, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 9 sites within 70 km, 60% damage.",
+      "esc": "Spreads to 130 km, 85% damage, reaching 2 more sites (Novo-Yelkhovskoye Oil Field (Republic of Tatarstan, Russia) +1, Romashkinskoye Oil Field (Republic of Tatarstan, Russia))."
+     },
+     "trend": "easing",
+     "likely": "de",
+     "at": [
+      51.82,
+      55.64
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Nizhnekamsk, Tatarstan, Russia",
+     "t": "2026-09-12T00:00:00Z",
+     "z": 432.9,
+     "matched": [
+      "Taneco Nizhnekamsk Refinery",
+      "TAIF Nizhnekamsk Refinery",
+      "Shegurchinskoye Oil Field (Russia)",
+      "Nizhnekamsk 1 power station",
+      "Nizhnekamsk 2 power station",
+      "Nizhnekamsk Petrochemical power station",
+      "Nizhnekamsk hydroelectric power station",
+      "Zainsk GRES power station"
+     ]
+    },
+    {
+     "label": "Attacks near Riyadh",
+     "why": "Saudi Aramco Riyadh Refinery, Riyadh 5 power plant (0.6 GW, oil), Riyadh 7 power plant (1.3 GW, gas) and 6 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
+     "url": "https://www.dunfermlinepress.com/news/national/26625812.12-killed-attack-riyadh-airport---saudi-authorities/",
+     "shocks": [
+      [
+       "zone",
+       [
+        46.77,
+        24.64,
+        65
+       ],
+       0.65
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         46.77,
+         24.64,
+         15
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         46.77,
+         24.64,
+         65
+        ],
+        0.65
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         46.77,
+         24.64,
+         120
+        ],
+        0.9
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Riyadh, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 9 sites within 65 km, 65% damage.",
+      "esc": "Spreads to 120 km, 90% damage, reaching 3 more sites (Jafurah Cogeneration power plant, Riyadh City-13 power station …)."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      46.77,
+      24.64
+     ],
+     "months": [
+      "2026-03",
+      "2026-05",
+      "2026-07",
+      "2026-09",
+      "2026-10"
+     ],
+     "place": "Riyadh, Ar Riya?, Saudi Arabia",
+     "t": "2026-10-09T00:00:00Z",
+     "z": 1011.4,
+     "matched": [
+      "Saudi Aramco Riyadh Refinery",
+      "Riyadh 5 power plant",
+      "Riyadh 7 power plant",
+      "Riyadh PP11 power station",
+      "Riyadh 8 power plant",
+      "Riyadh 10 power plant",
+      "Riyadh 9 power plant",
+      "Riyadh City-14 power station"
+     ]
+    },
+    {
+     "label": "Attacks near Seoul",
+     "why": "SK Incheon Oil Refinery, SK Incheon Condensate Splitter (refinery), Incheon LNG Terminal and 36 more within 75 km. In the news: UAE says Iran has resumed attacks as the us moves to reopen the strait of.",
+     "url": "https://www.yakimaherald.com/news/nation_and_world/world/uae-says-iran-has-resumed-attacks-as-the-us-moves-to-reopen-the-strait-of/article_94f83b7a-3bb5-5e9f-b7dd-cc95663be2a6.html",
+     "shocks": [
+      [
+       "zone",
+       [
+        127.0,
+        37.57,
+        75
+       ],
+       0.65
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         127.0,
+         37.57,
+         10
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         127.0,
+         37.57,
+         75
+        ],
+        0.65
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         127.0,
+         37.57,
+         135
+        ],
+        0.9
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Seoul, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 39 sites within 75 km, 65% damage.",
+      "esc": "Spreads to 135 km, 90% damage, reaching 11 more sites (Hyundai Oilbank Daesan Refinery, Hyundai Lotte Daesan Condensate Splitter …)."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      127.0,
+      37.57
+     ],
+     "months": [
+      "2026-01",
+      "2026-05"
+     ],
+     "place": "Seoul, Soul-t'ukpyolsi, South Korea",
+     "t": "2026-05-04T00:00:00Z",
+     "z": 121.9,
+     "matched": [
+      "SK Incheon Oil Refinery",
+      "SK Incheon Condensate Splitter",
+      "Inchon",
+      "Incheon LNG Terminal",
+      "Pyeongtaek LNG Terminal",
+      "Pyeongtaek Hang",
+      "Seoul power station",
+      "Wirye CHP power station"
+     ]
+    },
+    {
+     "label": "Air strikes near Islamabad",
+     "why": "Attock Refinery, Adhi Oil and Gas Field (Pakistan) (oil/gas field), Tarbela (3.5 GW, hydro) and 1 more within 65 km. In the news: At least Three killed in Pakistani airstrikes on Afghanistan officials say.",
+     "url": "https://www.straitstimes.com/asia/at-least-three-killed-in-pakistani-airstrikes-on-afghanistan-officials-say",
+     "shocks": [
+      [
+       "zone",
+       [
+        73.17,
+        33.7,
+        65
+       ],
+       0.6
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         73.17,
+         33.7,
+         25
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         73.17,
+         33.7,
+         65
+        ],
+        0.6
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         73.17,
+         33.7,
+         120
+        ],
+        0.85
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Rawalpindi, is hit, 25% damage within 25 km.",
+      "cur": "As reported: 4 sites within 65 km, 60% damage.",
+      "esc": "Spreads to 120 km, 85% damage, reaching 3 more sites (Mangla, Ghazi Barotha …)."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      73.17,
+      33.7
+     ],
+     "months": [
+      "2025-10",
+      "2026-02",
+      "2026-09"
+     ],
+     "place": "Islamabad, Islamabad, Pakistan",
+     "t": "2026-09-21T00:00:00Z",
+     "z": 204.2,
+     "matched": [
+      "Attock Refinery",
+      "Adhi Oil and Gas Field (Pakistan)",
+      "Tarbela",
+      "Rawalpindi"
+     ]
+    },
+    {
+     "label": "Strikes near Novorossiysk",
+     "why": "Slavyansk Refinery, KNGK Group Ilsky Refinery, Novorossiysk (oil port) and 1 more within 70 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "url": "https://www.romfordrecorder.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-24-attack-kyiv-saw-coming/",
+     "shocks": [
+      [
+       "zone",
+       [
+        37.77,
+        44.72,
+        70
        ],
        0.7
       ]
@@ -2436,8 +2531,8 @@
        [
         "zone",
         [
-         35.01,
-         29.53,
+         37.77,
+         44.72,
          10
         ],
         0.3
@@ -2447,9 +2542,9 @@
        [
         "zone",
         [
-         35.01,
-         29.53,
-         25
+         37.77,
+         44.72,
+         70
         ],
         0.7
        ]
@@ -2458,39 +2553,109 @@
        [
         "zone",
         [
-         35.01,
-         29.53,
-         45
+         37.77,
+         44.72,
+         130
         ],
         0.95
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Al Aqabah, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 70% damage.",
-      "esc": "Spreads to 45 km, 95% damage."
+      "de": "Calms down: only the nearest site, Novorossiysk, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 4 sites within 70 km, 70% damage.",
+      "esc": "Spreads to 130 km, 95% damage, reaching 5 more sites (SAFMAR Afipsky Refinery, Russneft Krasnodar Refinery …)."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      37.77,
+      44.72
+     ],
+     "months": [
+      "2025-11",
+      "2026-08",
+      "2026-10"
+     ],
+     "place": "Novorossiysk, Krasnodarskiy Kray, Russia",
+     "t": "2026-10-06T00:00:00Z",
+     "z": 220.1,
+     "matched": [
+      "Novorossiysk",
+      "Slavyansk Refinery",
+      "KNGK Group Ilsky Refinery",
+      "Udarnaya power station"
+     ]
+    },
+    {
+     "label": "Attacks near Bamako",
+     "why": "Bamako (≈1.5 M people) within 25 km. In the news: Islamic militants and separatists claim sweeping attacks across Mali.",
+     "url": "https://www.wdrb.com/news/national/islamic-militants-and-separatists-claim-sweeping-attacks-across-mali/article_172d9b59-f42e-5efd-afde-72c3b775efd0.html",
+     "shocks": [
+      [
+       "zone",
+       [
+        -8.0,
+        12.65,
+        25
+       ],
+       0.65
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         -8.0,
+         12.65,
+         10
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         -8.0,
+         12.65,
+         25
+        ],
+        0.65
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         -8.0,
+         12.65,
+         45
+        ],
+        0.9
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Bamako, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 1 site within 25 km, 65% damage.",
+      "esc": "Spreads to 45 km, 90% damage."
      },
      "trend": "easing",
      "likely": "de",
      "at": [
-      35.01,
-      29.53
+      -8.0,
+      12.65
      ],
      "months": [
-      "2026-07",
-      "2026-09"
+      "2026-04"
      ],
-     "place": "Aqaba, Al Aqabah, Jordan",
-     "t": "2026-09-01T00:00:00Z",
-     "z": 310.8,
+     "place": "Bamako, Bamako, Mali",
+     "t": "2026-04-25T00:00:00Z",
+     "z": 705.6,
      "matched": [
-      "Al Aqabah",
-      "Elat",
-      "Aqaba Jordan FSRU",
-      "Aqaba, Jordan",
-      "Taba, Egypt",
-      "Haql, Saudi Arabia"
+      "Bamako"
      ]
     }
    ]

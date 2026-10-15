@@ -11,14 +11,18 @@ Run weekly by .github/workflows/scenarios-weekly.yml after the story feed; devs 
 Reads site/data/live/story.json and keeps the surges that look like strikes or fighting
 (headline keywords, or CAMEO 19/20-heavy when there is no headline) and sit near something
 the Scenarios panel can break: refineries, oil ports, LNG terminals and field clusters from
-energy_graph.json, power plants of 1 GW or more, cable landings, and the eight sea
-chokepoints. Each one becomes a zone shock sized to cover what it matched, plus cable and
-chokepoint shocks, at three levels read off the news (see levels()):
+energy_graph.json, power plants of 300 MW or more, cities of a million or more (their power,
+roads and rail), cable landings, and the eight sea chokepoints. Each one becomes a zone
+shock sized to cover what it matched, plus cable and chokepoint shocks, at three levels read
+off the news (see levels()):
 
     de   de-escalation: only the nearest site is hit, lightly
     cur  as reported: the zone covers everything matched, damage from the report mix
     esc  escalation: the zone grows to take in the next ring of sites, damage rises, and a
          nearby strait closes fully if the story is about shipping
+
+Each window is filled round-robin across world regions (region()), strongest surge first in
+each, so one busy region can't take every slot.
 
 Windows: week = the story week window plus month-window surges that ended in the last
 --days; month = both windows; year = this run's month items merged with last run's year
@@ -48,8 +52,9 @@ from datetime import datetime, timedelta, timezone
 ROOT = os.environ.get("ATLAS_ROOT", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 DATA = os.path.join(ROOT, "site", "data")
 MAX_ITEMS = 12
-ENERGY_KM, POWER_KM, CABLE_KM, CHOKE_KM = 75, 75, 50, 150
-POWER_MIN_MW = 1000
+ENERGY_KM, POWER_KM, CABLE_KM, CHOKE_KM, CITY_KM = 75, 75, 50, 150, 30
+POWER_MIN_MW = 300
+CITY_MIN_POP = 1_000_000  # a big city alone qualifies: the zone still cuts its power, roads and rail
 MERGE_KM = 60  # surges closer than this to a stronger one are the same story
 
 CHOKES = {"malacca": ("Strait of Malacca", 101.0, 2.6), "hormuz": ("Strait of Hormuz", 56.4, 26.5),
@@ -68,7 +73,9 @@ STRIKE = [(r"\bdrones?\b|\buavs?\b", "Drone strikes"), (r"\bmissiles?\b|\bprojec
           (r"\battacks?\b|\battacked\b|\braids?\b|\bambush\b", "Attacks"),
           (r"\binvasion\b|\bmilitants?\b|\binsurgents?\b", "Fighting")]  # not "war": too many retrospectives
 # headlines about crime, courts or politics; dropped unless they also match STRIKE
-NOISE = r"\bschool\b|\bshooting\b|\bshooter\b|\bgunman\b|\bexecution\b|\btrial\b|\bcourt\b|\blawsuit\b|\bcharges?\b|\barrest(ed|s)?\b|\bprotests?\b|\bmurder\b|\bhostage\b|\bjournalist\b|\belection\b|\bsettlers?\b|\bfarmers?\b"
+NOISE = r"\bschool\b|\bshooting\b|\bshooter\b|\bgunman\b|\bexecution\b|\btrial\b|\bcourt\b|\blawsuit\b|\bcharges?\b|\barrest(ed|s)?\b|\bprotests?\b|\bmurder\b|\bhostage\b|\bjournalist\b|\belection\b|\bsettlers?\b|\bfarmers?\b|\bsynagogue\b|\bchurch\b|\bmosque\b|\btemple\b"
+# weapons news that isn't a strike on anything: tests, launches into the sea, drills, interceptions
+NOT_STRIKE = r"\btests?\b|\btested\b|\btest-fires?\b|\bfires? (a )?\w* ?(missile|projectile|rocket)s? (toward|into)\b|\bdrills?\b|\bshoots? down\b|\bdowns?\b|\bintercept(s|ed|ion)?\b|\bairspace\b"
 SEA = r"\bships?\b|\btankers?\b|\bvessels?\b|\bstrait\b|\bmaritime\b|\bhouthis?\b|\bnavy\b|\bnaval\b|\bshipping\b|\bport\b"
 
 
@@ -129,8 +136,10 @@ def facilities():
         if p.get("id") and f["geometry"]:
             lon, lat = f["geometry"]["coordinates"][:2]
             cables.append((lon, lat, {"k": "cable", "n": p["n"], "id": p["id"]}))
-    log(f"{len(energy)} energy sites, {len(power)} power plants ≥{POWER_MIN_MW} MW, {len(cables)} cable landings")
-    return Grid(energy), Grid(power), Grid(cables)
+    cities = [(c["x"], c["y"], {"k": "city", "n": c["n"], "pop": c["pop"]}) for c in load("labels.json")
+              if c.get("t") == "p" and (c.get("pop") or 0) >= CITY_MIN_POP]
+    log(f"{len(energy)} energy sites, {len(power)} power plants ≥{POWER_MIN_MW} MW, {len(cables)} cable landings, {len(cities)} cities ≥{CITY_MIN_POP:,}")
+    return Grid(energy), Grid(power), Grid(cables), Grid(cities)
 
 
 def classify(item):
@@ -143,6 +152,8 @@ def classify(item):
     verb = next((v for pat, v in STRIKE if re.search(pat, title)), None)
     if not verb:
         return None
+    if re.search(NOT_STRIKE, title):
+        return None  # "North Korea fires projectile toward Eastern sea", "NATO jets down drone"
     if re.search(NOISE, title) and verb in ("Attacks", "Fighting"):
         return None  # "shooting at school", "arrested amid protests over October attacks"
     return verb, bool(re.search(SEA, title))
@@ -156,12 +167,14 @@ def describe(sites):
     """'Kremenchuk refinery, Kremenchuk TPP and 2 more' from matched sites, most important first."""
     def rank(s):
         d, p = s
-        return (KIND_ORDER.index(p["k"]) if p["k"] in KIND_ORDER else 5 if p["k"] == "power" else 6, d)
+        return (KIND_ORDER.index(p["k"]) if p["k"] in KIND_ORDER else {"power": 5, "city": 6}.get(p["k"], 7), d)
     seen, parts = set(), []
     for d, p in sorted(sites, key=rank):
         nm = p["n"]
         if p["k"] == "power":
             nm = f"{nm} ({p['mw'] / 1000:.1f} GW{', ' + p['f'] if p.get('f') else ''})"
+        elif p["k"] == "city":
+            nm = f"{nm} (≈{p['pop'] / 1e6:.1f} M people)"
         elif p["k"] in KIND and KIND[p["k"]].split()[0].lower() not in nm.lower():
             nm = f"{nm} ({KIND[p['k']]})"
         if nm not in seen:
@@ -194,7 +207,7 @@ def round5(v):
 
 def levels(lon, lat, m, sites, km, sea, lands, chokes, grids):
     """Shocks and one-line descriptions for de-escalation, as reported and escalation."""
-    energy, power, _ = grids
+    energy, power = grids[0], grids[1]
     lv, txt = {}, {}
     zone = lambda r, mm: ["zone", [round(lon, 2), round(lat, 2), r], mm]
     pct = lambda v: f"{round(v * 100)}%"
@@ -237,8 +250,40 @@ def levels(lon, lat, m, sites, km, sea, lands, chokes, grids):
     return lv, txt
 
 
+REGIONS = ["Middle East", "Europe", "Russia & Central Asia", "Africa", "South Asia", "East Asia & Pacific", "Americas"]
+
+
+def region(lon, lat):
+    """A coarse world region, only for spreading the news lists."""
+    if lon < -30:
+        return "Americas"
+    if 34 <= lon < 63 and 12 <= lat < 42:
+        return "Middle East"
+    if lat >= 35 and lon < 45:
+        return "Europe"
+    if lat >= 35 and lon < 90:
+        return "Russia & Central Asia"
+    if lon < 52 and lat < 35:
+        return "Africa"
+    if 60 <= lon < 92 and lat < 37:
+        return "South Asia"
+    return "East Asia & Pacific" if lon >= 92 or lat < 0 else "Russia & Central Asia"
+
+
+def spread(items, n):
+    """Up to n items, taking each region's next-best in turn (items arrive best first)."""
+    by = {}
+    for x in items:
+        by.setdefault(region(*x["at"]), []).append(x)
+    out, k = [], 0
+    while len(out) < n and any(len(v) > k for v in by.values()):
+        out += [v[k] for v in sorted(by.values(), key=lambda v: items.index(v[0])) if len(v) > k][: n - len(out)]
+        k += 1
+    return out
+
+
 def build(cand, grids, now):
-    energy, power, cables = grids
+    energy, power, cables, cities = grids
     cand = sorted(cand, key=lambda it: -(it.get("z") or 0))
     out, kept = [], []
     for it in cand:
@@ -251,7 +296,7 @@ def build(cand, grids, now):
         if not c:
             continue
         verb, sea = c
-        sites = energy.within(lon, lat, ENERGY_KM) + power.within(lon, lat, POWER_KM)
+        sites = energy.within(lon, lat, ENERGY_KM) + power.within(lon, lat, POWER_KM) + cities.within(lon, lat, CITY_KM)
         lands = cables.within(lon, lat, CABLE_KM)
         chokes = [(haversine_km(lat, lon, y, x), s) for s, (_, x, y) in CHOKES.items()]
         chokes = [s for d, s in sorted(chokes) if d <= CHOKE_KM]
@@ -312,7 +357,7 @@ def windows(story, days, grids, prev):
         else:
             year.append(dict(x, months=list(x.get("months") or [])))
     year.sort(key=lambda x: (-len(x["months"]), -(x.get("z") or 0)))
-    return {"week": week[:MAX_ITEMS], "month": month[:MAX_ITEMS], "year": year[:MAX_ITEMS]}
+    return {"week": spread(week, MAX_ITEMS), "month": spread(month, MAX_ITEMS), "year": spread(year, MAX_ITEMS)}
 
 
 SIM_KINDS = {"refinery", "field", "port", "lng", "pipeline", "choke", "zone", "power", "mine", "cable", "water"}
@@ -405,7 +450,7 @@ def backfill_year(grids, until):
                 return None
             i = (d - b0).days // 3
             return i if 0 <= i < 10 else None
-        win = fl.story_window(rows, bk, tri_of, 30)
+        win = fl.story_window(rows, bk, tri_of, 60)  # more surges than the live month window, for a wider spread
         got_items = build(win["items"], grids, e)
         log(f"backfill {days[0]}–{days[-1]}: {len(rows)} events, {len(win['items'])} surges, {len(got_items)} scenario(s)")
         items += got_items
