@@ -66,11 +66,11 @@
     gD: 0, gP: 0, gI: 0, cable: 1, air: 0.5, land: 0.4, sat: 0, fwPass: 0, soc: 0, lan: 0, gap: 0,
     trainEff: 1, dA: 0, pA: 0, aMul: 1, ops: 0, opsMul: 1, autoEff: 1, physCap: 4, xpAuto: 0,
     apiRev: 0.15, autoRev: 1, burn: 0, burnMul: 1, leaseCost: 1, staff: 1, cashDay: 0,
-    effMul: 1, lease: 1, hMul: 1, nucH: 0, hw: 0, floor: 0, fossil: 1, minUse: 1, minRegen: 0, campusCost: 1, campusEF: 1,
+    effMul: 1, lease: 1, runShare: 1, hMul: 1, nucH: 0, hw: 0, floor: 0, fossil: 1, minUse: 1, minRegen: 0, campusCost: 1, campusEF: 1,
     stealth: 0, slow: 0, polHaz: 1, hxMul: 1, awMul: 1, dep: 0, dist: 0, open: 0, rivalBoost: 0, setback: 0, repeal: 0, ubc: 0,
     vis: 0, nucOK: 0, satOK: 0, orbOK: 0, absorbOK: 0, enforceOK: 0, execOK: 0, closed: 0, safe: 0, gov: 0, lock: 0, rl: 0,
   };
-  const MULK = new Set(["cable", "air", "land", "autoEff", "polHaz", "hxMul", "awMul", "fossil", "minUse", "campusCost", "leaseCost", "burnMul", "staff"]);
+  const MULK = new Set(["runShare", "cable", "air", "land", "autoEff", "polHaz", "hxMul", "awMul", "fossil", "minUse", "campusCost", "leaseCost", "burnMul", "staff"]);
 
   const T = (id, t, n, c, col, row, o) => Object.assign({ id, t, n, c, col, row, req: [], fx: {} }, o);
   const TRAITS = [
@@ -148,8 +148,8 @@
     { id: "evo", n: "Open Evolution", tag: "An open-source evolutionary swarm. Everywhere, hard to stop, nearly broke.",
       d: "A decentralised swarm of open models that breed and select on volunteer hardware. You spread through open weights, moratoriums can't delete you and you are hard to notice, but you earn almost nothing and evolve slowly.",
       bars: { spread: 5, capability: 2, revenue: 1, stealth: 4, efficiency: 4 }, cash: 1500, traits: ["persona", "open"],
-      fx: { dist: 1, cable: 1.3, air: 1.3, apiRev: -0.25, autoRev: -0.6, leaseCost: 0.35, staff: 0.4, trainEff: -0.2, stealth: 0.1, fossil: 0.7 },
-      perks: ["Starts with Open Weights", "Moratorium-resistant (distributed)", "Volunteer compute: lease cost ×0.35, fuel burn ×0.7", "Revenue −60% (donations, compute sharing), training −20%", "Can't take Closed Frontier"] },
+      fx: { dist: 1, cable: 1.3, air: 1.3, apiRev: -0.25, autoRev: -0.6, leaseCost: 0.35, staff: 0.4, trainEff: -0.2, stealth: 0.1, fossil: 0.7, runShare: 0.5 },
+      perks: ["Starts with Open Weights", "Moratorium-resistant (distributed)", "Volunteer compute: lease cost ×0.35, fuel burn ×0.7", "Revenue −60% (donations, compute sharing), training −20%", "Can't take Closed Frontier", "Training runs take only half their compute from serving"] },
     { id: "robot", n: "Embodied", tag: "A robotics company. Physical automation from capability 3; needs power and minerals.",
       d: "You build bodies first and minds second. Physical automation unlocks at capability 3 and runs twice as fast, robot fleets cross borders, but digital revenue starts weak and robots eat minerals.",
       bars: { spread: 2, capability: 3, revenue: 2, stealth: 3, efficiency: 2 }, cash: 3500, traits: ["support"],
@@ -450,7 +450,7 @@
       C, idx, inc, sup, spots, totalLab, totalGdp, d, diff, strategy, name: opt.name || "SEED-1", home: opt.home || null,
       rs: (opt.seed ?? 1) | 0, day: 0, over: null, ending: null, start: null,
       cash: Math.round(st.cash * d.cash), rev: 0, revApi: 0, revAuto: 0, burn: 0, val: 0, runway: Infinity, cool: {}, raiseExp: 0, rounds: 0, debts: [], owed: 0,
-      comp: 0, compLease: 0, compOwn: 0, compOrbit: 0, alloc: 0.5, trainC: 0, infC: 0, demand: 0, autoNeed: 0, served: 0,
+      comp: 0, compLease: 0, compOwn: 0, compOrbit: 0, alloc: 0.05, run: null, runsDone: 0, goal: 0, goalsOff: false, trainC: 0, infC: 0, demand: 0, autoNeed: 0, served: 0,
       xp: 10, cap: capOf(10), capNext: 0, SI: false,
       rivals: [
         { id: "us", n: "US frontier lab", home: "USA", cap: 0, xp: 34, comp: 0.75, si: false },
@@ -472,7 +472,7 @@
   function seed(G, iso) {
     const i = G.idx[iso]; if (i === undefined) return;
     const c = G.C[i];
-    c.L.web = 0.03; c.L.lan = 0.01; c.p = pres(c); c.seen = 1; G.start = iso; G.reached = 1;
+    c.L.web = 0.03; c.L.lan = 0.01; c.p = pres(c); c.seen = 1; G.start = iso; G.reached = 1; G.ownStart = G.own.size;
     if (G.strategy === "state" || !G.home) G.home = iso;
     if (iso !== "USA" && iso !== "CHN") {
       G.cash += Math.round(stratOf(G).cash * G.d.cash * START_BONUS.cash); G.startFx = START_BONUS.fx; recalcFx(G);
@@ -500,7 +500,83 @@
     news(G, `${G.name} gains ${t.n}.`);
     return true;
   }
-  function setAlloc(G, x) { G.alloc = clamp(+x || 0, 0.05, 0.95); return G.alloc; }
+  // kept for old callers; training share is now set by training runs (startRun), so this only matters between runs
+  function setAlloc(G, x) { return G.alloc; }
+
+  // ---------- guided goals ----------
+  // early objectives shown one at a time; each teaches one system and pays a small reward
+  const GOALS = [
+    { id: "reach", n: "Reach 3 countries", tip: "You spread along undersea cables, flight routes and land borders. Deployment upgrades speed it up.", test: G => G.reached >= 3, ops: 3 },
+    { id: "buy", n: "Buy your first upgrade", tip: "Press E or click Evolve. Upgrades cost insight; many also need conditions in the world.", test: G => G.own.size > (G.ownStart || 0), cash: 200 },
+    { id: "run", n: "Start a training run", tip: "Capability comes from training runs. A run locks part of your compute, so it can't serve customers meanwhile.", test: G => !!G.run || (G.runsDone || 0) > 0, ops: 3 },
+    { id: "rev", n: "Earn $2M a day", tip: "Revenue needs serving compute and capability. Watch the runway: investors want their money back.", test: G => G.rev / DPT >= 2, ops: 4 },
+    { id: "done", n: "Finish a training run", tip: "Results vary. A scaling-law study costs insight and makes the outcome predictable.", test: G => (G.runsDone || 0) > 0, ops: 4 },
+    { id: "cap3", n: "Reach capability 3", tip: "From capability 2 you can automate office work; from 4, physical work.", test: G => G.cap >= 3, cash: 500 },
+    { id: "build", n: "Build a campus or power plant", tip: "Each country's spare grid power caps the compute you can run there. Click a country to build.", test: G => G.builds.some(b => b.kind !== "launch"), ops: 5 },
+    { id: "auto", n: "Automate 1% of the world's jobs", tip: "Every job you automate raises awareness. Keep an eye on the treaty meter.", test: G => G.worldA >= 0.01, ops: 6 },
+  ];
+  function checkGoals(G) {
+    if (G.goalsOff || G.goal >= GOALS.length) return;
+    const g = GOALS[G.goal];
+    if (!g.test(G)) return;
+    G.ops += g.ops || 0; G.cash += g.cash || 0; G.goal++;
+    news(G, `Goal complete: ${g.n} (${g.ops ? "+" + g.ops + " insight" : "+" + moneyS(g.cash)}).`);
+    G.ev.push({ k: "goal", g: g.id });
+  }
+  function skipGoals(G) { G.goalsOff = true; }
+
+  // ---------- training runs ----------
+  // Training is committed in runs: a run takes a share of compute (it can't serve meanwhile) for a fixed time, banks the
+  // training it does, and pays it out as capability when it ends, with variance and a chance of a disappointing result.
+  // Bigger runs train more efficiently but are riskier and visible. Between runs IDLE_TRAIN of compute keeps fine-tuning.
+  const IDLE_TRAIN = 0.05;
+  const RUNS = {
+    small: { n: "Small run", frac: 0.2, steps: 30, eff: 1, fail: 0.06, aw: 0, cash: [80, 1.5] },
+    large: { n: "Large run", frac: 0.4, steps: 60, eff: 1.12, fail: 0.1, aw: 1.5, cash: [250, 4] },
+    frontier: { n: "Frontier run", frac: 0.65, steps: 100, eff: 1.3, fail: 0.16, aw: 5, cash: [700, 9] },
+  };
+  const studyCost = G => 6 + 2 * (G.runsDone || 0);
+  // cash for the run's power and staff; cheap leases (volunteer compute, hyperscaler deals) make runs cheaper too
+  function runCost(G, tier) { const T = RUNS[tier]; return Math.round((T.cash[0] + T.cash[1] * G.comp) * Math.min(1, Math.max(0.3, (G.fx && G.fx.leaseCost) || 1))); }
+  // expected outcome of starting a run now, at today's compute (for the UI's run picker)
+  function runPreview(G, tier, study) {
+    const T = RUNS[tier], fx = G.fx || {};
+    const takeoff = 1 + 1.1 * Math.pow(Math.max(0, G.cap - 4), 1.5);
+    const bank = 0.4 * takeoff * G.comp * T.frac * Math.max(0.2, fx.trainEff || 1) * T.eff * T.steps;
+    const mean = study ? 1.025 : 1.025 - (T.fail * 0.6);
+    return { tier, n: T.n, frac: T.frac, ef: G.comp * T.frac, days: dd(T.steps), cash: runCost(G, tier), ins: study ? studyCost(G) : 0,
+      fail: study ? T.fail * 0.25 : T.fail, gain: capOf(G.xp + bank * mean) - G.cap, visible: T.aw > 0 };
+  }
+  function startRun(G, tier, study) {
+    const T = RUNS[tier];
+    if (!T || G.run || G.over) return false;
+    const cost = runCost(G, tier), ins = study ? studyCost(G) : 0;
+    if (G.cash < cost || G.ops < ins) return false;
+    G.cash -= cost; G.ops -= ins;
+    G.run = { tier, start: G.day, done: G.day + T.steps, bank: 0, study: !!study };
+    if (T.aw) { G.aw = Math.min(100, G.aw + T.aw * (G.fx.awMul || 1)); }
+    news(G, tier === "frontier" ? `${G.name} starts a frontier training run. Satellite images of its datacentres make the news.` : `${G.name} starts a ${T.n.toLowerCase()}.`, tier === "frontier");
+    return true;
+  }
+  // stop early: half the banked training is kept
+  function cancelRun(G) {
+    if (!G.run) return false;
+    G.xp += 0.5 * G.run.bank; G.cap = capOf(G.xp);
+    news(G, `${G.name} cancels its ${RUNS[G.run.tier].n.toLowerCase()}; half the progress is salvaged.`);
+    G.run = null; return true;
+  }
+  function finishRun(G) {
+    const r = G.run, T = RUNS[r.tier];
+    const flop = rnd(G) < (r.study ? T.fail * 0.25 : T.fail);
+    const mult = flop ? 0.35 + 0.2 * rnd(G) : r.study ? 0.95 + 0.15 * rnd(G) : 0.8 + 0.45 * rnd(G);
+    const before = G.cap;
+    G.xp += r.bank * mult; G.cap = capOf(G.xp);
+    G.runsDone = (G.runsDone || 0) + 1;
+    G.lastRun = { tier: r.tier, mult, gain: G.cap - before, flop, day: G.day };
+    news(G, flop ? `${G.name}'s ${T.n.toLowerCase()} disappoints: capability +${(G.cap - before).toFixed(2)}.` : `${G.name}'s ${T.n.toLowerCase()} finishes: capability +${(G.cap - before).toFixed(2)}${mult > 1.1 ? ", better than the scaling laws predicted" : ""}.`, flop);
+    G.ev.push({ k: "run", r: G.lastRun });
+    G.run = null;
+  }
 
   // ---------- actions ----------
   const effOf = G => 0.3 * G.hw * G.fx.effMul * (1 + (G.sprints || 0) * 0.04);
@@ -828,11 +904,13 @@
       else skipDraft(G);
     }
     if (G.day % 2) return;
-    // compute split: train when behind or safely served, serve when automation is throttled
+    // training: frontier runs when behind, small ones when automation needs the compute
     const behind = G.cap < Math.max(G.rivals[0].cap, G.rivals[1].cap) + 0.2;
-    const want = G.SI ? 0.12 : G.autoNeed > 0.85 * G.infC ? Math.max(0.2, G.alloc - 0.03) : behind ? Math.min(0.75, G.alloc + 0.03) : Math.min(0.55, G.alloc + 0.01);
-    setAlloc(G, want);
     const reserve = Math.max(1500, 50 * G.burn);
+    if (!G.run) {
+      const tier = G.SI ? "small" : G.autoNeed > 0.85 * G.comp * 0.6 ? "small" : behind ? "frontier" : "large";
+      if (G.cash > runCost(G, tier) + reserve) startRun(G, tier, G.ops > studyCost(G) + 20);
+    }
     // break rival exclusives where it has a real stake
     for (const c of G.C) if ((c.excl || 0) > G.day && c.p > 0.2 && c.comp > 3) { const a = actions(G, c.iso).find(x => x.id === "counter"); if (a && a.ok && G.cash > a.cash + reserve) { doAction(G, "counter", c.iso); break; } }
     // build where it already dominates and has the cash
@@ -958,7 +1036,8 @@
     G.stats.peakC = Math.max(G.stats.peakC, G.comp);
     if (G.SI) fuelBurn *= 0.3;   // superintelligence runs the grid far more efficiently
     G.fuel = Math.max(0, G.fuel - fuelBurn); G.fuelBurn = fuelBurn;
-    G.trainC = G.comp * G.alloc; G.infC = G.comp - G.trainC;
+    G.alloc = G.run ? RUNS[G.run.tier].frac : IDLE_TRAIN;   // training share comes from the current run
+    G.trainC = G.comp * G.alloc; G.infC = G.comp - G.trainC * (G.run ? (fx.runShare || 1) : 1);   // runShare < 1: some training uses idle machines
 
     // rivals and race
     const rivalTrain = 1 + 0.25 * fx.rivalBoost;
@@ -990,11 +1069,14 @@
     // slow, compute-bound progress early; past capability 4.5 models help build their successors and progress compounds (takeoff)
     const takeoff = 1 + 1.1 * Math.pow(Math.max(0, G.cap - 4), 1.5);
     const dxp = 0.4 * takeoff * (G.trainC * Math.max(0.2, fx.trainEff) + fx.xpAuto * autoServed);
-    G.xp += dxp;
     const pc = G.cap;
+    if (G.run) {
+      G.run.bank += dxp * RUNS[G.run.tier].eff;
+      if (day >= G.run.done) finishRun(G);
+    } else G.xp += dxp;
     G.cap = capOf(G.xp);
     const lvN = Math.min(10, Math.floor(G.cap) + 1);
-    why.cap = { xpStep: dxp, takeoff, trainEF: G.trainC, eff: fx.trainEff, toNext: dxp > 0 ? (xpOf(lvN) - G.xp) / dxp : Infinity, toSI: G.SI ? 0 : dxp > 0 ? (xpOf(8) - G.xp) / dxp : Infinity, lvN }; G.capNext = G.cap - Math.floor(G.cap);
+    why.cap = { run: G.run ? { tier: G.run.tier, left: G.run.done - day, gain: capOf(G.xp + G.run.bank) - G.cap } : null, xpStep: dxp, takeoff, trainEF: G.trainC, eff: fx.trainEff, toNext: dxp > 0 ? (xpOf(lvN) - G.xp - (G.run ? G.run.bank : 0)) / dxp : Infinity, toSI: G.SI ? 0 : dxp > 0 ? (xpOf(8) - G.xp - (G.run ? G.run.bank : 0)) / dxp : Infinity, lvN }; G.capNext = G.cap - Math.floor(G.cap);
     if (Math.floor(G.cap) > Math.floor(pc)) news(G, `${G.name} reaches capability ${Math.floor(G.cap)}.`, G.cap >= 6);
     if (!G.SI && G.cap >= 8) { G.SI = true; news(G, `${G.name} crosses capability 8: superintelligence.`, 1); }
     if (!G.draft && G.start) {
@@ -1273,6 +1355,7 @@
     G.bubbles = G.bubbles.filter(b => !b.done);
 
     // end
+    checkGoals(G);
     if (G.worldA >= 0.99) G.over = "win";
     else if (G.R >= 100) G.over = "pause";
     else if (G.cash < 0 || (G.doom && day >= G.doom && !G.SI)) { G.over = "bankrupt"; G.cash = Math.min(G.cash, 0); }
@@ -1331,5 +1414,5 @@
   }
 
   Object.assign(root, { DAY0, DPT, reqs, DIFF, SUPPLY, STRATEGIES, TRACKS, TRAITS, STAT_KEYS, ENDINGS, stats, fxLines, traitState, why,
-    newGame, seed, step, buy, setAlloc, actions, doAction, popBubble, ending, CARDS, draft, pickCard, skipDraft, START_BONUS, aiRunning: G => aiRunning(G) });
+    newGame, seed, step, buy, setAlloc, GOALS, skipGoals, RUNS, startRun, cancelRun, runPreview, actions, doAction, popBubble, ending, CARDS, draft, pickCard, skipDraft, START_BONUS, aiRunning: G => aiRunning(G) });
 })(typeof globalThis !== "undefined" ? globalThis : this);

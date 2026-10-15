@@ -128,6 +128,28 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .split i { display: block; height: 100%; }
 .legend2 { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; color: var(--ink-3); }
 .legend2 i, .lg i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
+/* training runs */
+.run { margin: 6px 0 4px; display: grid; gap: 5px; }
+.run .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.run .tier { text-align: left; background: #12232d; border: 1px solid var(--panel-line); border-radius: 6px; padding: 5px 6px; font-size: 11px; display: grid; gap: 1px; }
+.run .tier:hover:not(:disabled) { border-color: var(--ai); }
+.run .tier:disabled { opacity: .5; cursor: default; }
+.run .tier b { font-size: 12px; }
+.run .tier .g { color: var(--ai); font-family: "IBM Plex Mono", monospace; }
+.run .tier .c { color: var(--warn); font-family: "IBM Plex Mono", monospace; }
+.run .tier .r { color: var(--ink-3); }
+.run label { font-size: 11.5px; color: var(--ink-2); display: flex; gap: 6px; align-items: center; }
+.run .cur { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; font-size: 12px; align-items: center; }
+.run .cur .prog { grid-column: 1 / -1; height: 6px; }
+.run .cur button { grid-row: 1 / 3; grid-column: 2; background: none; border: 1px solid var(--panel-line); border-radius: 5px; color: var(--ink-2); font-size: 11px; padding: 3px 7px; }
+.run .last { font-size: 11px; color: var(--ink-3); }
+/* guided goals */
+#goalBox { margin: 6px 0 2px; padding: 6px 8px; border: 1px dashed var(--ai-dim); border-radius: 6px; font-size: 12px; display: none; }
+#goalBox.on { display: block; }
+#goalBox b { color: var(--ai); }
+#goalBox .tip { color: var(--ink-2); font-size: 11.5px; margin-top: 2px; }
+#goalBox .rw { color: var(--warn); font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+#goalBox button { float: right; background: none; border: 0; color: var(--ink-3); font-size: 11px; padding: 0; }
 .slider { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; font-size: 11.5px; color: var(--ink-2); margin: 6px 0 2px; }
 .slider input { width: 100%; accent-color: var(--ai); }
 .race { display: grid; grid-template-columns: 70px 1fr 34px; gap: 6px; align-items: center; font-size: 12px; margin-top: 3px; }
@@ -360,6 +382,7 @@ input[type=text] { background: var(--track); border: 1px solid var(--panel-line)
 </div>
 
 <div id="side">
+  <div id="goalBox"></div>
   <details open id="secCo"><summary>Company <em id="coSum"></em></summary>
     <div class="kv"><span>Cash</span><b id="coCash"></b></div>
     <div class="kv"><span>Revenue / day</span><b id="coRev"></b></div>
@@ -374,7 +397,7 @@ input[type=text] { background: var(--track); border: 1px solid var(--panel-line)
     <div class="split" id="cpSplit"><i style="background:var(--dc)"></i><i style="background:var(--ai)"></i><i style="background:var(--via-sat)"></i></div>
     <div class="legend2"><span><i style="background:var(--dc)"></i>Leased <b class="mono" id="cpL"></b></span><span><i style="background:var(--ai)"></i>Owned <b class="mono" id="cpO"></b></span><span><i style="background:var(--via-sat)"></i>Orbital <b class="mono" id="cpS"></b></span></div>
     <div class="kv" style="margin-top:4px"><span>Power draw / headroom</span><b id="cpPow"></b></div>
-    <div class="slider"><span>Train</span><input type="range" id="alloc" min="5" max="95" step="1" value="50" aria-label="Training share of compute"><span>Serve</span></div>
+    <div class="run" id="cpRun"></div>
     <div class="kv"><span>Training</span><b id="cpTr"></b></div>
     <div class="kv"><span>Serving (demand)</span><b id="cpInf"></b></div>
     <div class="kv"><span>Automation needs</span><b id="cpAuto"></b></div>

@@ -61,6 +61,9 @@ const SKIP = ["shipfast", "cnjv", "defense", "open", "ubc", "dist", "safety", "a
 const GREEN = new Set(["eff", "clean", "neuro", "nuclear", "recycle", "utility"]);
 const isGreen = (B, id) => B.fossil && GREEN.has(id) && !(B.keep || []).includes(id);
 
+// investor repayments due in the next 150 steps
+const dueSoon = G => (G.debts || []).filter(b => b.due - G.day < 150).reduce((s, b) => s + b.amt, 0);
+
 function play(M, { strategy = "scale", diff = "normal", bot = "smart", seed = 1, start = "USA", days = 1300 } = {}) {
   const B = BOTS[bot];
   const G = M.newGame(world(), { strategy, diff, seed, home: start });
@@ -77,7 +80,7 @@ function play(M, { strategy = "scale", diff = "normal", bot = "smart", seed = 1,
       if (st === "lock" && (t.minCap || t.minC) && !(t.req || []).some(r => !G.own.has(r))) continue;
       break;
     }
-    if (B.smart && G.ops >= 30) for (const t of M.TRAITS) if (!skip.has(t.id) && !isGreen(B, t.id) && M.traitState(G, t) === "can" && G.ops - t.c >= 10) M.buy(G, t.id);
+    if (B.smart && G.ops >= 30) for (const t of M.TRAITS) if (!skip.has(t.id) && !isGreen(B, t.id) && M.traitState(G, t) === "can" && G.ops - t.c >= 10 && G.cash - (t.cash || 0) > (t.cash ? 1500 + dueSoon(G) : 0)) M.buy(G, t.id);
     for (const b of G.bubbles) if (b.id % 2 === 0) M.popBubble(G, b.id);
     // card draft: delay the treaty once it's a threat, else research, else augments; skip what it can't afford for long
     const dr = bot !== "idle" && M.draft(G);
@@ -93,8 +96,14 @@ function play(M, { strategy = "scale", diff = "normal", bot = "smart", seed = 1,
         else if (G.day - G.draft.day > 20) M.skipDraft(G);
       }
     }
-    if (B.alloc) M.setAlloc(G, B.alloc);
-    else if (B.smart) M.setAlloc(G, G.SI ? 0.08 : G.autoNeed > 0.8 * G.infC ? Math.max(0.2, G.alloc - 0.02) : Math.min(0.55, G.alloc + 0.01));
+    // training runs: B.alloc picks a fixed habit (0.85 frontier, 0.5 large, 0.2 small, ≤ 0.1 never); smart bots choose
+    if (!G.run && bot !== "idle") {
+      const behind = G.cap < Math.max(G.rivals[0].cap, G.rivals[1].cap) + 0.2;
+      const tier = B.alloc ? (B.alloc >= 0.7 ? "frontier" : B.alloc >= 0.4 ? "large" : B.alloc > 0.1 ? "small" : null)
+        : B.smart ? (G.SI ? "small" : G.autoNeed > 0.5 * G.comp ? "small" : behind ? "frontier" : "large") : null;
+      const pv = tier && M.runPreview(G, tier, false);
+      if (pv && G.cash > pv.cash + Math.max(800, 30 * G.burn) + dueSoon(G)) M.startRun(G, tier, B.smart && G.ops > pv.ins + 30 && M.runPreview(G, tier, true).ins <= G.ops - 20);
+    }
     if (bot !== "idle" && G.day % 5 === 0) {
       const ga = M.actions(G, null), raise = ga.find(a => a.id === "raise"), A = id => ga.find(a => a.id === id) || {};
       if (raise && raise.ok && (G.runway < 250 || G.cash < 3000) && !(raise.d.includes("down") && G.runway > 60)) M.doAction(G, "raise", null);
@@ -102,7 +111,7 @@ function play(M, { strategy = "scale", diff = "normal", bot = "smart", seed = 1,
         for (const id of ["distill_us", "distill_cn"]) { const a = ga.find(x => x.id === id); if (a && a.ok && G.cap < 7.5) M.doAction(G, id, null); }
         if (!B.noBuild) for (const c of G.C.filter(c => c.p > 0.15 && c.pol < 2).sort((a, b) => b.comp - a.comp).slice(0, 12)) {
           const acts = M.actions(G, c.iso), A = id => acts.find(a => a.id === id) || {};
-          const reserve = Math.max(1500, 60 * G.burn);
+          const reserve = Math.max(1500, 60 * G.burn) + dueSoon(G);
           // short of power: divert the country's own grid to AI while people there still like you
           if (A("realloc").ok && !B.noRealloc && G.aiGW > 0.85 * G.headGW && c.ap > 0.45 && G.R < 75 && G.cash > reserve) M.doAction(G, "realloc", c.iso);
           const gasOK = A("plant").kind !== "gas" || B.fossil || G.fuel > 0.6 * G.fuel0;

@@ -433,6 +433,8 @@ let buildsDirty = true;
 function drain() {
   for (const e of G.ev) {
     if (e.k === "news") { news(e.t, e.bad); if (e.bad) SND("bad"); }
+    else if (e.k === "goal") SND("buy");
+    else if (e.k === "run") SND(e.r.flop ? "bad" : "buy");
     else if (e.k === "seed") {
       const to = G.C[G.idx[e.to]], from = e.from != null && G.idx[e.from] !== undefined ? G.C[G.idx[e.from]] : null;
       if (!to) continue;
@@ -577,7 +579,7 @@ function render(force) {
   }
   if ($("draft").classList.contains("on")) renderDraft();
   milestones();
-  renderMeters(); renderSide();
+  renderMeters(); renderSide(); renderGoal();
   if (selected) renderCard();
   if ($("evolve").classList.contains("on") && mounted) Tree.render();
 }
@@ -692,14 +694,13 @@ function renderSide() {
   $("cpL").textContent = ef(G.compLease); $("cpO").textContent = ef(G.compOwn); $("cpS").textContent = ef(G.compOrbit);
   $("cpPow").textContent = `${gw(G.aiGW)} / ${gw(G.headGW)}`;
   $("cpPow").className = G.headGW && G.aiGW >= 0.95 * G.headGW ? "bad" : "";
-  const sl = $("alloc");
-  if (document.activeElement !== sl) sl.value = Math.round(100 * (G.alloc ?? 0.5));
+  renderRun();
   $("cpTr").textContent = ef(G.trainC);
   $("cpInf").textContent = `${ef(G.infC)} (${ef(G.demand)})`;
   const thr = (G.autoNeed || 0) > 0 && (G.infC || 0) < G.autoNeed;
   $("cpAuto").textContent = ef(G.autoNeed); $("cpAuto").className = thr ? "bad" : "";
   $("cpNote").className = "note" + (thr ? " bad" : "");
-  $("cpNote").textContent = thr ? `Automation throttled: serving ${ef(G.infC)} < ${ef(G.autoNeed)} needed. Shift toward Serve or build campuses.`
+  $("cpNote").textContent = thr ? `Automation throttled: serving ${ef(G.infC)} < ${ef(G.autoNeed)} needed. Use smaller training runs or build campuses.`
     : (G.demand || 0) > (G.served || 0) * 1.05 ? `Serving ${pct((G.served || 0) / Math.max(1e-9, G.demand))} of user demand. Unserved demand is lost revenue.` : "Serving keeps up with demand.";
   const lvl = Math.floor(G.cap || 1);
   $("cpCap").textContent = G.cap >= 10 ? "10.00 · max" : `${(G.cap || 1).toFixed(2)} · ${pct(G.capNext ?? (G.cap % 1))} to ${lvl + 1}`;
@@ -744,8 +745,47 @@ function renderSide() {
     return `<div class="bar${sh ? " shock" : ""}" title="${sh ? esc(sh.n) : ""}"><div class="t"><i style="width:${(100 * v).toFixed(1)}%"></i><span>${s.n}</span></div><div class="v">${pct(v)}</div></div>`;
   }).join(""));
 }
-$("alloc").addEventListener("input", e => { if (G) { setAlloc(G, +e.target.value / 100); render(false); } });
-$("alloc").addEventListener("change", e => e.target.blur());
+// training runs: pick a tier (with an optional scaling-law study) or cancel the current run
+let runStudy = false;
+function renderRun() {
+  const el = $("cpRun");
+  if (G.run) {
+    const T = RUNS[G.run.tier], W = ((G.why || {}).cap || {}).run || {};
+    const p = Math.min(1, Math.max(0, (G.day - G.run.start) / Math.max(1, G.run.done - G.run.start)));
+    setHTML(el, `<div class="cur"><span><b>${esc(T.n)}</b> · ${ef(G.trainC)} · ${(G.run.done - G.day) * DPT} d left</span>
+      <button data-run="cancel" title="Stop now and keep half the banked progress">Cancel</button>
+      <span class="note">Banked: capability +${(W.gain || 0).toFixed(2)} expected${G.run.study ? " (studied: low variance)" : ""}</span>
+      <div class="prog"><i style="width:${pct(p, 1)}"></i></div></div>` + lastRun());
+    return;
+  }
+  const tiers = Object.keys(RUNS).map(k => {
+    const v = runPreview(G, k, runStudy), ok = G.cash >= v.cash && G.ops >= v.ins;
+    return `<button class="tier" data-run="${k}"${ok ? "" : " disabled"} title="${esc(`${v.n}: ${pct(v.frac)} of compute for ${v.days} days. ${v.visible ? "Visible: raises awareness. " : ""}${pct(v.fail)} chance it disappoints.`)}">
+      <b>${esc(v.n.replace(" run", ""))}</b><span class="g">+${v.gain.toFixed(2)} cap</span><span class="c">${money(v.cash)}${v.ins ? " · " + v.ins + " ins" : ""}</span><span class="r">${pct(v.frac)} · ${v.days} d · ${pct(v.fail)} flop</span></button>`;
+  }).join("");
+  setHTML(el, `<div class="note">No training run: compute serves customers; 5% fine-tunes.</div><div class="tiers">${tiers}</div>
+    <label><input type="checkbox" id="runStudy"${runStudy ? " checked" : ""}> Scaling-law study first (insight; makes the result predictable)</label>` + lastRun());
+}
+function lastRun() {
+  const L = G.lastRun;
+  return L ? `<div class="last">Last: ${esc(RUNS[L.tier].n.toLowerCase())}, capability +${L.gain.toFixed(2)}${L.flop ? " (disappointing)" : L.mult > 1.1 ? " (beat the scaling laws)" : ""}</div>` : "";
+}
+$("cpRun").addEventListener("click", e => {
+  const b = e.target.closest("[data-run]"); if (!b || !G) return;
+  const k = b.dataset.run;
+  if (k === "cancel") cancelRun(G); else if (startRun(G, k, runStudy)) SND("buy");
+  drain(); render(true);
+});
+$("cpRun").addEventListener("change", e => { if (e.target.id === "runStudy") { runStudy = e.target.checked; render(false); } });
+
+// guided goals: the current one, its tip and reward; skippable
+function renderGoal() {
+  const el = $("goalBox");
+  const g = !G || G.goalsOff ? null : GOALS[G.goal];
+  el.classList.toggle("on", !!g);
+  if (g) setHTML(el, `<button data-skip="1" title="Hide the goals">skip</button>Goal ${G.goal + 1}/${GOALS.length}: <b>${esc(g.n)}</b> <span class="rw">${g.ops ? "+" + g.ops + " insight" : "+" + money(g.cash)}</span><div class="tip">${esc(g.tip)}</div>`);
+}
+$("goalBox").addEventListener("click", e => { if (e.target.dataset.skip && G) { skipGoals(G); render(true); } });
 const actClick = isoFn => e => {
   const b = e.target.closest("[data-a]");
   if (!b || b.disabled || !G || G.over) return;
