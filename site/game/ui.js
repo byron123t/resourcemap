@@ -228,19 +228,21 @@ function initMap(countries, cables, fabs) {
     // institutional footprint, world.json mil count)
     const cent = { type: "FeatureCollection", features: Object.entries(world.c).filter(([, c]) => c.pop > 0).map(([k, c]) => ({ type: "Feature", geometry: { type: "Point", coordinates: [c.x, c.y] }, properties: { k, mil: c.mil || 0, w: Math.max(0.3, Math.min(1, (Math.log10(c.pop) - 5.5) / 3)) } })) };
     map.addSource("cent", { type: "geojson", data: cent, promoteId: "k" });
-    map.addLayer({ id: "social", type: "circle", source: "cent", layout: { visibility: "none" }, paint: {
-      "circle-radius": Z(["*", 14, ["get", "w"], ["sqrt", fs("social", 0)]], ["*", 30, ["get", "w"], ["sqrt", fs("social", 0)]]),
-      "circle-color": "transparent", "circle-stroke-color": css("--social"), "circle-stroke-width": 2,
+    // only the bigger countries (about 60, w ≥ 0.6 ≈ 20 m people) get layer markers; the fill already shows web reach everywhere
+    const BIG = [">=", ["get", "w"], 0.6];
+    map.addLayer({ id: "social", type: "circle", source: "cent", filter: BIG, layout: { visibility: "none" }, paint: {
+      "circle-radius": Z(["*", 10, ["get", "w"], ["sqrt", fs("social", 0)]], ["*", 24, ["get", "w"], ["sqrt", fs("social", 0)]]),
+      "circle-color": "transparent", "circle-stroke-color": css("--social"), "circle-stroke-width": 1.5,
       "circle-stroke-opacity": ["case", [">", fs("social", 0), 0.01], 0.9, 0],
     } });
-    map.addLayer({ id: "lan", type: "circle", source: "cent", layout: { visibility: "none" }, paint: {
-      "circle-radius": Z(["*", 8, ["get", "w"], ["sqrt", fs("lan", 0)]], ["*", 16, ["get", "w"], ["sqrt", fs("lan", 0)]]),
+    map.addLayer({ id: "lan", type: "circle", source: "cent", filter: BIG, layout: { visibility: "none" }, paint: {
+      "circle-radius": Z(["*", 5, ["get", "w"], ["sqrt", fs("lan", 0)]], ["*", 12, ["get", "w"], ["sqrt", fs("lan", 0)]]),
       "circle-color": css("--lan"), "circle-opacity": ["case", [">", fs("lan", 0), 0.01], 0.85, 0],
     } });
     const shieldLayout = { visibility: "none", "icon-allow-overlap": true, "icon-anchor": "top", "icon-offset": [0, 8],
       "icon-size": ["interpolate", ["linear"], ["zoom"], 1, ["interpolate", ["linear"], ["sqrt", ["get", "mil"]], 4, 0.5, 37, 0.95], 5, ["interpolate", ["linear"], ["sqrt", ["get", "mil"]], 4, 0.8, 37, 1.5]] };
-    map.addLayer({ id: "gap-off", type: "symbol", source: "cent", filter: [">=", ["get", "mil"], 40], layout: { ...shieldLayout, "icon-image": "shield-off" }, paint: { "icon-opacity": 0.8 } });
-    map.addLayer({ id: "gap-on", type: "symbol", source: "cent", filter: [">=", ["get", "mil"], 40], layout: { ...shieldLayout, "icon-image": "shield-on" }, paint: { "icon-opacity": ["interpolate", ["linear"], fs("gap", 0), 0, 0, 0.02, 0.6, 1, 1] } });
+    map.addLayer({ id: "gap-off", type: "symbol", source: "cent", filter: [">=", ["get", "mil"], 120], layout: { ...shieldLayout, "icon-image": "shield-off" }, paint: { "icon-opacity": 0.8 } });
+    map.addLayer({ id: "gap-on", type: "symbol", source: "cent", filter: [">=", ["get", "mil"], 120], layout: { ...shieldLayout, "icon-image": "shield-on" }, paint: { "icon-opacity": ["interpolate", ["linear"], fs("gap", 0), 0, 0, 0.02, 0.6, 1, 1] } });
 
     // your builds
     map.addSource("builds", { type: "geojson", data: empty() });
@@ -310,7 +312,7 @@ function setGraph(on) {
   $("legend").style.display = on ? "none" : "";
   if (on) {
     fitGraph();
-    if (!graphMounted) { graphMounted = true; NetGraph.mount($("graph"), { G: () => G, world, onSelect: iso => { if (picking) clickCountry(iso); else select(iso); } }); }
+    if (!graphMounted) { graphMounted = true; NetGraph.mount($("graphIn"), { G: () => G, world, onSelect: iso => { if (picking) clickCountry(iso); else select(iso); } }); }
     else NetGraph.resize();
     NetGraph.render();
   }
@@ -573,7 +575,7 @@ function actBtn(a) {
   return `<button class="act" data-a="${esc(a.id)}"${a.ok ? "" : " disabled"}><b>${esc(a.n)}<span>${cost}</span></b>${a.d ? `<small>${esc(a.d)}</small>` : ""}${!a.ok && a.why ? `<small class="why">${esc(a.why)}</small>` : ""}</button>`;
 }
 function safeActions(iso) { try { return actions(G, iso) || []; } catch (e) { console.warn(e); return []; } }
-const CO_ACTS = new Set(["raise", "layoffs"]);
+const CO_ACTS = new Set(["raise", "layoffs", "pr", "sprint"]);
 
 function renderSide() {
   // company
@@ -583,6 +585,9 @@ function renderSide() {
   $("coRun").textContent = !num(run) || run === Infinity ? "profitable" : Math.round(run * DPT) + " days";
   $("coRun").className = num(run) && run < 120 ? "bad" : (!num(run) || run === Infinity ? "good" : "");
   $("coVal").textContent = money(G.val || 0);
+  const nextDebt = (G.debts || []).reduce((m, b) => !m || b.due < m.due ? b : m, null);
+  $("coOwed").textContent = nextDebt ? `${money(G.owed)} · next ${money(nextDebt.amt)} in ${(nextDebt.due - G.day) * DPT} d` : "nothing";
+  $("coOwed").className = nextDebt && nextDebt.amt > G.cash + Math.max(0, (G.rev - G.burn)) * (nextDebt.due - G.day) ? "bad" : "";
   $("coSum").textContent = money(G.cash);
   const ga = safeActions(null);
   setHTML($("coActs"), ga.filter(a => CO_ACTS.has(a.id)).map(actBtn).join(""));

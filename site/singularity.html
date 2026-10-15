@@ -97,6 +97,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #netMode.on { background: var(--ai-dim); border-color: var(--ai); }
 #graph { position: absolute; inset: 0; z-index: 2; display: none; background: var(--ocean); }
 #graph.on { display: block; }
+/* the graph itself sits clear of the top bar, bottom bar and (on desktop) the left panel */
+#graphIn { position: absolute; top: 44px; bottom: 76px; left: 314px; right: 0; }
+@media (max-width: 760px) { #graphIn { top: 84px; bottom: 150px; left: 0; } }
 
 /* left panel */
 #side { position: absolute; top: 52px; left: 12px; width: 290px; max-height: calc(100% - 52px - 96px); overflow: auto; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 8px; padding: 4px 12px 8px; z-index: 4; display: none; scrollbar-width: thin; }
@@ -301,7 +304,7 @@ input[type=text] { background: var(--track); border: 1px solid var(--panel-line)
 </style>
 
 <div id="map"></div>
-<div id="graph"></div>
+<div id="graph"><div id="graphIn"></div></div>
 
 <div id="top">
   <span class="name h" id="aiName">SINGULARITY</span>
@@ -330,6 +333,7 @@ input[type=text] { background: var(--track); border: 1px solid var(--panel-line)
     <div class="kv"><span>Burn / day</span><b id="coBurn"></b></div>
     <div class="kv"><span>Runway</span><b id="coRun"></b></div>
     <div class="kv"><span>Valuation</span><b id="coVal"></b></div>
+    <div class="kv"><span>Owed to investors</span><b id="coOwed"></b></div>
     <div class="acts" id="coActs"></div>
   </details>
   <details open id="secComp"><summary>Compute <em id="cpSum"></em></summary>

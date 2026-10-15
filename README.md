@@ -52,15 +52,20 @@ It must be served over HTTP, not opened as `file://`, because the page `fetch()`
 
 ## Singularity (game)
 
-`site/singularity.html` is a separate page: a Plague Inc–style strategy game played on the atlas's compute and AI supply-chain layers. You are a new AI model. Pick a starting country, spread through datacentres and cloud regions, undersea cables (`cables.geojson`), multinational air links (`air.json`) and land borders, and automate the world's workforce before the oversight coalition finishes a Global AI Pause Treaty. Open `http://localhost:8765/singularity.html`; `#debug` exposes `window.__gameMap` and `window.__G`.
+`site/singularity.html` is a separate page: a Plague Inc–style strategy game on the atlas's compute, energy and internet layers. You run an AI company from the ChatGPT launch (30 Nov 2022) and try to automate the world's workforce. You lose if governments pass a Global AI Pause Treaty, if the company runs out of cash, or if the world's spare fuel or chip/grid minerals run out before you reach superintelligence (capability 8). Open `http://localhost:8765/singularity.html`; `#debug` exposes `window.__gameMap`, `window.__G` and `window.__ui`. Each model step is 3 calendar days (`DPT`).
 
-- **Compute** is the sum of each country's datacentre, cloud-region, power and server capacity, weighted by the AI's presence there, times a hardware multiplier. Automation is throttled when compute falls short of what the automated workforce needs.
-- **Hardware** grows with **chip supply**, the geometric mean of control over eight chokepoint categories: EUV lithography, wafers, photoresists and etchants, leading-edge fabs (capacity-weighted, ≤7 nm full weight), advanced packaging, Spruce Pine quartz, neon and germanium (from `chip_sites.geojson` and `fabs.geojson`). Grid power is shown but enters compute directly. Supply shocks (Taiwan Strait blockade, neon shortage, germanium export ban, EUV export controls) cut a category unless the AI already holds that country.
-- **Upgrades** come in three tracks: Infrastructure (spread vectors, power, fabs), Capabilities (automation, which raises awareness) and Influence (stealth, lobbying, dependence, treaty setbacks). Some need a compute level first.
-- **Oversight**: awareness rises with visible capabilities and automation. Above 12 % the treaty starts, funded by each country's share of population, connectivity and servers, minus what it has already automated. Countries may impose export controls, then datacentre moratoriums.
-- Orange bubbles are spare compute (insight), pink ones new footholds, blue ones whistleblowers to discredit within 10 days.
+- **Strategies**: Scaling Lab, Recursive RL, Open Evolution, Embodied, National Champion (state budget instead of investors) and Neuromorphic, each with different starting upgrades and multipliers.
+- **Compute** is leased in countries you've reached (datacentre and cloud capacity), built as AI campuses or put in orbit, and capped by each country's spare grid power. A slider splits it between training (capability) and serving (revenue, automation); automation stalls when serving compute runs short.
+- **Money**: revenue from users and automated work, burn from staff and compute. Funding rounds give 20% of valuation but must be repaid 3× about 600 days later.
+- **Rivals**: a US and a Chinese lab. A close race slows the treaty; distilling or buying their leaked weights catches you up, with scandal risk.
+- **Resources**: fuel budget from world gas and coal output, burned in proportion to each grid's fossil share; minerals from chip/grid deposits. Build gas, solar or nuclear plants and pick clean grids.
+- **Humans fight back**: export controls, moratoriums, compute caps, grid disconnections, internet shutdowns, sanctions, audits and treaty sweeps.
+- **Digital layers** per country (web, social media, enterprise networks, critical public systems) are reached by adoption upgrades; firewalls block spread; satellites bypass cables.
+- **Upgrades** (41, four tracks) cost insight and sometimes cash, and many also need game-state conditions (presence in key countries, awareness, automation share, power draw, leading the rivals). The Evolve screen is a graph with stat bars that preview each upgrade.
+- **Endings**: 9 of Max Tegmark's 12 AI aftermath scenarios, chosen by how you played (see `ai_endings.md` and `todo.md`).
+- **Views**: AI, Network (with an internet graph: countries as nodes, cables and land fibre as edges), Energy (plants of 1 GW+, AI draw vs spare grid) and People (employment rate).
 
-The model is the `<script id="gameSim">` block (pure functions, no DOM). `pipeline/step8_game.py` builds `site/data/game/world.json` from files the earlier steps wrote (no downloads): per-country figures, land neighbours from shared outline vertices, cable links from the countries at each cable's ends, air links and datacentre points with their country. `tests/singularity.test.mjs` plays scripted strategies to catch balance changes that make the game unwinnable or trivial. Spread, automation and oversight rates are invented game numbers, not forecasts.
+Files: `site/game/sim.js` (model; pure, also run by the tests), `ui.js` (map and panels), `tree.js` (upgrade graph), `netgraph.js` (internet graph). `pipeline/step8_game.py` builds `site/data/game/world.json` from files the earlier steps wrote plus two hand lists (firewall levels after Wikipedia's internet-censorship list, orbital launch sites); it adds World Bank labour force, unemployment and GDP via step 7. `tests/singularity.test.mjs` checks the upgrade graph and plays scripted strategies as balance checks. Rates are invented game numbers, not forecasts; resource budgets are game-scaled from real totals.
 
 ## Offline backup
 
@@ -291,7 +296,8 @@ Conversions: gas is converted at 6,000 cf per barrel of oil equivalent (million 
 - **Wikipedia, Biosafety level: list of BSL-4 facilities** (CC BY-SA 4.0): top-containment labs.
 - **OpenFlights routes** (ODbL), openflights.org/data, frozen in 2014: airline routes summed by country pair (`air.json`).
 - **epiparameterDB** (CC0 1.0), github.com/epiverse-trace/epiparameterDB: generation times and serial intervals behind the outbreak presets.
-- **World Bank World Development Indicators** (CC BY 4.0): people online, fixed broadband, secure servers, hospital beds, doctors.
+- **World Bank World Development Indicators** (CC BY 4.0): people online, fixed broadband, secure servers, hospital beds, doctors; labour force, unemployment and GDP (Singularity game).
+- **Wikipedia** (CC BY-SA 4.0): "List of rocket launch sites" (orbital launch sites) and "Internet censorship and surveillance by country" (basis for the game's firewall levels, which are approximations), both hand-copied into `pipeline/step8_game.py`.
 - **FAOSTAT** production (QCL) and detailed trade matrix (TM), 2023 (CC BY 4.0): wheat, maize, rice, soy, bananas, chicken meat.
 - **USGS earthquake catalogue** (public domain) with PAGER alerts, and **NASA EONET** (public domain) storms and floods: news scenarios.
 - **Global Shipping Lanes**, Benden 2022, https://doi.org/10.5281/zenodo.6361763 (CC BY 4.0, excluding Statista).

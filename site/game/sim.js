@@ -465,7 +465,7 @@
   function setAlloc(G, x) { G.alloc = clamp(+x || 0, 0.05, 0.95); return G.alloc; }
 
   // ---------- actions ----------
-  const effOf = G => 0.3 * G.hw * G.fx.effMul;
+  const effOf = G => 0.3 * G.hw * G.fx.effMul * (1 + (G.sprints || 0) * 0.04);
   const campusUnits = G => 3 * G.fx.campusEF;
   function pending(G, iso, kind) { return G.builds.filter(b => b.iso === iso && b.done > G.day && (!kind || b.kind === kind)); }
   function hasLaunch(G, iso) { return !!(G.spots[iso] && G.spots[iso].launch.length); }
@@ -476,7 +476,7 @@
   function actions(G, iso) {
     const fx = G.fx, out = [], day = G.day;
     const A = (id, n, d, cash, ins, days, why) => out.push({ id, n, d, cash: Math.round(cash), ins, days: Math.round(days), ok: !why, why: why || "" });
-    const cd = id => (G.cool[id] || 0) > day ? `Ready in ${G.cool[id] - day} d` : "";
+    const cd = id => (G.cool[id] || 0) > day ? `Ready in ${dd(G.cool[id] - day)} d` : "";
     const poor = (cash, ins) => G.cash < cash ? `Needs ${moneyS(cash)}` : G.ops < (ins || 0) ? `Needs ${ins} insight` : "";
     if (iso == null) {
       // funding round
@@ -492,6 +492,9 @@
       const best = G.rivals.reduce((a, b) => b.cap > a.cap ? b : a);
       A("steal", "Acquire leaked weights", `Buy a rival's leaked weights from a departing team: capability to ${best.n}'s level −0.15. 45% chance of a scandal (awareness +10, treaty +5, sanctions).`, 400, 10, 0,
         best.cap - G.cap < 0.3 ? "No rival is far enough ahead" : cd("steal") || poor(400, 10));
+      // repeatable insight sinks
+      A("pr", "PR campaign", `Op-eds, charity, a friendly documentary. Awareness −6. ${dd(60)}-day cooldown.`, 50, 15, 0, G.aw < 8 ? "Nobody is worried yet" : cd("pr") || poor(50, 15));
+      A("sprint", "Efficiency sprint", `Point your researchers at serving costs: +4% compute per GW for good (${G.sprints || 0} done). ${dd(40)}-day cooldown.`, 0, 20 + 5 * (G.sprints || 0), 0, cd("sprint") || poor(0, 20 + 5 * (G.sprints || 0)));
       return out;
     }
     const i = G.idx[iso]; if (i === undefined) return out;
@@ -552,6 +555,8 @@
         if (rnd(G) < 0.3) { const fine = 150 + 0.02 * Math.max(0, G.cash); G.cash -= fine; news(G, `${r.n} sues ${G.name} over distillation; settlement ${moneyS(fine)}.`, 1); }
         return true;
       }
+      if (id === "pr") { G.ops -= a.ins; G.cash -= a.cash; G.aw = Math.max(0, G.aw - 6); G.cool.pr = G.day + 60; news(G, `${G.name}'s PR campaign softens the headlines.`); return true; }
+      if (id === "sprint") { G.ops -= a.ins; G.sprints = (G.sprints || 0) + 1; G.cool.sprint = G.day + 40; news(G, `Efficiency sprint ${G.sprints}: serving gets 4% cheaper.`); return true; }
       if (id === "steal") {
         const best = G.rivals.reduce((p, q) => q.cap > p.cap ? q : p);
         G.ops -= a.ins; G.cash -= a.cash; G.xp = Math.max(G.xp, xpOf(best.cap - 0.15)); G.cool.steal = G.day + 240; G.stats.steals++;
@@ -976,7 +981,7 @@
       else if (safe && awAvg < 45 && fx.stealth >= 0.25 && !o.has("chat")) { id = "protector"; y.push("Safety traits", "Stealth traits", `Average awareness only ${Math.round(awAvg)}`); }
       else if (safe && soc >= 0.5) { id = "benevolent"; y.push("Safety traits", `Social-media presence ${Math.round(soc * 100)}%`); }
       else { id = "libertarian"; y.push(o.has("closed") ? "Closed Frontier" : "Market-driven growth", safe ? `Social presence only ${Math.round(soc * 100)}%` : "No safety commitments"); }
-      y.push(`Automated ${(G.worldA * 100).toFixed(1)}% of the workforce by day ${G.day}`);
+      y.push(`Automated ${(G.worldA * 100).toFixed(1)}% of the workforce by day ${dd(G.day)}`);
       if (G.stats.absorbed) y.push(`${G.stats.absorbed} countries absorbed`);
     } else if (over === "pause") {
       if (G.strategy === "state" || o.has("defense")) { id = "enslaved"; y.push(G.strategy === "state" ? "State-backed lab" : "Defense Procurement", "Treaty passed"); }
