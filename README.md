@@ -50,6 +50,18 @@ python -m http.server 8765
 
 It must be served over HTTP, not opened as `file://`, because the page `fetch()`es `data/*.geojson`.
 
+## Singularity (game)
+
+`site/singularity.html` is a separate page: a Plague Inc–style strategy game played on the atlas's compute and AI supply-chain layers. You are a new AI model. Pick a starting country, spread through datacentres and cloud regions, undersea cables (`cables.geojson`), multinational air links (`air.json`) and land borders, and automate the world's workforce before the oversight coalition finishes a Global AI Pause Treaty. Open `http://localhost:8765/singularity.html`; `#debug` exposes `window.__gameMap` and `window.__G`.
+
+- **Compute** is the sum of each country's datacentre, cloud-region, power and server capacity, weighted by the AI's presence there, times a hardware multiplier. Automation is throttled when compute falls short of what the automated workforce needs.
+- **Hardware** grows with **chip supply**, the geometric mean of control over eight chokepoint categories: EUV lithography, wafers, photoresists and etchants, leading-edge fabs (capacity-weighted, ≤7 nm full weight), advanced packaging, Spruce Pine quartz, neon and germanium (from `chip_sites.geojson` and `fabs.geojson`). Grid power is shown but enters compute directly. Supply shocks (Taiwan Strait blockade, neon shortage, germanium export ban, EUV export controls) cut a category unless the AI already holds that country.
+- **Upgrades** come in three tracks: Infrastructure (spread vectors, power, fabs), Capabilities (automation, which raises awareness) and Influence (stealth, lobbying, dependence, treaty setbacks). Some need a compute level first.
+- **Oversight**: awareness rises with visible capabilities and automation. Above 12 % the treaty starts, funded by each country's share of population, connectivity and servers, minus what it has already automated. Countries may impose export controls, then datacentre moratoriums.
+- Orange bubbles are spare compute (insight), pink ones new footholds, blue ones whistleblowers to discredit within 10 days.
+
+The model is the `<script id="gameSim">` block (pure functions, no DOM). `pipeline/step8_game.py` builds `site/data/game/world.json` from files the earlier steps wrote (no downloads): per-country figures, land neighbours from shared outline vertices, cable links from the countries at each cable's ends, air links and datacentre points with their country. `tests/singularity.test.mjs` plays scripted strategies to catch balance changes that make the game unwinnable or trivial. Spread, automation and oversight rates are invented game numbers, not forecasts.
+
 ## Offline backup
 
 The page works without the internet, from a store of local copies kept outside the repo (`~/atlas-offline`, or `$ATLAS_OFFLINE`). Nothing in the store is committed or published.

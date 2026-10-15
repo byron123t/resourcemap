@@ -17,4 +17,5 @@ $PY step5_defense_infra.py   # downloads into ../raw/infra; add --offline to reu
 $PY step6_network_pop.py     # refineries + scenario networks; downloads into ../raw/net, --offline reuses it
 $PY step7_domains.py        # fabs, chip sites, cloud, BSL-4 labs, air links, indicators, food; downloads into ../raw/domains
 $PY postprocess.py clean
+$PY step8_game.py          # world file for site/singularity.html, from the layers above
 echo "done → ../site/data"

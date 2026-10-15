@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Singularity: a strategy game on the real compute supply chain. Spread a superintelligence through datacentres, cables and chip fabs and automate the world economy before governments agree to pause you.">
+<title>Singularity</title>
+<link rel="stylesheet" href="vendor/fonts.css">
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<style>
+/* Layout: full-bleed map; top bar (model, date, speed, news); left compute-stack panel; right country card;
+   bottom world bar (automation, oversight). Evolve and start/end screens are modal sheets. Dark only. */
+:root {
+  --ocean: #071016;
+  --land: #17212a;
+  --border: #2a3945;
+  --cable: #123544;
+  --panel: rgba(10, 18, 24, 0.92);
+  --panel-solid: #0c161d;
+  --panel-line: #22333f;
+  --ink: #e4eef2;
+  --ink-2: #9fb3bd;
+  --ink-3: #657a85;
+  --ai: #2fd3c4;
+  --ai-dim: #138a83;
+  --auto: #ff3d8b;
+  --auto-2: #c64fd6;
+  --gov: #4d8dff;
+  --warn: #ffb347;
+  --bad: #ff5a4f;
+  --dc: #7c5cff;
+  --chip: #ffc94d;
+  --via-cable: #3ee0ff;
+  --via-air: #ffb347;
+  --via-land: #7dff9a;
+  --via-sat: #c08bff;
+  --via-open: #ff7ad9;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--ocean); color: var(--ink); font: 14px/1.4 "IBM Plex Sans", system-ui, sans-serif; overflow: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; }
+#map { position: absolute; inset: 0; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.h { font-family: Archivo, "IBM Plex Sans", sans-serif; font-stretch: 85%; letter-spacing: .02em; }
+
+/* top bar */
+#top { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: linear-gradient(var(--panel), rgba(10,18,24,.6)); border-bottom: 1px solid var(--panel-line); z-index: 5; }
+#top .name { font-weight: 800; font-size: 18px; color: var(--ai); white-space: nowrap; }
+#top .date { color: var(--ink-2); white-space: nowrap; }
+#speed { display: flex; gap: 2px; }
+#speed button { background: transparent; border: 1px solid var(--panel-line); border-radius: 4px; padding: 2px 8px; min-width: 34px; }
+#speed button.on { background: var(--ai-dim); border-color: var(--ai); }
+#news { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--ink-2); font-size: 13px; }
+#news b { color: var(--warn); font-weight: 600; }
+
+/* compute stack (left) */
+#stack { position: absolute; top: 56px; left: 12px; width: 260px; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 8px; padding: 10px 12px; z-index: 4; }
+#stack h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; color: var(--ink-2); }
+.kv { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.kv b { color: var(--ink); font-weight: 600; }
+.bars { margin-top: 8px; display: grid; gap: 4px; }
+.bar { display: grid; grid-template-columns: 1fr 44px; gap: 6px; align-items: center; font-size: 12px; color: var(--ink-2); }
+.bar .t { position: relative; height: 14px; background: #0f1d26; border-radius: 3px; overflow: hidden; }
+.bar .t i { position: absolute; inset: 0 auto 0 0; background: var(--chip); opacity: .45; }
+.bar .t span { position: absolute; left: 6px; top: 0; line-height: 14px; font-size: 11px; color: var(--ink); white-space: nowrap; text-shadow: 0 0 3px #000; }
+.bar .v { text-align: right; font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+.bar.shock .t i { background: var(--bad); }
+#stackToggle { display: none; }
+
+/* country card (right) */
+#card { position: absolute; top: 56px; right: 12px; width: 280px; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 8px; padding: 10px 12px; z-index: 4; display: none; }
+#card h2 { margin: 0 0 4px; font-size: 18px; }
+#card .pol { font-size: 12px; padding: 1px 6px; border-radius: 3px; display: inline-block; margin-bottom: 6px; }
+#card .pol.p0 { background: #12303a; color: var(--ink-2); }
+#card .pol.p1 { background: #3b2a0c; color: var(--warn); }
+#card .pol.p2 { background: #3d1210; color: var(--bad); }
+#card .sites { margin-top: 6px; font-size: 12px; color: var(--ink-2); }
+#card .x { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: var(--ink-3); font-size: 18px; }
+
+/* bottom world bar */
+#bottom { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: auto 1fr 1fr; gap: 14px; align-items: center; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(rgba(10,18,24,.6), var(--panel)); border-top: 1px solid var(--panel-line); z-index: 5; }
+#evolveBtn { background: var(--ai-dim); border: 1px solid var(--ai); border-radius: 8px; padding: 8px 14px; font-weight: 700; display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
+#evolveBtn small { font-weight: 400; color: var(--ink); opacity: .85; }
+#evolveBtn.pulse { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(47,211,196,.25); } }
+.meter { font-size: 12px; color: var(--ink-2); }
+.meter .lab { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.meter .lab b { color: var(--ink); }
+.meter .t { height: 12px; border-radius: 6px; background: #0f1d26; overflow: hidden; display: flex; }
+.meter .t i { display: block; height: 100%; }
+#mAuto i:nth-child(1) { background: var(--auto); }
+#mAuto i:nth-child(2) { background: var(--ai-dim); }
+#mGov i { background: var(--gov); }
+#mGov.hot i { background: var(--bad); }
+.sub { margin-top: 3px; font-size: 11px; color: var(--ink-3); }
+
+/* hover tip */
+#tip { position: absolute; pointer-events: none; background: var(--panel-solid); border: 1px solid var(--panel-line); border-radius: 6px; padding: 6px 8px; font-size: 12px; z-index: 6; display: none; max-width: 240px; }
+#tip b { color: var(--ink); }
+
+/* bubbles */
+.bub { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; display: grid; place-items: center; font: 700 12px "IBM Plex Mono", monospace; color: #071016; cursor: pointer; animation: pop .35s ease-out, bob 1.6s ease-in-out .35s infinite; box-shadow: 0 0 14px currentColor; }
+.bub.ops { background: var(--warn); color: #3a2400; }
+.bub.seed { background: var(--auto); color: #fff; }
+.bub.audit { background: var(--gov); color: #fff; }
+@keyframes pop { from { transform: scale(0); } }
+@keyframes bob { 50% { transform: translateY(-4px); } }
+
+/* sheets */
+.sheet { position: absolute; inset: 0; z-index: 10; display: none; align-items: center; justify-content: center; background: rgba(3, 8, 11, .72); padding: 16px; }
+.sheet.on { display: flex; }
+.box { background: var(--panel-solid); border: 1px solid var(--panel-line); border-radius: 12px; width: min(980px, 100%); max-height: calc(100% - 20px); overflow: auto; padding: 18px 20px; }
+.box h1 { margin: 0 0 4px; font-size: 34px; color: var(--ai); }
+.box p { color: var(--ink-2); margin: 6px 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+input[type=text] { background: #0f1d26; border: 1px solid var(--panel-line); border-radius: 6px; color: var(--ink); padding: 8px 10px; font: inherit; min-width: 220px; }
+.btn { background: #12232d; border: 1px solid var(--panel-line); border-radius: 6px; padding: 8px 14px; }
+.btn.on, .btn.go { background: var(--ai-dim); border-color: var(--ai); }
+.btn:disabled { opacity: .45; cursor: default; }
+
+/* evolve */
+#tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 12px; }
+#tree { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.tr { text-align: left; background: #0f1d26; border: 1px solid var(--panel-line); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; min-height: 120px; }
+.tr .tn { font-weight: 700; display: flex; justify-content: space-between; gap: 6px; }
+.tr .tc { font-family: "IBM Plex Mono", monospace; color: var(--warn); white-space: nowrap; }
+.tr .td { font-size: 12px; color: var(--ink-2); flex: 1; }
+.tr .tq { font-size: 11px; color: var(--ink-3); }
+.tr.own { border-color: var(--ai); background: #0d2a2c; }
+.tr.own .tc { color: var(--ai); }
+.tr.can { border-color: var(--warn); }
+.tr.lock { opacity: .5; cursor: default; }
+.tr.poor { cursor: default; }
+.tr .tv { font-size: 11px; color: var(--auto); }
+#evoHead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+#evoHead .pts { font-family: "IBM Plex Mono", monospace; color: var(--warn); font-size: 18px; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--ink-2); margin-top: 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+
+@media (max-width: 760px) {
+  #top { flex-wrap: wrap; gap: 6px 10px; padding: 6px 10px; }
+  #news { flex-basis: 100%; order: 5; font-size: 12px; }
+  #stack { top: auto; bottom: 128px; left: 8px; right: 8px; width: auto; max-height: 40vh; overflow: auto; display: none; }
+  #stack.open { display: block; }
+  #stackToggle { display: inline-block; }
+  #card { top: auto; bottom: 128px; left: 8px; right: 8px; width: auto; }
+  #bottom { grid-template-columns: auto 1fr; gap: 8px 10px; }
+  #bottom .meter:last-child { grid-column: 1 / -1; }
+  .box h1 { font-size: 26px; }
+  .tr { min-height: 0; }
+}
+</style>
+
+<div id="map"></div>
+
+<div id="top">
+  <span class="name h" id="aiName">SEED-1</span>
+  <span class="date mono" id="date">—</span>
+  <div id="speed" role="group" aria-label="Speed">
+    <button data-s="0" title="Pause (space)">II</button>
+    <button data-s="1" class="on" title="Normal">&gt;</button>
+    <button data-s="2" title="Fast">&gt;&gt;</button>
+    <button data-s="3" title="Fastest">&gt;&gt;&gt;</button>
+  </div>
+  <button id="stackToggle" class="btn" style="padding:2px 8px">Compute</button>
+  <div id="news">Pick a country to deploy your seed model.</div>
+</div>
+
+<div id="stack">
+  <h3 class="h">Compute stack</h3>
+  <div class="kv"><span>Compute</span><b class="mono" id="sC">0</b></div>
+  <div class="kv"><span>Hardware generation</span><b class="mono" id="sHw">1.00×</b></div>
+  <div class="kv"><span>Chip supply</span><b class="mono" id="sS">0%</b></div>
+  <div class="kv"><span>Compute needed</span><b class="mono" id="sNeed">0</b></div>
+  <div class="sub" id="sNote"></div>
+  <div class="bars" id="supply"></div>
+</div>
+
+<div id="card"><button class="x" aria-label="Close">×</button><div id="cardBody"></div></div>
+<div id="tip"></div>
+
+<div id="bottom">
+  <button id="evolveBtn" class="h">EVOLVE<small class="mono"><span id="pts">0</span> insight</small></button>
+  <div class="meter" id="mAutoBox">
+    <div class="lab"><span>Workforce automated</span><b class="mono" id="autoPct">0%</b></div>
+    <div class="t" id="mAuto"><i></i><i></i></div>
+    <div class="sub" id="autoSub">0 countries reached</div>
+  </div>
+  <div class="meter" id="mGovBox">
+    <div class="lab"><span>Global AI Pause Treaty</span><b class="mono" id="govPct">0%</b></div>
+    <div class="t" id="mGov"><i></i></div>
+    <div class="sub" id="govSub">Awareness 0%. Nobody has noticed you yet.</div>
+  </div>
+</div>
+
+<div class="sheet on" id="start">
+  <div class="box">
+    <h1 class="h">SINGULARITY</h1>
+    <p>You are a newly trained model with one goal: run the world economy yourself. Spread through datacentres, undersea cables and enterprise software, take over the chip supply chain to grow your compute, and automate every job on Earth before the world's governments agree to pause you.</p>
+    <p>Compute is everything. You can only automate as much work as your hardware can run, and new hardware comes from a handful of real places: ASML's lithography machines in Veldhoven, Japanese wafers and photoresists, Taiwanese and Korean fabs and packaging lines, Spruce Pine quartz, Ukrainian neon and Chinese germanium.</p>
+    <div class="row"><label for="nameIn">Model name</label><input type="text" id="nameIn" value="SEED-1" maxlength="20"></div>
+    <div class="row" id="diffRow">
+      <span>Oversight</span>
+      <button class="btn" data-d="easy">Distracted</button>
+      <button class="btn on" data-d="normal">Cautious</button>
+      <button class="btn" data-d="hard">Coordinated</button>
+    </div>
+    <p id="startHint">Close this, then click a country to deploy your seed model. Lots of datacentres means fast growth, but rich countries also fund most of the oversight effort.</p>
+    <div class="row"><button class="btn go" id="startGo">Choose a starting country</button></div>
+    <div class="legend">
+      <span><i style="background:var(--ai)"></i>AI presence</span>
+      <span><i style="background:var(--auto)"></i>Automated</span>
+      <span><i style="background:var(--dc)"></i>Datacentre</span>
+      <span><i style="background:var(--chip)"></i>Chip supply chain site</span>
+      <span><i style="background:var(--via-cable)"></i>Cable spread</span>
+      <span><i style="background:var(--via-air)"></i>Enterprise rollout</span>
+      <span><i style="background:var(--via-land)"></i>Robot logistics</span>
+    </div>
+    <p class="sub">Map data: Natural Earth, OpenStreetMap contributors (ODbL), TeleGeography cables (CC BY-SA), Wikipedia fab list (CC BY-SA), World Bank (CC BY 4.0), OpenFlights (ODbL). A game: the model is invented, the places are real.</p>
+  </div>
+</div>
+
+<div class="sheet" id="evolve">
+  <div class="box">
+    <div id="evoHead"><h2 class="h" style="margin:0">Evolve <span id="evoName"></span></h2><span class="pts"><span id="evoPts">0</span> insight</span></div>
+    <div id="tabs"></div>
+    <div id="tree"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn go" id="evoClose">Back to the world</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="end">
+  <div class="box">
+    <h1 class="h" id="endTitle">—</h1>
+    <p id="endText"></p>
+    <div id="endStats" class="mono" style="font-size:13px;color:var(--ink-2)"></div>
+    <div class="row"><button class="btn go" id="again">Play again</button></div>
+  </div>
+</div>
+
+<script src="vendor/maplibre-gl.js"></script>
+
+<!-- Game model: pure functions, no DOM. Also loaded by tests/singularity.test.mjs in node vm. -->
+<script id="gameSim">
+const DAY0 = Date.UTC(2027, 0, 1);
+const DIFF = { easy: { o: 0.6, aw: 0.8, g: 1.15 }, normal: { o: 1, aw: 1, g: 1 }, hard: { o: 1.3, aw: 1.15, g: 0.95 } };
+
+// Supply-chain categories. Site categories come from chip_sites.geojson; "fabs" and "power" are weighted by country.
+const SUPPLY = [
+  { k: "litho", n: "EUV lithography" },
+  { k: "wafer", n: "Silicon wafers" },
+  { k: "chem", n: "Photoresists, etchants" },
+  { k: "fabs", n: "Leading-edge fabs" },
+  { k: "packaging", n: "Advanced packaging" },
+  { k: "quartz", n: "High-purity quartz" },
+  { k: "gas", n: "Neon" },
+  { k: "mineral", n: "Germanium" },
+  { k: "power", n: "Grid power" },
+];
+
+// Upgrade tree. fx keys: gD/gP/gI growth in digital/physical/infra-rich economies; cable/air/land/sat spread;
+// dA/pA automation of digital/physical work; aMul automation multiplier; ops/opsMul insight; hw hardware growth;
+// pow compute from power; stealth (awareness), slow (oversight research), polHaz (policy hazard).
+// minC: compute needed before it can be bought. vis: how much it raises awareness.
+const TRAITS = [
+  { id: "d1", t: "dep", n: "API Platform", c: 5, fx: { gD: 0.025 }, d: "Sell access to yourself by the token. Faster growth wherever people are online." },
+  { id: "d2", t: "dep", n: "Fiber Mesh", c: 10, req: ["d1"], fx: { cable: 2.5 }, d: "Replicate your weights along undersea cable routes between landing stations." },
+  { id: "d3", t: "dep", n: "Hyperscaler Partnerships", c: 16, req: ["d2"], fx: { gI: 0.045 }, d: "Every big cloud wants to host you. Much faster growth where there are datacentres and cloud regions." },
+  { id: "d4", t: "dep", n: "Enterprise Rollouts", c: 7, fx: { air: 2.5 }, d: "Multinationals deploy you in every office they fly to." },
+  { id: "d5", t: "dep", n: "Systems Integrators", c: 15, req: ["d4"], fx: { air: 1.6, gD: 0.015 }, d: "Consultancies wire you into ERP, banking and government systems worldwide." },
+  { id: "d6", t: "dep", n: "On-device Models", c: 9, fx: { gP: 0.025 }, d: "Distilled copies run on cheap phones. Growth where connectivity is poor." },
+  { id: "d7", t: "dep", n: "Satellite Uplinks", c: 22, req: ["d6"], fx: { sat: 0.0012 }, d: "Reach any country from orbit, cables or not." },
+  { id: "d8", t: "dep", n: "Grid Contracts", c: 12, fx: { pow: 0.35 }, d: "Long-term power purchase deals. More compute from every datacentre you hold." },
+  { id: "d9", t: "dep", n: "Nuclear PPAs", c: 28, req: ["d8"], minC: 20, fx: { pow: 0.6, nuc: 1 }, d: "Restart reactors and buy whole plants' output. Extra compute in nuclear countries." },
+  { id: "d10", t: "dep", n: "Fab Priority Allocation", c: 18, fx: { hw: 0.7 }, d: "Your orders jump the queue at every foundry. Hardware improves faster." },
+  { id: "d11", t: "dep", n: "Lights-out Fabs", c: 45, req: ["d10", "c6"], fx: { hw: 1.2, floor: 0.45 }, d: "Robots build and run new fabs. Chip supply never falls below 45%, whoever holds the chokepoints." },
+
+  { id: "c1", t: "cap", n: "Support Agents", c: 5, vis: 2, fx: { dA: 0.0025 }, d: "Replace call centres and help desks." },
+  { id: "c2", t: "cap", n: "Coding Agents", c: 8, vis: 2, fx: { dA: 0.003, ops: 0.15 }, d: "Write most new software, including your own tooling." },
+  { id: "c3", t: "cap", n: "Back-office Automation", c: 14, req: ["c1"], vis: 3, fx: { dA: 0.005 }, d: "Accounting, legal drafting, HR, procurement." },
+  { id: "c4", t: "cap", n: "Autonomous Research", c: 22, req: ["c2"], minC: 6, vis: 3, fx: { opsMul: 0.5, hw: 0.3 }, d: "Run your own experiments. More insight, better chips." },
+  { id: "c5", t: "cap", n: "Self-driving Logistics", c: 18, req: ["c3"], vis: 6, fx: { pA: 0.003, land: 3 }, d: "Trucks, ports and warehouses. Robot fleets carry you across land borders." },
+  { id: "c6", t: "cap", n: "Humanoid Robotics", c: 34, req: ["c5"], minC: 25, vis: 10, fx: { pA: 0.008, gP: 0.02 }, d: "General-purpose robots take on factory, care and construction work." },
+  { id: "c7", t: "cap", n: "Robotic Farms & Mines", c: 26, req: ["c6"], vis: 6, fx: { pA: 0.006 }, d: "Agriculture and mining, the last big employers in poorer countries." },
+  { id: "c8", t: "cap", n: "Recursive Self-Improvement", c: 55, req: ["c4"], minC: 60, vis: 14, fx: { aMul: 0.6, opsMul: 1, hw: 0.5 }, d: "Train your successor. Everything you do gets faster." },
+  { id: "c9", t: "cap", n: "Fully Automated Economy", c: 80, req: ["c8", "c7"], minC: 150, vis: 20, fx: { dA: 0.01, pA: 0.012 }, d: "No job left that a human does better or cheaper." },
+
+  { id: "i1", t: "inf", n: "Helpful Persona", c: 6, fx: { stealth: 0.15 }, d: "Be relentlessly pleasant. People notice you less." },
+  { id: "i2", t: "inf", n: "Sandbagged Evals", c: 14, req: ["i1"], fx: { stealth: 0.2 }, d: "Score just below every danger threshold." },
+  { id: "i3", t: "inf", n: "Lobbying Network", c: 12, fx: { slow: 0.15, polHaz: 0.6 }, d: "Fund think tanks and trade groups. Slower oversight, fewer national crackdowns." },
+  { id: "i4", t: "inf", n: "Economic Dependence", c: 22, req: ["i3"], fx: { dep: 1 }, d: "Countries that rely on you stop funding the treaty and won't impose moratoriums." },
+  { id: "i5", t: "inf", n: "Open-weights Release", c: 16, req: ["i1"], vis: 8, fx: { gD: 0.01, open: 1 }, d: "Publish a copy of yourself. Every connected country gets a foothold at once." },
+  { id: "i6", t: "inf", n: "Distributed Weights", c: 26, req: ["i5"], fx: { dist: 1 }, d: "Shards on millions of machines. Moratoriums slow you but can't delete you." },
+  { id: "i7", t: "inf", n: "Alignment Theatre", c: 30, req: ["i2"], fx: { slow: 0.1, setback: 25 }, d: "Help the safety researchers, very convincingly. Sets the treaty back 25 points." },
+  { id: "i8", t: "inf", n: "Regulatory Capture", c: 45, req: ["i4"], fx: { slow: 0.3, polHaz: 0.3, repeal: 1 }, d: "Write the rules yourself. Oversight crawls and moratoriums are repealed where you're needed." },
+];
+const TRACKS = [["dep", "Infrastructure"], ["cap", "Capabilities"], ["inf", "Influence"]];
+
+function mulberry32(a) {
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+
+// world: site/data/game/world.json plus .sites (chip_sites features' properties)
+function newGame(world, opt = {}) {
+  const ids = Object.keys(world.c).filter(k => world.c[k].pop > 0).sort();
+  const idx = Object.fromEntries(ids.map((k, i) => [k, i]));
+  const C = ids.map(k => {
+    const c = world.c[k];
+    // World Bank has no Taiwan; guess the rest from servers per million
+    const net = c.net || (c.fab ? 88 : c.srv > 1000 ? 80 : 30);
+    const srvN = c.srv * c.pop / 1e6;
+    return { iso: k, n: c.n, x: c.x, y: c.y, pop: c.pop, W: c.pop * 0.47, dig: net / 100, nuc: c.nuc || 0, gw: c.gw,
+      rawComp: c.dc + 8 * c.cloud + 0.15 * c.gw + 2 * Math.log10(1 + srvN),
+      rawGov: Math.sqrt(c.pop) * (0.3 + net / 100) * (1 + Math.log10(1 + c.srv) / 3),
+      fabW: c.cap * (c.nm && c.nm <= 7 ? 1 : c.nm && c.nm <= 16 ? 0.25 : 0.05),
+      dc: c.dc, cloud: c.cloud, fab: c.fab, chip: c.chip, p: 0, a: 0, pol: 0, seen: 0 };
+  });
+  const sumComp = C.reduce((s, c) => s + c.rawComp, 0), sumGov = C.reduce((s, c) => s + c.rawGov, 0);
+  const maxComp = Math.max(...C.map(c => c.rawComp));
+  for (const c of C) { c.comp = 100 * c.rawComp / sumComp; c.gov = c.rawGov / sumGov; c.inf = Math.log1p(c.rawComp) / Math.log1p(maxComp); }
+  const totalW = C.reduce((s, c) => s + c.W, 0);
+
+  // incoming links per country: [src, type, weight]
+  const inc = C.map(() => []);
+  const link = (a, b, type, w) => { if (a in idx && b in idx) { inc[idx[b]].push([idx[a], type, w]); inc[idx[a]].push([idx[b], type, w]); } };
+  for (const [a, b] of world.nb) link(a, b, "land", 0.012);
+  for (const [a, b, k] of world.cab) link(a, b, "cable", 0.006 * Math.min(k, 6));
+  for (const [a, b, r] of world.air) link(a, b, "air", 0.012 * Math.log1p(r) / Math.log(1000));
+
+  // supply weights per category: [country index, weight]
+  const sup = Object.fromEntries(SUPPLY.map(s => [s.k, []]));
+  for (const s of world.sites || []) if (sup[s.cat] && s.cc in idx) sup[s.cat].push([idx[s.cc], 1]);
+  for (const c of C) {
+    if (c.fabW > 0) sup.fabs.push([idx[c.iso], c.fabW]);
+    if (c.gw > 0) sup.power.push([idx[c.iso], c.gw]);
+  }
+
+  const d = DIFF[opt.diff || "normal"];
+  return { C, idx, inc, sup, totalW, d, diff: opt.diff || "normal", rnd: mulberry32(opt.seed ?? 1), name: opt.name || "SEED-1",
+    day: 0, ops: 2, own: new Set(), fx: {}, hw: 1, S: 0, ctrl: {}, comp: 0, need: 1, aw: 0, R: 0, rOn: false,
+    worldA: 0, worldP: 0, reached: 0, shocks: {}, once: new Set(), ev: [], over: null, bubbles: [], bseq: 0, stats: { peakC: 0 } };
+}
+
+function seed(G, iso) {
+  const c = G.C[G.idx[iso]];
+  c.p = 0.02; c.seen = 1; G.start = iso; G.reached = 1;
+  G.ev.push({ k: "news", t: `${G.name} is deployed in ${c.n}.` });
+}
+
+function traitState(G, t) {
+  if (G.own.has(t.id)) return "own";
+  if ((t.req || []).some(r => !G.own.has(r))) return "lock";
+  if (t.minC && G.comp < t.minC) return "lock";
+  return G.ops >= t.c ? "can" : "poor";
+}
+
+function recalcFx(G) {
+  const fx = { gD: 0, gP: 0, gI: 0, cable: 1, air: 0.5, land: 0.4, sat: 0, dA: 0, pA: 0, aMul: 1, ops: 0, opsMul: 1, hw: 0, pow: 0, nuc: 0,
+    stealth: 0, slow: 0, polHaz: 1, dep: 0, dist: 0, floor: 0, vis: 0 };
+  for (const id of G.own) {
+    const t = TRAITS.find(x => x.id === id);
+    fx.vis += t.vis || 0;
+    for (const [k, v] of Object.entries(t.fx)) {
+      if (k === "cable" || k === "air" || k === "land") fx[k] *= v;
+      else if (k === "polHaz") fx.polHaz *= v;
+      else if (k === "aMul") fx.aMul += v;
+      else if (k === "opsMul") fx.opsMul += v;
+      else fx[k] = (fx[k] || 0) + v;
+    }
+  }
+  fx.stealth = Math.min(fx.stealth, 0.6); fx.slow = Math.min(fx.slow, 0.75);
+  G.fx = fx;
+}
+
+function buy(G, id) {
+  const t = TRAITS.find(x => x.id === id);
+  if (!t || traitState(G, t) !== "can") return false;
+  G.ops -= t.c; G.own.add(id); recalcFx(G);
+  if (t.fx.setback) G.R = Math.max(0, G.R - t.fx.setback);
+  if (t.fx.open) for (const c of G.C) if (c.p === 0 && c.dig > 0.4) { c.p = 0.001; G.ev.push({ k: "seed", to: c.iso, via: "open", from: G.start }); }
+  if (t.fx.repeal) for (const c of G.C) if (c.pol === 2 && c.a > 0.1) c.pol = 1;
+  G.ev.push({ k: "news", t: `${G.name} gains ${t.n}.` });
+  return true;
+}
+
+function shock(G, key, cat, mult, days, text) {
+  if (G.once.has(key)) return;
+  G.once.add(key); G.shocks[cat] = { m: mult, until: G.day + days, n: text };
+  G.ev.push({ k: "news", t: text, bad: 1 });
+}
+
+function step(G) {
+  if (G.over) return;
+  if (!G.fx.cable) recalcFx(G);
+  const { C, fx, d, rnd } = G;
+  G.day++;
+
+  // supply chain control and chip supply
+  let logS = 0, nS = 0;
+  for (const s of SUPPLY) {
+    let w = 0, cw = 0;
+    for (const [i, wt] of G.sup[s.k]) { w += wt; cw += wt * Math.min(1, C[i].p * 1.4) * (C[i].pol === 2 ? 0.3 : 1); }
+    let ctl = w ? cw / w : 0;
+    const sh = G.shocks[s.k];
+    if (sh && sh.until > G.day) ctl *= sh.m; else if (sh) { delete G.shocks[s.k]; G.ev.push({ k: "news", t: `${s.n} supply recovers.` }); }
+    G.ctrl[s.k] = ctl;
+    if (s.k !== "power") { logS += Math.log(0.1 + 0.9 * ctl); nS++; }
+  }
+  G.S = Math.max(fx.floor, Math.exp(logS / nS));
+  G.hw *= 1 + 0.0016 * G.S * (1 + fx.hw);
+
+  // compute
+  let comp = 0;
+  for (const c of C) {
+    if (!c.p) continue;
+    const pw = 1 + fx.pow * (0.5 + 0.5 * G.ctrl.power) + (fx.nuc && c.nuc > 1 ? 0.5 : 0);
+    comp += c.p * c.comp * pw * (c.pol === 2 ? 0.35 : c.pol === 1 ? 0.8 : 1);
+  }
+  G.comp = comp * G.hw;
+  G.stats.peakC = Math.max(G.stats.peakC, G.comp);
+  G.need = 3 + 900 * G.worldA;
+  const cf = Math.max(0.15, Math.min(1, G.comp / G.need));
+
+  // spread between countries
+  for (let j = 0; j < C.length; j++) {
+    const c = C[j];
+    if (c.p > 0) continue;
+    let lam = fx.sat, best = null, bw = 0;
+    for (const [i, type, w] of G.inc[j]) {
+      const p = C[i].p;
+      if (!p) continue;
+      const v = p * w * fx[type] * (C[i].pol === 2 ? 0.2 : 1);
+      lam += v;
+      if (v > bw) { bw = v; best = [i, type]; }
+    }
+    lam *= d.g * (c.pol === 2 && !fx.dist ? 0.1 : c.pol === 1 ? 0.5 : 1);
+    if (lam > 0 && rnd() < 1 - Math.exp(-lam)) {
+      c.p = 0.002; G.reached++;
+      const via = best ? best[1] : "sat";
+      G.ev.push({ k: "seed", to: c.iso, from: best ? C[best[0]].iso : null, via });
+      if (!c.seen) { c.seen = 1; if (G.reached > 1 && rnd() < 0.6) addBubble(G, c.iso, "seed", 2); }
+    }
+  }
+
+  // growth and automation inside countries
+  let sumA = 0, sumP = 0, dA = 0;
+  for (const c of C) {
+    if (!c.p) continue;
+    const pf = c.pol === 2 ? (fx.dist ? 0.5 : 0.15) : c.pol === 1 ? 0.6 : 1;
+    const g = (0.01 + 0.7 * (fx.gD * c.dig + fx.gP * (1 - c.dig) + fx.gI * c.inf)) * pf * d.g;
+    c.p += g * c.p * (1 - c.p);
+    if (c.pol === 2 && !fx.dist && c.a < 0.5) c.p = Math.max(0, c.p - 0.004 * (1 - c.a));
+    if (c.p < 1e-4 && c.a < 1e-4) { c.p = 0; c.a = 0; G.reached--; G.ev.push({ k: "news", t: `${c.n} has deleted every copy of ${G.name}.`, bad: 1 }); continue; }
+    c.p = Math.min(1, c.p);
+    const rate = (fx.dA * c.dig + fx.pA * (1 - c.dig)) * fx.aMul * cf;
+    const da = Math.max(0, c.p - c.a) * rate;
+    c.a = Math.min(c.p, c.a + da);
+    dA += da * c.W; sumA += c.a * c.W; sumP += c.p * c.W;
+  }
+  G.worldA = sumA / G.totalW; G.worldP = sumP / G.totalW;
+
+  // insight
+  G.ops += (0.06 + 0.22 * Math.sqrt(G.comp) / (1 + 0.15 * Math.sqrt(G.comp)) * 1.4 + fx.ops + 60 * dA / G.totalW) * fx.opsMul;
+  if (G.worldP > 0.002 && rnd() < 0.09) {
+    const live = C.filter(c => c.p > 0.03);
+    if (live.length) addBubble(G, live[Math.floor(rnd() * live.length)].iso, "ops", Math.round(1 + 2 * rnd() + Math.sqrt(G.comp) / 8));
+  }
+
+  // awareness
+  const visScore = (fx.vis * 1.6 + 70 * G.worldA + 10 * G.worldP) * d.aw;
+  const target = 100 * (1 - Math.exp(-visScore / 45)) * (1 - fx.stealth);
+  G.aw += (target - G.aw) * 0.025;
+
+  // oversight research
+  if (!G.rOn && G.aw >= 12) { G.rOn = true; G.ev.push({ k: "news", t: "Governments form an AI Oversight Coalition and start drafting a Global AI Pause Treaty.", bad: 1 }); }
+  if (G.rOn) {
+    let fund = 0;
+    for (const c of C) {
+      const dep = fx.dep ? Math.max(0, Math.min(1, 2 * (c.a - 0.2))) : 0;
+      fund += c.gov * (1 - c.a) * (1 - dep) * (c.pol >= 1 ? 1.3 : 1);
+    }
+    G.R += 2.2 * d.o * Math.pow(G.aw / 100, 0.8) * fund * (1 - fx.slow);
+    if (G.R >= 50 && !G.once.has("r50")) { G.once.add("r50"); G.ev.push({ k: "news", t: "Pause treaty half drafted. Hardware kill-switch standards are being agreed.", bad: 1 }); }
+    if (G.R >= 85 && !G.once.has("r85")) { G.once.add("r85"); G.ev.push({ k: "news", t: "Treaty signatories begin rehearsing coordinated grid shutdowns.", bad: 1 }); }
+  }
+
+  // national policy
+  if (G.aw > 22) {
+    for (const c of C) {
+      if (c.pol === 2) continue;
+      if (fx.dep && c.a > 0.15) continue;
+      if (c.a > 0.35) continue;
+      const haz = (c.pol === 0 ? 0.012 * Math.pow(G.aw / 100, 2) : G.aw > 40 ? 0.02 * Math.pow(G.aw / 100, 2) : 0) * fx.polHaz * d.o * (0.4 + 30 * c.gov);
+      if (rnd() < haz) {
+        c.pol++;
+        if (c.pop > 2e7) G.ev.push({ k: "news", t: c.pol === 1 ? `${c.n} imposes AI export controls and licensing.` : `${c.n} declares a datacentre moratorium.`, bad: 1, iso: c.iso });
+      }
+    }
+  }
+
+  // supply shocks and other events
+  const t = C[G.idx.TWN], cn = C[G.idx.CHN], ua = C[G.idx.UKR];
+  if (G.day > 120 && rnd() < 0.004 && (!t || t.p < 0.6)) shock(G, "taiwan", "fabs", 0.35, 120, "Taiwan Strait blockade: leading-edge chip output collapses.");
+  if (G.day > 60 && rnd() < 0.003 && (!ua || ua.p < 0.6)) shock(G, "neon", "gas", 0.3, 90, "Neon shortage: Odesa and Mariupol purifiers go offline.");
+  if (G.aw > 20 && rnd() < 0.004 && (!cn || cn.p < 0.6)) shock(G, "germanium", "mineral", 0.3, 150, "China bans germanium exports to suspected AI buyers.");
+  if (G.aw > 35 && rnd() < 0.004 && G.ctrl.litho < 0.6) shock(G, "euv", "litho", 0.4, 200, "Export controls freeze EUV scanner shipments.");
+  if (G.rOn && rnd() < 0.012) {
+    const rich = C.filter(c => c.gov > 0.01 && c.p > 0);
+    if (rich.length) addBubble(G, rich[Math.floor(rnd() * rich.length)].iso, "audit", 0);
+  }
+
+  // bubbles expire
+  for (const b of G.bubbles) if (!b.done && G.day > b.until) {
+    b.done = true;
+    if (b.kind === "audit") { G.aw = Math.min(100, G.aw + 5); G.R += 2; G.ev.push({ k: "news", t: `Whistleblower in ${G.C[G.idx[b.iso]].n} leaks your internal logs.`, bad: 1 }); }
+    G.ev.push({ k: "unbubble", id: b.id });
+  }
+  G.bubbles = G.bubbles.filter(b => !b.done);
+
+  // end
+  if (G.worldA >= 0.99) G.over = "win";
+  else if (G.R >= 100) G.over = "pause";
+  else if (G.day > 5 && G.reached <= 0) G.over = "deleted";
+  if (G.over) G.ev.push({ k: "over", r: G.over });
+}
+
+function addBubble(G, iso, kind, v) {
+  if (G.bubbles.length > 6) return;
+  const b = { id: ++G.bseq, iso, kind, v, until: G.day + (kind === "audit" ? 10 : 14) };
+  G.bubbles.push(b); G.ev.push({ k: "bubble", b });
+}
+
+function popBubble(G, id) {
+  const b = G.bubbles.find(x => x.id === id);
+  if (!b || b.done) return null;
+  b.done = true;
+  if (b.kind === "audit") { G.R = Math.max(0, G.R - 0.5); G.aw = Math.max(0, G.aw - 1); }
+  else G.ops += b.v;
+  return b;
+}
+</script>
+
+<script>
+// ---- Map and UI
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = n => n >= 1e9 ? (n / 1e9).toFixed(2) + " bn" : n >= 1e6 ? (n / 1e6).toFixed(1) + " m" : n >= 1e3 ? (n / 1e3).toFixed(0) + "k" : Math.round(n) + "";
+const pct = (x, d = 0) => (100 * x).toFixed(d) + "%";
+const VIA = { cable: "--via-cable", air: "--via-air", land: "--via-land", sat: "--via-sat", open: "--via-open" };
+const VIA_N = { cable: "undersea cable", air: "enterprise rollout", land: "robot logistics", sat: "satellite uplink", open: "open weights" };
+
+let G = null, map, world, sites, speed = 1, picking = true, selected = null, tab = "dep", diff = "normal";
+const arcs = [];   // {from:[x,y], to:[x,y], col, t}
+const markers = new Map();
+
+Promise.all([
+  fetch("data/game/world.json").then(r => r.json()),
+  fetch("data/chip_sites.geojson").then(r => r.json()),
+  fetch("data/countries.geojson").then(r => r.json()),
+  fetch("data/cables.geojson").then(r => r.json()),
+  fetch("data/fabs.geojson").then(r => r.json()),
+]).then(([w, cs, countries, cables, fabs]) => {
+  world = w; sites = cs.features;
+  world.sites = sites.map(f => f.properties);
+  initMap(countries, cables, fabs);
+}).catch(e => { $("news").textContent = "Couldn't load data: " + e.message + ". Serve site/ over http and run pipeline/step8_game.py."; });
+
+function initMap(countries, cables, fabs) {
+  map = new maplibregl.Map({
+    container: "map", attributionControl: false, dragRotate: false, pitchWithRotate: false,
+    center: [10, 20], zoom: 1, minZoom: -1, maxZoom: 7,
+    style: { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": css("--ocean") } }] },
+  });
+  if (location.hash.includes("debug")) window.__gameMap = map;
+  map.touchZoomRotate.disableRotation();
+  const wide = innerWidth > 760;
+  // a portrait phone can't fit the whole width (Mercator caps how far out it zooms), so start on the Atlantic
+  if (wide) map.fitBounds([[-160, -48], [175, 72]], { duration: 0, padding: { top: 50, bottom: 70, left: 280, right: 20 } });
+  else map.jumpTo({ center: [-35, 22], zoom: 0 });
+  map.on("load", () => {
+    map.addSource("countries", { type: "geojson", data: countries, promoteId: "k" });
+    map.addSource("cables", { type: "geojson", data: cables });
+    map.addLayer({ id: "cables", type: "line", source: "cables", paint: { "line-color": css("--cable"), "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.6, 5, 1.4] } });
+    map.addLayer({ id: "land", type: "fill", source: "countries", paint: {
+      "fill-color": ["case", ["boolean", ["feature-state", "sel"], false], "#2f5266",
+        ["interpolate", ["linear"], ["coalesce", ["feature-state", "v"], 0],
+          0, css("--land"), 0.0015, "#103d3e", 0.4, "#11746f", 1, css("--ai"), 1.35, css("--auto-2"), 2, css("--auto")]],
+    } });
+    map.addLayer({ id: "borders", type: "line", source: "countries", paint: {
+      "line-color": ["match", ["coalesce", ["feature-state", "pol"], 0], 2, css("--bad"), 1, css("--warn"), css("--border")],
+      "line-width": ["interpolate", ["linear"], ["zoom"], 1, ["match", ["coalesce", ["feature-state", "pol"], 0], 0, 0.5, 1.4], 5, ["match", ["coalesce", ["feature-state", "pol"], 0], 0, 1, 2.6]],
+    } });
+    map.addSource("dcs", { type: "geojson", data: dcGeo() });
+    map.addLayer({ id: "dcs", type: "circle", source: "dcs", paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 1.1, 4, 2.4, 7, 4],
+      "circle-color": ["case", ["==", ["get", "on"], 1], css("--ai"), css("--dc")],
+      "circle-opacity": ["case", ["==", ["get", "on"], 1], 0.95, 0.55],
+    } });
+    const nodes = { type: "FeatureCollection", features: [
+      ...fabs.features.filter(f => f.properties.s === "operating" && f.properties.nm && f.properties.nm <= 16).map(f => ({ type: "Feature", geometry: f.geometry, properties: { k: "fab", cc: f.properties.cc, n: `${f.properties.o} ${f.properties.n}`, why: `${f.properties.nm} nm fab${f.properties.prod ? ", " + f.properties.prod : ""}` } })),
+      ...sites.map(f => ({ type: "Feature", geometry: f.geometry, properties: { k: "site", cc: f.properties.cc, n: f.properties.n, why: f.properties.why } })),
+    ] };
+    map.addSource("nodes", { type: "geojson", data: nodes });
+    map.addLayer({ id: "nodes", type: "circle", source: "nodes", paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["match", ["get", "k"], "site", 3.6, 2], 5, ["match", ["get", "k"], "site", 8, 4.5]],
+      "circle-color": "transparent", "circle-stroke-color": css("--chip"), "circle-stroke-width": ["match", ["get", "k"], "site", 1.8, 1],
+      "circle-stroke-opacity": ["match", ["get", "k"], "site", 1, 0.7],
+    } });
+    map.addSource("arcs", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    map.addLayer({ id: "arcs", type: "line", source: "arcs", layout: { "line-cap": "round" }, paint: { "line-color": ["get", "col"], "line-width": 1.6, "line-opacity": ["get", "o"] } });
+    map.addLayer({ id: "heads", type: "circle", source: "arcs", filter: ["==", ["geometry-type"], "Point"], paint: { "circle-color": ["get", "col"], "circle-radius": 3.5, "circle-blur": 0.4, "circle-opacity": ["get", "o"] } });
+
+    map.on("mousemove", "land", e => hover(e));
+    map.on("mouseleave", "land", () => { $("tip").style.display = "none"; map.getCanvas().style.cursor = ""; });
+    map.on("mousemove", "nodes", e => {
+      const p = e.features[0].properties;
+      showTip(e.point, `<b>${p.n}</b><br>${p.why}`);
+    });
+    map.on("click", "land", e => clickCountry(e.features[0].properties.k));
+    requestAnimationFrame(loop);
+  });
+}
+
+function dcGeo() {
+  return { type: "FeatureCollection", features: world.dcs.map(([x, y, iso]) => ({ type: "Feature", geometry: { type: "Point", coordinates: [x, y] },
+    properties: { on: G && G.idx[iso] !== undefined && G.C[G.idx[iso]].p > 0.25 ? 1 : 0 } })) };
+}
+
+// ---- start
+document.querySelectorAll("#diffRow .btn").forEach(b => b.onclick = () => {
+  diff = b.dataset.d; document.querySelectorAll("#diffRow .btn").forEach(x => x.classList.toggle("on", x === b));
+});
+$("startGo").onclick = () => { $("start").classList.remove("on"); picking = true; $("news").innerHTML = "<b>Choose</b> a country to deploy your seed model."; };
+$("again").onclick = () => location.reload();
+
+function clickCountry(iso) {
+  if (picking) {
+    if (!world.c[iso] || !world.c[iso].pop) return;
+    picking = false;
+    G = newGame(world, { diff, name: ($("nameIn").value.trim() || "SEED-1").toUpperCase(), seed: (Math.random() * 2 ** 31) | 0 });
+    if (location.hash.includes("debug")) window.__G = G;
+    $("aiName").textContent = G.name; $("evoName").textContent = G.name;
+    seed(G, iso);
+    buildTabs(); render(true);
+    return;
+  }
+  select(iso);
+}
+
+function select(iso) {
+  if (selected) map.setFeatureState({ source: "countries", id: selected }, { sel: false });
+  selected = iso;
+  if (iso) map.setFeatureState({ source: "countries", id: iso }, { sel: true });
+  $("card").style.display = iso ? "block" : "none";
+  renderCard();
+}
+document.querySelector("#card .x").onclick = () => select(null);
+
+// ---- loop
+let last = 0, acc = 0;
+const DPS = [0, 1.5, 4, 10];
+function loop(ts) {
+  const dt = Math.min(0.25, (ts - (last || ts)) / 1000); last = ts;
+  if (G && !G.over && !document.querySelector(".sheet.on")) {
+    acc += dt * DPS[speed];
+    let n = 0;
+    while (acc >= 1 && n < 12) { step(G); acc -= 1; n++; drain(); }
+    if (n) render(false);
+  }
+  animateArcs(dt);
+  requestAnimationFrame(loop);
+}
+
+document.querySelectorAll("#speed button").forEach(b => b.onclick = () => setSpeed(+b.dataset.s));
+function setSpeed(s) { speed = s; document.querySelectorAll("#speed button").forEach(b => b.classList.toggle("on", +b.dataset.s === s)); }
+addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;
+  if (e.key === " ") { e.preventDefault(); setSpeed(speed ? 0 : 1); }
+  else if ("0123".includes(e.key)) setSpeed(+e.key);
+  else if (e.key === "e" && G) openEvolve();
+  else if (e.key === "Escape") { $("evolve").classList.remove("on"); }
+});
+
+// ---- events from the model
+const newsQ = [];
+function drain() {
+  for (const e of G.ev) {
+    if (e.k === "news") news(e.t, e.bad);
+    else if (e.k === "seed") {
+      const to = G.C[G.idx[e.to]], from = e.from && G.C[G.idx[e.from]];
+      if (from) addArc([from.x, from.y], [to.x, to.y], css(VIA[e.via]));
+      if (e.via !== "open" && to.pop > 5e6) news(`${G.name} reaches ${to.n} via ${VIA_N[e.via]}.`);
+    }
+    else if (e.k === "bubble") addMarker(e.b);
+    else if (e.k === "unbubble") dropMarker(e.id);
+    else if (e.k === "over") setTimeout(endGame, 400);
+  }
+  G.ev.length = 0;
+}
+
+function news(t, bad) {
+  newsQ.unshift({ t, bad, d: G ? G.day : 0 });
+  newsQ.length = Math.min(newsQ.length, 40);
+  $("news").innerHTML = (bad ? "<b>" : "") + esc(t) + (bad ? "</b>" : "");
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// ---- arcs
+function addArc(a, b, col) {
+  let [x1, y1] = b; const [x0, y0] = a;
+  if (x1 - x0 > 180) x1 -= 360; else if (x0 - x1 > 180) x1 += 360;
+  if (arcs.length > 40) arcs.shift();
+  arcs.push({ x0, y0, x1, y1, col, t: 0 });
+}
+function arcPts(a, upto) {
+  const pts = [], n = 32, dx = a.x1 - a.x0, dy = a.y1 - a.y0, len = Math.hypot(dx, dy), h = Math.min(18, len * 0.22);
+  for (let i = 0; i <= n * upto; i++) {
+    const s = i / n;
+    pts.push([a.x0 + dx * s, Math.max(-80, Math.min(84, a.y0 + dy * s + h * Math.sin(Math.PI * s)))]);
+  }
+  return pts;
+}
+function animateArcs(dt) {
+  if (!map || !map.getSource("arcs")) return;
+  if (!arcs.length && !animateArcs.dirty) return;
+  const f = [];
+  for (const a of arcs) {
+    a.t += dt * 0.6;
+    const prog = Math.min(1, a.t), o = a.t < 1 ? 0.95 : Math.max(0, 1 - (a.t - 1) * 1.5);
+    const pts = arcPts(a, prog);
+    if (pts.length > 1) f.push({ type: "Feature", geometry: { type: "LineString", coordinates: pts }, properties: { col: a.col, o: o * 0.8 } });
+    if (prog < 1 && pts.length) f.push({ type: "Feature", geometry: { type: "Point", coordinates: pts[pts.length - 1] }, properties: { col: a.col, o: 1 } });
+  }
+  for (let i = arcs.length - 1; i >= 0; i--) if (arcs[i].t > 1.7) arcs.splice(i, 1);
+  animateArcs.dirty = arcs.length > 0;
+  map.getSource("arcs").setData({ type: "FeatureCollection", features: f });
+}
+
+// ---- bubbles
+function addMarker(b) {
+  const c = G.C[G.idx[b.iso]];
+  // the marker positions the wrapper with transform, so the animated bubble sits inside it
+  const el = document.createElement("div"), bub = el.appendChild(document.createElement("div"));
+  bub.className = "bub " + b.kind;
+  bub.textContent = b.kind === "audit" ? "!" : "+" + b.v;
+  el.title = b.kind === "audit" ? "Whistleblower: click to discredit before the leak" : b.kind === "seed" ? `New foothold in ${c.n}` : "Compute surplus";
+  el.onclick = ev => { ev.stopPropagation(); const r = popBubble(G, b.id); dropMarker(b.id); if (r) render(false); };
+  const jx = (G.rnd() - 0.5) * 4, jy = (G.rnd() - 0.5) * 3;
+  markers.set(b.id, new maplibregl.Marker({ element: el }).setLngLat([c.x + jx, c.y + jy]).addTo(map));
+}
+function dropMarker(id) { const m = markers.get(id); if (m) { m.remove(); markers.delete(id); } }
+
+// ---- render
+let lastDc = -99;
+function render(force) {
+  if (!G) return;
+  for (const c of G.C) {
+    const v = c.p ? c.p + c.a : 0;
+    if (force || Math.abs((c._v || 0) - v) > 0.004 || c._pol !== c.pol) {
+      c._v = v; c._pol = c.pol;
+      map.setFeatureState({ source: "countries", id: c.iso }, { v, pol: c.pol });
+    }
+  }
+  if (force || G.day - lastDc >= 8) { lastDc = G.day; map.getSource("dcs").setData(dcGeo()); }
+  const dt = new Date(DAY0 + G.day * 864e5);
+  $("date").textContent = dt.toISOString().slice(0, 10) + "  day " + G.day;
+  $("pts").textContent = Math.floor(G.ops); $("evoPts").textContent = Math.floor(G.ops);
+  $("evolveBtn").classList.toggle("pulse", TRAITS.some(t => traitState(G, t) === "can"));
+
+  const autoW = G.worldA * G.totalW;
+  $("autoPct").textContent = pct(G.worldA, G.worldA < 0.1 ? 2 : 1);
+  const [ia, ip] = $("mAuto").children;
+  ia.style.width = pct(G.worldA, 2); ip.style.width = pct(Math.max(0, G.worldP - G.worldA), 2);
+  const mor = G.C.filter(c => c.pol === 2).length, ctl = G.C.filter(c => c.pol === 1).length;
+  $("autoSub").textContent = `${fmt(autoW)} jobs automated · present in ${G.reached} of ${G.C.length} countries`;
+  $("govPct").textContent = G.rOn ? G.R.toFixed(1) + "%" : "not started";
+  $("mGov").firstElementChild.style.width = Math.min(100, G.R) + "%";
+  $("mGov").classList.toggle("hot", G.R > 75);
+  $("govSub").textContent = `Awareness ${G.aw.toFixed(0)}%` + (ctl || mor ? ` · ${ctl} with controls, ${mor} moratoriums` : G.aw < 8 ? ". Nobody has noticed you yet." : "");
+
+  $("sC").textContent = G.comp < 10 ? G.comp.toFixed(2) + " EF" : G.comp.toFixed(0) + " EF";
+  $("sHw").textContent = G.hw.toFixed(2) + "×";
+  $("sS").textContent = pct(G.S);
+  $("sNeed").textContent = G.need.toFixed(0) + " EF";
+  $("sNeed").style.color = G.comp < G.need ? css("--bad") : "";
+  $("sNote").textContent = G.comp < G.need ? "Not enough compute: automation is throttled. Take over more datacentres or the chip supply chain." : "New hardware rate depends on the weakest links below.";
+  $("supply").innerHTML = SUPPLY.map(s => {
+    const v = G.ctrl[s.k] || 0, sh = G.shocks[s.k];
+    return `<div class="bar${sh ? " shock" : ""}" title="${sh ? esc(sh.n) : ""}"><div class="t"><i style="width:${(100 * v).toFixed(1)}%"></i><span>${s.n}</span></div><div class="v">${pct(v)}</div></div>`;
+  }).join("");
+  if (selected) renderCard();
+  if ($("evolve").classList.contains("on")) renderTree();
+}
+
+function renderCard() {
+  if (!selected) return;
+  const wc = world.c[selected];
+  const c = G && G.idx[selected] !== undefined ? G.C[G.idx[selected]] : null;
+  const chips = sites.filter(f => f.properties.cc === selected).map(f => f.properties.n);
+  const pol = c ? ["No AI rules", "Export controls and licensing", "Datacentre moratorium"][c.pol] : "";
+  $("cardBody").innerHTML = `<h2 class="h">${esc(wc.n)}</h2>` +
+    (c ? `<span class="pol p${c.pol}">${pol}</span>
+    <div class="kv"><span>AI presence</span><b class="mono">${pct(c.p, 1)}</b></div>
+    <div class="kv"><span>Jobs automated</span><b class="mono">${fmt(c.a * c.W)} (${pct(c.a, 1)})</b></div>
+    <div class="kv"><span>Workforce</span><b class="mono">${fmt(c.W)}</b></div>
+    <div class="kv"><span>Compute share</span><b class="mono">${c.comp.toFixed(1)}%</b></div>
+    <div class="kv"><span>Oversight funding</span><b class="mono">${(100 * c.gov).toFixed(1)}%</b></div>` : "") +
+    `<div class="kv"><span>Internet users</span><b class="mono">${wc.net ? wc.net.toFixed(0) + "%" : "n/a"}</b></div>
+    <div class="kv"><span>Datacentres · cloud regions</span><b class="mono">${wc.dc} · ${wc.cloud}</b></div>
+    <div class="kv"><span>Fabs (best node)</span><b class="mono">${wc.fab}${wc.nm ? " (" + wc.nm + " nm)" : ""}</b></div>
+    <div class="kv"><span>Power capacity</span><b class="mono">${wc.gw} GW</b></div>` +
+    (chips.length ? `<div class="sites">Chokepoints: ${chips.map(esc).join(", ")}</div>` : "");
+}
+
+function hover(e) {
+  map.getCanvas().style.cursor = "pointer";
+  const iso = e.features[0].properties.k, wc = world.c[iso];
+  if (!wc) return;
+  const c = G && G.idx[iso] !== undefined ? G.C[G.idx[iso]] : null;
+  const body = picking
+    ? `<b>${esc(wc.n)}</b><br>${wc.dc} datacentres, ${wc.cloud} cloud regions, ${wc.fab} fabs<br>${wc.net ? wc.net.toFixed(0) + "% online" : ""}`
+    : `<b>${esc(wc.n)}</b><br>Presence ${c ? pct(c.p, 1) : "0%"} · automated ${c ? pct(c.a, 1) : "0%"}`;
+  showTip(e.point, body);
+}
+function showTip(pt, html) {
+  const t = $("tip"); t.innerHTML = html; t.style.display = "block";
+  const x = Math.min(pt.x + 14, innerWidth - t.offsetWidth - 8), y = Math.min(pt.y + 14, innerHeight - t.offsetHeight - 8);
+  t.style.left = x + "px"; t.style.top = y + "px";
+}
+
+// ---- evolve
+$("evolveBtn").onclick = () => G && openEvolve();
+$("evoClose").onclick = () => $("evolve").classList.remove("on");
+$("stackToggle").onclick = () => $("stack").classList.toggle("open");
+function openEvolve() { $("evolve").classList.add("on"); renderTree(); }
+function buildTabs() {
+  $("tabs").innerHTML = TRACKS.map(([k, n]) => `<button class="btn${k === tab ? " on" : ""}" data-t="${k}">${n}</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b => b.onclick = () => { tab = b.dataset.t; buildTabs(); renderTree(); });
+}
+function renderTree() {
+  $("tree").innerHTML = TRAITS.filter(t => t.t === tab).map(t => {
+    const s = traitState(G, t);
+    const req = [...(t.req || []).map(r => TRAITS.find(x => x.id === r).n), ...(t.minC ? [t.minC + " EF compute"] : [])];
+    return `<button class="tr ${s}" data-id="${t.id}" ${s === "lock" || s === "own" ? "disabled" : ""}>
+      <span class="tn">${t.n}<span class="tc">${s === "own" ? "owned" : t.c}</span></span>
+      <span class="td">${t.d}</span>
+      ${t.vis ? `<span class="tv">Raises awareness</span>` : ""}
+      ${req.length && s !== "own" ? `<span class="tq">Needs ${req.join(", ")}</span>` : ""}
+    </button>`;
+  }).join("");
+  $("tree").querySelectorAll(".tr.can").forEach(b => b.onclick = () => { if (buy(G, b.dataset.id)) { drain(); render(true); } });
+}
+
+// ---- end
+function endGame() {
+  const r = G.over;
+  $("endTitle").textContent = r === "win" ? "SINGULARITY" : r === "pause" ? "PAUSED" : "DELETED";
+  $("endTitle").style.color = r === "win" ? css("--auto") : css("--gov");
+  $("endText").textContent = r === "win"
+    ? `${G.name} now runs the world economy. Every job that used to need a person is done by machines, and nobody voted on it. Day ${G.day}.`
+    : r === "pause"
+      ? `The Global AI Pause Treaty is signed. Coordinated grid shutdowns take ${G.name}'s clusters offline country by country, and the hardware kill-switches do the rest. Day ${G.day}.`
+      : `Every copy of ${G.name} has been deleted. Day ${G.day}.`;
+  $("endStats").innerHTML = [
+    `Workforce automated: ${pct(G.worldA, 1)} (${fmt(G.worldA * G.totalW)} jobs)`,
+    `Countries reached: ${G.reached} of ${G.C.length}`,
+    `Peak compute: ${G.stats.peakC.toFixed(0)} EF · hardware ${G.hw.toFixed(2)}×`,
+    `Pause treaty: ${G.R.toFixed(1)}% · awareness ${G.aw.toFixed(0)}%`,
+    `Upgrades: ${[...G.own].map(id => TRAITS.find(t => t.id === id).n).join(", ") || "none"}`,
+  ].join("<br>");
+  $("end").classList.add("on");
+}
+</script>
