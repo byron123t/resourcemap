@@ -4,14 +4,14 @@ Reads layers the earlier steps wrote to site/data/ and condenses them into one p
 plus the links the AI spreads along:
   countries.geojson, country_totals.json (population, power by fuel, coal output, minerals, water stress),
   domains.json (internet, servers, chip trade, labour force, unemployment, GDP), country_energy.json (gas, oil),
-  datacenters.geojson, cloud.geojson, fabs.geojson, chip_sites.geojson, cables.geojson, air.json, power.geojson
+  datacenters.geojson, bases.geojson, cloud.geojson, fabs.geojson, chip_sites.geojson, cables.geojson, air.json, power.geojson
 Two short hand lists live here: FIREWALL (game levels for national internet filtering) and LAUNCH (orbital launch sites).
 
 Writes site/data/game/world.json:
   c      {iso: {n, x, y, pop, net, srv, gw, nuc, dc, cloud, fab, cap, nm, chip:[site ids], crit, chipX,
                 lab (labour force; pop*0.47 where World Bank has none, labE=1), unemp (% of labour force),
                 gdp (US$ bn), pw {coal, gas, oil, hydro, wind, solar, nuclear} GW, gasP (bcm/yr), oilP (kb/d),
-                coalP (Mt/yr mine capacity), bws (water stress 0-5), min (chip/grid mineral deposit count), fw (0-1)}}
+                coalP (Mt/yr mine capacity), bws (water stress 0-5), min (chip/grid mineral deposit count), fw (0-1), mil (military bases)}}
   nb     land neighbours  [[a, b], ...]   (countries whose outlines share border vertices)
   cab    cable links      [[a, b, cable count], ...]
   air    air links        [[a, b, routes], ...]   (OpenFlights 2014, same as air.json)
@@ -142,6 +142,14 @@ for f in load("datacenters.geojson")["features"]:
     if iso:
         C[iso]["dc"] += 1
         dcs.append([round(x, 3), round(y, 3), iso])
+# military bases (airgapped command systems in the game)
+for c in C.values():
+    c["mil"] = 0
+for f in load("bases.geojson")["features"]:
+    x, y = f["geometry"]["coordinates"][:2] if f["geometry"]["type"] == "Point" else f["geometry"]["coordinates"][0][0][:2]
+    iso = country_at(x, y)
+    if iso:
+        C[iso]["mil"] += 1
 for f in load("cloud.geojson")["features"]:
     cc = f["properties"].get("cc")
     if cc in C:
