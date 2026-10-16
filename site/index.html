@@ -4714,7 +4714,7 @@ async function simLocalCore(env, shocks) {
     ["Wikipedia: Biosafety level, list of BSL-4 facilities", "https://en.wikipedia.org/wiki/Biosafety_level", "highest-containment labs", "CC BY-SA 4.0", "retrieved Oct 2026", "biolabs.geojson"],
     ["OpenFlights route database", "https://openflights.org/data", "airline routes between airports, summed by country (Scenarios: outbreak spread)", "ODbL", "routes frozen in 2014", "air.json"],
     ["epiparameterDB (Epiverse-TRACE)", "https://github.com/epiverse-trace/epiparameterDB", "generation times and serial intervals for the outbreak presets", "CC0 1.0", "2026"],
-    ["World Bank World Development Indicators", "https://data.worldbank.org/", "people online, broadband, secure servers, hospital beds, doctors, and mineral rents (% of GDP) per country", "CC BY 4.0", "latest year per country", "domains.json"],
+    ["World Bank World Development Indicators", "https://data.worldbank.org/", "people online, broadband, secure servers, hospital beds, doctors, and mineral rents (% of GDP) per country; labour force, unemployment and GDP (Singularity game)", "CC BY 4.0", "latest year per country", "domains.json"],
     ["Wikipedia, \"Internet censorship and surveillance by country\"", "https://en.wikipedia.org/wiki/Internet_censorship_and_surveillance_by_country", "national internet censorship level (hand-listed approximation, 0 open to 100 sealed)", "CC BY-SA 4.0", "2023", "domains.json"],
     ["TWNIC Taiwan Internet Report 2024", "https://report.twnic.tw/2024/en/", "Taiwan internet use (Taiwan is not in the World Bank WDI)", "report, cited", "2024", "domains.json"],
     ["FAOSTAT production and detailed trade matrix", "https://www.fao.org/faostat/", "wheat, maize, rice, soy, bananas and chicken: output and who trades with whom", "CC BY 4.0", "2023", "domains.json"],
@@ -4818,5 +4818,25 @@ async function simLocalCore(env, shocks) {
   };
   try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", repaint); } catch (e) {}
   new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
+<script>
+// Easter egg: typing "singularity" (or the Konami code), or tapping the title five times quickly, opens the
+// Singularity game (singularity.html), a strategy game played on this atlas's compute, energy and internet layers.
+(() => {
+  const go = () => { location.href = "singularity.html"; };
+  const words = ["singularity", "ArrowUpArrowUpArrowDownArrowDownArrowLeftArrowRightArrowLeftArrowRightba"];
+  let typed = "";
+  document.addEventListener("keydown", e => {
+    if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+    typed = (typed + (e.key.length === 1 ? e.key.toLowerCase() : e.key)).slice(-80);
+    if (words.some(w => typed.endsWith(w))) go();
+  });
+  const h = document.querySelector(".sheet-head h1");
+  let taps = [];
+  if (h) h.addEventListener("click", () => {
+    const t = Date.now(); taps = taps.filter(x => t - x < 2500).concat(t);
+    if (taps.length >= 5) go();
+  });
 })();
 </script>

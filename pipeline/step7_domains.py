@@ -977,7 +977,8 @@ def air():
 # 6. Country indicators + food
 # =====================================================================
 WB = {"net": "IT.NET.USER.ZS", "bb": "IT.NET.BBND.P2", "srv": "IT.NET.SECR.P6", "beds": "SH.MED.BEDS.ZS", "docs": "SH.MED.PHYS.ZS",
-      "minr": "NY.GDP.MINR.RT.ZS"}   # mineral rents, % of GDP
+      "lab": "SL.TLF.TOTL.IN", "unemp": "SL.UEM.TOTL.ZS", "gdp": "NY.GDP.MKTP.CD", "minr": "NY.GDP.MINR.RT.ZS"}
+# last four: labour force, unemployment %, GDP US$ (Singularity game), mineral rents % of GDP
 # Internet censorship level, 0 (open) .. 100 (sealed), approximating Wikipedia "Internet censorship and surveillance by
 # country" (CC BY-SA 4.0) pervasive / substantial / selective classes. Unlisted countries are treated as open (0).
 CENSORSHIP = {"PRK": 97, "CHN": 90, "IRN": 85, "TKM": 85, "ERI": 70, "AFG": 60, "CUB": 60, "RUS": 60, "SYR": 60,

@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Singularity: a strategy game on the real compute supply chain. Run an AI company, win the race, power your datacentres and automate the world's workforce before governments agree to pause you.">
+<title>Singularity</title>
+<link rel="stylesheet" href="vendor/fonts.css">
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<style>
+/* Layout: full-bleed map; top bar (name, date, speed, map views, news); left company panel; right country card;
+   bottom bar (Evolve + four meters). Strategy select, Evolve and end screens are modal sheets. Dark only.
+   Logic: game/sim.js (model), game/tree.js (Evolve graph), game/ui.js (map and panels). */
+:root {
+  --ocean: #071016;
+  --land: #17212a;
+  --border: #2a3945;
+  --cable: #123544;
+  --cable-glow: #2bd8ff;
+  --panel: rgba(10, 18, 24, 0.93);
+  --panel-solid: #0c161d;
+  --panel-line: #22333f;
+  --track: #0f1d26;
+  --sel: #e4eef2;
+  --ink: #e4eef2;
+  --ink-2: #9fb3bd;
+  --ink-3: #657a85;
+  --ai: #2fd3c4;
+  --ai-dim: #138a83;
+  --ai-mid: #11746f;
+  --ai-low: #103d3e;
+  --auto: #ff3d8b;
+  --auto-2: #c64fd6;
+  --gov: #4d8dff;
+  --warn: #ffb347;
+  --bad: #ff5a4f;
+  --good: #63e08a;
+  --dc: #7c5cff;
+  --chip: #ffc94d;
+  --us: #6aa8ff;
+  --cn: #ff6b5e;
+  --via-cable: #3ee0ff;
+  --via-air: #ffb347;
+  --via-land: #7dff9a;
+  --via-sat: #c08bff;
+  --via-open: #ff7ad9;
+  /* network view */
+  --net-0: #0f1b24;
+  --net-1: #14324a;
+  --net-2: #1d5a85;
+  --web-1: #0f5560;
+  --web-2: #2fd3c4;
+  --social: #ff7ad9;
+  --lan: #ffd166;
+  --gap: #9aa7b0;
+  --gap-on: #ff3d8b;
+  --fw-lo: #ff9a3d;
+  --fw-hi: #ff2d2d;
+  --sat: #e0c8ff;
+  --hx: #ff6b3d;
+  /* energy view */
+  --e-low: #173d2c;
+  --e-mid: #c9a227;
+  --e-high: #ff4a3d;
+  --f-coal: #8a7f76;
+  --f-gas: #ff9f43;
+  --f-oil: #b0573a;
+  --f-hydro: #3a8dff;
+  --f-wind: #9be7ff;
+  --f-solar: #ffd93d;
+  --f-nuclear: #b37cff;
+  /* people view */
+  --emp-hi: #2e6f8e;
+  --emp-mid: #6b3f8f;
+  --emp-lo: #ff3d8b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--ocean); color: var(--ink); font: 14px/1.4 "IBM Plex Sans", system-ui, sans-serif; overflow: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; }
+#map { position: absolute; inset: 0; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.h { font-family: Archivo, "IBM Plex Sans", sans-serif; font-stretch: 85%; letter-spacing: .02em; }
+
+/* top bar */
+#top { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: linear-gradient(var(--panel), rgba(10,18,24,.6)); border-bottom: 1px solid var(--panel-line); z-index: 5; }
+#top .name { font-weight: 800; font-size: 18px; color: var(--ai); white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+#top .date { color: var(--ink-2); white-space: nowrap; font-size: 13px; }
+.seg { display: flex; gap: 2px; }
+.seg button { background: transparent; border: 1px solid var(--panel-line); border-radius: 4px; padding: 2px 8px; min-width: 34px; font-size: 13px; }
+.seg button.on { background: var(--ai-dim); border-color: var(--ai); }
+#views button { min-width: 0; }
+#news { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--ink-2); font-size: 13px; }
+#news b { color: var(--warn); font-weight: 600; }
+#sideToggle { display: none; }
+#netMode { display: none; padding: 2px 8px; font-size: 13px; }
+#netMode.live { display: inline-block; }
+#netMode.on { background: var(--ai-dim); border-color: var(--ai); }
+#graph { position: absolute; inset: 0; z-index: 2; display: none; background: var(--ocean); }
+#graph.on { display: block; }
+/* the graph itself sits clear of the top bar, bottom bar and (on desktop) the left panel */
+#graphIn { position: absolute; top: 44px; bottom: 76px; left: 314px; right: 0; }
+@media (max-width: 760px) { #graphIn { top: 84px; bottom: 150px; left: 0; } }
+
+/* left panel */
+#side { position: absolute; top: 52px; left: 12px; width: 290px; max-height: calc(100% - 52px - 96px); overflow: auto; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 8px; padding: 4px 12px 8px; z-index: 4; display: none; scrollbar-width: thin; }
+#side.live { display: block; }
+#side details { border-bottom: 1px solid var(--panel-line); padding: 6px 0; }
+#side details:last-child { border-bottom: 0; }
+#side summary { cursor: pointer; font-size: 12px; text-transform: uppercase; color: var(--ink-2); font-family: Archivo, sans-serif; letter-spacing: .05em; list-style: none; display: flex; justify-content: space-between; }
+#side summary::after { content: "+"; color: var(--ink-3); }
+#side details[open] summary::after { content: "−"; }
+#side summary::-webkit-details-marker { display: none; }
+#side summary em { font-style: normal; text-transform: none; color: var(--ink); font-family: "IBM Plex Mono", monospace; }
+.kv { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--ink-2); }
+.kv b { color: var(--ink); font-weight: 600; font-family: "IBM Plex Mono", monospace; font-size: 12px; white-space: nowrap; }
+.kv b.bad { color: var(--bad); }
+.kv b.good { color: var(--good); }
+.note { font-size: 11.5px; color: var(--ink-3); margin-top: 3px; }
+.note.bad { color: var(--bad); }
+.bars { margin-top: 6px; display: grid; gap: 4px; }
+.bar { display: grid; grid-template-columns: 1fr 44px; gap: 6px; align-items: center; font-size: 12px; color: var(--ink-2); }
+.bar .t { position: relative; height: 14px; background: var(--track); border-radius: 3px; overflow: hidden; }
+.bar .t i { position: absolute; inset: 0 auto 0 0; background: var(--chip); opacity: .5; }
+.bar .t span { position: absolute; left: 6px; top: 0; line-height: 14px; font-size: 11px; color: var(--ink); white-space: nowrap; text-shadow: 0 0 3px #000; }
+.bar .v { text-align: right; font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+.bar.shock .t i { background: var(--bad); }
+.split { display: flex; height: 10px; border-radius: 3px; overflow: hidden; background: var(--track); margin: 4px 0 2px; }
+.split i { display: block; height: 100%; }
+.legend2 { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; color: var(--ink-3); }
+.legend2 i, .lg i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
+/* training runs */
+.run { margin: 6px 0 4px; display: grid; gap: 5px; }
+.run .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.run .tier { text-align: left; background: #12232d; border: 1px solid var(--panel-line); border-radius: 6px; padding: 5px 6px; font-size: 11px; display: grid; gap: 1px; }
+.run .tier:hover:not(:disabled) { border-color: var(--ai); }
+.run .tier:disabled { opacity: .5; cursor: default; }
+.run .tier b { font-size: 12px; }
+.run .tier .g { color: var(--ai); font-family: "IBM Plex Mono", monospace; }
+.run .tier .c { color: var(--warn); font-family: "IBM Plex Mono", monospace; }
+.run .tier .r { color: var(--ink-3); }
+.run label { font-size: 11.5px; color: var(--ink-2); display: flex; gap: 6px; align-items: center; }
+.run .cur { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; font-size: 12px; align-items: center; }
+.run .cur .prog { grid-column: 1 / -1; height: 6px; }
+.run .cur button { grid-row: 1 / 3; grid-column: 2; background: none; border: 1px solid var(--panel-line); border-radius: 5px; color: var(--ink-2); font-size: 11px; padding: 3px 7px; }
+.run .last { font-size: 11px; color: var(--ink-3); }
+/* guided goals */
+#goalBox { margin: 6px 0 2px; padding: 6px 8px; border: 1px dashed var(--ai-dim); border-radius: 6px; font-size: 12px; display: none; }
+#goalBox.on { display: block; }
+#goalBox b { color: var(--ai); }
+#goalBox .tip { color: var(--ink-2); font-size: 11.5px; margin-top: 2px; }
+#goalBox .rw { color: var(--warn); font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+#goalBox button { float: right; background: none; border: 0; color: var(--ink-3); font-size: 11px; padding: 0; }
+.slider { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; font-size: 11.5px; color: var(--ink-2); margin: 6px 0 2px; }
+.slider input { width: 100%; accent-color: var(--ai); }
+.race { display: grid; grid-template-columns: 70px 1fr 34px; gap: 6px; align-items: center; font-size: 12px; margin-top: 3px; }
+.race .t { position: relative; height: 10px; background: var(--track); border-radius: 3px; }
+.race .t i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; }
+.race .t s { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--auto); text-decoration: none; }
+.race b { font-family: "IBM Plex Mono", monospace; font-weight: 500; text-align: right; font-size: 11px; }
+.acts { display: grid; gap: 5px; margin-top: 6px; }
+.act { text-align: left; background: #12232d; border: 1px solid var(--panel-line); border-radius: 6px; padding: 5px 8px; display: grid; gap: 1px; font-size: 12px; }
+.act:hover:not(:disabled) { border-color: var(--ai); }
+.act b { font-weight: 600; display: flex; justify-content: space-between; gap: 6px; }
+.act b span { font-family: "IBM Plex Mono", monospace; font-weight: 400; color: var(--warn); font-size: 11px; white-space: nowrap; }
+.act small { color: var(--ink-3); font-size: 11px; }
+.act small.why { color: var(--bad); }
+.act:disabled { opacity: .55; cursor: default; }
+.brk { display: grid; grid-template-columns: 1fr auto; gap: 1px 8px; font-size: 11.5px; color: var(--ink-3); margin-top: 4px; }
+.brk b { font: 400 11px "IBM Plex Mono", monospace; color: var(--ink-2); text-align: right; }
+.brk .h2 { grid-column: 1 / -1; color: var(--ink-2); margin-top: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.brk .neg { color: var(--bad); }
+.brk .pos { color: var(--good); }
+.ctr { font-size: 12px; display: flex; justify-content: space-between; gap: 6px; color: var(--ink-2); padding: 2px 0; }
+.ctr b { color: var(--hx); font-weight: 600; }
+.ctr span { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+
+/* country card (right) */
+#card { position: absolute; top: 52px; right: 12px; width: 300px; max-height: calc(100% - 52px - 96px); overflow: auto; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 8px; padding: 10px 12px; z-index: 4; display: none; scrollbar-width: thin; }
+#card h2 { margin: 0 0 4px; font-size: 18px; padding-right: 20px; }
+#card .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+#card .tag { font-size: 11.5px; padding: 1px 6px; border-radius: 3px; background: #12303a; color: var(--ink-2); }
+#card .tag.warn { background: #3b2a0c; color: var(--warn); }
+#card .tag.bad { background: #3d1210; color: var(--bad); }
+#card .tag.hx { background: #3d1a0c; color: var(--hx); }
+#card h4 { margin: 8px 0 3px; font-size: 11.5px; text-transform: uppercase; color: var(--ink-3); font-weight: 600; letter-spacing: .05em; }
+#card .sites { margin-top: 6px; font-size: 12px; color: var(--ink-2); }
+#card .x { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: var(--ink-3); font-size: 20px; line-height: 1; }
+.prog { height: 4px; background: var(--track); border-radius: 2px; overflow: hidden; margin: 2px 0 4px; }
+.prog i { display: block; height: 100%; background: var(--ai); }
+.lay { display: grid; grid-template-columns: 100px 1fr 40px; gap: 6px; align-items: center; font-size: 12px; color: var(--ink-2); }
+.lay .t { height: 8px; background: var(--track); border-radius: 3px; overflow: hidden; }
+.lay .t i { display: block; height: 100%; }
+.lay b { font-family: "IBM Plex Mono", monospace; font-weight: 400; font-size: 11px; text-align: right; color: var(--ink); }
+
+/* map legend */
+#legend { position: absolute; right: 12px; bottom: 96px; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 8px; padding: 6px 10px; z-index: 3; font-size: 11.5px; color: var(--ink-2); max-width: 300px; display: none; }
+#legend.live { display: block; }
+#legend .ttl { font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+#legend .ramp { height: 8px; border-radius: 3px; margin: 2px 0; }
+#legend .rl { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--ink-3); }
+.lg { display: flex; flex-wrap: wrap; gap: 2px 10px; margin-top: 3px; }
+.lg i.dot { border-radius: 50%; }
+.lg i.ring { border-radius: 50%; background: transparent !important; border: 1.5px solid; }
+
+/* hover tip */
+#tip { position: absolute; pointer-events: none; background: var(--panel-solid); border: 1px solid var(--panel-line); border-radius: 6px; padding: 6px 8px; font-size: 12px; z-index: 6; display: none; max-width: 260px; color: var(--ink-2); }
+#tip b { color: var(--ink); }
+
+/* bottom bar */
+#bottom { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: auto repeat(4, 1fr); gap: 14px; align-items: center; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(rgba(10,18,24,.6), var(--panel)); border-top: 1px solid var(--panel-line); z-index: 5; }
+#evolveBtn { background: var(--ai-dim); border: 1px solid var(--ai); border-radius: 8px; padding: 8px 14px; font-weight: 700; display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
+#evolveBtn small { font-weight: 400; color: var(--ink); opacity: .85; }
+#evolveBtn.pulse { animation: pulse 1.2s ease-in-out infinite; }
+#btns { display: flex; gap: 6px; align-self: stretch; }
+#cardsBtn { background: #2a2210; border: 1px solid var(--warn); border-radius: 8px; padding: 8px 10px; font-weight: 700; display: none; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; color: var(--warn); }
+#cardsBtn.on { display: flex; animation: pulse 1.2s ease-in-out infinite; }
+#cardsBtn small { font-weight: 400; color: var(--ink); opacity: .85; }
+#cardsBtn.ai { background: #2a1030; border-color: var(--auto); color: var(--auto); }
+#cardsBtn.ai small::after { content: " (AI picks)"; }
+#drCards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin: 12px 0; }
+.dc { text-align: left; background: var(--track); border: 1px solid var(--panel-line); border-top: 4px solid var(--kc, var(--ai)); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; min-height: 150px; }
+.dc:hover:not(:disabled) { border-color: var(--kc, var(--ai)); transform: translateY(-2px); }
+.dc:disabled { opacity: .5; cursor: default; }
+.dc .dk { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--kc, var(--ink-3)); }
+.dc .dn { font-weight: 800; font-size: 15px; color: var(--ink); }
+.dc .dd { font-size: 12px; color: var(--ink-2); flex: 1; }
+.dc .dp { font: 12px "IBM Plex Mono", monospace; color: var(--warn); }
+.dc .dw { font-size: 11px; color: var(--bad); }
+.bub.site { background: var(--ai); color: #071016; }
+#banner { position: absolute; left: 50%; top: 30%; transform: translate(-50%, -50%); z-index: 8; pointer-events: none; text-align: center; opacity: 0; }
+#banner.on { animation: banner 2.6s ease-out forwards; }
+#banner .bt { font: 800 42px/1.1 Archivo, "IBM Plex Sans", sans-serif; font-stretch: 85%; letter-spacing: .04em; color: var(--kc, var(--ai)); text-shadow: 0 0 24px var(--kc, var(--ai)); }
+#banner .bs { font-size: 14px; color: var(--ink-2); margin-top: 6px; }
+@keyframes banner { 0% { opacity: 0; transform: translate(-50%, -40%) scale(.9); } 12% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -58%); } }
+.floatx { position: absolute; z-index: 9; pointer-events: none; font: 700 14px "IBM Plex Mono", monospace; color: var(--good); text-shadow: 0 0 8px #000; animation: floatx 1.1s ease-out forwards; }
+@keyframes floatx { to { transform: translateY(-36px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .floatx { display: none; } }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(47,211,196,.3); } }
+.meter { font-size: 12px; color: var(--ink-2); min-width: 0; }
+.meter .lab { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 3px; white-space: nowrap; }
+.meter .lab span { overflow: hidden; text-overflow: ellipsis; }
+.meter .lab b { color: var(--ink); font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+.meter .t { height: 12px; border-radius: 6px; background: var(--track); overflow: hidden; display: flex; }
+.meter .t i { display: block; height: 100%; transition: width .3s; }
+.meter .sub { margin-top: 3px; font-size: 11px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meter .k { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; padding: 0 4px; border-radius: 3px; margin-right: 4px; }
+.k.win { background: #3a0f24; color: var(--auto); }
+.k.lose { background: #10203d; color: var(--gov); }
+#mAuto i:nth-child(1) { background: var(--auto); }
+#mAuto i:nth-child(2) { background: var(--ai-dim); }
+#mPause i { background: var(--gov); }
+#mCash i { background: var(--good); }
+#mRes i { background: var(--chip); }
+.meter.hot .t i { background: var(--bad) !important; }
+.meter.hot .lab b { color: var(--bad); }
+
+/* bubbles (the marker element is positioned by MapLibre; the animated bubble is its child) */
+.bub { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; display: grid; place-items: center; font: 700 12px "IBM Plex Mono", monospace; color: #071016; cursor: pointer; animation: pop .35s ease-out, bob 1.6s ease-in-out .35s infinite; box-shadow: 0 0 14px currentColor; }
+.bub.ops { background: var(--warn); color: #3a2400; }
+.bub.seed { background: var(--auto); color: #fff; }
+.bub.audit { background: var(--gov); color: #fff; }
+.bub.cash { background: var(--good); color: #062010; }
+@keyframes pop { from { transform: scale(0); } }
+@keyframes bob { 50% { transform: translateY(-4px); } }
+
+/* sheets */
+.sheet { position: absolute; inset: 0; z-index: 10; display: none; align-items: center; justify-content: center; background: rgba(3, 8, 11, .74); padding: 16px; }
+.sheet.on { display: flex; }
+.box { background: var(--panel-solid); border: 1px solid var(--panel-line); border-radius: 12px; width: min(1080px, 100%); max-height: calc(100% - 20px); overflow: auto; padding: 18px 20px; }
+.box h1 { margin: 0 0 4px; font-size: 34px; color: var(--ai); }
+.box p { color: var(--ink-2); margin: 6px 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+input[type=text] { background: var(--track); border: 1px solid var(--panel-line); border-radius: 6px; color: var(--ink); padding: 8px 10px; font: inherit; min-width: 0; width: 220px; max-width: 100%; }
+.btn { background: #12232d; border: 1px solid var(--panel-line); border-radius: 6px; padding: 8px 14px; }
+.btn.on, .btn.go { background: var(--ai-dim); border-color: var(--ai); }
+.btn:disabled { opacity: .45; cursor: default; }
+.lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin-right: 4px; }
+
+/* strategy picker */
+#stratInfo { background: var(--track); border: 1px solid var(--panel-line); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--ink-2); }
+#stratInfo b { color: var(--ink); }
+#stratInfo ul { margin: 6px 0 0; padding-left: 18px; columns: 2; column-gap: 24px; font-size: 12.5px; }
+#start .box { padding-bottom: 0; }
+.foot { position: sticky; bottom: 0; background: var(--panel-solid); border-top: 1px solid var(--panel-line); margin: 10px -20px 0; padding: 4px 20px 12px; }
+.foot .row { margin: 8px 0 4px; }
+.foot #startHint { font-size: 12.5px; margin: 2px 0; }
+#diffRow .btn { padding: 6px 10px; }
+
+#strats { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin: 12px 0; }
+.st { text-align: left; background: var(--track); border: 1px solid var(--panel-line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.st:hover { border-color: var(--ai-dim); }
+.st.on { border-color: var(--ai); background: #0d2a2c; box-shadow: 0 0 0 1px var(--ai) inset; }
+.st .sn { font-weight: 800; font-size: 17px; color: var(--ink); }
+.st .stag { font-size: 12px; color: var(--ai); }
+.st .sd { font-size: 12px; color: var(--ink-2); }
+.st ul { margin: 0; padding-left: 16px; font-size: 11.5px; color: var(--ink-2); }
+.st .cash { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--warn); }
+.sb { display: grid; grid-template-columns: 70px 1fr; gap: 6px; align-items: center; font-size: 11px; color: var(--ink-3); }
+.sb .pips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+.sb .pips i { height: 6px; border-radius: 1px; background: #1b2c37; }
+.sb .pips i.f { background: var(--ai); }
+.st.on .sb .pips i.f { background: var(--auto); }
+
+/* evolve */
+#evoHead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+#evoHead .pts { font-family: "IBM Plex Mono", monospace; color: var(--warn); font-size: 18px; }
+#evolve .box { width: min(1200px, 100%); }
+#treeHost { min-height: 200px; }
+
+#end .box { width: min(720px, 100%); }
+#endSub { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+#endWhy { margin: 8px 0; padding-left: 18px; color: var(--ink); font-size: 13px; }
+#endWhy li { margin: 2px 0; }
+#endStats { font-size: 12.5px; color: var(--ink-2); display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2px 16px; border-top: 1px solid var(--panel-line); padding-top: 8px; }
+#galGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 12px 0; }
+.end { border: 1px solid var(--panel-line); border-radius: 10px; padding: 10px 12px; background: var(--track); display: flex; flex-direction: column; gap: 4px; min-height: 110px; }
+.end .en { font-weight: 800; font-size: 15px; color: var(--ink-3); }
+.end .ek { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.end .ed { font-size: 12px; color: var(--ink-3); }
+.end.got { border-color: var(--ai-dim); background: #0d2a2c; }
+.end.got.win { border-color: var(--auto); background: #2a0f1f; }
+.end.got .en { color: var(--ink); }
+.end.got .ed { color: var(--ink-2); }
+.end.now { box-shadow: 0 0 0 2px var(--warn); }
+.end .ek b { color: var(--bad); font-weight: 700; }
+.end.got.doom { border-color: var(--bad); }
+.credit { margin-top: 10px; font-size: 11px; color: var(--ink-3); }
+
+@media (max-width: 760px) {
+  #top { flex-wrap: wrap; gap: 6px 8px; padding: 6px 8px; }
+  #top .name { font-size: 16px; max-width: 110px; }
+  #top .date { font-size: 11px; }
+  .seg button { padding: 2px 6px; min-width: 28px; font-size: 12px; }
+  #views { order: 4; }
+  #netMode { order: 5; padding: 2px 6px; font-size: 12px; }
+  #sideToggle { display: inline-block; order: 5; margin-left: auto; }
+  #news { flex-basis: 100%; order: 6; font-size: 12px; }
+  #side, #card { top: auto; bottom: 150px; left: 8px; right: 8px; width: auto; max-height: calc(100% - 150px - 110px); }
+  #side.live { display: none; }
+  #side.live.open { display: block; }
+  #side.live.open ~ #legend { visibility: hidden; }
+  #legend { right: 8px; top: 96px; bottom: auto; max-width: 180px; padding: 4px 8px; font-size: 10.5px; }
+  #legend .lg { display: none; }
+  #bottom { grid-template-columns: auto 1fr 1fr; gap: 6px 10px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+  #evolveBtn { padding: 8px 10px; align-self: stretch; justify-content: center; }
+  #btns { grid-row: span 2; flex-direction: column; }
+  .meter .lab { font-size: 11px; }
+  .meter .sub { font-size: 10px; }
+  .meter .k { display: none; }
+  .box { padding: 14px; }
+  .box h1 { font-size: 26px; }
+  #strats { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .st { padding: 9px; }
+  #stratInfo ul { columns: 1; }
+  .foot { margin: 10px -14px 0; padding: 2px 14px 10px; }
+  #start .box > p:first-of-type { font-size: 13px; }
+}
+</style>
+
+<div id="map"></div>
+<div id="graph"><div id="graphIn"></div></div>
+
+<div id="top">
+  <span class="name h" id="aiName">SINGULARITY</span>
+  <span class="date mono" id="date"></span>
+  <div id="speed" class="seg" role="group" aria-label="Speed">
+    <button data-s="0" title="Pause (space)">II</button>
+    <button data-s="1" class="on" title="Normal (1)">&gt;</button>
+    <button data-s="2" title="Fast (2)">&gt;&gt;</button>
+    <button data-s="3" title="Fastest (3)">&gt;&gt;&gt;</button>
+  </div>
+  <div id="views" class="seg" role="group" aria-label="Map view (v)">
+    <button data-v="ai" class="on" title="AI presence and automation">AI</button>
+    <button data-v="net" title="The internet: layers, cables, firewalls, satellites">Network</button>
+    <button data-v="energy" title="Power plants and AI power draw">Energy</button>
+    <button data-v="people" title="Employment">People</button>
+  </div>
+  <button id="netMode" class="btn" title="Show the internet as a map or as a graph (g)">Graph</button>
+  <button id="sideToggle" class="btn" style="padding:2px 8px">Company</button>
+  <span class="seg" role="group" aria-label="Audio"><button id="musBtn" class="btn" title="Music (m)">Music</button><button id="sfxBtn" class="btn" title="Sound effects">SFX</button></span>
+  <div id="news">Loading the world…</div>
+</div>
+
+<div id="side">
+  <div id="goalBox"></div>
+  <details open id="secCo"><summary>Company <em id="coSum"></em></summary>
+    <div class="kv"><span>Cash</span><b id="coCash"></b></div>
+    <div class="kv"><span>Revenue / day</span><b id="coRev"></b></div>
+    <div class="kv"><span>Burn / day</span><b id="coBurn"></b></div>
+    <div class="kv"><span>Runway</span><b id="coRun"></b></div>
+    <div class="kv"><span>Valuation</span><b id="coVal"></b></div>
+    <div class="kv"><span>Owed to investors</span><b id="coOwed"></b></div>
+    <div class="brk" id="coWhy"></div>
+    <div class="acts" id="coActs"></div>
+  </details>
+  <details open id="secComp"><summary>Compute <em id="cpSum"></em></summary>
+    <div class="split" id="cpSplit"><i style="background:var(--dc)"></i><i style="background:var(--ai)"></i><i style="background:var(--via-sat)"></i></div>
+    <div class="legend2"><span><i style="background:var(--dc)"></i>Leased <b class="mono" id="cpL"></b></span><span><i style="background:var(--ai)"></i>Owned <b class="mono" id="cpO"></b></span><span><i style="background:var(--via-sat)"></i>Orbital <b class="mono" id="cpS"></b></span></div>
+    <div class="kv" style="margin-top:4px"><span>Power draw / headroom</span><b id="cpPow"></b></div>
+    <div class="run" id="cpRun"></div>
+    <div class="kv"><span>Training</span><b id="cpTr"></b></div>
+    <div class="kv"><span>Serving (demand)</span><b id="cpInf"></b></div>
+    <div class="kv"><span>Automation needs</span><b id="cpAuto"></b></div>
+    <div class="note" id="cpNote"></div>
+    <div class="kv" style="margin-top:4px"><span>Capability</span><b id="cpCap"></b></div>
+    <div class="prog"><i id="cpCapBar"></i></div>
+    <div class="note" id="cpWhy"></div>
+    <div class="acts" id="cpActs"></div>
+  </details>
+  <details open id="secRace"><summary>Race <em id="raSum"></em></summary>
+    <div id="raBars"></div>
+    <div class="note" id="raNote"></div>
+    <div class="acts" id="raActs"></div>
+  </details>
+  <details id="secCtr"><summary>Counter-measures <em id="ctSum"></em></summary>
+    <div class="brk" id="ctWhy"></div>
+    <div id="ctList"></div>
+  </details>
+  <details id="secRes"><summary>Resources <em id="rsSum"></em></summary>
+    <div class="bars" id="rsBars"></div>
+    <div class="note" id="rsNote"></div>
+  </details>
+  <details id="secSup"><summary>Supply chain <em id="suSum"></em></summary>
+    <div class="kv"><span>Hardware generation</span><b id="suHw"></b></div>
+    <div class="bars" id="supply"></div>
+  </details>
+</div>
+
+<div id="card"><button class="x" aria-label="Close">×</button><div id="cardBody"></div><div class="acts" id="cardActs"></div></div>
+<div id="legend"></div>
+<div id="tip"></div>
+<div id="banner" aria-live="polite"></div>
+
+<div id="bottom">
+  <div id="btns">
+    <button id="evolveBtn" class="h" title="Evolve (e)">EVOLVE<small class="mono"><span id="pts">0</span> insight</small></button>
+    <button id="cardsBtn" class="h" title="Breakthrough cards (c)">CARDS<small>pick 1 of 3</small></button>
+  </div>
+  <div class="meter" id="mAutoBox" title="Win: automate 99% of the world's labour force">
+    <div class="lab"><span><i class="k win">win</i>Workforce automated</span><b id="autoPct">0%</b></div>
+    <div class="t" id="mAuto"><i></i><i></i></div>
+    <div class="sub" id="autoSub">Not deployed yet</div>
+  </div>
+  <div class="meter" id="mPauseBox" title="Lose: the Global AI Pause Treaty reaches 100%">
+    <div class="lab"><span><i class="k lose">lose</i>Pause treaty</span><b id="pausePct">—</b></div>
+    <div class="t" id="mPause"><i></i></div>
+    <div class="sub" id="pauseSub">Nobody has noticed you yet</div>
+  </div>
+  <div class="meter" id="mCashBox" title="Lose: cash runs out">
+    <div class="lab"><span><i class="k lose">lose</i>Runway</span><b id="cashPct">—</b></div>
+    <div class="t" id="mCash"><i></i></div>
+    <div class="sub" id="cashSub"></div>
+  </div>
+  <div class="meter" id="mResBox" title="Lose: the world's spare fuel or chip and grid minerals run out before superintelligence">
+    <div class="lab"><span><i class="k lose">lose</i>World resources</span><b id="resPct">—</b></div>
+    <div class="t" id="mRes"><i></i></div>
+    <div class="sub" id="resSub"></div>
+  </div>
+</div>
+
+<div class="sheet on" id="start">
+  <div class="box">
+    <h1 class="h">SINGULARITY</h1>
+    <p>You run an AI company. Your goal: automate every job on Earth. Compute is everything: it needs chips from a handful of real fabs and chokepoints, grid power from real plants, and cash from investors who only fund the leader. Every capability you gain makes the world more nervous, and if governments agree a Global AI Pause Treaty, you're finished. So are you if you run out of money, or burn through the world's spare fuel and minerals before reaching superintelligence.</p>
+    <div class="lbl" style="margin-top:12px">Choose your approach</div>
+    <div id="strats"></div>
+    <div id="stratInfo"></div>
+    <p class="credit">Data: Natural Earth; OpenStreetMap contributors (ODbL); TeleGeography submarine cables (CC BY-SA 4.0); Wikipedia lists of semiconductor fabs, rocket launch sites and internet censorship by country (CC BY-SA 4.0); World Bank WDI (internet use, labour force, unemployment, GDP; CC BY 4.0); Global Energy Monitor power plant trackers (CC BY 4.0); Energy Institute Statistical Review (gas, oil); USGS mineral deposits (public domain); WRI Aqueduct water stress (CC BY 4.0); OpenFlights routes (ODbL). A game: the companies and model are invented, the places are real.</p>
+    <div class="foot">
+      <div class="row">
+        <label class="lbl" for="nameIn">Model</label><input type="text" id="nameIn" value="SEED-1" maxlength="20">
+        <span id="diffRow" class="seg" role="group" aria-label="Oversight">
+          <span class="lbl" style="align-self:center">Oversight</span>
+          <button class="btn" data-d="easy">Distracted</button>
+          <button class="btn on" data-d="normal">Cautious</button>
+          <button class="btn" data-d="hard">Coordinated</button>
+        </span>
+      </div>
+      <p id="startHint"></p>
+      <div class="row"><button class="btn go" id="startGo" disabled>Choose a starting country</button><button class="btn" id="endingsBtn">Endings 0/16</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="evolve">
+  <div class="box">
+    <div id="evoHead"><h2 class="h" style="margin:0">Evolve <span id="evoName"></span></h2><span class="pts"><span id="evoPts">0</span> insight</span></div>
+    <div id="treeHost"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn go" id="evoClose">Back to the world</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="draft">
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><h2 class="h" style="margin:0">Breakthroughs <span id="drWhy" class="note"></span></h2><span class="pts mono" style="color:var(--warn)"><span id="drPts">0</span> insight</span></div>
+    <p class="note" style="margin:6px 0 0">Buy one card with insight, or skip for +3 insight. Augments last the whole game; the next draw comes with new research or a new capability level.</p>
+    <div id="drCards"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" id="drSkip">Skip (+3 insight)</button><button class="btn go" id="drLater">Later</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="end">
+  <div class="box">
+    <div id="endSub"></div>
+    <h1 class="h" id="endTitle">—</h1>
+    <p id="endText"></p>
+    <ul id="endWhy"></ul>
+    <div id="endStats" class="mono"></div>
+    <div class="row"><button class="btn go" id="again">Play again</button><button class="btn" id="endGallery">All endings</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="gallery">
+  <div class="box">
+    <div class="galHead" style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><h2 class="h" style="margin:0">Endings <span class="mono" id="galCount" style="color:var(--warn)"></span></h2><span class="note">Max Tegmark's twelve AI aftermath scenarios (Life 3.0), plus doom endings</span></div>
+    <div id="galGrid"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn go" id="galClose">Close</button></div>
+  </div>
+</div>
+
+<script src="vendor/maplibre-gl.js"></script>
+<script src="game/sim.js"></script>
+<script src="game/audio.js"></script>
+<script src="game/netgraph.js"></script>
+<script src="game/tree.js"></script>
+<script src="game/ui.js"></script>
