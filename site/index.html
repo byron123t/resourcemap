@@ -304,6 +304,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .cards svg { grid-column: 3; grid-row: 1 / span 3; width: 64px; height: 30px; align-self: center; }
 .cards .st { grid-column: 2 / -1; font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); }
 .story-mk { width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1.5px solid var(--panel); background: var(--conflict); color: #fff; font: 600 10.5px/1 var(--f-mono); cursor: pointer; box-shadow: 0 1px 3px rgb(0 0 0 / .35); }
+#story .chips button { font: inherit; font-size: 11px; padding: 3px 8px; border: 1px solid var(--panel-line); border-radius: 999px; background: var(--land); color: var(--ink-2); cursor: pointer; }
+#story .chips button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+#story .chips i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: 0; }
+.cards .tag { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
 .story-mk.on { width: 26px; height: 26px; font-size: 12px; border-color: var(--ink); z-index: 2; }
 .story-spark { padding: 4px 18px 0; } .story-spark svg { display: block; width: 100%; height: 40px; }
 .lc-key { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; font-size: 11px; color: var(--ink-2); line-height: 1.3; }
@@ -436,6 +440,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         <button type="button" data-win="week" aria-pressed="true">Past week</button>
         <button type="button" data-win="month" aria-pressed="false">Past month</button>
       </div>
+      <div class="row chips" id="storyCats" role="group" aria-label="Kinds of story"></div>
       <p class="sum" id="storySum">Loading the storyboard…</p>
       <div class="chart" id="storyChart"></div>
       <div class="stepper">
@@ -445,7 +450,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         <span class="pos" id="storyPos"></span>
       </div>
       <ol class="cards" id="storyCards"></ol>
-      <p class="sum small">Each card is a place where conflict reports (assaults, fighting, mass violence) jumped well above that place's own usual level in that hour, day or three days. Picked from GDELT, which codes events from news articles automatically, so read the linked articles. The headline comes from the most-cited article and can be about a different event in the same place.</p>
+      <p class="sum small">Conflict cards are places where conflict reports (assaults, fighting, mass violence) jumped well above their usual level, picked from GDELT's automatically coded events. The other kinds come from GDELT article searches (unrest, trade curbs, industrial accidents, blackouts, shipping, disease, harvests, cables, cloud, cyber, chips), kept only when at least two outlets report the same thing at the same place, and from USGS earthquakes and NASA EONET storms and floods. Places are read from the headline, so read the linked articles.</p>
     </div>
     <div class="sim" id="sim" hidden>
       <button type="button" class="sim-back" id="simBack" hidden>← All scenarios</button>
@@ -676,7 +681,8 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
             <option value="c:chipM">Chip imports</option>
             <option value="c:beds">Hospital beds per person</option>
             <option value="c:docs">Doctors per person</option>
-            <option value="c:fdep">Cereals imported (share of supply)</option>
+            <option value="c:fdep2">Staple foods imported (all cereals and roots)</option>
+            <option value="c:fdep">Wheat, maize and rice imported</option>
           </optgroup>
         </select>
         <div class="base-legend" id="baseLegend" hidden></div>
@@ -1507,7 +1513,7 @@ const SIM_PATHO = {
   cov: { n: "COVID-like virus", R0: 2.7, Tg: 4.7, hosp: 0.04, los: 10, cite: "serial interval 4.7 days (Nishiura et al. 2020); R0 2.5–3 for the 2020 strain" },
   sev: { n: "Severe new virus", R0: 2.2, Tg: 6, hosp: 0.15, los: 12, cite: "hypothetical: about as catching as early COVID-19, far more often severe" }
 };
-const SIM_FOOD = { wheat: "Wheat", maize: "Maize", rice: "Rice", soy: "Soybeans", banana: "Bananas", chicken: "Chicken meat" };
+const SIM_FOOD = { wheat: "Wheat", maize: "Maize", rice: "Rice", soy: "Soybeans", banana: "Bananas", chicken: "Chicken meat", millet: "Millet", sorghum: "Sorghum", cassava: "Cassava" };
 const SIM_CHOKE = { malacca: "Strait of Malacca", hormuz: "Strait of Hormuz", suez: "Suez Canal & SUMED", bab: "Bab el-Mandeb", danish: "Danish Straits",
   turkish: "Turkish Straits", panama: "Panama Canal", cape: "Cape of Good Hope" };
 // ---- information, health & food: models that need no network solve ----
@@ -1713,6 +1719,9 @@ function simChainCore(env, r, facts, shocks) {
   for (const m of (facts.mines || []).slice(0, 2)) {
     st.push({ k: "mine", title: m.coal ? "Coal stops" : "Iron ore stops", big: cSmart(m.mt) + " Mt/yr", text: `lost from ${m.n}: ${m.ctry ? pc(m.ctry) + " of " + env.country(m.k) + "'s output, " : ""}${pc(m.world)} of the world's. Steel mills and power plants that buy it look elsewhere.`,
       on: [m.coal ? "coal" : "iron", "steel", "lanes", "ports"], box: m.box, z: 6 });
+    if (m.buyers && m.buyers.length) st.push({ k: "minebuy", title: m.coal ? "Who burns that coal" : "Whose steel mills feel it", big: env.country(m.buyers[0].k),
+      text: `buys most of ${env.country(m.k)}'s ${m.coal ? "coal" : "iron ore"} exports; losing this mine's share costs it ≈${simMt(m.buyers[0].kt / 1)} a year, ${pc(m.buyers[0].share)} of its imports. Next: ${m.buyers.slice(1, 4).map(b => `${env.country(b.k)} ${pc(b.share)}`).join(", ")}. (${m.year || ""} trade, CEPII BACI)`,
+      on: [m.coal ? "coal" : "iron", "steel", "lanes", "ports"], cty: Object.fromEntries(m.buyers.map(b => [b.k, Math.min(1, b.share * 3)])), box: simCountryBox(env, m.buyers.map(b => b.k).concat(m.k)), z: 3 });
   }
   // 6.-8. oil and gas: re-routing, then who runs short, then gas power
   if (r) {
@@ -1978,7 +1987,11 @@ async function simLocalCore(env, shocks) {
     const coal = s.t[0] === "c", p = s.f.properties, key = coal ? "coal" : "iron", mt = (p.pr || (!coal && p.cap) || 0) * s.m;
     const ct = (T[p.k] || {})[key], wt = Object.values(T).reduce((a, c) => a + (c[key] || 0), 0);
     if (mt && wt) facts.head.push([cFmt(mt / wt * 100, 1) + "%", `of the world's ${coal ? "coal" : "iron ore"} output lost`, "dn"]);
-    (facts.mines = facts.mines || []).push({ n: p.n, coal, mt, world: wt ? mt / wt : 0, ctry: ct ? mt / ct : 0, k: p.k, box: simShockBox([s]) });
+    const M = ((await env.domains()) || {}).minerals, tr = M && M.trade && M.trade[coal ? "coal" : "iron"], ex = tr ? tr.filter(f => f[0] === p.k) : [];
+    const exT = ex.reduce((a, f) => a + f[2], 0), imp = k => tr.filter(f => f[1] === k).reduce((a, f) => a + f[2], 0);
+    // the mine's share of its country's exports reaches each buyer in proportion to what it bought
+    const lostShare = ct ? Math.min(1, mt / ct) : 0, buyers = exT && lostShare ? ex.sort((a, b) => b[2] - a[2]).slice(0, 5).map(f => ({ k: f[1], kt: f[2] * lostShare, share: imp(f[1]) ? f[2] * lostShare / imp(f[1]) : 0 })) : [];
+    (facts.mines = facts.mines || []).push({ n: p.n, coal, mt, world: wt ? mt / wt : 0, ctry: ct ? mt / ct : 0, k: p.k, box: simShockBox([s]), buyers, year: M && M.year });
     facts.push(`<li>${coal ? "Coal" : "Iron ore"}, ${cEsc(p.n)}: ` + (mt ? `${cSmart(mt)} Mt/yr lost${ct ? `, ${cFmt(mt / ct * 100, 1)}% of ${cEsc(env.country(p.k))}'s output` : ""}${wt ? ` and ${cFmt(mt / wt * 100, 2)}% of the world's` : ""}` : "no reported output")
       + (/^operating$/i.test(p.s || "") ? "." : ` (status: ${cEsc(p.s || "unknown")}).`) + "</li>");
   }
@@ -3097,7 +3110,7 @@ async function simLocalCore(env, shocks) {
     if (src === "navy") return `<b>${esc(p.n)}</b> <span class="m">${esc(p.h)}</span><div class="m">${NAVY_T[p.cl] || "Warship"} · ${p.port ? "in port, " : ""}${esc(p.loc || "")}</div>`;
     if (src === "cables") return `<b>${esc(p.n)}</b><div class="m">${p.pl ? "Planned" : "Submarine cable"}${p.rfs ? " · " + (p.pl ? "due " : "since ") + p.rfs : ""}${p.km ? " · " + fmt(p.km) + " km" : ""}</div>`;
     if (src === "landings") return `<b>${esc(p.n)}</b><div class="m">${p.k} cable${p.k === 1 ? "" : "s"} land here</div>`;
-    if (src === "story") return `<b>${esc(p.title || p.n)}</b><div class="m">${esc(p.n)} · ${fmt(p.e)} reports</div>`;
+    if (src === "story") return `<b>${esc(p.title || p.n)}</b><div class="m">${esc(p.n)}${p.e != null ? " · " + fmt(p.e) + " reports" : ""}</div>`;
     if (src === "aircraft" || src === "jets" || src === "airliners") return `<b>${esc(p.f || p.r || p.hex)}</b><div class="m">${esc(p.desc || p.ty || "")}${p.gnd ? " · on ground" : p.alt != null ? " · " + feet(p.alt) : ""}</div>`;
     if (src === "bases") return `<b>${esc(p.n)}</b><div class="m">${BASE_T[p.t] || "Military site"}${p.c ? " · " + esc(p.c) : ""}</div>`;
     if (src === "airports") return `<b>${esc(p.n)}</b><div class="m">${p.mil ? "Military · " : ""}${AIR_T[p.t]}${p.ia || p.i ? " · " + esc(p.ia || p.i) : ""}</div>`;
@@ -3424,7 +3437,7 @@ async function simLocalCore(env, shocks) {
     const T = DATA.totals, D = DATA.domains;
     if (!T || !D || D.merged) return;
     D.merged = true;
-    for (const [k, c] of Object.entries(D.countries || {})) if (T[k]) for (const f of ["net", "bb", "srv", "beds", "docs", "chipX", "chipM", "cens", "minr"]) if (c[f] != null) T[k][f] = c[f];
+    for (const [k, c] of Object.entries(D.countries || {})) if (T[k]) for (const f of ["net", "bb", "srv", "beds", "docs", "chipX", "chipM", "cens", "minr", "fdep2"]) if (c[f] != null) T[k][f] = c[f];
     const F = D.food || {}, sum = {};
     for (const it of ["wheat", "maize", "rice"]) {
       for (const [k, v] of Object.entries((F.prod || {})[it] || {})) (sum[k] = sum[k] || { p: 0, i: 0, x: 0 }).p += v;
@@ -3438,7 +3451,7 @@ async function simLocalCore(env, shocks) {
     fresh_km2: ["--river", "km²"], gw_basin_km2: ["--gw", "km²"], bws: ["--stress", "score 0–5"], pw_gw: ["--power", "GW"], pw_nuclear: ["--power", "GW"], pw_hydro: ["--river", "GW"],
     kpop: ["--pop", "people"], kdens: ["--pop", "people/km²"], net: ["--cloud", "% of people online"], srv: ["--cloud", "secure web servers per million people"],
     chipX: ["--cement", "chip exports, US$ bn a year"], chipM: ["--cement", "chip imports, US$ bn a year"], beds: ["--health", "hospital beds per 1,000 people"],
-    docs: ["--health", "doctors per 1,000 people"], fdep: ["--food", "share of wheat, maize and rice supply imported"], steel: ["--steel", "Mt/yr"], cement: ["--cement", "Mt/yr"], chem_n: ["--chem", "plants"], ports: ["--lane", "ports"],
+    docs: ["--health", "doctors per 1,000 people"], fdep: ["--food", "share of wheat, maize and rice supply imported"], fdep2: ["--food", "share of all cereals and starchy roots supply imported (FAO food balances)"], steel: ["--steel", "Mt/yr"], cement: ["--cement", "Mt/yr"], chem_n: ["--chem", "plants"], ports: ["--lane", "ports"],
     cens: ["--stress", "internet censorship, 0 open to 100 sealed"], minr: ["--crit", "mineral rents, % of GDP"] };
   const hex = h => { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map(x => x + x).join(""); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
   const mix = (a, b, t) => "rgb(" + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t)).join(",") + ")";
@@ -3876,8 +3889,15 @@ async function simLocalCore(env, shocks) {
       return `<rect x="${(i * bw + bw * 0.12).toFixed(2)}" y="${(h - bh).toFixed(2)}" width="${(bw * 0.76).toFixed(2)}" height="${bh.toFixed(2)}" fill="var(${i === hi ? "--conflict" : "--ink-3"})" opacity="${i === hi ? 1 : 0.45}"/>`;
     }).join("")}</svg>`;
   }
-  const storyItems = () => (DATA.story && DATA.story.windows[storyWin] || { items: [] }).items;
+  // kinds of story and their colour tokens (conflict surges, and topic news from pipeline/live/news_topics.py)
+  const STORY_KINDS = { Conflict: "--conflict", Unrest: "--fire", Trade: "--fab", "Industry & energy": "--oil", Shipping: "--lane", Health: "--health",
+    "Food & farms": "--food", "Cyber & internet": "--cloud", Disasters: "--sim-dry" };
+  let storyCat = "all";
+  const storyKind = it => it.label || "Conflict";
+  const storyAll = () => (DATA.story && DATA.story.windows[storyWin] || { items: [] }).items;
+  const storyItems = () => storyCat === "all" ? storyAll() : storyAll().filter(it => storyKind(it) === storyCat);
   const storyLabel = it => it.title || it.n.split(",")[0];
+  const storyTok = it => STORY_KINDS[storyKind(it)] || "--ink-3";
   function storyClear() {
     storyMarkers.forEach(m => m.remove()); storyMarkers = [];
     storyFC = empty; if (map.getSource("story")) map.getSource("story").setData(empty);
@@ -3885,24 +3905,35 @@ async function simLocalCore(env, shocks) {
   function storyStop() { clearInterval(storyTimer); storyTimer = null; $("storyPlay").setAttribute("aria-pressed", "false"); $("storyPlay").textContent = "Play"; }
   function storyRender() {
     const S = DATA.story; if (!S || !storyOn) return;
-    const W = S.windows[storyWin], items = W.items;
+    const W = S.windows[storyWin], all = W.items;
+    // kind chips with counts; a kind with nothing in this window falls back to all
+    const counts = {}; all.forEach(it => counts[storyKind(it)] = (counts[storyKind(it)] || 0) + 1);
+    if (storyCat !== "all" && !counts[storyCat]) storyCat = "all";
+    $("storyCats").innerHTML = `<button type="button" data-cat="all" aria-pressed="${storyCat === "all"}">All ${all.length}</button>`
+      + Object.keys(STORY_KINDS).filter(k => counts[k]).map(k => `<button type="button" data-cat="${esc(k)}" aria-pressed="${storyCat === k}"><i style="background:var(${STORY_KINDS[k]})"></i>${esc(k)} ${counts[k]}</button>`).join("");
+    $("storyCats").querySelectorAll("button").forEach(b => b.onclick = () => { storyCat = b.dataset.cat; if (detail.dataset.story) closeDetail(); storyRender(); });
+    const items = storyItems();
     storyStop(); storyClear(); storyCur = -1;
-    const top = items.reduce((m, it) => !m || it.z > m.z ? it : m, null), ev = items.reduce((s, it) => s + it.e, 0);
-    $("storySum").innerHTML = items.length
-      ? `<b>${items.length} surges</b> in the past ${storyWin}, ${fmt(ev)} conflict reports between them. Biggest jump: <b>${esc(top.n.split(",")[0])}</b>, ${when(top.t, top.t1, storyWin)}. Snapshot updated ${ago(S.updated)}.`
-      : `No surges stood out in the past ${storyWin}.`;
+    const surges = all.filter(it => it.k !== "topic"), top = surges.reduce((m, it) => !m || it.z > m.z ? it : m, null), ev = surges.reduce((s, it) => s + it.e, 0), other = all.length - surges.length;
+    $("storySum").innerHTML = all.length
+      ? `${surges.length ? `<b>${surges.length} conflict surges</b>, ${fmt(ev)} reports between them` : "No conflict surges"}${other ? ` and <b>${other} other stories</b>` : ""} in the past ${storyWin}.`
+        + (top ? ` Biggest jump: <b>${esc(top.n.split(",")[0])}</b>, ${when(top.t, top.t1, storyWin)}.` : "") + ` Snapshot updated ${ago(S.updated)}.`
+      : `Nothing stood out in the past ${storyWin}.`;
     const B = W.buckets;
     $("storyChart").innerHTML = `<div id="storyBars">${spark(W.total, 300, 56, -1)}</div><div class="axis"><span>${when(B[0], B[1] || B[0], storyWin)}</span><span>all conflict reports per ${storyWin === "day" ? "hour" : storyWin === "week" ? "day" : "3 days"}</span><span>${storyWin === "day" ? "now" : md(new Date(B[B.length - 1]))}</span></div>`;
     $("storyCards").innerHTML = items.map((it, i) => {
+      const tok = storyTok(it), no = `<span class="no" style="background:var(${tok})">${i + 1}</span>`;
+      if (it.k === "topic") return `<li><button type="button" data-i="${i}" style="--story-c:var(${tok})">${no}<span class="when">${md(new Date(it.t1))}</span><span class="ttl">${esc(storyLabel(it))}</span>
+        <span class="plc">${esc(it.n)} · <span class="tag" style="color:var(${tok})">${esc(storyKind(it))}</span></span><span></span><span class="st">${it.d > 1 ? `${fmt(it.a)} articles · ${fmt(it.d)} outlets` : esc((it.u && it.u[0] && new URL(it.u[0]).hostname.replace(/^www\./, "")) || "")}</span></button></li>`;
       const peak = it.x[B.indexOf(it.t)] || Math.max(...it.x);
-      return `<li><button type="button" data-i="${i}"><span class="no">${i + 1}</span><span class="when">${when(it.t, it.t1, storyWin)}</span><span class="ttl">${esc(storyLabel(it))}</span>
+      return `<li><button type="button" data-i="${i}">${no}<span class="when">${when(it.t, it.t1, storyWin)}</span><span class="ttl">${esc(storyLabel(it))}</span>
         <span class="plc">${esc(it.n)}</span>${spark(it.x, 64, 30, B.indexOf(it.t))}<span class="st">${fmt(it.e)} reports · ${fmt(it.a)} articles · ${it.base ? "×" + fmt(peak / it.base, peak / it.base < 10 ? 1 : 0) + " usual" : "new"}</span></button></li>`;
     }).join("");
     $("storyPos").textContent = items.length ? `– / ${items.length}` : "";
     map.getSource("story").setData(storyFC = { type: "FeatureCollection", features: items.map((it, i) => ({ type: "Feature", geometry: { type: "Point", coordinates: [it.lon, it.lat] }, properties: { i, n: it.n, title: storyLabel(it), e: it.e, a: it.a, on: false } })) });
     storyMarkers = items.map((it, i) => {
       const el = document.createElement("button");
-      el.type = "button"; el.className = "story-mk"; el.textContent = i + 1; el.setAttribute("aria-label", `Story ${i + 1}: ${storyLabel(it)}`);
+      el.type = "button"; el.className = "story-mk"; el.textContent = i + 1; el.setAttribute("aria-label", `Story ${i + 1}: ${storyLabel(it)}`); el.style.background = `var(${storyTok(it)})`;
       el.addEventListener("click", ev => { ev.stopPropagation(); storyGo(i, true); });
       return new maplibregl.Marker({ element: el }).setLngLat([it.lon, it.lat]).addTo(map);
     });
@@ -3920,13 +3951,26 @@ async function simLocalCore(env, shocks) {
     storyFC.features.forEach(f => f.properties.on = f.properties.i === i); map.getSource("story").setData(storyFC);
     $("storyPos").textContent = `${i + 1} / ${items.length}`;
     if (fly) map.flyTo({ center: [it.lon, it.lat], zoom: Math.max(4.5, Math.min(map.getZoom(), 6)), padding: { left: wide() ? 370 : 0, right: wide() ? 340 : 0, top: 0, bottom: wide() ? 0 : innerHeight * 0.4 }, speed: 1.4 });
-    const W = DATA.story.windows[storyWin], B = W.buckets, peak = it.x[B.indexOf(it.t)] || 0;
+    const W = DATA.story.windows[storyWin], B = W.buckets;
+    const links = (it.u || []).map(u => { let h = u; try { h = new URL(u).hostname.replace(/^www\./, ""); } catch (e) {} return link(u, h); }).join("");
+    if (it.k === "topic") {
+      $("storyBars").innerHTML = spark(W.total, 300, 56, -1);
+      const src = { Disasters: it.cat === "quake" ? "USGS earthquake catalogue (public domain); the alert is USGS PAGER's estimate of damage." : "NASA EONET (public domain), from the agencies that track storms and floods." }[storyKind(it)]
+        || "GDELT article search. Kept because at least two outlets reported it at this place; the place is the first city or country the headline names, so read the articles.";
+      openDetail(`Storyboard · ${storyKind(it)} · ${i + 1} of ${items.length}`, `var(${storyTok(it)})`, storyLabel(it),
+        row("When", it.t === it.t1 ? md(new Date(it.t)) : `${md(new Date(it.t))} – ${md(new Date(it.t1))}`) + row("Place", esc(it.n)) + row("Kind", esc(storyKind(it)))
+        + (it.d > 1 ? row("Articles", fmt(it.a), true) + row("Outlets", fmt(it.d), true) : ""),
+        src, (links ? `<ul class="links">${links}</ul>` : "") + newsBlock());
+      detail.dataset.story = "1";
+      loadNews(it.n.split(",")[0], it.cat === "quake" || it.cat === "storm" || it.cat === "flood" ? "(earthquake OR storm OR flood OR damage)" : undefined);
+      return;
+    }
+    const peak = it.x[B.indexOf(it.t)] || 0;
     $("storyBars").innerHTML = spark(W.total, 300, 56, B.indexOf(it.t));
     const rows = row("When", when(it.t, it.t1, storyWin), true) + row("Place", esc(it.n)) + row("Conflict reports", fmt(it.e), true) + row("News articles", fmt(it.a), true)
       + row("· assaults (CAMEO 18)", fmt(it.r[0]), true) + row("· fighting (19)", fmt(it.r[1]), true) + row("· mass violence (20)", fmt(it.r[2]), true)
       + row("Usual level", it.base ? `${fmt(it.base, 1)} per ${storyWin === "day" ? "hour" : storyWin === "week" ? "day" : "3 days"} (×${fmt(peak / it.base, 1)} here)` : "None reported before", true)
       + row("Main actors", it.act ? esc(it.act.map(a => cap(a.toLowerCase())).join(", ")) : null);
-    const links = (it.u || []).map(u => { let h = u; try { h = new URL(u).hostname.replace(/^www\./, ""); } catch (e) {} return link(u, h); }).join("");
     openDetail(`Storyboard · ${i + 1} of ${items.length}`, "var(--conflict)", storyLabel(it), rows,
       "GDELT codes events from news articles automatically. The headline is the most-cited article's title and may describe a different event in the same place.",
       `<div class="sec" style="margin:10px 18px 0">This place over the past ${storyWin}</div><div class="story-spark">${spark(it.x, 300, 40, B.indexOf(it.t))}</div>` + (links ? `<ul class="links">${links}</ul>` : "") + newsBlock());
@@ -4746,6 +4790,9 @@ async function simLocalCore(env, shocks) {
   // ---------- sources (sidebar) ----------
   // meta: a file in infra_meta.json or a live feed in the manifest, for the "retrieved" date
   const SOURCES = [
+    ["CEPII BACI", "https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37", "iron ore and coal trade between countries (HS 2601, 2701), for mine scenarios", "Etalab Open Licence 2.0", "2024", "domains.json"],
+    ["FAOSTAT Food Balance Sheets", "https://www.fao.org/faostat/en/#data/FBS", "share of cereals and starchy roots each country imports", "CC BY 4.0", "2023", "domains.json"],
+    ["Alibaba Cloud, Tencent Cloud and Huawei Cloud region lists", "https://www.alibabacloud.com/global-locations", "cloud regions in China and their overseas regions (from each provider's public region page)", "facts from public pages", "Oct 2026", "cloud.geojson"],
     ["Wikipedia: List of semiconductor fabrication plants", "https://en.wikipedia.org/wiki/List_of_semiconductor_fabrication_plants", "chip fabs: operator, node, wafer size, capacity", "CC BY-SA 4.0", "retrieved Oct 2026", "fabs.geojson"],
     ["Chip supply chokepoints (hand-picked)", "https://github.com/byron123t/resourcemap/blob/main/pipeline/step7_domains.py", "lithography, wafer, chemical, gas, quartz and packaging sites, each with its own source link", "facts with cited sources", "Oct 2026", "chip_sites.geojson"],
     ["Harvard Growth Lab, Atlas of Economic Complexity", "https://doi.org/10.7910/DVN/T4CHWJ", "chip exports and imports by country (HS 8541, 8542)", "CC0 1.0", "latest year 2024", "domains.json"],

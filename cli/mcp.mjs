@@ -109,12 +109,12 @@ const TOOLS = [
     inputSchema: obj({}),
     run: async () => api.sources() },
   { name: "atlas_live", title: "Live feeds",
-    description: "Without feed: the live snapshot manifest (feeds, update time, counts, sources). With feed: the top items of fires (by fire power), events (GDELT conflict reports, by report count), ships, aircraft, jets, airliners, navy (US Navy positions, approximate), or story (biggest conflict-report surges; window day|week|month). Live data exists only if the snapshot was built.",
+    description: "Without feed: the live snapshot manifest (feeds, update time, counts, sources). With feed: the top items of fires (by fire power), events (GDELT conflict reports, by report count), ships, aircraft, jets, airliners, navy (US Navy positions, approximate), or story (the storyboard: conflict surges plus consequential news of other kinds — unrest, trade curbs, industrial accidents, energy, shipping, health, food & farms, cyber & internet, disasters; window day|week|month; filter with kind). Live data exists only if the snapshot was built.",
     inputSchema: obj({ feed: str("fires, events, ships, aircraft, jets, airliners, navy or story."), limit: num("Max items (default 10, max 100).", { minimum: 1, maximum: 100 }),
       near: str("'lon,lat' to limit to a radius."), km: num("Radius in km with near (default 50)."), where: { type: "array", items: { type: "string" }, description: WHERE_HINT },
-      sort: str("Sort property, '-' for descending."), window: str("story only: day, week or month (default week).", { enum: ["day", "week", "month"] }) }),
+      sort: str("Sort property, '-' for descending."), kind: str("story only: Conflict, Unrest, Trade, Industry & energy, Shipping, Health, Food & farms, Cyber & internet or Disasters (prefix is enough)."), window: str("story only: day, week or month (default week).", { enum: ["day", "week", "month"] }) }),
     run: async a => {
-      const r = await api.live(a.feed, { limit: cap(a.limit, 10, 100), near: a.near ? parseLonLat(a.near) : undefined, km: a.km, where: a.where || [], sort: a.sort, window: a.window });
+      const r = await api.live(a.feed, { limit: cap(a.limit, 10, 100), near: a.near ? parseLonLat(a.near) : undefined, km: a.km, where: a.where || [], sort: a.sort, window: a.window, kind: a.kind });
       return r.rows ? { feed: a.feed, manifest: r.manifest, matched: r.matched, shown: r.shown, sort: r.sort, rows: r.rows.map(x => api.slim(x)) } : r;
     } },
   { name: "atlas_scenarios", title: "Ready-made scenarios",

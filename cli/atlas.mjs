@@ -6,7 +6,7 @@ import { AtlasError, configure } from "./lib/api.mjs";
 import { parseLonLat, parseBbox } from "./lib/data.mjs";
 
 // ---------- arguments ----------
-const VALUE_FLAGS = new Set(["data", "site", "near", "km", "bbox", "country", "where", "sort", "limit", "offset", "fields", "format", "layers", "top", "group", "window", "level", "view", "at", "min-pop", "from", "to"]);
+const VALUE_FLAGS = new Set(["data", "site", "near", "km", "bbox", "country", "where", "sort", "limit", "offset", "fields", "format", "layers", "top", "group", "window", "level", "view", "at", "min-pop", "from", "to", "kind"]);
 const BOOL_FLAGS = new Set(["json", "no-color", "url", "counts", "asc", "help", "geometry", "wide"]);
 export function parseArgs(argv) {
   const pos = [], flags = { where: [] };
@@ -292,7 +292,7 @@ async function cmdSources(a, f) {
   table(r.sources, [{ key: "name", head: "source", max: 46 }, { key: "licence", head: "licence", max: 40 }, { key: "what", head: "what", max: 50 }, { key: "when", head: "when", max: 22 }]);
 }
 async function cmdLive(a, f) {
-  const r = await api.live(a[0], { ...queryOpts(f), window: f.window });
+  const r = await api.live(a[0], { ...queryOpts(f), window: f.window, kind: f.kind });
   if (f.json) return json(r);
   if (!a[0]) {
     title(`Live snapshot generated ${r.generated} (${r.age} ago)`);
@@ -301,7 +301,9 @@ async function cmdLive(a, f) {
   }
   if (a[0] === "story") {
     title(`Storyboard, ${r.window} window (updated ${r.updated})`);
-    table(r.items, [{ key: "title", head: "headline", max: 50 }, { key: "place", head: "place", max: 30 }, { key: "bucket", head: "from", max: 16 }, { key: "reports", head: "reports", num: true }, { key: "surge", head: "surge", num: true }, { key: "lon", head: "lon", num: true, raw: true }, { key: "lat", head: "lat", num: true, raw: true }]);
+    out(dim("kinds: " + Object.entries(r.kinds || {}).map(([k, n]) => `${k} ${n}`).join(" · ") + "  (filter with --kind)"));
+    table(r.items, [{ key: "kind", head: "kind", max: 17 }, { key: "title", head: "headline", max: 50 }, { key: "place", head: "place", max: 26 }, { get: x => (x.when || "").slice(0, 10), head: "when" },
+      { get: x => x.reports != null ? x.reports : x.outlets != null ? `${x.outlets} outlets` : "", head: "reports", num: true }]);
     return;
   }
   if (r.manifest) out(dim(`${r.manifest.source} · updated ${r.manifest.updated} (${r.manifest.age} ago)\n`));

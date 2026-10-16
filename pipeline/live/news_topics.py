@@ -40,12 +40,13 @@ class Fetch:
     """JSON fetches cached under cache_dir; on failure the cached copy is used (None if there is none)."""
 
     def __init__(self, cache_dir, log, offline=False):
-        self.dir, self.log, self.offline, self.last = cache_dir, log, offline, 0.0
+        self.dir, self.log, self.offline, self.last, self.fails = cache_dir, log, offline, 0.0, 0
         os.makedirs(cache_dir, exist_ok=True)
 
-    def json(self, name, url, gap=0.0, tries=3):
+    def json(self, name, url, gap=0.0, tries=2):
         path = os.path.join(self.dir, name)
-        if not self.offline:
+        # after three failed requests in a run (a rate-limited IP), stop asking and use the cache, so a build isn't held up
+        if not self.offline and self.fails < 3:
             for k in range(tries):
                 wait = self.last + gap - time.time()
                 if wait > 0:
@@ -59,7 +60,11 @@ class Fetch:
                     return d
                 except Exception as e:  # noqa: BLE001 - any failure falls back to the cache
                     self.last = time.time()
+                    self.fails += 1
                     self.log(f"{name}: {type(e).__name__} ({k + 1}/{tries})")
+                    if self.fails >= 3:
+                        self.log("three failed requests: using cached answers for the rest of this run")
+                        break
                     time.sleep(gap * (k + 1))
         if os.path.exists(path):
             with open(path, encoding="utf-8") as f:
@@ -237,60 +242,174 @@ def storms(F, sites, fabs, now, log):
 def _crop_item(title):
     t = title.lower()
     for k, pat in (("banana", r"banana|tr4|panama disease"), ("wheat", r"wheat|rust"), ("rice", r"\brice\b|paddy"),
-                   ("maize", r"maize|\bcorn\b|armyworm"), ("soy", r"soy")):
+                   ("maize", r"maize|\bcorn\b|armyworm"), ("soy", r"soy"), ("millet", r"millet"), ("sorghum", r"sorghum"), ("cassava", r"cassava|manioc")):
         if re.search(pat, t):
             return k
     return None
 
 
-# (category, query, how to turn a headline + place into shocks). Queries are English-language only.
+# (category, query). Queries are English-language only. The storyboard shows every category; news scenarios map the ones
+# that hit something the Scenarios panel models (see _topic_item).
 TOPICS = [
-    ("animal", '("bird flu" OR "avian influenza" OR H5N1) (poultry OR farm OR culled OR cull OR flock) sourcelang:english'),
-    ("harvest", '(drought OR heatwave OR frost OR flooding OR locust OR "wheat rust" OR "fall armyworm" OR "Panama disease") (wheat OR corn OR maize OR rice OR soybean OR banana) (harvest OR crop OR yields) sourcelang:english'),
-    ("outbreak", '(Ebola OR Marburg OR Nipah OR mpox OR "novel virus" OR "mystery illness" OR "unknown disease") outbreak sourcelang:english'),
-    ("cable", '("undersea cable" OR "subsea cable" OR "submarine cable") (cut OR damaged OR severed OR outage OR sabotage) sourcelang:english'),
+    ("unrest", '(riots OR rioting OR curfew OR "state of emergency" OR "general strike" OR "nationwide strike" OR "martial law" OR coup) sourcelang:english'),
+    ("trade", '("export controls" OR "export ban" OR "export curbs" OR tariffs OR sanctions OR embargo) (semiconductors OR chips OR "rare earth" OR gallium OR germanium OR wheat OR rice OR fertilizer OR oil OR LNG OR steel OR copper OR lithium) sourcelang:english'),
+    ("industry", '(refinery OR "chemical plant" OR "power plant" OR "power station" OR mine OR dam OR pipeline OR "oil terminal" OR smelter OR factory) (explosion OR blast OR fire OR collapse OR leak OR spill OR "shut down") sourcelang:english'),
+    ("energy", '(blackout OR "power outage" OR "power cuts" OR "fuel shortage" OR "gas shortage" OR "load shedding") (nationwide OR millions OR country OR grid) sourcelang:english'),
+    ("shipping", '(tanker OR "cargo ship" OR vessel OR freighter) (seized OR attacked OR hijacked OR sank OR struck) sourcelang:english'),
+    ("animal", '("bird flu" OR "avian influenza" OR H5N1 OR "swine fever" OR "foot-and-mouth") (poultry OR farm OR culled OR cull OR flock OR pigs OR cattle) sourcelang:english'),
+    ("harvest", '(drought OR heatwave OR frost OR flooding OR locust OR "wheat rust" OR "fall armyworm" OR "Panama disease") (wheat OR corn OR maize OR rice OR soybean OR banana OR millet OR sorghum OR cassava OR coffee OR cocoa) (harvest OR crop OR yields) sourcelang:english'),
+    ("outbreak", '(Ebola OR Marburg OR Nipah OR mpox OR cholera OR "novel virus" OR "mystery illness" OR "unknown disease" OR H5N1) (outbreak OR cases OR spread) sourcelang:english'),
+    ("cable", '(("undersea cable" OR "subsea cable" OR "submarine cable") (cut OR damaged OR severed OR outage OR sabotage)) OR "internet shutdown" OR "internet blackout" sourcelang:english'),
     ("cloud", '(AWS OR "Amazon Web Services" OR Azure OR "Google Cloud" OR Cloudflare OR "data center") (outage OR fire OR "went down") sourcelang:english'),
-    ("cyber", '(ransomware OR cyberattack OR "cyber attack" OR hackers) (port OR pipeline OR "power grid" OR refinery OR airport OR hospital OR water) sourcelang:english'),
+    ("cyber", '(ransomware OR cyberattack OR "cyber attack" OR hackers) (port OR pipeline OR "power grid" OR refinery OR airport OR hospital OR water OR bank) sourcelang:english'),
     ("chips", '(semiconductor OR chip OR gallium OR germanium OR "rare earth") ("export controls" OR "export ban" OR shortage OR "fab fire" OR "plant shut") sourcelang:english'),
 ]
+# storyboard categories: label shown on the page, and which topic categories feed them
+STORY_CATS = {"unrest": "Unrest", "trade": "Trade", "industry": "Industry & energy", "energy": "Industry & energy", "shipping": "Shipping",
+              "animal": "Food & farms", "harvest": "Food & farms", "outbreak": "Health", "cable": "Cyber & internet", "cloud": "Cyber & internet",
+              "cyber": "Cyber & internet", "chips": "Trade", "quake": "Disasters", "storm": "Disasters", "flood": "Disasters", "fire": "Disasters"}
 # a headline must also say something happened, not just mention the topic
-MUST = {"animal": r"cull|outbreak|detect|confirm|infect|spread|farm",
+MUST = {"unrest": r"riot|curfew|state of emergency|general strike|nationwide strike|martial law|coup|killed|dead|deaths|shut ?down|blockade|clashes",
+        "trade": r"impos|announc|\bban\b|bans|banned|halt|tariff|sanction|restrict|curb|embargo|suspend|block",
+        "industry": r"explosion|blast|fire|collapse|leak|spill|shut|killed|dead|trapped",
+        "energy": r"blackout|outage|power cuts|shortage|load shedding|without power",
+        "shipping": r"seized|attack|hijack|sank|sink|struck|hit",
+        "animal": r"cull|outbreak|detect|confirm|infect|spread|farm",
         "harvest": r"drought|frost|flood|pest|rust|locust|armyworm|fail|loss|lost|damage|slump|plunge|fall|shortfall|disease",
         "outbreak": r"outbreak|case|confirm|spread|death|died|kill",
-        "cable": r"\bcut\b|damag|sever|outage|sabotag|disrupt",
+        "cable": r"\bcut\b|damag|sever|outage|sabotag|disrupt|shutdown|blackout",
         "cloud": r"outage|\bdown\b|went down|fire|disrupt|fail",
         "cyber": r"attack|ransomware|hack|breach|shut",
         "chips": r"\bban\b|banned|curb|control|restrict|shortage|halt|\bfire\b|shut|outage|quake|earthquake|suspend"}
-# per topic: headlines that look on-topic but aren't a supply shock (yet)
-SKIP = {"chips": r"\bAI models?\b|software|propos|consider|plans? to|could|may\b|weigh"}
-NOT_NEWS = r"\b(drill|exercise|simulation|anniversary|lessons|years after|stock|shares|earnings|opinion|explainer)\b"
+# per topic: headlines that look on-topic but aren't consequential, or haven't happened
+SKIP = {"chips": r"\bAI models?\b|software|propos|consider|plans? to|could|may\b|weigh",
+        "trade": r"propos|consider|plans? to|could|may\b|weigh|threat|warns?|urge|talks|deal|lift|eas(e|es|ing)\b|removes?|pause",
+        "unrest": r"\bsports?\b|football|soccer|fans|school|prison riot|game|concert|movie|film|video game",
+        "industry": r"house fire|apartment|restaurant|car fire|bushfire|wildfire|forest fire|drill|simulation|fireworks",
+        "energy": r"planned|scheduled|maintenance|tips|how to|prepare",
+        "shipping": r"fishing boat|migrant|yacht|ferry"}
+# unrest only counts when it is severe: deaths, a curfew or emergency, a general strike, martial law or a coup
+SEVERE = {"unrest": r"killed|dead|deaths|curfew|state of emergency|general strike|nationwide|martial law|coup|toppl|ousted|army deployed|troops"}
+NOT_NEWS = r"\b(drill|exercise|simulation|anniversary|lessons|years after|stock|shares|earnings|opinion|explainer|quiz|podcast)\b"
 
 
-def topics(F, G, data, now, log, timespan="3months"):
-    """Items from GDELT article searches, one per (topic, place), strongest = most articles."""
+def search(F, G, cat, q, timespan="1month", log=print):
+    """Articles for one topic that pass the filters, each with its place: [(article, (iso3, lon, lat, place, city?))]."""
+    url = GDELT_DOC + "?" + urllib.parse.urlencode({"query": q, "mode": "artlist", "format": "json", "maxrecords": "250",
+                                                     "timespan": timespan, "sort": "datedesc"})
+    d = F.json(f"gdelt_{cat}.json", url, gap=8)
     out = []
+    for a in (d or {}).get("articles", []):
+        title = (a.get("title") or "").strip()
+        if not title or re.search(NOT_NEWS, title, re.I) or not re.search(MUST[cat], title, re.I) or (cat in SKIP and re.search(SKIP[cat], title, re.I)):
+            continue
+        if cat in SEVERE and not re.search(SEVERE[cat], title, re.I):
+            continue
+        hit = G.find(title)
+        if hit:
+            out.append((a, hit))
+    return out
+
+
+def grouped(found):
+    """One group per place, newest article first: {(iso3, place): [(article, hit)]}, with at least two outlets reporting."""
+    groups = {}
+    for a, hit in found:
+        groups.setdefault((hit[0], hit[3]), []).append((a, hit))
+    out = {}
+    for k, lst in groups.items():
+        lst.sort(key=lambda x: x[0].get("seendate") or "", reverse=True)
+        outlets = {x[0].get("domain") or urllib.parse.urlparse(x[0].get("url") or "").netloc for x in lst}
+        if len(outlets) >= 2:  # one outlet alone is too thin to call consequential
+            out[k] = lst
+    return out
+
+
+def story_topics(F, G, log=print, timespan="1month"):
+    """Storyboard items for every topic category: [{cat, label, t, t1, n, cc, lat, lon, a, d, title, u}]."""
+    items = []
     for cat, q in TOPICS:
-        url = GDELT_DOC + "?" + urllib.parse.urlencode({"query": q, "mode": "artlist", "format": "json", "maxrecords": "250",
-                                                         "timespan": timespan, "sort": "datedesc"})
-        d = F.json(f"gdelt_{cat}.json", url, gap=8)
-        arts = (d or {}).get("articles", [])
-        groups = {}
-        for a in arts:
-            title = (a.get("title") or "").strip()
-            if not title or re.search(NOT_NEWS, title, re.I) or not re.search(MUST[cat], title, re.I) or (cat in SKIP and re.search(SKIP[cat], title, re.I)):
+        found = search(F, G, cat, q, timespan, log)
+        groups = grouped(found)
+        for (cc, name), lst in sorted(groups.items(), key=lambda kv: -len(kv[1]))[:8]:
+            a, (cc, lon, lat, name, _) = lst[0]
+            ts = sorted(_seen(x[0]) for x in lst)
+            urls, seen = [], set()
+            for x, _h in lst:
+                u = x.get("url")
+                if u and u not in seen and re.match(r"https?://", u):
+                    seen.add(u); urls.append(u)
+                if len(urls) == 4:
+                    break
+            items.append({"k": "topic", "cat": cat, "label": STORY_CATS[cat], "t": ts[0], "t1": ts[-1], "n": name, "cc": cc,
+                          "lat": round(lat, 4), "lon": round(lon, 4), "a": len(lst),
+                          "d": len({x[0].get("domain") for x in lst}), "title": a["title"].strip(), "u": urls})
+        log(f"GDELT {cat}: {len(found)} matching articles, {len(groups)} places with 2+ outlets")
+    return items
+
+
+def story_disasters(F, now, log=print, G=None):
+    """Storyboard items for M6+ earthquakes (USGS) and storms and floods (NASA EONET) in the last 30 days."""
+    items = []
+    url = USGS + "?" + urllib.parse.urlencode({"format": "geojson", "starttime": (now - timedelta(days=31)).strftime("%Y-%m-%d"), "minmagnitude": "6.0"})
+    for f in (F.json("usgs_story.json", url) or {}).get("features", []):
+        p, (lon, lat) = f["properties"], f["geometry"]["coordinates"][:2]
+        if (p.get("mag") or 0) < 7 and p.get("alert") not in ("yellow", "orange", "red"):
+            continue  # a moderate quake far from people (green alert) isn't news
+        t = datetime.fromtimestamp(p["time"] / 1000, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        place = re.sub(r"^\d+ km [NSEW]+ of |^(The )?\d{4} |\s*Earthquake$", "", p.get("place") or "")
+        items.append({"k": "topic", "cat": "quake", "label": STORY_CATS["quake"], "t": t, "t1": t, "n": place, "lat": round(lat, 4), "lon": round(lon, 4),
+                      "a": 1, "d": 1, "title": f"M{p['mag']:.1f} earthquake near {place.split(',')[0]}" + (f" ({p['alert']} alert for damage)" if p.get("alert") else ""),
+                      "u": [p["url"]] if p.get("url") else []})
+    url = EONET + "?" + urllib.parse.urlencode({"status": "all", "days": "31", "category": "severeStorms,floods,volcanoes"})
+    for e in (F.json("eonet_story.json", url) or {}).get("events", []):
+        g = [x for x in e.get("geometry", []) if x.get("type") == "Point"]
+        if not g:
+            continue
+        cat = {"severeStorms": "storm", "floods": "flood"}.get((e.get("categories") or [{}])[0].get("id"), "storm")
+        title = re.sub(r"\s+\d{5,}$", "", e["title"]).strip()
+        # only storms and floods that reach a city of 300,000+ (within 300 km of the track), placed at the closest pass
+        best = None
+        for pt in g if G else g[-1:]:
+            x, y = pt["coordinates"]
+            for c in (G.cities if G else []):
+                if abs(c["y"] - y) < 3 and (best is None or _hav(y, x, c["y"], c["x"]) < best[0]):
+                    d = _hav(y, x, c["y"], c["x"])
+                    if d <= 300:
+                        best = (d, c, pt)
+        if G and not best:
+            continue
+        pt = best[2] if best else g[-1]
+        place = f"near {best[1]['n']}" if best else title
+        items.append({"k": "topic", "cat": cat, "label": STORY_CATS[cat], "t": g[0]["date"], "t1": g[-1]["date"], "n": place, "lat": round(pt["coordinates"][1], 4),
+                      "lon": round(pt["coordinates"][0], 4), "a": 1, "d": 1, "title": title + (f" {place}" if best and place not in title else ""),
+                      "u": [s["url"] for s in e.get("sources", []) if s.get("url")][:2]})
+    log(f"disasters: {len(items)} storyboard item(s)")
+    return items
+
+
+def topics(F, G, data, now, log, timespan="3months", story=None):
+    """News scenarios from topic news, one per (topic, place). With `story` (story.json's topic items) no search is made."""
+    out = []
+    if story is not None:
+        for it in story:
+            if it.get("k") != "topic" or it["cat"] not in MUST:
                 continue
-            hit = G.find(title)
-            if not hit:
-                continue
-            key = (hit[0], hit[3])
-            groups.setdefault(key, []).append((a, hit))
+            a = {"title": it["title"], "url": (it.get("u") or [None])[0], "seendate": it["t1"].replace("-", "").replace(":", "")}
+            x = _topic_item(it["cat"], a, it.get("cc"), it["lon"], it["lat"], it["n"], it["a"], data, G)
+            if x:
+                out.append(x)
+        log(f"topic news from the storyboard: {len(out)} scenario(s)")
+        return out
+    for cat, q in TOPICS:
+        groups = grouped(search(F, G, cat, q, timespan, log))
         n0 = len(out)
         for (cc, name), lst in sorted(groups.items(), key=lambda kv: -len(kv[1]))[:6]:
-            a, (cc, lon, lat, name, is_city) = lst[0]  # newest first
+            a, (cc, lon, lat, name, is_city) = lst[0]
             it = _topic_item(cat, a, cc, lon, lat, name, len(lst), data, G)
             if it:
                 out.append(it)
-        log(f"GDELT {cat}: {len(arts)} articles, {len(out) - n0} scenario(s)")
+        log(f"GDELT {cat}: {len(out) - n0} scenario(s)")
     return out
 
 
@@ -368,6 +487,50 @@ def _topic_item(cat, a, cc, lon, lat, name, n, data, G):
             txt = {"de": "5% of the country's chip output held up.", "cur": "15% of the country's chip output held up.", "esc": "40% of the country's chip output held up."}
             label = f"Chip supply shock in {name}"
         why = f"{n} recent article{'s' if n > 1 else ''} on chip export curbs or shortages ({name})."
+    elif cat == "industry":
+        t_ = title.lower()
+        kind = "refinery" if "refiner" in t_ else "mine" if re.search(r"\bmine|\bcolliery|\bpit\b", t_) else "lng" if "lng" in t_ else \
+            "port" if re.search(r"\bport\b|oil terminal|harbou?r", t_) else "power" if re.search(r"power (plant|station)|\bdam\b|nuclear", t_) else None
+        hit = kind and data["find"](kind, lon, lat, 60 if is_city_named(name, G) else 400)
+        what = {"refinery": "refinery", "mine": "mine", "lng": "LNG terminal", "port": "port", "power": "power plant"}.get(kind, "site")
+        if hit:
+            k_ = {"refinery": "refinery", "mine": "mine", "lng": "lng", "port": "port", "power": "power"}[kind]
+            lv = {k: [[k_, hit[1]["id"], m]] for k, m in zip(("de", "cur", "esc"), (0.2, 0.5, 1.0))}
+            matched = [hit[1]["n"]]
+            label = f"{'Mine accident' if kind == 'mine' else what.capitalize() + ' blast or fire'} near {name}"
+            txt = {"de": f"Back in days: {hit[1]['n']} loses 20% for a while.", "cur": f"{hit[1]['n']} runs at half capacity.", "esc": f"{hit[1]['n']} is out for months."}
+        else:
+            lv = {k: [["zone", [round(lon, 2), round(lat, 2), r], m]] for k, r, m in zip(("de", "cur", "esc"), (5, 10, 20), (0.2, 0.5, 0.8))}
+            label = f"Industrial accident near {name}"
+            txt = {"de": "Contained to the site.", "cur": "Damage and closures within 10 km.", "esc": "Spreads: fires, leaks or evacuations within 20 km."}
+        why = f"{n} recent article{'s' if n > 1 else ''} on an explosion, fire, collapse or spill at a {what} near {name}."
+    elif cat == "unrest":
+        ms = (0.1, 0.2, 0.4)
+        lv = {k: [["zone", [round(lon, 2), round(lat, 2), r], m]] for k, r, m in zip(("de", "cur", "esc"), (15, 30, 60), ms)}
+        txt = {"de": "Calms within days: little lasting disruption.", "cur": "Curfews and blockades slow roads, rail, fuel and power for weeks.", "esc": "Spreads nationwide: transport and supplies seize up across a wide area."}
+        label, why = f"Unrest in {name}", f"{n} recent article{'s' if n > 1 else ''} on deadly unrest, a curfew, a state of emergency or a general strike in {name}."
+    elif cat == "energy":
+        lv = {k: [["zone", [round(lon, 2), round(lat, 2), r], m]] for k, r, m in zip(("de", "cur", "esc"), (50, 100, 200), (0.2, 0.4, 0.6))}
+        txt = {"de": "Power is back within hours.", "cur": "Rolling cuts for days across the region.", "esc": "A long, wide blackout: plants and grid down across 200 km."}
+        label, why = f"Blackout or fuel shortage in {name}", f"{n} recent article{'s' if n > 1 else ''} on blackouts, power cuts or fuel shortages in {name}."
+    elif cat == "shipping":
+        ck = min(data["chokes"].items(), key=lambda kv: _hav(lat, lon, kv[1][2], kv[1][1]))
+        if _hav(lat, lon, ck[1][2], ck[1][1]) > 800:
+            return None
+        lv = {k: [["choke", ck[0], m]] for k, m in zip(("de", "cur", "esc"), (0.1, 0.25, 0.6))}
+        txt = {"de": f"A few ships divert from {ck[1][0]}.", "cur": f"A quarter of traffic avoids {ck[1][0]}.", "esc": f"Most ships avoid {ck[1][0]}."}
+        label, why = f"Ships attacked near {ck[1][0]}", f"{n} recent article{'s' if n > 1 else ''} on ships seized or attacked ({name})."
+    elif cat == "trade":
+        item = next((k for k, pat in (("wheat", r"wheat"), ("rice", r"\brice\b"), ("maize", r"maize|\bcorn\b"), ("soy", r"soy")) if re.search(pat, title, re.I)), None)
+        if item and cc and (prod.get(item) or {}).get(cc) and re.search(r"export", title, re.I):
+            tok = f"{item}_{cc}"
+            lv = {k: [["crop", tok, m]] for k, m in zip(("de", "cur", "esc"), (0.05, 0.15, 0.3))}
+            txt = {"de": "A short, partial ban.", "cur": "Exports cut for a season.", "esc": "A full ban for a year."}
+            label, why = f"{item.capitalize()} export curbs in {name}", f"{n} recent article{'s' if n > 1 else ''} on {item} export curbs in {name}. Modelled as a cut in what it can sell abroad."
+        elif re.search(r"semiconductor|chip|gallium|germanium|rare earth", title, re.I):
+            return _topic_item("chips", a, cc, lon, lat, name, n, data, G)
+        else:
+            return None  # tariffs and sanctions on oil, steel or copper show on the storyboard only
     if not lv:
         return None
     return _item(cat, label, why + head, url, lv, txt, lon, lat, t, n, name, matched)

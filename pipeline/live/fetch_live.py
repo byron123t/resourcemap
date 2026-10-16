@@ -1156,14 +1156,14 @@ def slug_title(url):
 # Storyboard headlines about courts, crime, protests or anniversaries are coverage spikes, not fighting: dropped unless
 # they also say something was attacked or fought over
 STORY_NOISE = re.compile(r"\b(trial|court|charges?|charged|sentenc\w*|verdict|lawsuit|arrest\w*|anniversar\w*|memorial|commemorat\w*|"
-                         r"school|shooting|shooter|gunman|assailant|stabbing|nobel|execution|livestream\w*|election|protest\w*|police|murder\w*|activist|shot dead|domestic)\b", re.I)
+                         r"school|shooting|shooter|gunman|assailant|stab\w*|nobel|execution|livestream\w*|election|protest\w*|police|murder\w*|activist|shot dead|domestic)\b", re.I)
 STORY_FIGHT = re.compile(r"\b(strikes?|struck|air ?strikes?|drones?|missiles?|rockets?|shell(ing|ed)|bomb\w*|fighting|clash\w*|offensive|"
                          r"troops|militants?|insurgents?|rebels?|raid\w*|ambush\w*|explosions?|blasts?|war)\b", re.I)
 
 
 # always dropped, even with a fight word: courts ("Judge strikes down..."), crime and policing, celebrities, retrospectives, weapons tests
 STORY_OFF = re.compile(r"\b(judge|court|trial|verdict|convict\w*|sentenc\w*|lawsuit|cops?|sheriff\w*|deputy|hunter|bludgeon\w*|"
-                       r"actor|actress|singer|star|celebrity|anniversary|years on|years after|test[- ]?fire\w*|tests?|drill|prison)\b|"
+                       r"actor|actress|singer|star|celebrity|anniversary|years on|years after|test[- ]?fire\w*|tests?|drill|prison|building fire|house fire|plane crash|possible|could|may)\b|"
                        r"\bfires? (two |a |\w+ )?(ballistic )?(missiles?|rockets?) (off|into|toward)", re.I)
 STORY_HARM = re.compile(r"\b(kill\w*|dead|deaths?|attack\w*|gunmen|violence|massacre\w*|wounded|injured|hostages?|siege|seized?)\b", re.I)
 
@@ -1188,6 +1188,41 @@ def headline_countries(title):
         stems = sorted(((n[:-1] if n.endswith("e") else n, full) for n, full in names.items()), key=lambda kv: -len(kv[0]))
         _COUNTRY_RE = [(re.compile(r"\b" + re.escape(st), re.I if len(st) > 3 else 0), full) for st, full in stems]
     return {full for rx, full in _COUNTRY_RE if rx.search(title)}
+
+
+_CITIES = None
+
+
+def headline_city(title, country):
+    """A city of 300,000+ in `country` (a GDELT country name) that the headline names: (name, lon, lat), else None."""
+    global _CITIES
+    if _CITIES is None:
+        _CITIES = {}
+        try:
+            with open(os.path.join(DATA, "labels.json"), encoding="utf-8") as f:
+                L = json.load(f)
+            iso = {l["n"]: l["k"] for l in L if l.get("t") == "c"}
+            for l in L:
+                if l.get("t") == "p" and (l.get("pop") or 0) >= 300_000 and l.get("k"):
+                    _CITIES.setdefault(l["k"], []).append((l["n"], l["x"], l["y"]))
+            _CITIES["#iso"] = iso
+        except (OSError, ValueError):
+            pass
+    iso = _CITIES.get("#iso", {})
+    k = iso.get(country) or next((v for n, v in iso.items() if n.startswith(country) or country.startswith(n)), None)
+    for name, x, y in sorted(_CITIES.get(k, []), key=lambda c: -len(c[0])):
+        if re.search(r"\b" + re.escape(name) + r"\b", title, re.I if len(name) >= 4 else 0):
+            return name, x, y
+    return None
+
+
+def headline_foreign_city(title, country):
+    """True if the headline names a city of 300,000+ outside `country` and none inside it."""
+    if headline_city(title, country):
+        return False
+    iso = _CITIES.get("#iso", {})
+    k = iso.get(country) or next((v for n, v in iso.items() if n.startswith(country) or country.startswith(n)), None)
+    return any(re.search(r"\b" + re.escape(name) + r"\b", title, re.I) for kk, cs in _CITIES.items() if kk not in ("#iso", k) for name, _, _ in cs if len(name) >= 4)
 
 
 def place_name(n):
@@ -1274,8 +1309,16 @@ def story_window(rows, buckets, bucket_of, n_items, base_rows=None, base_buckets
             for a in r[12:14]:
                 if a:
                     actors[a] = actors.get(a, 0) + 1
-        it = {"t": buckets[b][0], "t1": buckets[b][1], "n": place_name(top[6]), "cc": R["cc"],
-              "lat": round(top[8], 4), "lon": round(top[9], 4), "e": len(rs), "a": R["a"][b],
+        # GDELT often places a story at the wrong town in the right country (a Voronezh strike at Borisoglebsk, Murmansk); when
+        # the headline names a city there, more than 100 km away, the story moves to it
+        pname, plat, plon = place_name(top[6]), top[8], top[9]
+        if title and headline_foreign_city(title, pname.split(",")[-1].strip()):
+            continue  # "Russian airstrikes choke key bridges in Kyiv" placed at Volgograd
+        hc = title and headline_city(title, pname.split(",")[-1].strip())
+        if hc and math.hypot((hc[1] - plon) * math.cos(math.radians(plat)), hc[2] - plat) * 111 > 100:
+            pname, plon, plat = f"{hc[0]}, {pname.split(',')[-1].strip()}", hc[1], hc[2]
+        it = {"k": "surge", "cat": "conflict", "label": "Conflict", "t": buckets[b][0], "t1": buckets[b][1], "n": pname, "cc": R["cc"],
+              "lat": round(plat, 4), "lon": round(plon, 4), "e": len(rs), "a": R["a"][b],
               "r": roots, "z": round(score, 1), "base": round(base, 1),
               "x": [round(v) for v in R["x"]], "u": urls}
         if title:
@@ -1385,6 +1428,25 @@ def run_story(args, ctx):
         return i if 0 <= i < 10 else None
     out["windows"]["month"] = story_window(rows1, mbk, tri_of, 30)
     log(feed, f"GDELT 1.0: {len(rows1)} events from {len(have)} daily files")
+    # beyond fighting: unrest, trade curbs, industrial accidents, blackouts, shipping, disease, harvests, cables, cloud, cyber
+    # and chips (GDELT article searches), plus earthquakes, storms and floods (USGS, NASA EONET); see news_topics.py
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import news_topics as nt
+        with open(os.path.join(DATA, "labels.json"), encoding="utf-8") as f:
+            labels = json.load(f)
+        with open(os.path.join(DATA, "country_totals.json"), encoding="utf-8") as f:
+            totals = json.load(f)
+        F = nt.Fetch(os.path.join(CACHE, "news"), lambda m: log(feed, m))
+        G = nt.Gazetteer(labels, totals)
+        tops = nt.story_topics(F, G, log=lambda m: log(feed, m)) + nt.story_disasters(F, now, log=lambda m: log(feed, m), G=G)
+        for w, days in (("day", 1), ("week", 7), ("month", 31)):
+            since = iso(now - timedelta(days=days))
+            win = out["windows"][w]
+            win["items"] = sorted(win["items"] + [it for it in tops if it["t1"] >= since], key=lambda it: it["t"])
+        log(feed, f"topics: {len(tops)} items")
+    except Exception as e:  # noqa: BLE001 - the conflict storyboard stands on its own
+        log(feed, f"warning: topic news skipped: {type(e).__name__}: {e}")
     size = write_json(os.path.join(OUT, "story.json"), out)
     counts = {k: len(v["items"]) for k, v in out["windows"].items()}
     log(feed, f"wrote story.json: {counts}, {mb(size)}")

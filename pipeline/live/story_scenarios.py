@@ -118,20 +118,35 @@ class Grid:
         return sorted(out, key=lambda x: x[0])
 
 
+def fnv36(s):
+    """The page's fnv36() (FNV-1a over UTF-16 code units, base 36), for power plant and mine ids."""
+    h = 0x811c9dc5
+    b = s.encode("utf-16-le")
+    for i in range(0, len(b), 2):
+        h ^= b[i] | (b[i + 1] << 8)
+        h = (h * 0x01000193) & 0xFFFFFFFF
+    out, digits = "", "0123456789abcdefghijklmnopqrstuvwxyz"
+    while True:
+        h, r = divmod(h, 36)
+        out = digits[r] + out
+        if not h:
+            return out
+
+
 def facilities():
     """Spatial indexes of what a zone or a cable/choke shock can hit."""
     G = load("energy_graph.json")
     n, names = G["nodes"], G["names"]
-    energy = []
+    energy, sid = [], {v: k for k, v in G["ids"].items()}
     for i, t in enumerate(n["t"]):
         if t in KIND:
-            energy.append((n["x"][i] / 100, n["y"][i] / 100, {"k": t, "n": names.get(str(i), KIND[t])}))
+            energy.append((n["x"][i] / 100, n["y"][i] / 100, {"k": t, "n": names.get(str(i), KIND[t]), "id": sid.get(i)}))
     power = []
     for f in load("power.geojson")["features"]:
         p = f["properties"]
         if (p.get("mw") or 0) >= POWER_MIN_MW and p.get("s", "operating") == "operating" and f["geometry"]:
             lon, lat = f["geometry"]["coordinates"][:2]
-            power.append((lon, lat, {"k": "power", "n": p["n"], "mw": p["mw"], "f": p.get("f")}))
+            power.append((lon, lat, {"k": "power", "n": p["n"], "mw": p["mw"], "f": p.get("f"), "id": fnv36(p["n"] + "|" + str(p.get("k")))}))
     cables = []
     for f in load("landings.geojson")["features"]:
         p = f["properties"]
@@ -301,7 +316,7 @@ def spread(items, n):
 
 def build(cand, grids, now):
     energy, power, cables, cities = grids
-    cand = sorted(cand, key=lambda it: -(it.get("z") or 0))
+    cand = sorted([it for it in cand if it.get("k") != "topic"], key=lambda it: -(it.get("z") or 0))
     # GDELT often tags one article to several places; a headline shared by places it doesn't name says nothing about them
     seen = {}
     for it in cand:
@@ -414,7 +429,7 @@ def bad_shocks(sh):
             ph, *xy = s[1].split("_")
             ok = ph in ("flu", "cov", "sev") and len(xy) == 2 and all(re.match(r"^-?\d+(\.\d+)?$", v) for v in xy)
         if ok and s[0] == "crop":
-            ok = bool(re.match(r"^(wheat|maize|rice|soy|banana|chicken)_[A-Z0-9]{3}$", s[1]))
+            ok = bool(re.match(r"^(wheat|maize|rice|soy|banana|chicken|millet|sorghum|cassava)_[A-Z0-9]{3}$", s[1]))
         if not ok:
             out.append(s)
     return out
@@ -496,7 +511,7 @@ def backfill_year(grids, until):
     return items
 
 
-def news_items(grids, now, offline):
+def news_items(grids, now, offline, story=None):
     """Earthquakes, storms, floods and topic news (news_topics.py), matched against the same site grids."""
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import news_topics as nt
@@ -511,14 +526,32 @@ def news_items(grids, now, offline):
     def land_cc(p):
         tail = (p.get("n") or "").rsplit(", ", 1)[-1]
         return {"id": p["id"], "n": p["n"], "cc": dict(G.cnames).get(tail)}
+    mines = []
+    for f, pre in (("coal.geojson", "c"), ("iron.geojson", "i")):
+        for x in (opt(f) or {}).get("features", []):
+            p = x["properties"]
+            if x.get("geometry") and p.get("n"):
+                mines.append((x["geometry"]["coordinates"][0], x["geometry"]["coordinates"][1], {"k": "mine", "n": p["n"], "id": pre + "-" + fnv36(p["n"] + "|" + str(p.get("k")))}))
+    mines = Grid(mines)
+    def find(kind, lon, lat, km):
+        """Nearest facility of a kind within km: refinery, port, lng, power, mine; (km, payload) or None."""
+        if kind == "mine":
+            hits = mines.within(lon, lat, km)
+        elif kind == "power":
+            hits = power.within(lon, lat, km)
+        else:
+            want = {"refinery": "R", "port": "P", "lng": "XI"}[kind]
+            hits = [h for h in energy.within(lon, lat, km) if h[1]["k"] in want and h[1].get("id")]
+        return hits[0] if hits else None
     fabs_fc = opt("fabs.geojson") or {"features": []}
     data = {"food": (opt("domains.json") or {}).get("food") or {},
             "landings": pts(opt("landings.geojson"), land_cc),
             "cloud": pts(opt("cloud.geojson"), lambda p: {"id": p["id"], "n": f"{p.get('p', '')} {p.get('code', '')}".strip(), "cc": p.get("cc")}),
             "chipsites": [f["properties"] for f in (opt("chip_sites.geojson") or {}).get("features", [])],
-            "fabs": [f["properties"] for f in fabs_fc["features"]]}
+            "fabs": [f["properties"] for f in fabs_fc["features"]], "find": find,
+            "chokes": {k: (v[0], v[1], v[2]) for k, v in CHOKES.items()}}
     F = nt.Fetch(os.path.join(ROOT, "raw", "live_cache", "news"), log, offline)
-    out = nt.quakes(F, sites, fabs_fc["features"], now, log) + nt.storms(F, sites, fabs_fc["features"], now, log) + nt.topics(F, G, data, now, log)
+    out = nt.quakes(F, sites, fabs_fc["features"], now, log) + nt.storms(F, sites, fabs_fc["features"], now, log) + nt.topics(F, G, data, now, log, story=story)
     return out
 
 
@@ -552,7 +585,14 @@ def main():
     if args.backfill_year:
         old = backfill_year(grids, ts(story["updated"]))
         prev = {"windows": {"year": {"items": old + (((prev or {}).get("windows") or {}).get("year") or {}).get("items", [])}}}
-    extra = [] if args.no_topics else news_items(grids, ts(story["updated"]), args.offline_news)
+    # topic news comes from the storyboard (fetch_live.py searched GDELT already); an older story.json without it means searching here
+    seen, tops = set(), []
+    for w in ("month", "week", "day"):
+        for it in story.get("windows", {}).get(w, {}).get("items", []):
+            key = (it.get("cat"), it.get("n"), it.get("title"))
+            if it.get("k") == "topic" and key not in seen:
+                seen.add(key); tops.append(it)
+    extra = [] if args.no_topics else news_items(grids, ts(story["updated"]), args.offline_news, tops if tops else None)
     wins = windows(story, args.days, grids, prev, extra)
     for w, items in wins.items():
         for x in items:

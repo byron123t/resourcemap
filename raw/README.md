@@ -84,7 +84,7 @@ Output: `site/data/refineries.geojson`, `country_energy.json` and `energy_graph.
 
 ## raw/domains/ — step 7 (downloaded automatically)
 
-`pipeline/step7_domains.py` downloads these itself and caches them here; `--offline` rebuilds from the cache and `--only=fabs,chips,cloud,biolabs,air,domains` runs some sections. The FAOSTAT zips and the Growth Lab extract are big, so they are downloaded once and kept (`--refresh-fao`, `--refresh-atlas` fetch them again). The FAO trade matrix is read straight out of the zip, never unpacked.
+`pipeline/step7_domains.py` downloads these itself and caches them here; `--offline` rebuilds from the cache and `--only=fabs,chips,cloud,biolabs,air,domains` runs some sections. The FAOSTAT zips and the Growth Lab extract are big, so they are downloaded once and kept (`--refresh-fao`, `--refresh-atlas`, `--refresh-baci` fetch them again). The FAO trade matrix is read straight out of the zip, never unpacked.
 
 ```
 raw/domains/
@@ -99,6 +99,10 @@ raw/domains/
                                 hs92_country_product_year_4.csv (~452 MB, streamed; CC0)
   fao_qcl.zip                   FAOSTAT Production_Crops_Livestock_E_All_Data_(Normalized).zip (CC BY 4.0, ~34 MB)
   fao_tm.zip                    FAOSTAT Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip (CC BY 4.0, ~420 MB)
+  fao_fbs.zip                   FAOSTAT FoodBalanceSheets_E_All_Data_(Normalized).zip (CC BY 4.0, ~55 MB)
+  baci_iron_coal.csv            iron ore + coal rows (HS22 260111, 260112, 270112, 270119) of the latest year, streamed out of
+                                CEPII BACI_HS22_V<version>.zip (~300 MB, read with HTTP ranges; Etalab Open Licence 2.0)
+  baci_country_codes.csv        the country_codes CSV from the same BACI zip
   _fetch.json                   URL and retrieval time of each download
 ```
 

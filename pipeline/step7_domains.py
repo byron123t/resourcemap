@@ -4,22 +4,26 @@ Writes to site/data/:
   fabs.geojson         semiconductor fabs       Wikipedia "List of semiconductor fabrication plants" (CC BY-SA 4.0),
                                                 placed on OSM works/industrial areas via Overpass (ODbL)
   chip_sites.geojson   chip supply-chain chokepoints (hand list in CHIP_SITES, one public source URL each)
-  cloud.geojson        cloud regions            github.com/jasonwilbur/mcp-server-cloud-regions (MIT)
+  cloud.geojson        cloud regions            github.com/jasonwilbur/mcp-server-cloud-regions (MIT) + a hand list of
+                                                Alibaba, Tencent and Huawei regions (CN_CLOUD, one source URL each)
   biolabs.geojson      BSL-4 laboratories       Wikipedia "Biosafety level" (CC BY-SA 4.0) + Wikipedia coordinates
   air.json             country-to-country air routes  OpenFlights routes.dat (ODbL 1.0, frozen 2014)
   domains.json         per-country indicators (World Bank CC BY 4.0; Growth Lab Atlas HS92 CC0) and food
-                       production/trade (FAOSTAT QCL + detailed trade matrix, CC BY 4.0), plus all sources
+                       production/trade (FAOSTAT QCL + detailed trade matrix, CC BY 4.0), cereal + root import share
+                       (FAOSTAT food balance sheets, CC BY 4.0), iron ore and coal trade (CEPII BACI, Etalab 2.0),
+                       plus all sources
 
 Raw downloads are cached in raw/domains/. Flags:
   --offline        use only the cache (fail if a required file is missing)
   --only=a,b       run only these sections (fabs, chips, cloud, biolabs, air, domains)
   --refresh-atlas  re-stream the 452 MB Growth Lab Atlas CSV (otherwise raw/domains/atlas_ic.csv is reused)
   --refresh-fao    re-download the FAOSTAT zips (otherwise the cached zips are reused)
+  --refresh-baci   re-read iron ore and coal flows from the latest CEPII BACI zip (otherwise raw/domains/baci_iron_coal.csv)
 The FAOSTAT zips (~450 MB) and the Atlas extract are downloaded once and kept.
 """
 import os
 ROOT = os.environ.get("ATLAS_ROOT", os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import csv, io, json, math, re, sys, time, unicodedata, urllib.error, urllib.parse, urllib.request, zipfile
+import csv, io, json, math, re, struct, sys, time, unicodedata, urllib.error, urllib.parse, urllib.request, zipfile, zlib
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from html.parser import HTMLParser
@@ -816,6 +820,93 @@ PROV = {"aws": "AWS", "azure": "Azure", "gcp": "GCP", "oci": "Oracle", "alibaba"
         "scaleway": "Scaleway", "coreweave": "CoreWeave", "crusoe": "Crusoe", "lambda": "Lambda", "ibm": "IBM",
         "tencent": "Tencent", "huawei": "Huawei"}
 
+# Chinese providers' public cloud regions (city level), missing from the list above. Hand list checked against each
+# provider's public region page (Oct 2026); az = availability zones listed there (None where the page gives no count).
+# (provider, region code, display name, city, ISO2, lon, lat, az)
+ALI_URL = "https://www.alibabacloud.com/help/en/ecs/user-guide/regions-and-zones"
+TC_URL = "https://www.tencentcloud.com/document/product/213/6091"
+HW_URL = "https://www.huaweicloud.com/intl/en-us/global/"
+HW_URL2 = "https://support.huaweicloud.com/en-us/api-iam/iam_01_0004.html"
+CN_CLOUD = [
+    ("alibaba", "cn-qingdao", "China (Qingdao)", "Qingdao", "CN", 120.38, 36.07, 2),
+    ("alibaba", "cn-beijing", "China (Beijing)", "Beijing", "CN", 116.40, 39.90, 12),
+    ("alibaba", "cn-zhangjiakou", "China (Zhangjiakou)", "Zhangjiakou", "CN", 114.88, 40.77, 3),
+    ("alibaba", "cn-huhehaote", "China (Hohhot)", "Hohhot", "CN", 111.75, 40.84, 2),
+    ("alibaba", "cn-wulanchabu", "China (Ulanqab)", "Ulanqab", "CN", 113.13, 40.99, 4),
+    ("alibaba", "cn-hangzhou", "China (Hangzhou)", "Hangzhou", "CN", 120.16, 30.27, 8),
+    ("alibaba", "cn-shanghai", "China (Shanghai)", "Shanghai", "CN", 121.47, 31.23, 12),
+    ("alibaba", "cn-wuhan-lr", "China (Wuhan - Local Region)", "Wuhan", "CN", 114.30, 30.59, 1),
+    ("alibaba", "cn-shenzhen", "China (Shenzhen)", "Shenzhen", "CN", 114.06, 22.54, 6),
+    ("alibaba", "cn-heyuan", "China (Heyuan)", "Heyuan", "CN", 114.70, 23.74, 3),
+    ("alibaba", "cn-guangzhou", "China (Guangzhou)", "Guangzhou", "CN", 113.26, 23.13, 2),
+    ("alibaba", "cn-chengdu", "China (Chengdu)", "Chengdu", "CN", 104.07, 30.57, 3),
+    ("alibaba", "cn-zhongwei", "China (Zhongwei)", "Zhongwei", "CN", 105.19, 37.51, 2),
+    ("alibaba", "cn-hongkong", "China (Hong Kong)", "Hong Kong", "HK", 114.17, 22.32, 3),
+    ("alibaba", "ap-southeast-1", "Singapore", "Singapore", "SG", 103.82, 1.35, 4),
+    ("alibaba", "ap-southeast-3", "Malaysia (Kuala Lumpur)", "Kuala Lumpur", "MY", 101.69, 3.14, 3),
+    ("alibaba", "ap-southeast-8", "Malaysia (Johor)", "Johor Bahru", "MY", 103.76, 1.49, 2),
+    ("alibaba", "ap-southeast-5", "Indonesia (Jakarta)", "Jakarta", "ID", 106.85, -6.21, 3),
+    ("alibaba", "ap-southeast-6", "Philippines (Manila)", "Manila", "PH", 120.98, 14.60, 2),
+    ("alibaba", "ap-southeast-7", "Thailand (Bangkok)", "Bangkok", "TH", 100.50, 13.76, 2),
+    ("alibaba", "ap-northeast-1", "Japan (Tokyo)", "Tokyo", "JP", 139.69, 35.69, 5),
+    ("alibaba", "ap-northeast-2", "South Korea (Seoul)", "Seoul", "KR", 126.98, 37.57, 3),
+    ("alibaba", "us-west-1", "US (Silicon Valley)", "Silicon Valley", "US", -121.89, 37.34, 2),
+    ("alibaba", "us-east-1", "US (Virginia)", "Virginia", "US", -77.49, 39.04, 2),
+    ("alibaba", "eu-central-1", "Germany (Frankfurt)", "Frankfurt", "DE", 8.68, 50.11, 3),
+    ("alibaba", "eu-west-1", "UK (London)", "London", "GB", -0.13, 51.51, 2),
+    ("alibaba", "eu-west-2", "France (Paris)", "Paris", "FR", 2.35, 48.86, 2),
+    ("alibaba", "me-east-1", "UAE (Dubai)", "Dubai", "AE", 55.27, 25.20, 2),
+    ("alibaba", "me-central-1", "SAU (Riyadh - Partner Region)", "Riyadh", "SA", 46.68, 24.71, 2),
+    ("alibaba", "na-south-1", "Mexico", "Mexico", "MX", -99.13, 19.43, 2),
+    ("alibaba", "sa-east-1", "Brazil (Sao Paulo)", "São Paulo", "BR", -46.63, -23.55, 2),
+    ("tencent", "ap-beijing", "North China (Beijing)", "Beijing", "CN", 116.40, 39.90, 6),
+    ("tencent", "ap-shanghai", "East China (Shanghai)", "Shanghai", "CN", 121.47, 31.23, 7),
+    ("tencent", "ap-nanjing", "East China (Nanjing)", "Nanjing", "CN", 118.80, 32.06, 3),
+    ("tencent", "ap-guangzhou", "South China (Guangzhou)", "Guangzhou", "CN", 113.26, 23.13, 5),
+    ("tencent", "ap-chengdu", "Southwest China (Chengdu)", "Chengdu", "CN", 104.07, 30.57, 2),
+    ("tencent", "ap-chongqing", "Southwest China (Chongqing)", "Chongqing", "CN", 106.55, 29.56, 1),
+    ("tencent", "ap-zhongwei", "Northwest China (Zhongwei)", "Zhongwei", "CN", 105.19, 37.51, 1),
+    ("tencent", "ap-hongkong", "Hong Kong", "Hong Kong", "HK", 114.17, 22.32, 3),
+    ("tencent", "ap-singapore", "Singapore", "Singapore", "SG", 103.82, 1.35, 4),
+    ("tencent", "ap-johorbahru", "Johor Bahru", "Johor Bahru", "MY", 103.76, 1.49, 2),
+    ("tencent", "ap-jakarta", "Jakarta", "Jakarta", "ID", 106.85, -6.21, 3),
+    ("tencent", "ap-bangkok", "Bangkok", "Bangkok", "TH", 100.50, 13.76, 3),
+    ("tencent", "ap-seoul", "Seoul", "Seoul", "KR", 126.98, 37.57, 2),
+    ("tencent", "ap-tokyo", "Tokyo", "Tokyo", "JP", 139.69, 35.69, 2),
+    ("tencent", "ap-osaka", "Osaka", "Osaka", "JP", 135.50, 34.69, 1),
+    ("tencent", "me-saudi-arabia", "Riyadh", "Riyadh", "SA", 46.68, 24.71, 2),
+    ("tencent", "eu-frankfurt", "Frankfurt", "Frankfurt", "DE", 8.68, 50.11, 3),
+    ("tencent", "na-siliconvalley", "Silicon Valley", "Silicon Valley", "US", -121.96, 37.35, 2),
+    ("tencent", "na-ashburn", "Virginia", "Ashburn", "US", -77.49, 39.04, 2),
+    ("tencent", "na-queretaro", "Querétaro", "Querétaro", "MX", -100.39, 20.59, 1),
+    ("tencent", "sa-saopaulo", "São Paulo", "São Paulo", "BR", -46.63, -23.55, 1),
+    ("huawei", "cn-north-1", "CN North-Beijing1", "Beijing", "CN", 116.40, 39.90, None),
+    ("huawei", "cn-north-4", "CN North-Beijing4", "Beijing", "CN", 116.40, 39.90, None),
+    ("huawei", "cn-north-9", "CN North-Ulanqab1", "Ulanqab", "CN", 113.13, 40.99, None),
+    ("huawei", "cn-east-3", "CN East-Shanghai1", "Shanghai", "CN", 121.47, 31.23, None),
+    ("huawei", "cn-east-2", "CN East-Shanghai2", "Shanghai", "CN", 121.47, 31.23, None),
+    ("huawei", "cn-east-4", "CN East-Wuhu", "Wuhu", "CN", 118.38, 31.33, None),
+    ("huawei", "cn-south-1", "CN South-Guangzhou", "Guangzhou", "CN", 113.26, 23.13, None),
+    ("huawei", "cn-south-2", "CN South-Shenzhen", "Shenzhen", "CN", 114.06, 22.54, None),
+    ("huawei", "cn-southwest-2", "CN Southwest-Guiyang1", "Guiyang", "CN", 106.63, 26.65, None),
+    ("huawei", "ap-southeast-1", "CN-Hong Kong", "Hong Kong", "HK", 114.17, 22.32, None),
+    ("huawei", "ap-southeast-2", "AP-Bangkok", "Bangkok", "TH", 100.50, 13.76, None),
+    ("huawei", "ap-southeast-3", "AP-Singapore", "Singapore", "SG", 103.82, 1.35, None),
+    ("huawei", "ap-southeast-4", "AP-Jakarta", "Jakarta", "ID", 106.85, -6.21, None),
+    ("huawei", "af-south-1", "AF-Johannesburg", "Johannesburg", "ZA", 28.05, -26.20, None),
+    ("huawei", "af-north-1", "AF-Cairo", "Cairo", "EG", 31.24, 30.04, 1),
+    ("huawei", "me-east-1", "ME-Riyadh", "Riyadh", "SA", 46.68, 24.71, 3),
+    ("huawei", "tr-west-1", "TR-Istanbul", "Istanbul", "TR", 28.98, 41.01, 3),
+    ("huawei", "la-south-2", "LA-Santiago", "Santiago", "CL", -70.67, -33.45, None),
+    ("huawei", "sa-brazil-1", "LA-Sao Paulo1", "São Paulo", "BR", -46.63, -23.55, None),
+    ("huawei", "na-mexico-1", "LA-Mexico City1", "Mexico City", "MX", -99.13, 19.43, None),
+    ("huawei", "la-north-2", "LA-Mexico City2", "Mexico City", "MX", -99.13, 19.43, None),
+]
+CN_CLOUD_URL = {"alibaba": ALI_URL, "tencent": TC_URL, "huawei": HW_URL}
+# Huawei regions confirmed by the IAM endpoint table (HW_URL2); the rest are from the global infrastructure page
+HW_IAM = {"cn-north-1", "cn-north-4", "cn-east-3", "cn-east-2", "cn-south-1", "cn-south-2", "cn-southwest-2",
+          "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "af-south-1", "la-south-2"}
+
 def cloud():
     d = json.loads(cached("cloud_regions.json", CLOUD_URL))
     feats, nocc = [], 0
@@ -829,11 +920,21 @@ def cloud():
             "id": slug(f"{p}-{r.get('regionCode') or r.get('id')}"), "n": r.get("displayName") or r.get("regionCode"),
             "p": PROV.get(p, p.title()), "code": r.get("regionCode"), "city": L.get("city"), "cc": cc,
             "az": r.get("availabilityZones") or None, "s": r.get("status")}))
+    have = {f["properties"]["id"] for f in feats}
+    hand = 0
+    for p, code, n, city, cc2, lon, lat, az in CN_CLOUD:
+        i = slug(f"{p}-{code}")
+        if i in have: continue
+        feats.append(pt(lon, lat, {"id": i, "n": n, "p": PROV[p], "code": code, "city": city, "cc": ISO2.get(cc2),
+                                   "az": az, "url": HW_URL2 if p == "huawei" and code in HW_IAM else CN_CLOUD_URL[p]}))
+        hand += 1
     uniq_ids(feats)
     print("cloud per provider:", dict(Counter(f["properties"]["p"] for f in feats)), "no country:", nocc)
     dump_geo("cloud", feats)
     src("cloud", "cloud_regions.json", "MIT (github.com/jasonwilbur/mcp-server-cloud-regions)", count=len(feats),
         version=d.get("metadata", {}).get("lastUpdated"))
+    SOURCES["cloud_cn"] = {"url": f"{ALI_URL} ; {TC_URL} ; {HW_URL} ; {HW_URL2}", "count": hand,
+                           "licence": "facts (region names and cities) from the providers' public region pages; hand list in step7_domains.py"}
 
 # =====================================================================
 # 4. BSL-4 labs
@@ -991,9 +1092,17 @@ ATLAS_URL = "https://dataverse.harvard.edu/api/access/datafile/13685110"
 QCL_URL = "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
 TM_URL = "https://fenixservices.fao.org/faostat/static/bulkdownloads/Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip"
 FOOD_ITEMS = {"wheat": "Wheat", "maize": "Maize", "rice": "Rice (milled eq.)", "soy": "Soybeans", "banana": "Bananas",
-              "chicken": "Chicken meat"}
-FAO_PROD = {15: ("wheat", 1), 56: ("maize", 1), 27: ("rice", 0.67), 236: ("soy", 1), 486: ("banana", 1), 1058: ("chicken", 1)}
-FAO_TRADE = {**FAO_PROD, 28: ("rice", 0.8), 31: ("rice", 1), 32: ("rice", 1)}
+              "chicken": "Chicken meat", "millet": "Millet", "sorghum": "Sorghum", "cassava": "Cassava (fresh root eq.)"}
+FAO_PROD = {15: ("wheat", 1), 56: ("maize", 1), 27: ("rice", 0.67), 236: ("soy", 1), 486: ("banana", 1), 1058: ("chicken", 1),
+            79: ("millet", 1), 83: ("sorghum", 1), 125: ("cassava", 1)}
+# dried cassava (chips, 128) is most of the cassava trade; FAO technical conversion factors put dried at ~40 % of fresh weight
+FAO_TRADE = {**FAO_PROD, 28: ("rice", 0.8), 31: ("rice", 1), 32: ("rice", 1), 128: ("cassava", 2.5)}
+FBS_URL = "https://fenixservices.fao.org/faostat/static/bulkdownloads/FoodBalanceSheets_E_All_Data_(Normalized).zip"
+FBS_ITEMS = ("2905", "2907")   # Cereals - Excluding Beer, Starchy Roots
+# CEPII BACI bilateral trade (Etalab Licence Ouverte 2.0), HS 2022 nomenclature; q is in tonnes
+BACI_PAGE = "https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37"
+BACI_HS = {"260111": "iron", "260112": "iron", "270112": "coal", "270119": "coal"}
+MINERAL_ITEMS = {"iron": "Iron ore", "coal": "Coal"}
 FOOD_YEAR = 2023
 
 def atlas_ic():
@@ -1083,6 +1192,111 @@ def food():
     if not out["itemYears"]: del out["itemYears"]
     return out
 
+def food_dep():
+    """{iso3: (fdep2, year)}: import share of cereals (excl. beer) + starchy roots from FAOSTAT Food Balance Sheets."""
+    fbs = cached_big("fao_fbs.zip", FBS_URL, refresh="--refresh-fao" in sys.argv)
+    el = {"Production": "p", "Import quantity": "i", "Export quantity": "x"}
+    acc = defaultdict(lambda: defaultdict(Counter))   # iso3 -> year -> {p, i, x}
+    it = fao_rows(fbs, "FoodBalanceSheets_E_All_Data", lambda l: any(f'"{c}"' in l for c in FBS_ITEMS))
+    h = next(it); ix = {k: i for i, k in enumerate(h)}
+    for r in it:
+        e = el.get(r[ix["Element"]])
+        if not e or r[ix["Item Code"]] not in FBS_ITEMS: continue
+        a = m49(r[ix["Area Code (M49)"]]); v = num(r[ix["Value"]])
+        if not a or v is None: continue
+        try: y = int(r[ix["Year"]])
+        except ValueError: continue
+        acc[a][y][e] += v
+    out = {}
+    for a, ys in acc.items():
+        for y in sorted(ys, reverse=True):
+            o = ys[y]; use = o["p"] + o["i"] - o["x"]
+            if "p" in o and use > 0:
+                out[a] = (round(max(0.0, min(1.0, o["i"] / use)), 3), y); break
+    print(f"food: fdep2 (FBS cereals + starchy roots) for {len(out)} countries, years {dict(Counter(y for _, y in out.values()))}")
+    return out
+
+def _range(url, a, b):
+    return http(url, headers={"Range": f"bytes={a}-{b}"}, timeout=300)[0]
+
+def baci():
+    """Rows (year, exp_iso3, imp_iso3, item, tonnes) of iron ore and coal from the latest BACI year, cached in
+    raw/domains/baci_iron_coal.csv. Only the latest-year CSV member is streamed out of the ~300 MB zip (HTTP ranges)."""
+    p = f"{RAW}/baci_iron_coal.csv"
+    if not os.path.exists(p) or "--refresh-baci" in sys.argv:
+        if OFFLINE: raise SystemExit(f"missing {p}; run without --offline")
+        page = http(BACI_PAGE)[0].decode("utf-8", "replace")
+        vers = sorted(set(re.findall(r"BACI_HS22_V(\d{6})\.zip", page)))
+        if not vers: raise SystemExit("BACI: no HS22 zip linked from " + BACI_PAGE)
+        url = f"https://www.cepii.fr/DATA_DOWNLOAD/baci/data/BACI_HS22_V{vers[-1]}.zip"
+        size = int(urllib.request.urlopen(urllib.request.Request(url, method="HEAD", headers={"User-Agent": UA}),
+                                          timeout=60).headers["Content-Length"])
+        tail = _range(url, max(0, size - 65536), size - 1)
+        k = tail.rfind(b"PK\x05\x06")
+        if k < 0: raise SystemExit("BACI: zip end record not found")
+        cd_size, cd_off = struct.unpack("<II", tail[k + 12:k + 20])
+        if cd_off == 0xFFFFFFFF: raise SystemExit("BACI: zip64 archives are not supported")
+        cd = _range(url, cd_off, cd_off + cd_size - 1)
+        members, o = {}, 0
+        while cd[o:o + 4] == b"PK\x01\x02":
+            f = struct.unpack("<4s6H3I5H2I", cd[o:o + 46])
+            name = cd[o + 46:o + 46 + f[10]].decode("utf-8", "replace")
+            members[name] = (f[4], f[8], f[16])   # method, compressed size, local header offset
+            o += 46 + f[10] + f[11] + f[12]
+        years = {int(m.group(1)): n for n in members if (m := re.match(r"BACI_HS22_Y(\d{4})_V\d+\.csv$", n))}
+        if not years: raise SystemExit("BACI: no yearly CSV in the zip")
+        year = max(years)
+
+        def member(name):
+            """Yield decompressed chunks of one zip member, streamed with a range request."""
+            meth, csize, off = members[name]
+            lh = _range(url, off, off + 29)
+            start = off + 30 + sum(struct.unpack("<HH", lh[26:30]))
+            req = urllib.request.Request(url, headers={"User-Agent": UA, "Range": f"bytes={start}-{start + csize - 1}"})
+            dz = zlib.decompressobj(-15) if meth == 8 else None
+            with urllib.request.urlopen(req, timeout=300) as r:
+                while True:
+                    b = r.read(1 << 20)
+                    if not b: break
+                    yield dz.decompress(b) if dz else b
+            if dz: yield dz.flush()
+
+        cc_name = next(n for n in members if n.startswith("country_codes"))
+        ccsv = b"".join(member(cc_name)).decode("utf-8", "replace")
+        open(f"{RAW}/baci_country_codes.csv", "w", encoding="utf-8").write(ccsv)
+        print(f"fetch {url} member {years[year]} ({members[years[year]][1] / 1e6:.0f} MB compressed; iron ore + coal kept)")
+        rows, buf, hdr = [], b"", None
+        for chunk in member(years[year]):
+            buf += chunk
+            lines = buf.split(b"\n"); buf = lines.pop()
+            for l in lines:
+                c = l.decode("ascii", "replace").strip().split(",")
+                if hdr is None: hdr = {k.strip(): i for i, k in enumerate(c)}; continue
+                if len(c) < len(hdr) or c[hdr["k"]].strip() not in BACI_HS: continue
+                rows.append([c[hdr[x]].strip() for x in ("t", "i", "j", "k", "v", "q")])
+        with open(p + ".part", "w", newline="") as f:
+            w = csv.writer(f); w.writerow(["t", "i", "j", "k", "v", "q"]); w.writerows(rows)
+        os.replace(p + ".part", p)
+        logfetch("baci_iron_coal.csv", url)
+        fetchlog["baci_iron_coal.csv"]["version"] = vers[-1]
+    code3 = {}
+    for r in csv.DictReader(open(f"{RAW}/baci_country_codes.csv", encoding="utf-8", newline="")):
+        c = (r.get("country_code") or "").strip()
+        a = "TWN" if c == "490" else ISO3.get((r.get("country_iso3") or "").strip())
+        if c and a: code3[c] = a
+    agg, year = defaultdict(Counter), None
+    for r in csv.DictReader(open(p, newline="")):
+        q = num(r["q"]); e, i = code3.get(r["i"]), code3.get(r["j"])
+        if q is None or not e or not i or e == i: continue
+        agg[BACI_HS[r["k"]]][(e, i)] += q; year = int(r["t"])
+    out = {"year": year, "items": MINERAL_ITEMS, "trade": {}}
+    for item in MINERAL_ITEMS:
+        fl = [[e, i, round(v / 1000, 1)] for (e, i), v in agg[item].items() if v >= 50_000]
+        out["trade"][item] = sorted(fl, key=lambda x: -x[2])
+        tot = sum(v for v in agg[item].values())
+        print(f"minerals: {item} {year}: {len(fl)} flows >= 50 kt ({sum(x[2] for x in fl) / 1000:.0f} of {tot / 1e6:.0f} Mt)")
+    return out
+
 def num(v):
     try:
         f = float(v)
@@ -1128,11 +1342,21 @@ def domains():
     if "net" not in countries["TWN"]:
         countries["TWN"]["net"] = TAIWAN_NET; countries["TWN"]["netY"] = 2024
         src("twnic", None, "TWNIC Taiwan Internet Report 2024", note="Taiwan internet use; Taiwan is not in the World Bank WDI")
+    for a, (v, y) in food_dep().items():
+        countries[a]["fdep2"] = v; countries[a]["fdep2Y"] = y
+    src("fao_fbs", "fao_fbs.zip", "CC BY 4.0 (FAO FAOSTAT, food balance sheets)",
+        note="fdep2 = imports / (production + imports - exports) of cereals excl. beer (2905) + starchy roots (2907)")
     fd = food()
     years["food"] = fd["year"]
     src("fao_qcl", "fao_qcl.zip", "CC BY 4.0 (FAO FAOSTAT)")
     src("fao_tm", "fao_tm.zip", "CC BY 4.0 (FAO FAOSTAT, detailed trade matrix)")
-    return {"updated": now_utc(), "years": years, "countries": {a: countries[a] for a in sorted(countries)}, "food": fd}
+    mn = baci()
+    years["minerals"] = mn["year"]
+    src("baci", "baci_iron_coal.csv", "Licence Ouverte / Etalab Open Licence 2.0 (CEPII BACI)",
+        version=fetchlog.get("baci_iron_coal.csv", {}).get("version"),
+        note="HS22 260111+260112 iron ore, 270112+270119 coal; exporter, importer, kt; flows >= 50 kt")
+    return {"updated": now_utc(), "years": years, "countries": {a: countries[a] for a in sorted(countries)}, "food": fd,
+            "minerals": mn}
 
 if __name__ == "__main__":
     print("step7", "(offline)" if OFFLINE else "")

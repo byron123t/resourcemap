@@ -379,8 +379,12 @@ export async function live(feed, o = {}) {
     const w = o.window || "week", W = s.windows?.[w];
     if (!W) throw new AtlasError(`story window "${w}" not found; windows: ${Object.keys(s.windows || {}).join(", ")}`, 2);
     const lim = clampLimit(o.limit, 10, 200);
-    return { feed, window: w, updated: s.updated, buckets: W.buckets?.length, items: (W.items || []).slice().sort((a, b) => b.z - a.z).slice(0, lim)
-      .map(x => ({ title: x.title || x.n, place: x.n, cc: x.cc, lon: x.lon, lat: x.lat, bucket: x.t, reports: x.e, articles: x.a, surge: x.z, usual: x.base, url: x.u?.[0] })) };
+    // conflict surges rank by surge score, other stories by how many outlets carried them; o.kind filters by kind (Conflict, Unrest, Trade...)
+    const kind = x => x.label || "Conflict", rank = x => x.k === "topic" ? (x.d || 1) * 20 : (x.z || 0);
+    const all = (W.items || []).filter(x => !o.kind || norm(kind(x)).startsWith(norm(o.kind)));
+    const kinds = {}; (W.items || []).forEach(x => kinds[kind(x)] = (kinds[kind(x)] || 0) + 1);
+    return { feed, window: w, updated: s.updated, buckets: W.buckets?.length, kinds, items: all.slice().sort((a, b) => rank(b) - rank(a)).slice(0, lim)
+      .map(x => ({ kind: kind(x), title: x.title || x.n, place: x.n, cc: x.cc, lon: x.lon, lat: x.lat, when: x.k === "topic" ? x.t1 : x.t, reports: x.e, articles: x.a, outlets: x.d, surge: x.z, usual: x.base, url: x.u?.[0] })) };
   }
   const meta = feeds.find(f => f.feed === feed);
   const res = await query(feed, { ...o, sort: o.sort || LIVE_SORT[feed] || undefined, limit: o.limit ?? 10 });

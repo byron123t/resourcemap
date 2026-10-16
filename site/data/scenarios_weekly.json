@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-16T18:50:32Z",
+ "updated": "2026-10-16T19:37:03Z",
  "source": "GDELT storyboard surges matched to sites within 75 km (cables 50 km, chokepoints 150 km); see pipeline/live/story_scenarios.py",
  "items": [
   {
@@ -156,73 +156,19 @@
    ]
   },
   {
-   "cat": "outbreak",
-   "label": "Outbreak in Kenya",
-   "why": "1 recent article on an outbreak in Kenya. Modelled as a severe virus starting there. In the news: WHO urges vigilance after Kenya confirms second Ebola case.",
-   "url": "https://www.globalissues.org/news/2026/10/15/44353",
-   "shocks": [
-    [
-     "outbreak",
-     "sev_36.81_-1.28",
-     0.55
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "outbreak",
-      "sev_36.81_-1.28",
-      0.3
-     ]
-    ],
-    "cur": [
-     [
-      "outbreak",
-      "sev_36.81_-1.28",
-      0.55
-     ]
-    ],
-    "esc": [
-     [
-      "outbreak",
-      "sev_36.81_-1.28",
-      1.0
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Contained: tracing and isolation keep it mostly local.",
-    "cur": "Partly controlled: it spreads, but slower than it could.",
-    "esc": "Uncontrolled: it spreads as fast as the virus allows."
-   },
-   "trend": "steady",
-   "likely": "cur",
-   "at": [
-    36.81,
-    -1.28
-   ],
-   "months": [
-    "2026-10"
-   ],
-   "place": "Kenya",
-   "t": "2026-10-15T20:45:00Z",
-   "z": 1,
-   "matched": []
-  },
-  {
    "cat": "conflict",
-   "label": "Missile strikes near Balakovo",
-   "why": "Saratovskaya HPP (1.4 GW, hydro), Balakovo CHP-4 power station (0.4 GW, gas) and Balakovo NPP (4.0 GW, nuclear) within 25 km. In the news: Putin defies trumps Ukraine ceasefire as Russian missiles hit power grid and American businesses.",
-   "url": "https://finchannel.com/putin-defies-trumps-ukraine-ceasefire-as-russian-missiles-hit-power-grid-and-american-businesses/138155/americas/white-house-en/2026/10/",
+   "label": "Strikes near Kyiv",
+   "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+   "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
    "shocks": [
     [
      "zone",
      [
-      47.8,
-      52.03,
+      30.52,
+      50.44,
       25
      ],
-     0.7
+     0.6
     ]
    ],
    "levels": {
@@ -230,57 +176,57 @@
      [
       "zone",
       [
-       47.8,
-       52.03,
+       30.52,
+       50.44,
        10
       ],
-      0.3
+      0.25
      ]
     ],
     "cur": [
      [
       "zone",
       [
-       47.8,
-       52.03,
+       30.52,
+       50.44,
        25
       ],
-      0.7
+      0.6
      ]
     ],
     "esc": [
      [
       "zone",
       [
-       47.8,
-       52.03,
+       30.52,
+       50.44,
        45
       ],
-      0.95
+      0.85
      ]
     ]
    },
    "lv": {
-    "de": "Calms down: only the nearest site, Saratovskaya HPP, is hit, 30% damage within 10 km.",
-    "cur": "As reported: 3 sites within 25 km, 70% damage.",
-    "esc": "Spreads to 45 km, 95% damage."
+    "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
+    "cur": "As reported: 3 sites within 25 km, 60% damage.",
+    "esc": "Spreads to 45 km, 85% damage."
    },
    "trend": "easing",
    "likely": "de",
    "at": [
-    47.8,
-    52.03
+    30.52,
+    50.44
    ],
    "months": [
     "2026-10"
    ],
-   "place": "Balakovo, Saratovskaya Oblast', Russia",
-   "t": "2026-10-14T00:00:00Z",
-   "z": 177.6,
+   "place": "Kyiv, Ukraine",
+   "t": "2026-10-07T00:00:00Z",
+   "z": 335.1,
    "matched": [
-    "Saratovskaya HPP",
-    "Balakovo CHP-4 power station",
-    "Balakovo NPP"
+    "Kyiv CHP-5 power station",
+    "Kiev",
+    "Kyiv"
    ]
   },
   {
@@ -363,132 +309,77 @@
    ]
   },
   {
-   "cat": "outbreak",
-   "label": "Outbreak in Congo",
-   "why": "1 recent article on an outbreak in Congo. Modelled as a severe virus starting there. In the news: Congo Ebola outbreak spreads to province bordering Central African Republic.",
-   "url": "https://www.sowetan.co.za/news/africa/2026-10-15-congo-ebola-outbreak-spreads-to-province-bordering-central-african-republic/",
+   "cat": "conflict",
+   "label": "Missile strikes near Balakovo",
+   "why": "Saratovskaya HPP (1.4 GW, hydro), Balakovo CHP-4 power station (0.4 GW, gas) and Balakovo NPP (4.0 GW, nuclear) within 25 km. In the news: Putin defies trumps Ukraine ceasefire as Russian missiles hit power grid and American businesses.",
+   "url": "https://finchannel.com/putin-defies-trumps-ukraine-ceasefire-as-russian-missiles-hit-power-grid-and-american-businesses/138155/americas/white-house-en/2026/10/",
    "shocks": [
     [
-     "outbreak",
-     "sev_15.31_-4.33",
-     0.55
+     "zone",
+     [
+      47.8,
+      52.03,
+      25
+     ],
+     0.7
     ]
    ],
    "levels": {
     "de": [
      [
-      "outbreak",
-      "sev_15.31_-4.33",
+      "zone",
+      [
+       47.8,
+       52.03,
+       10
+      ],
       0.3
      ]
     ],
     "cur": [
      [
-      "outbreak",
-      "sev_15.31_-4.33",
-      0.55
-     ]
-    ],
-    "esc": [
-     [
-      "outbreak",
-      "sev_15.31_-4.33",
-      1.0
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Contained: tracing and isolation keep it mostly local.",
-    "cur": "Partly controlled: it spreads, but slower than it could.",
-    "esc": "Uncontrolled: it spreads as fast as the virus allows."
-   },
-   "trend": "steady",
-   "likely": "cur",
-   "at": [
-    15.31,
-    -4.33
-   ],
-   "months": [
-    "2026-10"
-   ],
-   "place": "Congo",
-   "t": "2026-10-15T20:45:00Z",
-   "z": 1,
-   "matched": []
-  },
-  {
-   "cat": "conflict",
-   "label": "Attacks near Ryazan",
-   "why": "TNK-BP Ryazan Refinery, Novo-Ryazan power station (0.3 GW, gas), Ryazanskaya GRES power station (1.9 GW, gas) and 1 more within 70 km. In the news: Ukraine resumes attacks on Russian oil refineries officials say after brief truce.",
-   "url": "https://www.mankatofreepress.com/news/business/ukraine-resumes-attacks-on-russian-oil-refineries-officials-say-after-brief-truce/article_561af0fd-3dc3-5b14-a87f-cae68c579826.html",
-   "shocks": [
-    [
-     "zone",
-     [
-      39.69,
-      54.63,
-      70
-     ],
-     0.65
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
       "zone",
       [
-       39.69,
-       54.63,
-       15
+       47.8,
+       52.03,
+       25
       ],
-      0.25
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       39.69,
-       54.63,
-       70
-      ],
-      0.65
+      0.7
      ]
     ],
     "esc": [
      [
       "zone",
       [
-       39.69,
-       54.63,
-       130
+       47.8,
+       52.03,
+       45
       ],
-      0.9
+      0.95
      ]
     ]
    },
    "lv": {
-    "de": "Calms down: only the nearest site, TNK-BP Ryazan Refinery, is hit, 25% damage within 15 km.",
-    "cur": "As reported: 4 sites within 70 km, 65% damage.",
-    "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shatura GRES power station)."
+    "de": "Calms down: only the nearest site, Saratovskaya HPP, is hit, 30% damage within 10 km.",
+    "cur": "As reported: 3 sites within 25 km, 70% damage.",
+    "esc": "Spreads to 45 km, 95% damage."
    },
-   "trend": "rising",
-   "likely": "esc",
+   "trend": "easing",
+   "likely": "de",
    "at": [
-    39.69,
-    54.63
+    47.8,
+    52.03
    ],
    "months": [
     "2026-10"
    ],
-   "place": "Ryazan, Ryazanskaya Oblast', Russia",
-   "t": "2026-10-13T00:00:00Z",
-   "z": 130.6,
+   "place": "Balakovo, Saratovskaya Oblast', Russia",
+   "t": "2026-10-14T00:00:00Z",
+   "z": 177.6,
    "matched": [
-    "TNK-BP Ryazan Refinery",
-    "Novo-Ryazan power station",
-    "Ryazanskaya GRES power station",
-    "Ryazanskaya GRES power station"
+    "Saratovskaya HPP",
+    "Balakovo CHP-4 power station",
+    "Balakovo NPP"
    ]
   },
   {
@@ -699,16 +590,16 @@
   },
   {
    "cat": "conflict",
-   "label": "Strikes near Kyiv",
-   "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Zelensky says Russian strikes hit Ukraines energy sites despite ceasefire push.",
-   "url": "https://www.eveshamjournal.co.uk/news/national/26635778.zelensky-says-russian-strikes-hit-ukraines-energy-sites-despite-ceasefire-push/",
+   "label": "Attacks near Ryazan",
+   "why": "TNK-BP Ryazan Refinery, Novo-Ryazan power station (0.3 GW, gas), Ryazanskaya GRES power station (1.9 GW, gas) and 1 more within 70 km. In the news: Ukraine resumes attacks on Russian oil refineries officials say after brief truce.",
+   "url": "https://www.mankatofreepress.com/news/business/ukraine-resumes-attacks-on-russian-oil-refineries-officials-say-after-brief-truce/article_561af0fd-3dc3-5b14-a87f-cae68c579826.html",
    "shocks": [
     [
      "zone",
      [
-      30.52,
-      50.43,
-      25
+      39.69,
+      54.63,
+      70
      ],
      0.65
     ]
@@ -718,9 +609,9 @@
      [
       "zone",
       [
-       30.52,
-       50.43,
-       10
+       39.69,
+       54.63,
+       15
       ],
       0.25
      ]
@@ -729,9 +620,9 @@
      [
       "zone",
       [
-       30.52,
-       50.43,
-       25
+       39.69,
+       54.63,
+       70
       ],
       0.65
      ]
@@ -740,35 +631,36 @@
      [
       "zone",
       [
-       30.52,
-       50.43,
-       45
+       39.69,
+       54.63,
+       130
       ],
       0.9
      ]
     ]
    },
    "lv": {
-    "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
-    "cur": "As reported: 3 sites within 25 km, 65% damage.",
-    "esc": "Spreads to 45 km, 90% damage."
+    "de": "Calms down: only the nearest site, TNK-BP Ryazan Refinery, is hit, 25% damage within 15 km.",
+    "cur": "As reported: 4 sites within 70 km, 65% damage.",
+    "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shatura GRES power station)."
    },
    "trend": "rising",
    "likely": "esc",
    "at": [
-    30.52,
-    50.43
+    39.69,
+    54.63
    ],
    "months": [
     "2026-10"
    ],
-   "place": "Kyiv, Kyyiv, Misto, Ukraine",
-   "t": "2026-10-15T00:00:00Z",
-   "z": 84.3,
+   "place": "Ryazan, Ryazanskaya Oblast', Russia",
+   "t": "2026-10-13T00:00:00Z",
+   "z": 130.6,
    "matched": [
-    "Kyiv CHP-5 power station",
-    "Kiev",
-    "Kyiv"
+    "TNK-BP Ryazan Refinery",
+    "Novo-Ryazan power station",
+    "Ryazanskaya GRES power station",
+    "Ryazanskaya GRES power station"
    ]
   },
   {
@@ -841,6 +733,168 @@
    "z": 148.9,
    "matched": [
     "Sanaa"
+   ]
+  },
+  {
+   "cat": "conflict",
+   "label": "Missile strikes near Voronezh",
+   "why": "Novovoronezh (1.9 GW, nuclear) within 45 km. In the news: Ukraine says missile strike destroyed Russian warplanes at Voronezh airfield.",
+   "url": "https://www.themoscowtimes.com/2026/10/15/ukraine-says-missile-strike-destroyed-6-russian-warplanes-at-voronezh-airfield-a93991",
+   "shocks": [
+    [
+     "zone",
+     [
+      39.19,
+      51.66,
+      45
+     ],
+     0.65
+    ]
+   ],
+   "levels": {
+    "de": [
+     [
+      "zone",
+      [
+       39.19,
+       51.66,
+       45
+      ],
+      0.25
+     ]
+    ],
+    "cur": [
+     [
+      "zone",
+      [
+       39.19,
+       51.66,
+       45
+      ],
+      0.65
+     ]
+    ],
+    "esc": [
+     [
+      "zone",
+      [
+       39.19,
+       51.66,
+       85
+      ],
+      0.9
+     ]
+    ]
+   },
+   "lv": {
+    "de": "Calms down: only the nearest site, Novovoronezh, is hit, 25% damage within 45 km.",
+    "cur": "As reported: 1 site within 45 km, 65% damage.",
+    "esc": "Spreads to 85 km, 90% damage."
+   },
+   "trend": "rising",
+   "likely": "esc",
+   "at": [
+    39.19,
+    51.66
+   ],
+   "months": [
+    "2026-10"
+   ],
+   "place": "Voronezh, Russia",
+   "t": "2026-10-15T00:00:00Z",
+   "z": 126.2,
+   "matched": [
+    "Novovoronezh"
+   ]
+  },
+  {
+   "cat": "conflict",
+   "label": "Missile strikes near Aden",
+   "why": "ARC Aden Refinery, Aden (oil port) and Aden (≈1.0 M people) within 25 km. In the news: Houthis launch missile attack on Yemen presidential palace in Aden.",
+   "url": "https://arynews.tv/houthis-launch-missile-attack-on-yemen-presidential-palace-in-aden",
+   "shocks": [
+    [
+     "zone",
+     [
+      45.01,
+      12.78,
+      25
+     ],
+     0.7
+    ],
+    [
+     "cable",
+     "aden-yemen",
+     1
+    ]
+   ],
+   "levels": {
+    "de": [
+     [
+      "zone",
+      [
+       45.01,
+       12.78,
+       10
+      ],
+      0.3
+     ]
+    ],
+    "cur": [
+     [
+      "zone",
+      [
+       45.01,
+       12.78,
+       25
+      ],
+      0.7
+     ],
+     [
+      "cable",
+      "aden-yemen",
+      1
+     ]
+    ],
+    "esc": [
+     [
+      "zone",
+      [
+       45.01,
+       12.78,
+       45
+      ],
+      0.95
+     ],
+     [
+      "cable",
+      "aden-yemen",
+      1
+     ]
+    ]
+   },
+   "lv": {
+    "de": "Calms down: only the nearest site, Aden, is hit, 30% damage within 10 km.",
+    "cur": "As reported: 3 sites within 25 km, 70% damage. Nearby cables cut.",
+    "esc": "Spreads to 45 km, 95% damage. Nearby cables cut."
+   },
+   "trend": "rising",
+   "likely": "esc",
+   "at": [
+    45.01,
+    12.78
+   ],
+   "months": [
+    "2026-10"
+   ],
+   "place": "Aden, Yemen",
+   "t": "2026-10-15T00:00:00Z",
+   "z": 44.8,
+   "matched": [
+    "Aden",
+    "ARC Aden Refinery",
+    "Aden",
+    "Aden, Yemen"
    ]
   }
  ],
@@ -1001,73 +1055,19 @@
      ]
     },
     {
-     "cat": "outbreak",
-     "label": "Outbreak in Kenya",
-     "why": "1 recent article on an outbreak in Kenya. Modelled as a severe virus starting there. In the news: WHO urges vigilance after Kenya confirms second Ebola case.",
-     "url": "https://www.globalissues.org/news/2026/10/15/44353",
-     "shocks": [
-      [
-       "outbreak",
-       "sev_36.81_-1.28",
-       0.55
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "outbreak",
-        "sev_36.81_-1.28",
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "outbreak",
-        "sev_36.81_-1.28",
-        0.55
-       ]
-      ],
-      "esc": [
-       [
-        "outbreak",
-        "sev_36.81_-1.28",
-        1.0
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Contained: tracing and isolation keep it mostly local.",
-      "cur": "Partly controlled: it spreads, but slower than it could.",
-      "esc": "Uncontrolled: it spreads as fast as the virus allows."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      36.81,
-      -1.28
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Kenya",
-     "t": "2026-10-15T20:45:00Z",
-     "z": 1,
-     "matched": []
-    },
-    {
      "cat": "conflict",
-     "label": "Missile strikes near Balakovo",
-     "why": "Saratovskaya HPP (1.4 GW, hydro), Balakovo CHP-4 power station (0.4 GW, gas) and Balakovo NPP (4.0 GW, nuclear) within 25 km. In the news: Putin defies trumps Ukraine ceasefire as Russian missiles hit power grid and American businesses.",
-     "url": "https://finchannel.com/putin-defies-trumps-ukraine-ceasefire-as-russian-missiles-hit-power-grid-and-american-businesses/138155/americas/white-house-en/2026/10/",
+     "label": "Strikes near Kyiv",
+     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
      "shocks": [
       [
        "zone",
        [
-        47.8,
-        52.03,
+        30.52,
+        50.44,
         25
        ],
-       0.7
+       0.6
       ]
      ],
      "levels": {
@@ -1075,57 +1075,57 @@
        [
         "zone",
         [
-         47.8,
-         52.03,
+         30.52,
+         50.44,
          10
         ],
-        0.3
+        0.25
        ]
       ],
       "cur": [
        [
         "zone",
         [
-         47.8,
-         52.03,
+         30.52,
+         50.44,
          25
         ],
-        0.7
+        0.6
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         47.8,
-         52.03,
+         30.52,
+         50.44,
          45
         ],
-        0.95
+        0.85
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Saratovskaya HPP, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 70% damage.",
-      "esc": "Spreads to 45 km, 95% damage."
+      "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 3 sites within 25 km, 60% damage.",
+      "esc": "Spreads to 45 km, 85% damage."
      },
      "trend": "easing",
      "likely": "de",
      "at": [
-      47.8,
-      52.03
+      30.52,
+      50.44
      ],
      "months": [
       "2026-10"
      ],
-     "place": "Balakovo, Saratovskaya Oblast', Russia",
-     "t": "2026-10-14T00:00:00Z",
-     "z": 177.6,
+     "place": "Kyiv, Ukraine",
+     "t": "2026-10-07T00:00:00Z",
+     "z": 335.1,
      "matched": [
-      "Saratovskaya HPP",
-      "Balakovo CHP-4 power station",
-      "Balakovo NPP"
+      "Kyiv CHP-5 power station",
+      "Kiev",
+      "Kyiv"
      ]
     },
     {
@@ -1208,132 +1208,77 @@
      ]
     },
     {
-     "cat": "outbreak",
-     "label": "Outbreak in Congo",
-     "why": "1 recent article on an outbreak in Congo. Modelled as a severe virus starting there. In the news: Congo Ebola outbreak spreads to province bordering Central African Republic.",
-     "url": "https://www.sowetan.co.za/news/africa/2026-10-15-congo-ebola-outbreak-spreads-to-province-bordering-central-african-republic/",
+     "cat": "conflict",
+     "label": "Missile strikes near Balakovo",
+     "why": "Saratovskaya HPP (1.4 GW, hydro), Balakovo CHP-4 power station (0.4 GW, gas) and Balakovo NPP (4.0 GW, nuclear) within 25 km. In the news: Putin defies trumps Ukraine ceasefire as Russian missiles hit power grid and American businesses.",
+     "url": "https://finchannel.com/putin-defies-trumps-ukraine-ceasefire-as-russian-missiles-hit-power-grid-and-american-businesses/138155/americas/white-house-en/2026/10/",
      "shocks": [
       [
-       "outbreak",
-       "sev_15.31_-4.33",
-       0.55
+       "zone",
+       [
+        47.8,
+        52.03,
+        25
+       ],
+       0.7
       ]
      ],
      "levels": {
       "de": [
        [
-        "outbreak",
-        "sev_15.31_-4.33",
+        "zone",
+        [
+         47.8,
+         52.03,
+         10
+        ],
         0.3
        ]
       ],
       "cur": [
        [
-        "outbreak",
-        "sev_15.31_-4.33",
-        0.55
-       ]
-      ],
-      "esc": [
-       [
-        "outbreak",
-        "sev_15.31_-4.33",
-        1.0
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Contained: tracing and isolation keep it mostly local.",
-      "cur": "Partly controlled: it spreads, but slower than it could.",
-      "esc": "Uncontrolled: it spreads as fast as the virus allows."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      15.31,
-      -4.33
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Congo",
-     "t": "2026-10-15T20:45:00Z",
-     "z": 1,
-     "matched": []
-    },
-    {
-     "cat": "conflict",
-     "label": "Attacks near Ryazan",
-     "why": "TNK-BP Ryazan Refinery, Novo-Ryazan power station (0.3 GW, gas), Ryazanskaya GRES power station (1.9 GW, gas) and 1 more within 70 km. In the news: Ukraine resumes attacks on Russian oil refineries officials say after brief truce.",
-     "url": "https://www.mankatofreepress.com/news/business/ukraine-resumes-attacks-on-russian-oil-refineries-officials-say-after-brief-truce/article_561af0fd-3dc3-5b14-a87f-cae68c579826.html",
-     "shocks": [
-      [
-       "zone",
-       [
-        39.69,
-        54.63,
-        70
-       ],
-       0.65
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
         "zone",
         [
-         39.69,
-         54.63,
-         15
+         47.8,
+         52.03,
+         25
         ],
-        0.25
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         39.69,
-         54.63,
-         70
-        ],
-        0.65
+        0.7
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         39.69,
-         54.63,
-         130
+         47.8,
+         52.03,
+         45
         ],
-        0.9
+        0.95
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, TNK-BP Ryazan Refinery, is hit, 25% damage within 15 km.",
-      "cur": "As reported: 4 sites within 70 km, 65% damage.",
-      "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shatura GRES power station)."
+      "de": "Calms down: only the nearest site, Saratovskaya HPP, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 3 sites within 25 km, 70% damage.",
+      "esc": "Spreads to 45 km, 95% damage."
      },
-     "trend": "rising",
-     "likely": "esc",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      39.69,
-      54.63
+      47.8,
+      52.03
      ],
      "months": [
       "2026-10"
      ],
-     "place": "Ryazan, Ryazanskaya Oblast', Russia",
-     "t": "2026-10-13T00:00:00Z",
-     "z": 130.6,
+     "place": "Balakovo, Saratovskaya Oblast', Russia",
+     "t": "2026-10-14T00:00:00Z",
+     "z": 177.6,
      "matched": [
-      "TNK-BP Ryazan Refinery",
-      "Novo-Ryazan power station",
-      "Ryazanskaya GRES power station",
-      "Ryazanskaya GRES power station"
+      "Saratovskaya HPP",
+      "Balakovo CHP-4 power station",
+      "Balakovo NPP"
      ]
     },
     {
@@ -1544,16 +1489,16 @@
     },
     {
      "cat": "conflict",
-     "label": "Strikes near Kyiv",
-     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Zelensky says Russian strikes hit Ukraines energy sites despite ceasefire push.",
-     "url": "https://www.eveshamjournal.co.uk/news/national/26635778.zelensky-says-russian-strikes-hit-ukraines-energy-sites-despite-ceasefire-push/",
+     "label": "Attacks near Ryazan",
+     "why": "TNK-BP Ryazan Refinery, Novo-Ryazan power station (0.3 GW, gas), Ryazanskaya GRES power station (1.9 GW, gas) and 1 more within 70 km. In the news: Ukraine resumes attacks on Russian oil refineries officials say after brief truce.",
+     "url": "https://www.mankatofreepress.com/news/business/ukraine-resumes-attacks-on-russian-oil-refineries-officials-say-after-brief-truce/article_561af0fd-3dc3-5b14-a87f-cae68c579826.html",
      "shocks": [
       [
        "zone",
        [
-        30.52,
-        50.43,
-        25
+        39.69,
+        54.63,
+        70
        ],
        0.65
       ]
@@ -1563,9 +1508,9 @@
        [
         "zone",
         [
-         30.52,
-         50.43,
-         10
+         39.69,
+         54.63,
+         15
         ],
         0.25
        ]
@@ -1574,9 +1519,9 @@
        [
         "zone",
         [
-         30.52,
-         50.43,
-         25
+         39.69,
+         54.63,
+         70
         ],
         0.65
        ]
@@ -1585,35 +1530,36 @@
        [
         "zone",
         [
-         30.52,
-         50.43,
-         45
+         39.69,
+         54.63,
+         130
         ],
         0.9
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 65% damage.",
-      "esc": "Spreads to 45 km, 90% damage."
+      "de": "Calms down: only the nearest site, TNK-BP Ryazan Refinery, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 4 sites within 70 km, 65% damage.",
+      "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shatura GRES power station)."
      },
      "trend": "rising",
      "likely": "esc",
      "at": [
-      30.52,
-      50.43
+      39.69,
+      54.63
      ],
      "months": [
       "2026-10"
      ],
-     "place": "Kyiv, Kyyiv, Misto, Ukraine",
-     "t": "2026-10-15T00:00:00Z",
-     "z": 84.3,
+     "place": "Ryazan, Ryazanskaya Oblast', Russia",
+     "t": "2026-10-13T00:00:00Z",
+     "z": 130.6,
      "matched": [
-      "Kyiv CHP-5 power station",
-      "Kiev",
-      "Kyiv"
+      "TNK-BP Ryazan Refinery",
+      "Novo-Ryazan power station",
+      "Ryazanskaya GRES power station",
+      "Ryazanskaya GRES power station"
      ]
     },
     {
@@ -1686,6 +1632,168 @@
      "z": 148.9,
      "matched": [
       "Sanaa"
+     ]
+    },
+    {
+     "cat": "conflict",
+     "label": "Missile strikes near Voronezh",
+     "why": "Novovoronezh (1.9 GW, nuclear) within 45 km. In the news: Ukraine says missile strike destroyed Russian warplanes at Voronezh airfield.",
+     "url": "https://www.themoscowtimes.com/2026/10/15/ukraine-says-missile-strike-destroyed-6-russian-warplanes-at-voronezh-airfield-a93991",
+     "shocks": [
+      [
+       "zone",
+       [
+        39.19,
+        51.66,
+        45
+       ],
+       0.65
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         39.19,
+         51.66,
+         45
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         39.19,
+         51.66,
+         45
+        ],
+        0.65
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         39.19,
+         51.66,
+         85
+        ],
+        0.9
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Novovoronezh, is hit, 25% damage within 45 km.",
+      "cur": "As reported: 1 site within 45 km, 65% damage.",
+      "esc": "Spreads to 85 km, 90% damage."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      39.19,
+      51.66
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Voronezh, Russia",
+     "t": "2026-10-15T00:00:00Z",
+     "z": 126.2,
+     "matched": [
+      "Novovoronezh"
+     ]
+    },
+    {
+     "cat": "conflict",
+     "label": "Missile strikes near Aden",
+     "why": "ARC Aden Refinery, Aden (oil port) and Aden (≈1.0 M people) within 25 km. In the news: Houthis launch missile attack on Yemen presidential palace in Aden.",
+     "url": "https://arynews.tv/houthis-launch-missile-attack-on-yemen-presidential-palace-in-aden",
+     "shocks": [
+      [
+       "zone",
+       [
+        45.01,
+        12.78,
+        25
+       ],
+       0.7
+      ],
+      [
+       "cable",
+       "aden-yemen",
+       1
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         45.01,
+         12.78,
+         10
+        ],
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         45.01,
+         12.78,
+         25
+        ],
+        0.7
+       ],
+       [
+        "cable",
+        "aden-yemen",
+        1
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         45.01,
+         12.78,
+         45
+        ],
+        0.95
+       ],
+       [
+        "cable",
+        "aden-yemen",
+        1
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Aden, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 3 sites within 25 km, 70% damage. Nearby cables cut.",
+      "esc": "Spreads to 45 km, 95% damage. Nearby cables cut."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      45.01,
+      12.78
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Aden, Yemen",
+     "t": "2026-10-15T00:00:00Z",
+     "z": 44.8,
+     "matched": [
+      "Aden",
+      "ARC Aden Refinery",
+      "Aden",
+      "Aden, Yemen"
      ]
     }
    ]
@@ -1918,73 +2026,19 @@
      ]
     },
     {
-     "cat": "outbreak",
-     "label": "Outbreak in Kenya",
-     "why": "1 recent article on an outbreak in Kenya. Modelled as a severe virus starting there. In the news: WHO urges vigilance after Kenya confirms second Ebola case.",
-     "url": "https://www.globalissues.org/news/2026/10/15/44353",
-     "shocks": [
-      [
-       "outbreak",
-       "sev_36.81_-1.28",
-       0.55
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "outbreak",
-        "sev_36.81_-1.28",
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "outbreak",
-        "sev_36.81_-1.28",
-        0.55
-       ]
-      ],
-      "esc": [
-       [
-        "outbreak",
-        "sev_36.81_-1.28",
-        1.0
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Contained: tracing and isolation keep it mostly local.",
-      "cur": "Partly controlled: it spreads, but slower than it could.",
-      "esc": "Uncontrolled: it spreads as fast as the virus allows."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      36.81,
-      -1.28
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Kenya",
-     "t": "2026-10-15T20:45:00Z",
-     "z": 1,
-     "matched": []
-    },
-    {
      "cat": "conflict",
-     "label": "Missile strikes near Balakovo",
-     "why": "Saratovskaya HPP (1.4 GW, hydro), Balakovo CHP-4 power station (0.4 GW, gas) and Balakovo NPP (4.0 GW, nuclear) within 25 km. In the news: Putin defies trumps Ukraine ceasefire as Russian missiles hit power grid and American businesses.",
-     "url": "https://finchannel.com/putin-defies-trumps-ukraine-ceasefire-as-russian-missiles-hit-power-grid-and-american-businesses/138155/americas/white-house-en/2026/10/",
+     "label": "Strikes near Kyiv",
+     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
      "shocks": [
       [
        "zone",
        [
-        47.8,
-        52.03,
+        30.52,
+        50.44,
         25
        ],
-       0.7
+       0.6
       ]
      ],
      "levels": {
@@ -1992,57 +2046,57 @@
        [
         "zone",
         [
-         47.8,
-         52.03,
+         30.52,
+         50.44,
          10
         ],
-        0.3
+        0.25
        ]
       ],
       "cur": [
        [
         "zone",
         [
-         47.8,
-         52.03,
+         30.52,
+         50.44,
          25
         ],
-        0.7
+        0.6
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         47.8,
-         52.03,
+         30.52,
+         50.44,
          45
         ],
-        0.95
+        0.85
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Saratovskaya HPP, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 70% damage.",
-      "esc": "Spreads to 45 km, 95% damage."
+      "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 3 sites within 25 km, 60% damage.",
+      "esc": "Spreads to 45 km, 85% damage."
      },
      "trend": "easing",
      "likely": "de",
      "at": [
-      47.8,
-      52.03
+      30.52,
+      50.44
      ],
      "months": [
       "2026-10"
      ],
-     "place": "Balakovo, Saratovskaya Oblast', Russia",
-     "t": "2026-10-14T00:00:00Z",
-     "z": 177.6,
+     "place": "Kyiv, Ukraine",
+     "t": "2026-10-07T00:00:00Z",
+     "z": 335.1,
      "matched": [
-      "Saratovskaya HPP",
-      "Balakovo CHP-4 power station",
-      "Balakovo NPP"
+      "Kyiv CHP-5 power station",
+      "Kiev",
+      "Kyiv"
      ]
     },
     {
@@ -2197,132 +2251,77 @@
      ]
     },
     {
-     "cat": "outbreak",
-     "label": "Outbreak in Congo",
-     "why": "1 recent article on an outbreak in Congo. Modelled as a severe virus starting there. In the news: Congo Ebola outbreak spreads to province bordering Central African Republic.",
-     "url": "https://www.sowetan.co.za/news/africa/2026-10-15-congo-ebola-outbreak-spreads-to-province-bordering-central-african-republic/",
+     "cat": "conflict",
+     "label": "Missile strikes near Balakovo",
+     "why": "Saratovskaya HPP (1.4 GW, hydro), Balakovo CHP-4 power station (0.4 GW, gas) and Balakovo NPP (4.0 GW, nuclear) within 25 km. In the news: Putin defies trumps Ukraine ceasefire as Russian missiles hit power grid and American businesses.",
+     "url": "https://finchannel.com/putin-defies-trumps-ukraine-ceasefire-as-russian-missiles-hit-power-grid-and-american-businesses/138155/americas/white-house-en/2026/10/",
      "shocks": [
       [
-       "outbreak",
-       "sev_15.31_-4.33",
-       0.55
+       "zone",
+       [
+        47.8,
+        52.03,
+        25
+       ],
+       0.7
       ]
      ],
      "levels": {
       "de": [
        [
-        "outbreak",
-        "sev_15.31_-4.33",
+        "zone",
+        [
+         47.8,
+         52.03,
+         10
+        ],
         0.3
        ]
       ],
       "cur": [
        [
-        "outbreak",
-        "sev_15.31_-4.33",
-        0.55
-       ]
-      ],
-      "esc": [
-       [
-        "outbreak",
-        "sev_15.31_-4.33",
-        1.0
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Contained: tracing and isolation keep it mostly local.",
-      "cur": "Partly controlled: it spreads, but slower than it could.",
-      "esc": "Uncontrolled: it spreads as fast as the virus allows."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      15.31,
-      -4.33
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Congo",
-     "t": "2026-10-15T20:45:00Z",
-     "z": 1,
-     "matched": []
-    },
-    {
-     "cat": "conflict",
-     "label": "Attacks near Ryazan",
-     "why": "TNK-BP Ryazan Refinery, Novo-Ryazan power station (0.3 GW, gas), Ryazanskaya GRES power station (1.9 GW, gas) and 1 more within 70 km. In the news: Ukraine resumes attacks on Russian oil refineries officials say after brief truce.",
-     "url": "https://www.mankatofreepress.com/news/business/ukraine-resumes-attacks-on-russian-oil-refineries-officials-say-after-brief-truce/article_561af0fd-3dc3-5b14-a87f-cae68c579826.html",
-     "shocks": [
-      [
-       "zone",
-       [
-        39.69,
-        54.63,
-        70
-       ],
-       0.65
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
         "zone",
         [
-         39.69,
-         54.63,
-         15
+         47.8,
+         52.03,
+         25
         ],
-        0.25
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         39.69,
-         54.63,
-         70
-        ],
-        0.65
+        0.7
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         39.69,
-         54.63,
-         130
+         47.8,
+         52.03,
+         45
         ],
-        0.9
+        0.95
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, TNK-BP Ryazan Refinery, is hit, 25% damage within 15 km.",
-      "cur": "As reported: 4 sites within 70 km, 65% damage.",
-      "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shatura GRES power station)."
+      "de": "Calms down: only the nearest site, Saratovskaya HPP, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 3 sites within 25 km, 70% damage.",
+      "esc": "Spreads to 45 km, 95% damage."
      },
-     "trend": "rising",
-     "likely": "esc",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      39.69,
-      54.63
+      47.8,
+      52.03
      ],
      "months": [
       "2026-10"
      ],
-     "place": "Ryazan, Ryazanskaya Oblast', Russia",
-     "t": "2026-10-13T00:00:00Z",
-     "z": 130.6,
+     "place": "Balakovo, Saratovskaya Oblast', Russia",
+     "t": "2026-10-14T00:00:00Z",
+     "z": 177.6,
      "matched": [
-      "TNK-BP Ryazan Refinery",
-      "Novo-Ryazan power station",
-      "Ryazanskaya GRES power station",
-      "Ryazanskaya GRES power station"
+      "Saratovskaya HPP",
+      "Balakovo CHP-4 power station",
+      "Balakovo NPP"
      ]
     },
     {
@@ -2705,18 +2704,18 @@
     },
     {
      "cat": "conflict",
-     "label": "Drone strikes near Sofiya",
-     "why": "Bobov Dol power station (0.6 GW, coal), PSBELMEKEN (0.4 GW, hydro), PSCHAIRA GEN (0.9 GW, hydro) and 1 more within 75 km. In the news: Bulgaria searches for missing crew after drones hit more Black sea ships.",
-     "url": "https://www.arabnews.com/world/bulgaria-searches-for-missing-crew-after-drones-hit-more-black-sea-ships-3004885",
+     "label": "Attacks near Ryazan",
+     "why": "TNK-BP Ryazan Refinery, Novo-Ryazan power station (0.3 GW, gas), Ryazanskaya GRES power station (1.9 GW, gas) and 1 more within 70 km. In the news: Ukraine resumes attacks on Russian oil refineries officials say after brief truce.",
+     "url": "https://www.mankatofreepress.com/news/business/ukraine-resumes-attacks-on-russian-oil-refineries-officials-say-after-brief-truce/article_561af0fd-3dc3-5b14-a87f-cae68c579826.html",
      "shocks": [
       [
        "zone",
        [
-        23.32,
-        42.68,
-        75
+        39.69,
+        54.63,
+        70
        ],
-       0.6
+       0.65
       ]
      ],
      "levels": {
@@ -2724,9 +2723,9 @@
        [
         "zone",
         [
-         23.32,
-         42.68,
-         10
+         39.69,
+         54.63,
+         15
         ],
         0.25
        ]
@@ -2735,47 +2734,47 @@
        [
         "zone",
         [
-         23.32,
-         42.68,
-         75
+         39.69,
+         54.63,
+         70
         ],
-        0.6
+        0.65
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         23.32,
-         42.68,
-         135
+         39.69,
+         54.63,
+         130
         ],
-        0.85
+        0.9
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Sofia, is hit, 25% damage within 10 km.",
-      "cur": "As reported: 4 sites within 75 km, 60% damage.",
-      "esc": "Spreads to 135 km, 85% damage, reaching 1 more site (KOZLODUY)."
+      "de": "Calms down: only the nearest site, TNK-BP Ryazan Refinery, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 4 sites within 70 km, 65% damage.",
+      "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shatura GRES power station)."
      },
-     "trend": "steady",
-     "likely": "cur",
+     "trend": "rising",
+     "likely": "esc",
      "at": [
-      23.32,
-      42.68
+      39.69,
+      54.63
      ],
      "months": [
       "2026-10"
      ],
-     "place": "Sofiya, Sofiya-Grad, Bulgaria",
-     "t": "2026-10-04T00:00:00Z",
-     "z": 129.6,
+     "place": "Ryazan, Ryazanskaya Oblast', Russia",
+     "t": "2026-10-13T00:00:00Z",
+     "z": 130.6,
      "matched": [
-      "Bobov Dol power station",
-      "PSBELMEKEN",
-      "PSCHAIRA GEN",
-      "Sofia"
+      "TNK-BP Ryazan Refinery",
+      "Novo-Ryazan power station",
+      "Ryazanskaya GRES power station",
+      "Ryazanskaya GRES power station"
      ]
     },
     {
@@ -3202,6 +3201,153 @@
      "matched": [
       "Kota Baru"
      ]
+    },
+    {
+     "cat": "conflict",
+     "label": "Drone strikes near Sofiya",
+     "why": "Bobov Dol power station (0.6 GW, coal), PSBELMEKEN (0.4 GW, hydro), PSCHAIRA GEN (0.9 GW, hydro) and 1 more within 75 km. In the news: Bulgaria searches for missing crew after drones hit more Black sea ships.",
+     "url": "https://www.arabnews.com/world/bulgaria-searches-for-missing-crew-after-drones-hit-more-black-sea-ships-3004885",
+     "shocks": [
+      [
+       "zone",
+       [
+        23.32,
+        42.68,
+        75
+       ],
+       0.6
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         23.32,
+         42.68,
+         10
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         23.32,
+         42.68,
+         75
+        ],
+        0.6
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         23.32,
+         42.68,
+         135
+        ],
+        0.85
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Sofia, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 4 sites within 75 km, 60% damage.",
+      "esc": "Spreads to 135 km, 85% damage, reaching 1 more site (KOZLODUY)."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      23.32,
+      42.68
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Sofiya, Sofiya-Grad, Bulgaria",
+     "t": "2026-10-04T00:00:00Z",
+     "z": 129.6,
+     "matched": [
+      "Bobov Dol power station",
+      "PSBELMEKEN",
+      "PSCHAIRA GEN",
+      "Sofia"
+     ]
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire Hatch Grade, Walla Walla, Washington",
+     "why": "Ice Harbor within 30 km; about 2,025 hectares burnt (NASA EONET).",
+     "url": "https://irwin.doi.gov/observer/incidents/2026-WAWFS-000664",
+     "shocks": [
+      [
+       "zone",
+       [
+        -118.86,
+        46.03,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         -118.86,
+         46.03,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         -118.86,
+         46.03,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         -118.86,
+         46.03,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      -118.86,
+      46.03
+     ],
+     "months": [
+      "2026-09"
+     ],
+     "place": "Wildfire Hatch Grade, Walla Walla, Washington",
+     "t": "2026-09-29T19:50:00Z",
+     "z": 2.0250000000000004,
+     "matched": [
+      "Ice Harbor"
+     ]
     }
    ]
   },
@@ -3210,17 +3356,17 @@
     {
      "cat": "conflict",
      "label": "Strikes near Kyiv",
-     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Zelensky says Russian strikes hit Ukraines energy sites despite ceasefire push.",
-     "url": "https://www.eveshamjournal.co.uk/news/national/26635778.zelensky-says-russian-strikes-hit-ukraines-energy-sites-despite-ceasefire-push/",
+     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
+     "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
      "shocks": [
       [
        "zone",
        [
         30.52,
-        50.43,
+        50.44,
         25
        ],
-       0.65
+       0.6
       ]
      ],
      "levels": {
@@ -3229,7 +3375,7 @@
         "zone",
         [
          30.52,
-         50.43,
+         50.44,
          10
         ],
         0.25
@@ -3240,10 +3386,10 @@
         "zone",
         [
          30.52,
-         50.43,
+         50.44,
          25
         ],
-        0.65
+        0.6
        ]
       ],
       "esc": [
@@ -3251,33 +3397,34 @@
         "zone",
         [
          30.52,
-         50.43,
+         50.44,
          45
         ],
-        0.9
+        0.85
        ]
       ]
      },
      "lv": {
       "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 65% damage.",
-      "esc": "Spreads to 45 km, 90% damage."
+      "cur": "As reported: 3 sites within 25 km, 60% damage.",
+      "esc": "Spreads to 45 km, 85% damage."
      },
-     "trend": "rising",
-     "likely": "esc",
+     "trend": "easing",
+     "likely": "de",
      "at": [
       30.52,
-      50.43
+      50.44
      ],
      "months": [
       "2025-11",
       "2026-06",
+      "2026-08",
       "2026-09",
       "2026-10"
      ],
-     "place": "Kyiv, Kyyiv, Misto, Ukraine",
-     "t": "2026-10-15T00:00:00Z",
-     "z": 84.3,
+     "place": "Kyiv, Ukraine",
+     "t": "2026-10-07T00:00:00Z",
+     "z": 335.1,
      "matched": [
       "Kyiv CHP-5 power station",
       "Kiev",
@@ -3599,60 +3746,6 @@
       "Venterminals",
       "Valencia (city)"
      ]
-    },
-    {
-     "cat": "outbreak",
-     "label": "Outbreak in Kenya",
-     "why": "1 recent article on an outbreak in Kenya. Modelled as a severe virus starting there. In the news: WHO urges vigilance after Kenya confirms second Ebola case.",
-     "url": "https://www.globalissues.org/news/2026/10/15/44353",
-     "shocks": [
-      [
-       "outbreak",
-       "sev_36.81_-1.28",
-       0.55
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "outbreak",
-        "sev_36.81_-1.28",
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "outbreak",
-        "sev_36.81_-1.28",
-        0.55
-       ]
-      ],
-      "esc": [
-       [
-        "outbreak",
-        "sev_36.81_-1.28",
-        1.0
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Contained: tracing and isolation keep it mostly local.",
-      "cur": "Partly controlled: it spreads, but slower than it could.",
-      "esc": "Uncontrolled: it spreads as fast as the virus allows."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      36.81,
-      -1.28
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Kenya",
-     "t": "2026-10-15T20:45:00Z",
-     "z": 1,
-     "matched": []
     },
     {
      "cat": "conflict",
@@ -4159,60 +4252,6 @@
      "matched": [
       "Ohira"
      ]
-    },
-    {
-     "cat": "outbreak",
-     "label": "Outbreak in Congo",
-     "why": "1 recent article on an outbreak in Congo. Modelled as a severe virus starting there. In the news: Congo Ebola outbreak spreads to province bordering Central African Republic.",
-     "url": "https://www.sowetan.co.za/news/africa/2026-10-15-congo-ebola-outbreak-spreads-to-province-bordering-central-african-republic/",
-     "shocks": [
-      [
-       "outbreak",
-       "sev_15.31_-4.33",
-       0.55
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "outbreak",
-        "sev_15.31_-4.33",
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "outbreak",
-        "sev_15.31_-4.33",
-        0.55
-       ]
-      ],
-      "esc": [
-       [
-        "outbreak",
-        "sev_15.31_-4.33",
-        1.0
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Contained: tracing and isolation keep it mostly local.",
-      "cur": "Partly controlled: it spreads, but slower than it could.",
-      "esc": "Uncontrolled: it spreads as fast as the virus allows."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      15.31,
-      -4.33
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Congo",
-     "t": "2026-10-15T20:45:00Z",
-     "z": 1,
-     "matched": []
     },
     {
      "cat": "conflict",
@@ -5625,6 +5664,150 @@
       "Gorgon LNG Terminal — T1",
       "Gorgon LNG Terminal — T2",
       "Gorgon LNG Terminal — T3"
+     ]
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in Russian Federation",
+     "why": "Termokarstovoye Oil and Gas Field (Yamalo-Nenets Autonomous Okrug, Russia) within 30 km; about 6,126 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1030659",
+     "shocks": [
+      [
+       "zone",
+       [
+        82.95,
+        65.31,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         82.95,
+         65.31,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         82.95,
+         65.31,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         82.95,
+         65.31,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      82.95,
+      65.31
+     ],
+     "months": [
+      "2026-08"
+     ],
+     "place": "Wildfire in Russian Federation",
+     "t": "2026-08-14T19:00:00Z",
+     "z": 6.126,
+     "matched": [
+      "Termokarstovoye Oil and Gas Field (Yamalo-Nenets Autonomous Okrug, Russia)"
+     ]
+    },
+    {
+     "cat": "quake",
+     "label": "M6.7 earthquake near Ōfunato",
+     "why": "Ofunato within 40 km (USGS, green alert for damage).",
+     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sxwq",
+     "shocks": [
+      [
+       "zone",
+       [
+        142.16,
+        38.94,
+        40
+       ],
+       0.15
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         142.16,
+         38.94,
+         25
+        ],
+        0.1
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         142.16,
+         38.94,
+         40
+        ],
+        0.15
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         142.16,
+         38.94,
+         60
+        ],
+        0.4
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 25 km around the epicentre, 10% damage, repaired fast.",
+      "cur": "As reported: 40 km around the epicentre, 15% damage.",
+      "esc": "Worse: aftershocks and landslides spread the damage, to 60 km at 40% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      142.16,
+      38.94
+     ],
+     "months": [
+      "2026-05"
+     ],
+     "place": "Ōfunato, Japan",
+     "t": "2026-05-15T11:22:01Z",
+     "z": 67.0,
+     "matched": [
+      "Ofunato"
      ]
     }
    ]
