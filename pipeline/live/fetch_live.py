@@ -1153,6 +1153,50 @@ def slug_title(url):
     return best[0].upper() + best[1:]
 
 
+# Storyboard headlines about courts, crime, protests or anniversaries are coverage spikes, not fighting: dropped unless
+# they also say something was attacked or fought over
+STORY_NOISE = re.compile(r"\b(trial|court|charges?|charged|sentenc\w*|verdict|lawsuit|arrest\w*|anniversar\w*|memorial|commemorat\w*|"
+                         r"school|shooting|shooter|gunman|assailant|stabbing|nobel|execution|livestream\w*|election|protest\w*|police|murder\w*|activist|shot dead|domestic)\b", re.I)
+STORY_FIGHT = re.compile(r"\b(strikes?|struck|air ?strikes?|drones?|missiles?|rockets?|shell(ing|ed)|bomb\w*|fighting|clash\w*|offensive|"
+                         r"troops|militants?|insurgents?|rebels?|raid\w*|ambush\w*|explosions?|blasts?|war)\b", re.I)
+
+
+# always dropped, even with a fight word: courts ("Judge strikes down..."), crime and policing, celebrities, retrospectives, weapons tests
+STORY_OFF = re.compile(r"\b(judge|court|trial|verdict|convict\w*|sentenc\w*|lawsuit|cops?|sheriff\w*|deputy|hunter|bludgeon\w*|"
+                       r"actor|actress|singer|star|celebrity|anniversary|years on|years after|test[- ]?fire\w*|tests?|drill|prison)\b|"
+                       r"\bfires? (two |a |\w+ )?(ballistic )?(missiles?|rockets?) (off|into|toward)", re.I)
+STORY_HARM = re.compile(r"\b(kill\w*|dead|deaths?|attack\w*|gunmen|violence|massacre\w*|wounded|injured|hostages?|siege|seized?)\b", re.I)
+
+
+_COUNTRY_RE = None
+
+
+def headline_countries(title):
+    """Country names a headline mentions, matched as word prefixes so 'Russian' counts as Russia and 'Ukrainian' as Ukraine.
+    Names come from site/data/labels.json; empty if it isn't there."""
+    global _COUNTRY_RE
+    if _COUNTRY_RE is None:
+        names = {}
+        try:
+            with open(os.path.join(DATA, "labels.json"), encoding="utf-8") as f:
+                for l in json.load(f):
+                    if l.get("t") == "c" and len(l["n"]) >= 4:
+                        names[l["n"]] = l["n"]
+        except (OSError, ValueError):
+            pass
+        names.update({"US": "United States of America", "U.S.": "United States of America", "America": "United States of America", "UK": "United Kingdom"})
+        stems = sorted(((n[:-1] if n.endswith("e") else n, full) for n, full in names.items()), key=lambda kv: -len(kv[0]))
+        _COUNTRY_RE = [(re.compile(r"\b" + re.escape(st), re.I if len(st) > 3 else 0), full) for st, full in stems]
+    return {full for rx, full in _COUNTRY_RE if rx.search(title)}
+
+
+def place_name(n):
+    """GDELT replaces accented letters with '?' ('Riyadh, Ar Riya?, Saudi Arabia'); drop the parts that lost letters."""
+    parts = [p.strip() for p in (n or "").split(",")]
+    keep = [p for p in parts if p and "?" not in p]
+    return ", ".join(keep) if keep else n
+
+
 def story_window(rows, buckets, bucket_of, n_items, base_rows=None, base_buckets=0):
     """Rank (region, bucket) surges. rows: cache rows; bucket_of(row) -> bucket index or None.
     Baseline per region = mean over the window's other buckets and any extra baseline buckets."""
@@ -1196,8 +1240,6 @@ def story_window(rows, buckets, bucket_of, n_items, base_rows=None, base_buckets
         prev = [bb for (kk, bb) in used if kk == k]
         if len(prev) >= 2 or any(abs(bb - b) < max(2, B // 3) for bb in prev):
             continue
-        used.add((k, b))
-        per_cc[R["cc"]] = per_cc.get(R["cc"], 0) + 1
         rs = R["rows"][b]
         # place: most-reported city in the region during the peak
         city = {}
@@ -1213,13 +1255,26 @@ def story_window(rows, buckets, bucket_of, n_items, base_rows=None, base_buckets
             if len(urls) == 4:
                 break
         title = next((t for t in (slug_title(u) for u in urls) if t), None)
+        roots = [sum(1 for r in rs if r[2] == x) for x in (18, 19, 20)]
+        fight = title and STORY_FIGHT.search(title)
+        # GDELT miscodes plenty of articles as fighting ("medical students visit rural South Dakota"), so a headline has to say
+        # itself that something was attacked, fought over or killed; one about courts, crime or anniversaries also needs a fight word
+        if title and (STORY_OFF.search(title) or not (fight or (STORY_HARM.search(title) and not STORY_NOISE.search(title)))):
+            continue
+        # a headline that names countries, none of them the place's own, was geocoded to the wrong place
+        # ("Pakistan says airstrikes kill militants" at Hangu, Tianjin, China)
+        named = headline_countries(title) if title else set()
+        home = place_name(top[6]).split(",")[-1].strip()
+        if named and not any(c == home or c.startswith(home) or home.startswith(c) for c in named):
+            continue
+        used.add((k, b))
+        per_cc[R["cc"]] = per_cc.get(R["cc"], 0) + 1
         actors = {}
         for r in rs:
             for a in r[12:14]:
                 if a:
                     actors[a] = actors.get(a, 0) + 1
-        roots = [sum(1 for r in rs if r[2] == x) for x in (18, 19, 20)]
-        it = {"t": buckets[b][0], "t1": buckets[b][1], "n": top[6], "cc": R["cc"],
+        it = {"t": buckets[b][0], "t1": buckets[b][1], "n": place_name(top[6]), "cc": R["cc"],
               "lat": round(top[8], 4), "lon": round(top[9], 4), "e": len(rs), "a": R["a"][b],
               "r": roots, "z": round(score, 1), "base": round(base, 1),
               "x": [round(v) for v in R["x"]], "u": urls}

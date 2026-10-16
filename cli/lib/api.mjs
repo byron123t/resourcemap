@@ -312,7 +312,7 @@ export async function correlate(fa, fb, { minPop = 1e6, top = 8 } = {}) {
 // ---------- views ----------
 const viewRow = (key, v, site) => {
   const base = v.base ? baseOptions().find(b => b.value === v.base) : null;
-  return { key, group: v.g, label: v.label, layers: v.on || [], shading: v.base ? { value: v.base, label: base?.label || v.base } : null,
+  return { key, group: v.g, label: v.label, layers: v.on || [], data: [...new Set((v.on || []).flatMap(k => (page.GROUPS[k] && page.GROUPS[k].data.length ? page.GROUPS[k].data : [])))], shading: v.base ? { value: v.base, label: base?.label || v.base } : null,
     filters: Object.fromEntries(["fuel", "mineral", "fire", "bases", "air", "status", "img", "agri"].filter(f => v[f] != null && v[f] !== page.VIEW_DEFAULT[f]).map(f => [f, v[f]])),
     big: v.big || null, note: stripHtml(v.note), connection: stripHtml(v.x), go: v.go ? { label: v.go.label, ...(v.go.c ? { lon: v.go.c[0], lat: v.go.c[1], zoom: v.go.z } : {}) } : null,
     url: siteUrl(site) + "#view=" + key };

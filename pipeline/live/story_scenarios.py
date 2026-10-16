@@ -73,7 +73,7 @@ STRIKE = [(r"\bdrones?\b|\buavs?\b", "Drone strikes"), (r"\bmissiles?\b|\bprojec
           (r"\battacks?\b|\battacked\b|\braids?\b|\bambush\b", "Attacks"),
           (r"\binvasion\b|\bmilitants?\b|\binsurgents?\b", "Fighting")]  # not "war": too many retrospectives
 # headlines about crime, courts or politics; dropped unless they also match STRIKE
-NOISE = r"\bschool\b|\bshooting\b|\bshooter\b|\bgunman\b|\bexecution\b|\btrial\b|\bcourt\b|\blawsuit\b|\bcharges?\b|\barrest(ed|s)?\b|\bprotests?\b|\bmurder\b|\bhostage\b|\bjournalist\b|\belection\b|\bsettlers?\b|\bfarmers?\b|\bsynagogue\b|\bchurch\b|\bmosque\b|\btemple\b"
+NOISE = r"\bschool\b|\bshooting\b|\bshooter\b|\bgunman\b|\bexecution\b|\btrial\b|\bcourt\b|\blawsuit\b|\bcharges?\b|\barrest(ed|s)?\b|\bprotest\w*|\bunrest\b|\briot\w*|\btear gas\b|\banti[- ]government\b|\bmurder\b|\bhostage\b|\bjournalist\b|\belection\b|\bsettlers?\b|\bfarmers?\b|\bsynagogue\b|\bchurch\b|\bmosque\b|\btemple\b"
 # weapons news that isn't a strike on anything: tests, launches into the sea, drills, interceptions
 NOT_STRIKE = r"\btests?\b|\btested\b|\btest-fires?\b|\bfires? (a )?\w* ?(missile|projectile|rocket)s? (toward|into)\b|\bdrills?\b|\bshoots? down\b|\bdowns?\b|\bintercept(s|ed|ion)?\b|\bairspace\b"
 # a conflict surge only becomes a scenario if its headline is about infrastructure or names the place itself
@@ -152,6 +152,8 @@ def classify(item):
     if not title:
         return None  # no headline: nothing says what was hit
     verb = next((v for pat, v in STRIKE if re.search(pat, title)), None)
+    if verb and re.search(r"\b(blasts?|explosions?|fire)\b.*\b(factory|plant|refinery|depot|warehouse)\b|\b(factory|plant|refinery|depot)\b.*\b(blasts?|explosions?|fire)\b", title):
+        verb = "Explosion"  # "Blast at rocket fuel factory" is an accident or sabotage, not a missile strike
     if not verb:
         return None
     if not re.search(INFRA, title) and place(item).lower() not in title:
@@ -300,6 +302,13 @@ def spread(items, n):
 def build(cand, grids, now):
     energy, power, cables, cities = grids
     cand = sorted(cand, key=lambda it: -(it.get("z") or 0))
+    # GDELT often tags one article to several places; a headline shared by places it doesn't name says nothing about them
+    seen = {}
+    for it in cand:
+        t = (it.get("title") or "").strip().lower()
+        if t:
+            seen[t] = seen.get(t, 0) + 1
+    cand = [it for it in cand if not (it.get("title") and seen[it["title"].strip().lower()] > 1 and place(it).lower() not in it["title"].lower())]
     out, kept = [], []
     for it in cand:
         if not all(isinstance(it.get(k), (int, float)) for k in ("lat", "lon")):

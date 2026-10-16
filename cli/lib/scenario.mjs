@@ -49,7 +49,7 @@ const C = n => vm.runInContext(n, core());
 
 const cache = new Map();
 const FILE = { power: "power.geojson", landings: "landings.geojson", fabs: "fabs.geojson", chipsites: "chip_sites.geojson", cloud: "cloud.geojson",
-  air: "air.json", pipelines: "pipelines.geojson", chokepoints: "chokepoints.geojson", coal: "coal.geojson", iron: "iron.geojson", water_risk: "water_risk.geojson" };
+  air: "air.json", steel: "steel.geojson", dc: "datacenters.geojson", pipelines: "pipelines.geojson", chokepoints: "chokepoints.geojson", coal: "coal.geojson", iron: "iron.geojson", water_risk: "water_risk.geojson" };
 function readJSON(f) {
   if (!cache.has(f)) {
     const p = join(DATA_DIR, f);

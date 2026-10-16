@@ -131,6 +131,10 @@ def _fab_shocks(fabs, lon, lat, km, m):
     return [["fab", f["properties"]["id"], m] for f in hit[:6]], [f["properties"]["n"] for f in hit[:6]]
 
 
+WORSE = {"epicentre": "aftershocks and landslides spread the damage", "storm's landfall": "storm surge and inland flooding spread the damage",
+         "flood": "the water keeps rising and spreads", "fire": "wind drives the fire further"}
+
+
 def _zone_levels(lon, lat, km, m, fabs, what):
     """de/cur/esc for a disaster zone: smaller and lighter, as reported, wider and heavier."""
     lv, txt = {}, {}
@@ -141,7 +145,7 @@ def _zone_levels(lon, lat, km, m, fabs, what):
         lv[k] = [["zone", [round(lon, 2), round(lat, 2), r], max(0.05, dm)]] + fs
         txt[k] = {"de": f"Lighter than feared: {r} km around the {what}, {round(dm * 100)}% damage, repaired fast.",
                   "cur": f"As reported: {r} km around the {what}, {round(dm * 100)}% damage.",
-                  "esc": f"Worse: aftershocks, landslides or flooding spread it to {r} km at {round(dm * 100)}% damage."}[k] \
+                  "esc": f"Worse: {WORSE.get(what, 'it spreads')}, to {r} km at {round(dm * 100)}% damage."}[k] \
             + (f" Chip fabs inside: {', '.join(names[:3])}." if names else "")
     return lv, txt
 
@@ -163,7 +167,7 @@ def quakes(F, sites, fabs, now, log):
         m = alert_m.get(p.get("alert"), 0.2)
         lv, txt = _zone_levels(lon, lat, km, m, fabs, "epicentre")
         t = datetime.fromtimestamp(p["time"] / 1000, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        place = re.sub(r"^\d+ km [NSEW]+ of |^The \d{4} |\s*Earthquake$", "", p.get("place") or "").replace(" Region,", ",")
+        place = re.sub(r"^\d+ km [NSEW]+ of |^(The )?\d{4} |\s*Earthquake$", "", p.get("place") or "").replace(" Region,", ",")
         alert = f", {p['alert']} alert for damage" if p.get("alert") else ""
         out.append(_item("quake", f"M{mag:.1f} earthquake near {place.split(',')[0]}",
                          f"{', '.join(n for n in near[:3])}{' and more' if len(near) > 3 else ''} within {km} km (USGS{alert}).",
@@ -257,6 +261,8 @@ MUST = {"animal": r"cull|outbreak|detect|confirm|infect|spread|farm",
         "cloud": r"outage|\bdown\b|went down|fire|disrupt|fail",
         "cyber": r"attack|ransomware|hack|breach|shut",
         "chips": r"\bban\b|banned|curb|control|restrict|shortage|halt|\bfire\b|shut|outage|quake|earthquake|suspend"}
+# per topic: headlines that look on-topic but aren't a supply shock (yet)
+SKIP = {"chips": r"\bAI models?\b|software|propos|consider|plans? to|could|may\b|weigh"}
 NOT_NEWS = r"\b(drill|exercise|simulation|anniversary|lessons|years after|stock|shares|earnings|opinion|explainer)\b"
 
 
@@ -271,7 +277,7 @@ def topics(F, G, data, now, log, timespan="3months"):
         groups = {}
         for a in arts:
             title = (a.get("title") or "").strip()
-            if not title or re.search(NOT_NEWS, title, re.I) or not re.search(MUST[cat], title, re.I):
+            if not title or re.search(NOT_NEWS, title, re.I) or not re.search(MUST[cat], title, re.I) or (cat in SKIP and re.search(SKIP[cat], title, re.I)):
                 continue
             hit = G.find(title)
             if not hit:

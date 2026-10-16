@@ -1539,7 +1539,8 @@ async function simChipFacts(env, fabSh, siteSh, facts) {
     const p = s.f.properties, feed = CHIP_FEEDS[p.cat] || (() => true), fed = live.filter(f => feed(f.properties)), cc = {};
     fed.forEach(f => cc[f.properties.cc] = (cc[f.properties.cc] || 0) + f.properties.cap300);
     const all = Object.values(cc).reduce((a, v) => a + v, 0) || 1, top = Object.entries(cc).sort((a, b) => b[1] - a[1]);
-    sites.push({ id: p.id, cat: p.cat, feeds: fed.length, top: top.slice(0, 3).map(([k, v]) => `${env.country(k)} ${cFmt(v / all * 100)}%`),
+    const xs = top.reduce((a, [k, v]) => a + ((T[k] && T[k].chipX) || 0) * Math.min(1, v / (capCc[k] || v)), 0);
+    sites.push({ id: p.id, cat: p.cat, feeds: fed.length, risk: wx ? xs / wx : 0, top: top.slice(0, 3).map(([k, v]) => `${env.country(k)} ${cFmt(v / all * 100)}%`),
       cty: Object.fromEntries(top.map(([k, v]) => [k, Math.min(1, v / all * 3)])), box: simBox(fed.map(f => f.geometry.coordinates)) });
     facts.push(`<li><b>${cEsc(p.n)}</b>: ${cEsc(p.why || "")} ${fed.length} listed fabs depend on this kind of supply.</li>`);
   }
@@ -1690,12 +1691,23 @@ function simChainCore(env, r, facts, shocks) {
     st.push({ k: "power", title: "Power plants go dark", big: (P.gw < 1 ? cFmt(P.gw * 1000) + " MW" : cSmart(P.gw) + " GW") + " offline",
       text: P.rows.map(o => `${env.country(o.k)} loses ${o.sh ? pc(o.sh) + " of its power capacity" : cSmart(o.gw) + " GW"}${o.people >= 1000 ? `, the supply of ≈${simBig(o.people)} people` : ""}`).join("; ") + ".",
       on: ["power", "lakes"], cty: Object.fromEntries(P.rows.filter(o => o.sh).map(o => [o.k, Math.max(0.15, o.sh * 3)])), box: simUnion(P.box, simShockBox(shocks)) || (top && simCountryBox(env, [top.k])), z: 7 });
+    const I = P.ind;
+    if (I && (I.steel.length || I.fabs.length || I.dc.length)) {
+      const mt = I.steel.reduce((a, p) => a + (p.q || 0), 0), parts = [I.fabs.length && `${I.fabs.length} chip fab${I.fabs.length > 1 ? "s" : ""}`, I.dc.length && `${cFmt(I.dc.length)} data centre${I.dc.length > 1 ? "s" : ""}`,
+        I.steel.length && `${I.steel.length} steel plant${I.steel.length > 1 ? "s" : ""}${mt ? ` (${cSmart(mt)} Mt/yr)` : ""}`].filter(Boolean);
+      st.push({ k: "grid", title: "Industry on that grid", big: parts[0], cls: "k", text: `within 250 km of the plants that went down: ${parts.join(", ")}. Big, steady users like these need power around the clock, so they feel a shortfall first unless the grid can import.${I.fabs.length ? " Largest fabs: " + I.fabs.sort((a, b) => (b.cap300 || 0) - (a.cap300 || 0)).slice(0, 3).map(p => (p.o ? p.o + " " : "") + p.n).join(", ") + "." : ""}`,
+        on: ["power", "fabs", "dc", "steel"], box: P.box, z: 7 });
+    }
   }
   // 4. cables
   if (facts.cable) {
     const C = facts.cable;
     st.push({ k: "cable", title: "Internet cables cut", big: pc(C.rows[0][1] / C.rows[0][2]), text: `of ${C.rows[0][0]}'s international cables cut${C.rows.length > 1 ? "; also " + C.rows.slice(1, 4).map(([c, l, n]) => `${c} ${pc(l / n)}`).join(", ") : ""}. Traffic crowds onto the cables left.`,
       on: ["cables"], box: C.box, z: 5 });
+    const byName = Object.fromEntries(Object.entries(env.totals).map(([k, c]) => [c.n, k])), hit = C.rows.map(([c, l, n]) => ({ k: byName[c], c, sh: l / n })).filter(h => h.k && h.sh >= 0.25);
+    const online = hit.reduce((a, h) => { const t = env.totals[h.k]; return a + (t.kpop || t.pop || 0) * (t.net || 50) / 100; }, 0);
+    if (online >= 1e5) st.push({ k: "online", title: "People online behind those cables", big: "≈" + simBig(online), text: `people online in ${hit.map(h => h.c).slice(0, 4).join(", ")}, which lose a quarter or more of their international cables. Calls, payments and cloud services that reach abroad slow down or drop until traffic is rerouted over satellites, land links and the cables left.`,
+      on: ["cables", "cloud", "dc"], cty: Object.fromEntries(hit.map(h => [h.k, h.sh])), box: simCountryBox(env, hit.map(h => h.k)), z: 4 });
   }
   // 5. mines
   for (const m of (facts.mines || []).slice(0, 2)) {
@@ -1706,12 +1718,32 @@ function simChainCore(env, r, facts, shocks) {
   if (r) {
     const W = r.world, d = k => W[k][1] - W[k][0], chk = Object.entries(r.chokes).map(([k, v]) => [k, v.o[0] - v.o[1]]).sort((a, b) => b[1] - a[1]);
     const parts = [d("stock") > 50 && `${cFmt(d("stock"))} kb/d of oil can't get out and stays in the ground or in tanks`, chk[0] && chk[0][1] > 50 && `${cFmt(chk[0][1])} kb/d no longer passes ${SIM_CHOKE[chk[0][0]]}`,
-      d("run") < -20 && `refineries run ${cFmt(-d("run"))} kb/d less crude`, d("gas") < -1 && `${cFmt(-d("gas"), 1)} bcm/yr less gas delivered`].filter(Boolean);
+      d("run") < -20 && `refineries run ${cFmt(-d("run"))} kb/d less crude`, d("gas") < -1 && `${cFmt(-d("gas"), 1)} bcm/yr less gas delivered`,
+      d("strand") > 1 && `${cFmt(d("strand"), 1)} bcm/yr of gas is stranded with no way to a buyer`].filter(Boolean);
     const fm = env.boxes.flowMax || 0;
+    // what the cut pipelines carried in the model before: least-cost routing, not contracts, so it can be far below real flows
+    const Ex = env.graph && env.graph.edges, pipeNote = shocks.filter(s => s.k === "pipeline" && s.refs).map(s => {
+      const refs = new Set(s.refs); let o = 0, g = 0;
+      for (const [e, b, , c] of r.moved || []) if (Ex && refs.has(Ex.ref[e])) { if (c === "g") g = Math.max(g, Math.abs(b)); else o = Math.max(o, Math.abs(b)); }
+      const capTxt = s.cap ? `${cFmt(s.cap, 1)} bcm/yr` : s.q ? `${cFmt(s.q * 1000)} k boe/d` : "";
+      const use = s.cap && g ? g / s.cap : s.q && o ? o / (s.q * 1000) : null;
+      return `Before the cut the model sent ${g ? cFmt(g, 1) + " bcm/yr of gas" : o ? cFmt(o) + " kb/d of oil" : "little"} through ${s.n}${capTxt ? ` (capacity ${capTxt})` : ""}`
+        + (use == null || use < 0.5 ? "; the model routes by cost, not contracts, so real flows can be larger." : ", and the rest of the network has room to carry it.");
+    }).join(" ");
     if (env.boxes.flow && (parts.length || fm >= 20)) st.push({ k: "flow", title: "Oil and gas re-route",
-      big: d("stock") > 50 ? cFmt(d("stock")) + " kb/d stuck" : chk[0] && chk[0][1] > 50 ? cFmt(chk[0][1]) + " kb/d diverted" : d("gas") < -1 ? cFmt(-d("gas"), 1) + " bcm/yr less gas" : "up to " + cFmt(fm) + " kb/d",
+      big: d("stock") > 50 ? cFmt(d("stock")) + " kb/d stuck" : chk[0] && chk[0][1] > 50 ? cFmt(chk[0][1]) + " kb/d diverted" : d("gas") < -1 ? cFmt(-d("gas"), 1) + " bcm/yr less gas" : d("strand") > 1 ? cFmt(d("strand"), 1) + " bcm/yr stranded" : "up to " + cFmt(fm) + " kb/d",
       cls: d("stock") > 50 || d("gas") < -1 ? "" : "k",
-      text: (parts.length ? parts.join("; ") + ". " : "moves onto other pipelines and routes on the busiest line (gas counted as oil equivalent). ") + "Blue lines carry more than before, orange less.", on: ["pipes", "lanes", "choke", "refinery", "lng", "ports"], box: env.boxes.flow, z: 6 });
+      text: (parts.length ? parts.join("; ") + ". " : "moves onto other pipelines and routes on the busiest line (gas counted as oil equivalent). ") + "Blue lines carry more than before, orange less."
+        + (pipeNote ? " " + pipeNote : "") + (W.virt && W.virt[1] - W.virt[0] > 0.002 ? ` Part of it now goes over unmapped links (rail, trucks, missing pipes: ${cFmt(W.virt[0] * 100, 1)}% → ${cFmt(W.virt[1] * 100, 1)}% of tonne-km), which may not exist at that size, so the real hit can be bigger.` : ""), on: ["pipes", "lanes", "choke", "refinery", "lng", "ports"], box: env.boxes.flow, z: 6 });
+    // longer voyages: extra barrel-km a day on sea lanes, as supertankers (2 Mbbl, about 670 km a day, back in ballast)
+    const Eg = env.graph && env.graph.edges;
+    if (Eg) {
+      let bkm = 0;
+      for (const [e, b, s, c] of r.moved || []) if (Eg.t[e] === "s" && c === "o") bkm += (Math.abs(s) - Math.abs(b)) * Eg.km[e];
+      const ships = bkm * 1000 * 2 / (2e6 * 670);
+      if (ships >= 1) st.push({ k: "voyage", title: "Longer voyages", big: "+" + cFmt(ships) + " supertankers", cls: "",
+        text: `would be needed to carry the same oil the long way round, each a 2-million-barrel ship. Tankers are booked up for weeks, so freight rates and delivered prices rise even where nothing runs short.`, on: ["lanes", "choke", "ports"], box: env.boxes.flow, z: 3 });
+    }
     const use = x => env.energy && env.energy[x.k] && env.energy[x.k].dc;
     const hit = r.rows.map(x => [x, use(x) >= 20 ? Math.min(1, (x.dsl[0] - x.dsl[1]) / use(x)) : 0]).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1]).slice(0, 6);
     if (hit.length) st.push({ k: "fuel", title: "Diesel runs short", big: pc(hit[0][1]), text: `of ${env.country(hit[0][0].k)}'s diesel use is no longer made at home${hit.length > 1 ? "; then " + hit.slice(1, 4).map(([x, v]) => `${env.country(x.k)} ${pc(v)}`).join(", ") : ""}. Trucks, farms and generators feel it first; imports have to make it up.`,
@@ -1730,6 +1762,9 @@ function simChainCore(env, r, facts, shocks) {
   }
   for (const x of (C && C.sites) || []) st.push({ k: "site-" + x.id, title: CHIP_CAT[x.cat] || "Supply site", big: x.feeds ? `${cFmt(x.feeds)} fabs depend` : "every fab depends", cls: "k",
     text: (CHIP_SAY[x.cat] || "") + (x.top.length ? ` Most exposed: ${x.top.join(", ")}.` : ""), on: ["fabs", "chipsites"], cty: x.cty, box: x.box, z: 5 });
+  const risk = C && !C.lost && C.sites.length ? Math.max(...C.sites.map(x => x.risk)) : 0;
+  if (risk > 0.001 && C.buyers.length) st.push({ k: "chiprisk", title: "Chips at risk", big: pc(risk) + " of chip exports", text: `of world chip exports come from fabs that depend on this supply. Nothing stops at once, but as stocks and tools run down their output slips. The biggest buyers: ${C.buyers.map(([k, v]) => `${env.country(k)} ($${cFmt(v)} bn)`).join(", ")}.`,
+    on: ["fabs", "chipsites"], cty: C.buyShare, box: simCountryBox(env, C.buyers.map(b => b[0])), z: 4 });
   if (C && C.trade > 0.001 && C.buyers.length) st.push({ k: "chiptrade", title: "Who runs short of chips", big: pc(C.trade) + " of chip exports", text: `of world chip exports come from the lost output. The biggest buyers, who assemble phones, cars and servers: ${C.buyers.map(([k, v]) => `${env.country(k)} ($${cFmt(v)} bn)`).join(", ")}.`,
     on: ["fabs"], cty: C.buyShare, box: simCountryBox(env, C.buyers.map(b => b[0])), z: 4 });
   const Cl = facts.cloud;
@@ -1785,7 +1820,7 @@ async function simResolveCore(env, k, t) {
   if (["refinery", "field", "port", "lng"].includes(k)) return G.ids[t] == null ? null : node(G.ids[t]);
   if (k === "pipeline") {
     const P = await env.load("pipelines"), fs = P ? P.features.filter(f => cFnv36(f.properties.n) === t) : [];
-    return fs.length ? { n: fs[0].properties.n, geo: fs.map(f => f.geometry) } : null;
+    return fs.length ? { n: fs[0].properties.n, geo: fs.map(f => f.geometry), refs: fs.map(f => P.features.indexOf(f)), cap: fs[0].properties.cap, q: fs[0].properties.q } : null;
   }
   if (k === "choke") {
     const C = await env.load("chokepoints"), f = C && C.features.find(f => f.properties.n === SIM_CHOKE[t]);
@@ -1924,7 +1959,11 @@ async function simLocalCore(env, shocks) {
       if (gw >= 0.05) facts.head.push([cSmart(gw) + " GW", "of power plants offline", "dn"]);
       if (gw >= 0.05) {
         const pts = []; rem.forEach((v, f) => { if (v < 1 && f.properties.s === "operating" && f.properties.mw) pts.push(f.geometry.coordinates); });
-        facts.power = { gw, box: simBox(pts), rows: Object.entries(by).sort((a, b) => b[1].gw - a[1].gw).slice(0, 3).map(([k, o]) => {
+        // industry on the same grid: steel, chip fabs and data centres within 250 km of the plants that went down
+        const near = (fc, q) => { const hits = []; for (const f of (fc && fc.features) || []) { const [x, y] = f.geometry.coordinates; if (pts.some(([a, b]) => Math.abs(b - y) < 2.5 && cHav(a, b, x, y) <= 250) && (!q || q(f.properties))) hits.push(f.properties); } return hits; };
+        const [St, Fb, Dc] = await Promise.all([env.load("steel"), env.load("fabs"), env.load("dc")]);
+        const ind = pts.length <= 400 ? { steel: near(St, p => p.s === "operating"), fabs: near(Fb, p => p.s === "operating"), dc: near(Dc) } : null;
+        facts.power = { gw, ind, box: simBox(pts), rows: Object.entries(by).sort((a, b) => b[1].gw - a[1].gw).slice(0, 3).map(([k, o]) => {
           const c = T[k] || {}, sh = c.pw_gw ? Math.min(1, o.gw / c.pw_gw) : 0; return { k, gw: o.gw, sh, people: sh ? (c.kpop || c.pop) * sh : 0 }; }) };
       }
       Object.entries(by).sort((a, b) => b[1].gw - a[1].gw).slice(0, 6).forEach(([k, o]) => {
