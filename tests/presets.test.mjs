@@ -14,10 +14,11 @@ const J = f => JSON.parse(readFileSync(D(f), "utf8"));
 
 // pull SIM_PRESETS (and the helpers it uses) out of the page script
 function presets() {
-  const a = HTML.indexOf("const SIM_KIND = "), b = HTML.indexOf("let simGroup", a);
-  const fnv = HTML.match(/function fnv36\(s\) \{[^\n]*\}/)[0];
-  const ctx = vm.createContext({});
-  vm.runInContext(fnv + "\n" + HTML.slice(a, b).replace(/\bconst (\w+) =/g, "var $1 ="), ctx);
+  // the kinds, chokepoints, pathogens and foods live in the #simCore script; the presets and groups in the main one
+  const core = HTML.match(/<script id="simCore">([\s\S]*?)<\/script>/)[1];
+  const a = HTML.indexOf("// ready-made scenarios:"), b = HTML.indexOf("let simGroup", a);
+  const ctx = vm.createContext({ Math, Map, Set });
+  vm.runInContext(core.replace(/^const (\w+) =/gm, "var $1 =") + "\nvar fnv36 = cFnv36;\n" + HTML.slice(a, b).replace(/\bconst (\w+) =/g, "var $1 ="), ctx);
   return { list: ctx.SIM_PRESETS, kinds: ctx.SIM_KIND, chokes: ctx.SIM_CHOKE, groups: ctx.SIM_GROUPS.map(g => g[0]), news: Object.keys(ctx.SIM_NEWS), fnv36: ctx.fnv36,
     patho: ctx.SIM_PATHO, food: ctx.SIM_FOOD };
 }
