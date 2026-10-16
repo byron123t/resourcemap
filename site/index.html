@@ -2149,6 +2149,34 @@ async function simLocalCore(env, shocks) {
       note: "Known lithium, cobalt, nickel, graphite and manganese deposits, and the main seaports. Pick another mineral in the Resources list.",
       x: "Battery metals often sit in <b>water-stressed</b> basins: lithium brine in the Atacama is pumped from aquifers in one of the driest places on Earth.",
       go: { c: [26.8, -11.2], z: 6, label: "DR Congo copper & cobalt belt" } },
+    unrest: { g: "News & risks", label: "Unrest & state fragility", on: ["events", "bases", "dc"], base: "c:cens",
+      note: "Conflict reports from the last two weeks, military bases and data centres, over how tightly each government controls the internet. The storyboard keeps only deadly unrest, curfews, emergencies, general strikes and coups.",
+      x: "Governments facing <b>mass unrest</b> often cut the internet first; the same countries tend to score high on censorship.",
+      go: { story: true, kind: "Unrest", label: "Unrest in the news" } },
+    tradecurbs: { g: "News & risks", label: "Trade curbs & critical supplies", on: ["crit", "chipsites", "ports", "lanes", "choke"], base: "c:chipM",
+      note: "Critical-mineral deposits, chip supply chokepoints, seaports and sea lanes, over how many chips each country imports. The storyboard lists export bans, tariffs, sanctions and embargoes that have actually been imposed.",
+      x: "One country makes nearly all the world's <b>gallium</b> and most refined <b>rare earths</b>; an export licence there reaches every chip and magnet maker.",
+      go: { story: true, kind: "Trade", label: "Trade curbs in the news" } },
+    hazards: { g: "News & risks", label: "Industrial hazards", on: ["refinery", "chem", "lng", "power", "fires"], fuel: "nuclear", fire: "",
+      note: "Refineries, chemical plants, LNG terminals, nuclear plants and every heat detection (industrial flares included). The storyboard lists explosions, fires, collapses, spills and blackouts.",
+      x: "A <b>refinery fire</b> shows up as a heat detection within hours, often before the news; switch Fires to industrial sources to see the plants that always burn.",
+      go: { story: true, kind: "Industry & energy", label: "Accidents and outages in the news" } },
+    disasters: { g: "News & risks", label: "Disasters & who is exposed", on: ["fires", "power", "ports", "rivers"], base: "c:kdens",
+      note: "Fires, power plants, seaports and rivers over population density. The storyboard lists damaging earthquakes and the storms and floods that reach cities.",
+      x: "Most <b>cyclone</b> damage is to coastal ports, power plants and the dense cities around them; the same places host most refineries.",
+      go: { story: true, kind: "Disasters", label: "Disasters in the news" } },
+    healthnews: { g: "News & risks", label: "Outbreaks & health", on: ["biolabs", "airports"], air: "L", base: "c:beds",
+      note: "Top-containment labs and large airports over hospital beds per person. The storyboard lists outbreaks reported by at least two outlets.",
+      x: "An outbreak near a <b>hub airport</b> can reach other continents in weeks; try one under Scenarios → Pandemics.",
+      go: { story: true, kind: "Health", label: "Outbreaks in the news" } },
+    cybernews: { g: "News & risks", label: "Cyber & internet", on: ["cables", "cloud", "dc"], base: "c:cens",
+      note: "Undersea cables, cloud regions and data centres over internet censorship. The storyboard lists cable cuts, internet shutdowns, cloud outages and cyberattacks on infrastructure.",
+      x: "A handful of <b>landing stations</b> carry most of some countries' traffic; cut them and payments, calls and cloud services slow at once.",
+      go: { story: true, kind: "Cyber & internet", label: "Cyber and internet news" } },
+    foodnews: { g: "News & risks", label: "Food & farm shocks", on: ["ports", "lanes", "choke"], base: "c:fdep2",
+      note: "Seaports, sea lanes and chokepoints over the share of staple foods (all cereals and starchy roots) each country imports. The storyboard lists bird flu, crop disease and failed harvests.",
+      x: "Countries that import most of their staples feel a <b>harvest failure</b> abroad as a price spike within weeks.",
+      go: { story: true, kind: "Food & farms", label: "Food and farm news" } },
     internet: { g: "Information, health & food", label: "Internet & cloud", on: ["cables", "dc", "cloud"], base: "c:net",
       note: "Undersea cables, their landing points, data centres and cloud regions, over the share of people online.",
       x: "Cables bunch up in the same straits as shipping, and ships dragging <b>anchors</b> are the most common cause of cuts. Data centres need as much power as a city.",
@@ -2831,7 +2859,8 @@ async function simLocalCore(env, shocks) {
   }
   function viewGo() {
     const conf = VIEWS[curView], go = conf && conf.go; if (!go) return;
-    if (go.story) return setMode("story");
+    // a story view opens the storyboard on one kind of story (go.kind is a STORY_KINDS label)
+    if (go.story) { storyCat = go.kind || "all"; if (curMode === "story") storyRender(); else setMode("story"); return; }
     const after = () => { if (conf.img && conf.img.startsWith("geo")) { const k = geoPick(conf.img === "geoir"); if ($("imagery").value !== k) { $("imagery").value = k; applyImagery(false); } } };
     if (go.locate) {
       if (!navigator.geolocation) return;
