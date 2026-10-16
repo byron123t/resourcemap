@@ -6,7 +6,7 @@ import { AtlasError, configure } from "./lib/api.mjs";
 import { parseLonLat, parseBbox } from "./lib/data.mjs";
 
 // ---------- arguments ----------
-const VALUE_FLAGS = new Set(["data", "site", "near", "km", "bbox", "country", "where", "sort", "limit", "offset", "fields", "format", "layers", "top", "group", "window", "level", "view", "at"]);
+const VALUE_FLAGS = new Set(["data", "site", "near", "km", "bbox", "country", "where", "sort", "limit", "offset", "fields", "format", "layers", "top", "group", "window", "level", "view", "at", "min-pop", "from", "to"]);
 const BOOL_FLAGS = new Set(["json", "no-color", "url", "counts", "asc", "help", "geometry", "wide"]);
 export function parseArgs(argv) {
   const pos = [], flags = { where: [] };
@@ -68,7 +68,10 @@ const HELP = {
   near: ["atlas near <lon,lat> [--km 50] [--limit 5] [--layers a,b]", "Everything within a radius across point layers (static and live), grouped by layer and nearest first, plus the nearest cities."],
   views: ["atlas views [--json]", "The page's preset views: group, label, layers switched on, background shading, and note."],
   view: ["atlas view <key> [--url]", "One view in full and its page link (https://byron123t.github.io/resourcemap/#view=<key>; base URL from --site or ATLAS_SITE).\n--url prints only the link."],
-  shading: ["atlas shading [field] [--top 15] [--asc]", "Without a field: the background-shading options (country fields and their units, basin fields).\nWith a field (e.g. net, cens, og, pw_gw, chipX, fdep, minr): rank countries by it."],
+  trade: ["atlas trade <item> [--from country] [--to country] [--top 15]", "Food trade flows (FAOSTAT detailed trade matrix, importer-reported, kt): wheat, maize, rice, soy, banana, chicken.\nWith --from: who buys from that exporter and how much of each buyer's supply it is. With --to: who sells to that importer.\nExample: atlas trade wheat --from RUS"],
+  combine: ["atlas combine <field,-field,...> [--min-pop 1000000] [--top 15]", "Rank countries on several fields at once: each field's percentile (a leading - flips it, so low is worse), averaged.\nExample, who is exposed to a food and health shock: atlas combine fdep,-beds,-docs"],
+  correlate: ["atlas correlate <fieldA> <fieldB> [--min-pop 1000000] [--top 8]", "Spearman rank correlation between two country fields (any shading field: net, cens, beds, docs, chipX, chipM, fdep, minr, og, pw_gw, bws, kpop, kdens...),\nwith the countries that break the pattern most. Example: atlas correlate net cens"],
+  shading: ["atlas shading [field] [--top 15] [--asc] [--min-pop 1000000]", "Without a field: the background-shading options (country fields and their units, basin fields).\nWith a field (e.g. net, cens, og, pw_gw, chipX, fdep, minr): rank countries by it."],
   sources: ["atlas sources [--json]", "Every data source with its licence, as shown in the page's Sources panel."],
   live: ["atlas live [feed] [--limit 10] [--sort f] [--where expr] [--near lon,lat --km N] [--window day|week|month]",
     "Without a feed: the live manifest (feeds, update time, counts). With one (fires, events, ships, aircraft, jets, airliners, navy, story): its top items.\nLive files exist only after pipeline/live/fetch_live.py has run (or with --remote)."],
@@ -197,6 +200,10 @@ async function cmdNear(a, f) {
   const r = await api.near(lon, lat, { km: f.km ?? 50, limit: f.limit, layers: f.layers });
   if (f.json) return json(r);
   title(`Within ${r.km} km of ${lon}, ${lat}`);
+  const cx = r.context || {}, B = cx.basin || {};
+  const ctx = [cx.country && `in ${cx.country.n}`, cx.people != null && `≈${fmtNum(cx.people)} people within ${r.km} km`,
+    B.waterStress && `water stress ${B.waterStress}`, B.drought && `drought risk ${B.drought}`, B.groundwaterDecline && `groundwater decline ${B.groundwaterDecline}`].filter(Boolean);
+  if (ctx.length) out(dim("  " + ctx.join(" · ")));
   if (!r.groups.length) out(dim("  no sites in range"));
   for (const g of r.groups) {
     out("\n" + bold(g.label) + dim(` (${g.layer}) ${fmtNum(g.count)}`));
@@ -244,12 +251,40 @@ async function cmdShading(a, f) {
     out(dim("\nRank countries: atlas shading <field> [--top 15]"));
     return;
   }
-  const r = await api.shadingRank(a[0], { top: f.top ?? f.limit, asc: f.asc });
+  const r = await api.shadingRank(a[0], { top: f.top ?? f.limit, asc: f.asc, minPop: f["min-pop"] ?? 1e6 });
   if (f.json) return json(r);
   title(`${r.label} — ${r.unit || ""}`);
   const share = /share/.test(r.unit || "");
-  table(r.rows, [{ key: "rank", head: "#", num: true }, { key: "k", head: "key" }, { key: "n", head: "country" }, { get: x => share ? fmtNum(x.value * 100) + "%" : x.value, head: "value", num: true }, { key: "year", head: "year" }]);
-  out(dim(`\n${r.countries} countries with data · ${r.order}`));
+  table(r.rows, [{ key: "rank", head: "#", num: true }, { key: "k", head: "key" }, { key: "n", head: "country" }, { get: x => share ? fmtNum(x.value * 100) + "%" : x.value, head: "value", num: true }, { get: x => x.year == null ? "" : String(x.year), head: "year" },
+    { get: x => x.pop ? fmtNum(x.pop / 1e6, 1) + " M" : "", head: "people", num: true }]);
+  out(dim(`\n${r.countries} countries with data${r.minPop ? ` and ${fmtNum(r.minPop / 1e6, 1)} M+ people (--min-pop 0 for all)` : ""} · ${r.order}`));
+}
+async function cmdTrade(a, f) {
+  const r = await api.trade(a[0], { from: f.from, to: f.to, top: f.top ?? f.limit });
+  if (f.json) return json(r);
+  title(`${r.label} trade, ${r.year} (kt, importer-reported)`);
+  if (r.exporter) out(`${r.exporter.n}: produces ${fmtNum(r.exporter.productionKt)} kt, exports ${fmtNum(r.exporter.exportsKt)} kt`);
+  if (r.importer) out(`${r.importer.n}: produces ${fmtNum(r.importer.productionKt)} kt, imports ${fmtNum(r.importer.importsKt)} kt, supply ${fmtNum(r.importer.supplyKt)} kt`);
+  table(r.flows, [{ key: "fromName", head: "from" }, { key: "toName", head: "to" }, { key: "kt", head: "kt", num: true },
+    { get: x => fmtNum(x.shareOfWorldTrade * 100, 1) + "%", head: "of world trade", num: true }, { get: x => x.shareOfBuyerSupply == null ? "" : fmtNum(x.shareOfBuyerSupply * 100) + "%", head: "of buyer's supply", num: true }]);
+  out(dim(`\n${r.matched} flows matched · world trade ${fmtNum(r.worldTradeKt)} kt, world output ${fmtNum(r.worldProductionKt)} kt`));
+}
+async function cmdCombine(a, f) {
+  const r = await api.combine(a.join(","), { minPop: f["min-pop"] ?? 1e6, top: f.top ?? f.limit });
+  if (f.json) return json(r);
+  title(`Countries ranked on ${r.labels.join(" + ")}`);
+  table(r.rows, [{ key: "rank", head: "#", num: true }, { key: "n", head: "country" }, { get: x => fmtNum(x.score * 100) , head: "score", num: true },
+    ...r.spec.map(s => s.replace(/^-/, "")).map(fl => ({ get: x => x.fields[fl] == null ? "–" : x.fields[fl], head: fl, num: true }))]);
+  out(dim(`\n${r.countries} countries with at least ${r.need} of the fields${r.minPop ? ` and ${fmtNum(r.minPop / 1e6, 1)} M+ people` : ""}; score = mean percentile, 100 = most exposed`));
+}
+async function cmdCorrelate(a, f) {
+  const r = await api.correlate(a[0], a[1], { minPop: f["min-pop"] ?? 1e6, top: f.top ?? f.limit });
+  if (f.json) return json(r);
+  title(`${r.labels[0]} vs ${r.labels[1]}`);
+  out(`Spearman ρ = ${r.spearman}: ${r.reading}${r.minPop ? ` (countries of ${fmtNum(r.minPop / 1e6, 1)} M+ people)` : ""}.`);
+  out(bold("\nBreaking the pattern most:"));
+  table(r.outliers, [{ key: "n", head: "country" }, { key: r.fields[0], head: r.fields[0], num: true }, { key: r.fields[1], head: r.fields[1], num: true },
+    { get: x => `${x.rankA} / ${x.rankB}`, head: "ranks (low→high)" }]);
 }
 async function cmdSources(a, f) {
   const r = api.sources();
@@ -337,7 +372,7 @@ async function cmdUrl(a, f) {
 }
 
 const COMMANDS = { layers: cmdLayers, fields: cmdFields, query: cmdQuery, get: cmdGet, search: cmdSearch, country: cmdCountry, near: cmdNear,
-  views: cmdViews, view: cmdView, shading: cmdShading, sources: cmdSources, live: cmdLive, scenarios: cmdScenarios, news: cmdNews, scenario: cmdScenario, kinds: cmdKinds, url: cmdUrl };
+  views: cmdViews, view: cmdView, shading: cmdShading, sources: cmdSources, live: cmdLive, scenarios: cmdScenarios, news: cmdNews, scenario: cmdScenario, kinds: cmdKinds, url: cmdUrl, trade: cmdTrade, correlate: cmdCorrelate, combine: cmdCombine };
 
 export async function main(argv) {
   let f = {};

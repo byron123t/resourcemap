@@ -147,3 +147,20 @@ test("scenario CLI reports a missing engine or bad shocks clearly", () => {
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, HAS_ENGINE ? /unknown kind/ : /scenario engine not available/);
 });
+
+test("analysis: trade, correlate, combine and place context", async () => {
+  const t = await api.trade("wheat", { from: "RUS", top: 5 });
+  assert.equal(t.exporter.k, "RUS");
+  assert.ok(t.flows.length && t.flows.every(f => f.from === "RUS" && f.kt > 0 && f.shareOfWorldTrade > 0));
+  await assert.rejects(api.trade("caviar"), /trade needs an item/);
+  const c = await api.correlate("chipM", "net");
+  assert.ok(c.countries > 50 && c.spearman > 0 && c.outliers.length);
+  const s = await api.combine("fdep,-beds,-docs", { top: 5 });
+  assert.equal(s.rows.length, 5);
+  assert.ok(s.rows[0].score >= s.rows[4].score);
+  const r = await api.shadingRank("fdep", { top: 5 });
+  assert.ok(r.rows.every(x => x.pop >= 1e6), "population floor");
+  const n = await api.near(120.61, 24.21, { km: 15 });
+  assert.equal(n.context.country.k, "TWN");
+  assert.ok(n.context.basin && n.context.basin.waterStress);
+});

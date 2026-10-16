@@ -4,7 +4,7 @@ import { page, pageConst, stripHtml, baseOptions } from "./page.mjs";
 import {
   AtlasError, loadJSON, loadLayer, layerRegistry, resolveLayer, layerCatalogue, fieldSummary, fieldDocs, record, nameOf,
   distanceKm, inBbox, haversine, parseWhere, compareBy, resolveCountry, countryTest, countries, mergedTotals, norm, isNum,
-  siteUrl, dataSource, KEY_FIELDS, SIZE_FIELD, TABLES, tableRecords
+  siteUrl, dataSource, KEY_FIELDS, SIZE_FIELD, TABLES, tableRecords, polygonContains, bboxOf
 } from "./data.mjs";
 
 export { AtlasError, configure, dataSource } from "./data.mjs";
@@ -214,7 +214,99 @@ export async function near(lon, lat, { km = 50, limit = 5, layers: want } = {}) 
   const labels = (await loadJSON("labels.json", { optional: true })) || [];
   const cities = labels.filter(l => l.t === "p").map(l => ({ n: l.n, k: l.k, pop: l.pop, km: +haversine(lon, lat, l.x, l.y).toFixed(1) })).sort((a, b) => a.km - b.km);
   const inR = cities.filter(c => c.km <= R);
-  return { lon, lat, km: R, groups, cities: (inR.length ? inR : cities).slice(0, inR.length ? 10 : 5) };
+  return { lon, lat, km: R, context: await placeContext(lon, lat, R), groups, cities: (inR.length ? inR : cities).slice(0, inR.length ? 10 : 5) };
+}
+
+// ---------- what a point sits in: country, river basin water risk, people around it ----------
+const WS = ["low (<10% of water used)", "low-medium (10-20%)", "medium-high (20-40%)", "high (40-80%)", "extremely high (>80%)"];
+const CAT5 = ["low", "low-medium", "medium-high", "high", "extremely high"];
+let basinBoxes = null;
+export async function placeContext(lon, lat, km) {
+  const out = {}, T = await mergedTotals();
+  const C = await loadJSON("countries.geojson", { optional: true });
+  const cf = C && C.features.find(f => polygonContains(f.geometry, lon, lat));
+  if (cf) { const c = T[cf.properties.k] || {}; out.country = { k: cf.properties.k, n: c.n || cf.properties.n }; }
+  const WR = await loadJSON("water_risk.geojson", { optional: true });
+  if (WR) {
+    basinBoxes = basinBoxes || WR.features.map(f => bboxOf(f.geometry));
+    const i = WR.features.findIndex((f, j) => { const b = basinBoxes[j]; return lon >= b[0] && lon <= b[2] && lat >= b[1] && lat <= b[3] && polygonContains(f.geometry, lon, lat); });
+    if (i >= 0) {
+      const p = WR.features[i].properties, cat = (v, L) => v == null ? null : v === -1 ? "arid, little water use" : v < 0 ? null : L[v];
+      out.basin = { waterStress: cat(p.ws, WS), waterStress2050: cat(p.f50, WS), drought: cat(p.dr, CAT5), groundwaterDecline: cat(p.gw, CAT5) };
+      for (const k of Object.keys(out.basin)) if (out.basin[k] == null) delete out.basin[k];
+    }
+  }
+  try { const { peopleWithin } = await import("./scenario.mjs"); const n = peopleWithin(lon, lat, km); if (n != null) out.people = Math.round(n); } catch (e) {}
+  return out;
+}
+
+// ---------- food trade (FAOSTAT detailed trade matrix in domains.json) ----------
+async function countryKey(q) {
+  if (!q) return null;
+  const T = await mergedTotals(), s = norm(q);
+  if (T[String(q).toUpperCase()]) return String(q).toUpperCase();
+  const hit = Object.entries(T).find(([, c]) => norm(c.n) === s) || Object.entries(T).find(([, c]) => norm(c.n).includes(s));
+  if (!hit) throw new AtlasError(`unknown country "${q}"`, 2);
+  return hit[0];
+}
+export async function trade(item, { from, to, top = 15 } = {}) {
+  const D = await loadJSON("domains.json"), F = D.food || {};
+  if (!item || !F.trade || !F.trade[item]) throw new AtlasError(`trade needs an item: ${Object.keys(F.trade || {}).join(", ")}`, item ? 2 : 1);
+  const T = await mergedTotals(), name = k => T[k]?.n || k, a = await countryKey(from), b = await countryKey(to);
+  const flows = F.trade[item].filter(([x, y]) => (!a || x === a) && (!b || y === b));
+  const prod = F.prod[item] || {}, sup = {};
+  for (const [k, v] of Object.entries(prod)) sup[k] = (sup[k] || 0) + v;
+  for (const [x, y, v] of F.trade[item]) { sup[x] = (sup[x] || 0) - v; sup[y] = (sup[y] || 0) + v; }
+  const world = F.trade[item].reduce((s, f) => s + f[2], 0), wprod = Object.values(prod).reduce((s, v) => s + v, 0);
+  const rows = flows.sort((p, q) => q[2] - p[2]).slice(0, clampLimit(top, 15, 500)).map(([x, y, v]) => ({
+    from: x, fromName: name(x), to: y, toName: name(y), kt: v, shareOfWorldTrade: v / world, shareOfBuyerSupply: sup[y] > 0 ? Math.min(1, v / sup[y]) : null }));
+  const out = { item, label: F.items?.[item] || item, year: F.year, unit: "kt", worldTradeKt: Math.round(world), worldProductionKt: Math.round(wprod), flows: rows, matched: flows.length };
+  if (a) out.exporter = { k: a, n: name(a), productionKt: prod[a] || 0, exportsKt: Math.round(F.trade[item].filter(f => f[0] === a).reduce((s, f) => s + f[2], 0)) };
+  if (b) out.importer = { k: b, n: name(b), productionKt: prod[b] || 0, importsKt: Math.round(F.trade[item].filter(f => f[1] === b).reduce((s, f) => s + f[2], 0)), supplyKt: Math.round(sup[b] || 0) };
+  return out;
+}
+
+// ---------- rank countries on several fields at once ----------
+// spec "fdep,-beds,cens": each field's percentile among countries that have it (a leading "-" flips it, so low beds
+// count as exposed); a country's score is the mean of the percentiles it has, and it needs at least `need` of them
+export async function combine(spec, { minPop = 1e6, top = 15, need } = {}) {
+  const T = await mergedTotals(), people = c => c.kpop || c.pop || 0;
+  const parts = String(spec || "").split(/[,\s]+/).filter(Boolean).map(t => ({ f: t.replace(/^[-+]/, "").replace(/^c:/, ""), flip: t.startsWith("-") }));
+  if (parts.length < 2) throw new AtlasError("combine needs two or more fields, e.g. fdep,-beds,-docs (a leading - means low is worse)");
+  const keys = Object.keys(T).filter(k => people(T[k]) >= (Number(minPop) || 0));
+  const pct = {};
+  for (const { f, flip } of parts) {
+    const have = keys.filter(k => isNum(T[k][f])).sort((a, b) => T[a][f] - T[b][f]);
+    if (!have.length) throw new AtlasError(`no country has "${f}"`, 2);
+    have.forEach((k, i) => { const p = have.length > 1 ? i / (have.length - 1) : 1; (pct[k] = pct[k] || {})[f] = flip ? 1 - p : p; });
+  }
+  const min = need ?? Math.max(2, Math.ceil(parts.length * 0.66));
+  const rows = keys.filter(k => pct[k] && Object.keys(pct[k]).length >= min).map(k => {
+    const v = Object.values(pct[k]);
+    return { k, n: T[k].n, score: +(v.reduce((a, b) => a + b, 0) / v.length).toFixed(3), fields: Object.fromEntries(parts.map(({ f }) => [f, T[k][f] ?? null])), have: v.length };
+  }).sort((a, b) => b.score - a.score);
+  return { spec: parts.map(p => (p.flip ? "-" : "") + p.f), labels: parts.map(p => (p.flip ? "low " : "") + fieldLabel(p.f)), countries: rows.length, need: min, minPop: Number(minPop) || 0,
+    rows: rows.slice(0, clampLimit(top, 15, 300)).map((r, i) => ({ rank: i + 1, ...r })) };
+}
+
+// ---------- correlate two country fields (Spearman rank correlation, with the countries that break the pattern) ----------
+export async function correlate(fa, fb, { minPop = 1e6, top = 8 } = {}) {
+  const T = await mergedTotals(), f1 = String(fa || "").replace(/^c:/, ""), f2 = String(fb || "").replace(/^c:/, "");
+  if (!f1 || !f2) throw new AtlasError("correlate needs two country fields, e.g. net cens");
+  const people = c => c.kpop || c.pop || 0;
+  const rows = Object.entries(T).filter(([, c]) => isNum(c[f1]) && isNum(c[f2]) && people(c) >= (Number(minPop) || 0)).map(([k, c]) => ({ k, n: c.n, a: +c[f1], b: +c[f2] }));
+  if (rows.length < 5) throw new AtlasError(`only ${rows.length} countries have both ${f1} and ${f2}`, 2);
+  const rank = key => { const s = rows.map((r, i) => [r[key], i]).sort((p, q) => p[0] - q[0]), rk = new Array(rows.length); for (let i = 0; i < s.length;) { let j = i; while (j + 1 < s.length && s[j + 1][0] === s[i][0]) j++; for (let t = i; t <= j; t++) rk[s[t][1]] = (i + j) / 2 + 1; i = j + 1; } return rk; };
+  const ra = rank("a"), rb = rank("b"), n = rows.length, mean = (n + 1) / 2;
+  let sab = 0, saa = 0, sbb = 0;
+  for (let i = 0; i < n; i++) { sab += (ra[i] - mean) * (rb[i] - mean); saa += (ra[i] - mean) ** 2; sbb += (rb[i] - mean) ** 2; }
+  const rho = sab / Math.sqrt(saa * sbb);
+  // outliers: the biggest gaps between a country's two ranks, against the direction of the correlation
+  const gap = rows.map((r, i) => ({ k: r.k, n: r.n, [f1]: r.a, [f2]: r.b, rankA: ra[i], rankB: rb[i], gap: (rho >= 0 ? rb[i] - ra[i] : (n + 1 - rb[i]) - ra[i]) }));
+  gap.sort((p, q) => Math.abs(q.gap) - Math.abs(p.gap));
+  const strength = Math.abs(rho) >= 0.7 ? "strong" : Math.abs(rho) >= 0.4 ? "moderate" : Math.abs(rho) >= 0.2 ? "weak" : "little or no";
+  return { fields: [f1, f2], labels: [fieldLabel(f1), fieldLabel(f2)], countries: n, minPop: Number(minPop) || 0, spearman: +rho.toFixed(3),
+    reading: `${strength} ${rho >= 0 ? "positive" : "negative"} rank correlation across ${n} countries`, outliers: gap.slice(0, clampLimit(top, 8, 50)) };
 }
 
 // ---------- views ----------
@@ -247,7 +339,7 @@ export function shading() {
   for (const f of Object.keys(page.CHORO)) if (!out.some(o => o.value === "c:" + f)) out.push({ value: "c:" + f, field: f, label: fieldLabel(f), group: "", unit: page.CHORO[f][1], rankable: true });
   return { options: out };
 }
-export async function shadingRank(field, { top = 15, asc = false } = {}) {
+export async function shadingRank(field, { top = 15, asc = false, minPop = 1e6 } = {}) {
   let f = String(field ?? "").replace(/^c:/, "");
   const T = await mergedTotals();
   if (!f) throw new AtlasError("shading needs a field, e.g. net, cens, og, pw_gw");
@@ -257,10 +349,13 @@ export async function shadingRank(field, { top = 15, asc = false } = {}) {
     f = hit.field;
   }
   const dom = (await loadJSON("domains.json", { optional: true }))?.countries || {};
-  const rows = Object.entries(T).filter(([, c]) => isNum(c[f]) && (asc || c[f] > 0)).map(([k, c]) => ({ k, n: c.n, value: c[f], year: dom[k]?.[f + "Y"] ?? undefined }))
+  // a population floor (default 1 M) keeps micro-states from filling share rankings; minPop 0 lists everything
+  const people = c => c.kpop || c.pop || 0, floor = Number(minPop) || 0;
+  const rows = Object.entries(T).filter(([, c]) => isNum(c[f]) && (asc || c[f] > 0) && people(c) >= floor)
+    .map(([k, c]) => ({ k, n: c.n, value: c[f], year: dom[k]?.[f + "Y"] ?? undefined, pop: Math.round(people(c)) || undefined }))
     .sort((a, b) => asc ? a.value - b.value : b.value - a.value);
   const lim = clampLimit(top, 15, 500);
-  return { field: f, label: fieldLabel(f), unit: fieldUnit(f), countries: rows.length, order: asc ? "ascending" : "descending",
+  return { field: f, label: fieldLabel(f), unit: fieldUnit(f), countries: rows.length, minPop: floor, order: asc ? "ascending" : "descending",
     rows: rows.slice(0, lim).map((r, i) => ({ rank: i + 1, ...r })), url: siteUrl() + "#view=" + (Object.entries(page.VIEWS).find(([, v]) => v.base === "c:" + f)?.[0] || "overview") };
 }
 

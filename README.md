@@ -64,9 +64,12 @@ atlas query crit --where m~lithium --format csv                  # also json, ge
 atlas get refinery r3143912                   # one feature, every property labelled
 atlas search Kharkiv                          # countries, cities and named features
 atlas country Japan                           # totals with world rank, internet/health/food, EIA balance, largest sites
-atlas near 36.25,50.0 --km 30                 # everything within 30 km, by layer, plus nearest cities
+atlas near 36.25,50.0 --km 30                 # country, basin water risk, people, everything within 30 km, nearest cities
 atlas views; atlas view internet --url        # preset views and their page links
-atlas shading cens --top 10                   # rank countries by a background-shading field
+atlas shading cens --top 10                   # rank countries by a background-shading field (--min-pop 0 to keep micro-states)
+atlas trade wheat --from RUS                  # who buys Russian wheat, and how much of their supply it is
+atlas correlate chipM net                     # Spearman rank correlation of two country fields, with outliers
+atlas combine fdep,-beds,-docs                # rank countries on several fields (- = low is worse)
 atlas sources                                 # every source and licence
 atlas live events --limit 5                   # live snapshot feeds (after fetch_live.py)
 atlas scenarios --group routes; atlas news --window month
@@ -89,7 +92,7 @@ Any other client:
 { "mcpServers": { "atlas": { "command": "node", "args": ["/path/to/resourcemap/cli/mcp.mjs"] } } }
 ```
 
-Add `"--data", "DIR"`, `"--remote"` or `"--site", "URL"` to `args` as needed. Tools: `atlas_layers`, `atlas_fields`, `atlas_query`, `atlas_get`, `atlas_search`, `atlas_country`, `atlas_near`, `atlas_views`, `atlas_shading_rank`, `atlas_sources`, `atlas_live`, `atlas_scenarios`, `atlas_news`, `atlas_kinds`, `atlas_run_scenario` and `atlas_map_url`. Results are JSON (also as `structuredContent`), with default limits and arrays trimmed to about 60,000 characters, with a note saying what was cut. Tests: `node --test tests/cli.test.mjs`.
+Add `"--data", "DIR"`, `"--remote"` or `"--site", "URL"` to `args` as needed. Tools: `atlas_layers`, `atlas_fields`, `atlas_query`, `atlas_get`, `atlas_search`, `atlas_country`, `atlas_near`, `atlas_views`, `atlas_shading_rank`, `atlas_sources`, `atlas_live`, `atlas_scenarios`, `atlas_news`, `atlas_kinds`, `atlas_run_scenario`, `atlas_map_url`, `atlas_trade`, `atlas_correlate` and `atlas_combine`. Results are JSON (also as `structuredContent`), with default limits and arrays trimmed to about 60,000 characters, with a note saying what was cut. Tests: `node --test tests/cli.test.mjs`.
 
 ## Singularity (game)
 
@@ -260,7 +263,7 @@ Zones also re-route road and rail traffic. The model is the classic `<script id=
 10. **News scenarios are keyword matches.** Conflict surges need a headline that names infrastructure or the place, and a site nearby; topic searches (GDELT) take the first city or country a headline names, so a story about one place that mentions another can land in the wrong one. Earthquakes, storms and floods are placed by their own coordinates but sized by rules of thumb (magnitude, PAGER alert, wind speed). The Claude review and the human PR review are the filter. The three levels are rules of thumb on radius and damage, not forecasts. GDELT rate-limits busy IPs (one request per 5 s, longer bans after bursts); a refused search reuses the last cached answer.
 11. **Road and rail detours are coarse.** The networks are Natural Earth's simplified 10 m roads and railways, snapped together where line ends lie within 3 km, so minor roads are missing, some joins are guessed, and some detours give up (counted as "no practical route") where a real one exists. Traffic is a gravity trip index between cities of 100,000+, not vehicle counts or freight tonnes; ferries, border closures and line capacity aren't modelled.
 12. **Performance.** `power.geojson` (~8.5 MB, about 35k points) and `water_risk.geojson` (~7 MB) are the heaviest files. If load time matters, convert to vector tiles (PMTiles via tippecanoe), served statically with the `pmtiles` protocol.
-13. **Information, health and food models are sketches.** Chip capacity comes from Wikipedia's fab list (wafers a month, converted to 300-mm equivalents; many plants lack a figure or node, phases are merged) and chip trade from country totals, so "who runs short" is the biggest buyers, not traced flows. Cloud regions are city points; losing one counts as losing all its zones. Outbreak arrival uses effective distance on the 2014 OpenFlights network plus land neighbours; hospital strain compares a peak-load rule of thumb with a third of each country's beds. Food uses FAOSTAT 2023 output and importer-reported trade for six items; a hit country feeds itself first, and stocks, substitutes and prices are not modelled.
+13. **Information, health and food models are sketches.** Chip capacity comes from Wikipedia's fab list (wafers a month, converted to 300-mm equivalents; many plants lack a figure or node, phases are merged) and chip trade from country totals, so "who runs short" is the biggest buyers, not traced flows. Cloud regions are city points; losing one counts as losing all its zones. Outbreak arrival uses effective distance on the 2014 OpenFlights network plus land neighbours; hospital strain compares a peak-load rule of thumb with a third of each country's beds. Food uses FAOSTAT 2023 output and importer-reported trade for six items; a hit country feeds itself first, and stocks, substitutes and prices are not modelled. `fdep` (cereals imported) counts only wheat, maize and rice, so it overstates dependence where millet, sorghum, cassava or teff are staples (the Sahel, Ethiopia).
 14. **Submarine cable licence is unclear.** TeleGeography's current terms give CC BY-SA 4.0 only for references to its maps and screen captures and say the underlying databases are for subscribers; the earlier CC BY-NC-SA 3.0 statement this atlas relies on could not be found again in October 2026. Keep the cable layer non-commercial and credited, and check with TeleGeography before any commercial use.
 
 ## Data files (site/data)

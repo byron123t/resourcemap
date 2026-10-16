@@ -104,6 +104,8 @@ function popInRadius(lon, lat, km) {
   return sum;
 }
 
+export const peopleWithin = (lon, lat, km) => popInRadius(lon, lat, km);
+
 // the road and rail worker (#simTransport + #simTransportWorker) in a sandbox, with fetch reading the local file
 let TR = null;
 async function traffic(zones) {
