@@ -577,6 +577,7 @@ details.fold > section + section { margin-top: 16px; }
         <h3 class="group-title">On the map <span class="n" id="onMapN"></span></h3>
         <ul class="onmap-list" id="onMapList"></ul>
         <div class="base-legend" id="agriLegend" hidden></div>
+        <div class="base-legend" id="wxLegend" hidden></div>
         <div class="base-legend" id="baseLegend" hidden></div>
         <button type="button" class="sm" id="onMapAdd">+ Add or change layers</button>
       </section>
@@ -625,6 +626,22 @@ details.fold > section + section { margin-top: 16px; }
         <div class="row2" id="agriCtl" hidden>
           <label id="agriYearWrap">Year<select id="agriYear"></select></label>
           <label>Opacity<input type="range" id="agriOpacity" min="10" max="100" step="5" value="70"></label>
+        </div>
+      </section>
+
+      <section class="imagery">
+        <h3 class="group-title"><label for="wx">Weather: temperature &amp; rain</label></h3>
+        <select id="wx">
+          <option value="">None</option>
+          <option value="rain">Rain and snow, latest half hour (GPM IMERG)</option>
+          <option value="rainday">Rain and snow, daily (GPM IMERG)</option>
+          <option value="rainmon">Precipitation, monthly (MERRA-2)</option>
+          <option value="temp">Air temperature, daily (AIRS)</option>
+          <option value="tempmon">Air temperature, monthly (MERRA-2)</option>
+        </select>
+        <div class="row2" id="wxCtl" hidden>
+          <label><span id="wxWhenLbl">Day (UTC)</span><select id="wxWhen"></select></label>
+          <label>Opacity<input type="range" id="wxOpacity" min="10" max="100" step="5" value="75"></label>
         </div>
       </section>
 
@@ -2825,6 +2842,7 @@ async function simLocalCore(env, shocks) {
     bindControls();
     bindImagery();
     bindAgri();
+    bindWx();
     bindStory();
     bindOnMap();
     simBind();
@@ -2854,7 +2872,7 @@ async function simLocalCore(env, shocks) {
       const sw = lab.querySelector(".sw"), nm = lab.querySelector(".name").firstChild.textContent.trim(), ct = lab.querySelector(".count");
       rows.push(`<li>${sw ? sw.outerHTML : "<span></span>"}<span>${esc(nm)}</span><span class="count">${ct ? esc(ct.textContent) : ""}</span><button type="button" class="x" data-off="${k}" aria-label="Hide ${esc(nm)}">×</button></li>`);
     });
-    [["imagery", "Imagery"], ["agri", "Land"], ["base", "Shading"]].forEach(([id, what]) => {
+    [["imagery", "Imagery"], ["agri", "Land"], ["wx", "Weather"], ["base", "Shading"]].forEach(([id, what]) => {
       const el = $(id); if (!el.value) return;
       rows.push(`<li><span></span><span>${what}: ${esc(el.selectedOptions[0].textContent)}</span><span></span><button type="button" class="x" data-clear="${id}" aria-label="Remove ${what.toLowerCase()}">×</button></li>`);
     });
@@ -2868,7 +2886,7 @@ async function simLocalCore(env, shocks) {
       if (b.dataset.clear) { const el = $(b.dataset.clear); el.value = ""; el.dispatchEvent(new Event("change")); }
       onMapLater();
     });
-    ["imagery", "agri", "base"].forEach(id => $(id).addEventListener("change", onMapLater));
+    ["imagery", "agri", "wx", "base"].forEach(id => $(id).addEventListener("change", onMapLater));
     $("allLayers").addEventListener("change", onMapLater);
     $("onMapAdd").addEventListener("click", () => { $("allLayers").open = true; $("allLayers").scrollIntoView({ behavior: "smooth", block: "start" }); });
     onMapLater();
@@ -4928,19 +4946,88 @@ async function simLocalCore(env, shocks) {
     const time = A.years ? $("agriYear").value + "-01-01" : "default", saved = offUse.imagery && OFF.imagery[$("agri").value];
     // offline: the 2000 cropland and pasture maps and the population map can be saved by tools/offline.py; yearly land cover can't
     map.addSource("agri", { type: "raster", tiles: [saved ? offUrl(saved.url) : `${GIBS}${A.id}/default/${time}/GoogleMapsCompatible_Level${A.lvl}/{z}/{y}/{x}.png`], tileSize: 256, maxzoom: saved ? saved.maxzoom : A.lvl, attribution: A.attr });
-    map.addLayer({ id: "agri", type: "raster", source: "agri", paint: { "raster-opacity": +$("agriOpacity").value / 100, "raster-fade-duration": 150, "raster-hue-rotate": A.hue || 0 } }, "disputed");
-    lg.innerHTML = A.colors
-      ? `<div class="bar" style="grid-template-columns:repeat(5,1fr)">${A.colors.map(c => `<i style="background:${c}"></i>`).join("")}</div>
-         <div class="ticks" style="grid-template-columns:repeat(5,1fr)">${A.ticks.map(t => `<span>${t}</span>`).join("")}</div><div class="note">${A.note}</div>`
+    // weather stays on top of farmland
+    map.addLayer({ id: "agri", type: "raster", source: "agri", paint: { "raster-opacity": +$("agriOpacity").value / 100, "raster-fade-duration": 150, "raster-hue-rotate": A.hue || 0 } }, map.getLayer("wx") ? "wx" : "disputed");
+    lg.innerHTML = A.colors ? rampKey(A)
       : `<div class="lc-key">${LC.map(([n, c]) => `<span>${c.split(" ").map(x => `<i style="background:${x}"></i>`).join("")}${n}</span>`).join("")}</div><div class="note">${A.note}</div>`;
     lg.hidden = false;
   }
+  const rampKey = A => `<div class="bar" style="grid-template-columns:repeat(${A.colors.length},1fr)">${A.colors.map(c => `<i style="background:${c}"></i>`).join("")}</div>
+    <div class="ticks" style="grid-template-columns:repeat(${A.colors.length},1fr)">${A.ticks.map(t => `<span>${t}</span>`).join("")}</div><div class="note">${A.note}</div>`;
   function bindAgri() {
     const [y0, y1] = AGRI.lc.years;
     $("agriYear").innerHTML = Array.from({ length: y1 - y0 + 1 }, (_, i) => y1 - i).map(y => `<option>${y}</option>`).join("");
     $("agri").addEventListener("change", applyAgri);
     $("agriYear").addEventListener("change", applyAgri);
     $("agriOpacity").addEventListener("input", e => map.getLayer("agri") && map.setPaintProperty("agri", "raster-opacity", +e.target.value / 100));
+  }
+
+  // ---------- weather (GIBS rasters, dated: the newest time comes from gibsLatest, then the picker steps back) ----------
+  // step: h half hours, d days, m months; n: how many steps the picker offers. Legend colours are sampled from each
+  // layer's GIBS colour map (colormaps/v1.3) at the tick values.
+  const WX_T = ["−30 °C", "−15", "0", "15", "30", "40+"];
+  const WX = {
+    rain: { id: "IMERG_Precipitation_Rate_30min", lvl: 6, step: "h", n: 48, ticks: ["0.1", "0.5", "2", "5", "10", "25+ mm/h"],
+      colors: ["rgb(0,118,78)", "rgb(69,192,0)", "rgb(255,176,6)", "rgb(255,71,48)", "rgb(231,0,0)", "rgb(138,0,0)"],
+      note: "Rain and snow falling in each ~10 km cell over one half hour, merged from the GPM radar and microwave satellites and calibrated with infrared. Early run, about 4–6 hours behind. Snow is drawn in blues and purples.",
+      attr: 'Precipitation: <a href="https://gpm.nasa.gov/data/imerg" target="_blank" rel="noopener">GPM IMERG</a>, NASA/JAXA, via ' + A_GIBS },
+    rainday: { id: "IMERG_Precipitation_Rate", lvl: 6, step: "d", n: 30, ticks: ["0.1", "0.5", "2", "5", "10", "25+ mm/h"],
+      colors: ["rgb(0,118,78)", "rgb(69,192,0)", "rgb(255,176,6)", "rgb(255,71,48)", "rgb(231,0,0)", "rgb(138,0,0)"],
+      note: "Average rain and snow rate over the UTC day in each ~10 km cell (×24 for the day's total), from GPM IMERG. About a day behind.",
+      attr: 'Precipitation: <a href="https://gpm.nasa.gov/data/imerg" target="_blank" rel="noopener">GPM IMERG</a>, NASA/JAXA, via ' + A_GIBS },
+    rainmon: { id: "MERRA2_Precipitation_Bias_Corrected_Monthly", lvl: 6, step: "m", n: 36, ticks: ["0.5", "2", "5", "10", "15+ mm/day"],
+      colors: ["rgb(225,243,246)", "rgb(212,239,236)", "rgb(171,223,211)", "rgb(90,187,149)", "rgb(35,140,70)"],
+      note: "Average precipitation per day over the month, gauge-corrected, from the MERRA-2 reanalysis (~50 km). Complete coverage; about three months behind. Compare months to spot droughts and floods.",
+      attr: 'Precipitation: <a href="https://doi.org/10.5067/7MCPBJ41Y0K6" target="_blank" rel="noopener">MERRA-2 (GMAO)</a>, NASA, via ' + A_GIBS },
+    temp: { id: "AIRS_L3_Surface_Air_Temperature_Daily_Day", lvl: 6, step: "d", n: 30, ticks: WX_T,
+      colors: ["rgb(23,40,121)", "rgb(61,164,200)", "rgb(180,244,218)", "rgb(253,209,115)", "rgb(228,44,42)", "rgb(88,2,44)"],
+      note: "Air temperature near the ground at the daytime overpass (~1:30 pm local), from the AIRS sounder on Aqua (1° cells). Strips between orbits and thick cloud are blank. About three days behind.",
+      attr: 'Air temperature: <a href="https://doi.org/10.5067/UO3Q64CTTS1U" target="_blank" rel="noopener">AIRS L3 v7</a>, NASA, via ' + A_GIBS },
+    tempmon: { id: "MERRA2_2m_Air_Temperature_Monthly", lvl: 6, step: "m", n: 36, ticks: WX_T,
+      colors: ["rgb(176,223,162)", "rgb(242,250,171)", "rgb(254,229,148)", "rgb(250,159,90)", "rgb(227,83,73)", "rgb(158,1,66)"],
+      note: "Monthly mean air temperature 2 m above the ground, from the MERRA-2 reanalysis (~50 km). Complete coverage; about three months behind.",
+      attr: 'Air temperature: <a href="https://doi.org/10.5067/5ESKGQTZG7FO" target="_blank" rel="noopener">MERRA-2 (GMAO)</a>, NASA, via ' + A_GIBS }
+  };
+  // times offered for a layer: newest first, stepping back from GIBS's latest
+  function wxTimes(A, latest) {
+    const t = new Date(latest), out = [];
+    for (let i = 0; i < A.n; i++) {
+      const d = new Date(t);
+      if (A.step === "h") d.setUTCMinutes(d.getUTCMinutes() - 30 * i);
+      else if (A.step === "d") d.setUTCDate(d.getUTCDate() - i);
+      else { d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - i); }
+      const iso = d.toISOString();
+      out.push(A.step === "h" ? [iso.slice(0, 16) + ":00Z", iso.slice(0, 10) + " " + iso.slice(11, 16) + " UTC"]
+        : A.step === "d" ? [iso.slice(0, 10), iso.slice(0, 10)] : [iso.slice(0, 7) + "-01", iso.slice(0, 7)]);
+    }
+    return out;
+  }
+  let wxSeq = 0, wxKey = "";
+  async function applyWx(fromPicker) {
+    onMapLater();
+    const k = $("wx").value, A = WX[k], lg = $("wxLegend"), seq = ++wxSeq;
+    if (map.getLayer("wx")) map.removeLayer("wx");
+    if (map.getSource("wx")) map.removeSource("wx");
+    $("wxCtl").hidden = lg.hidden = !A;
+    if (!A) { wxKey = ""; return; }
+    if (!fromPicker || wxKey !== k) {
+      const latest = await gibsLatest({ ...A, ext: "png" });
+      if (seq !== wxSeq) return;
+      const sel = $("wxWhen");
+      sel.innerHTML = latest ? wxTimes(A, latest).map(([v, l]) => `<option value="${v}">${l}</option>`).join("") : `<option value="default">latest</option>`;
+      $("wxWhenLbl").textContent = { h: "Half hour", d: "Day (UTC)", m: "Month" }[A.step];
+      wxKey = k;
+    }
+    if (map.getSource("wx")) return;
+    map.addSource("wx", { type: "raster", tiles: [`${GIBS}${A.id}/default/${$("wxWhen").value}/GoogleMapsCompatible_Level${A.lvl}/{z}/{y}/{x}.png`], tileSize: 256, maxzoom: A.lvl, attribution: A.attr });
+    map.addLayer({ id: "wx", type: "raster", source: "wx", paint: { "raster-opacity": +$("wxOpacity").value / 100, "raster-fade-duration": 150, "raster-resampling": "linear" } }, "disputed");
+    lg.innerHTML = rampKey({ ...A, note: A.note + " Needs the internet." });
+    lg.hidden = false;
+  }
+  function bindWx() {
+    $("wx").addEventListener("change", () => applyWx(false));
+    $("wxWhen").addEventListener("change", () => applyWx(true));
+    $("wxOpacity").addEventListener("input", e => map.getLayer("wx") && map.setPaintProperty("wx", "raster-opacity", +e.target.value / 100));
   }
 
   // ---------- sources (sidebar) ----------
@@ -4999,6 +5086,9 @@ async function simLocalCore(env, shocks) {
     ["Ramankutty et al. 2010, Global Croplands 2000 (NASA SEDAC)", "https://doi.org/10.7927/H4C8276G", "cropland share, via GIBS", "CC BY 4.0", "2000"],
     ["Ramankutty et al. 2010, Global Pastures 2000 (NASA SEDAC)", "https://doi.org/10.7927/H47H1GGR", "pasture share, via GIBS", "CC BY 4.0", "2000"],
     ["CIESIN Gridded Population of the World v4.11 (NASA SEDAC)", "https://doi.org/10.7927/H49C6VHW", "population density 2020, via GIBS", "CC BY 4.0", "2020"],
+    ["NASA/JAXA GPM IMERG", "https://gpm.nasa.gov/data/imerg", "rain and snow, half-hourly and daily, via GIBS", "NASA open data", "half-hourly, ~5 h behind"],
+    ["NASA AIRS L3 v7 (Aqua)", "https://doi.org/10.5067/UO3Q64CTTS1U", "daily daytime air temperature near the ground, via GIBS", "NASA open data", "daily, ~3 days behind"],
+    ["NASA GMAO MERRA-2 reanalysis", "https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/", "monthly 2 m air temperature and gauge-corrected precipitation, via GIBS", "NASA open data", "monthly, ~3 months behind"],
     ["NASA MODIS Land Cover (MCD12Q1 v061)", "https://doi.org/10.5067/MODIS/MCD12Q1.061", "land cover type, yearly, via GIBS", "NASA open data", "2001–2024"],
     ["Esri World Imagery", "https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9", "sharp base imagery", "Esri terms of use", "mixed dates"],
     ["OpenStreetMap via OpenFreeMap", "https://openfreemap.org/", "streets, buildings, rail, water and street names from zoom 6 (vector tiles rebuilt about weekly)", "ODbL; credit © OpenStreetMap contributors, © OpenMapTiles", "weekly"],
