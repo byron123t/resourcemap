@@ -471,9 +471,9 @@ details.fold > section + section { margin-top: 16px; }
     </div>
     <div class="story" id="story" hidden>
       <div class="seg" role="group" aria-label="Storyboard window">
-        <button type="button" data-win="day" aria-pressed="false">Past day</button>
         <button type="button" data-win="week" aria-pressed="true">Past week</button>
         <button type="button" data-win="month" aria-pressed="false">Past month</button>
+        <button type="button" data-win="year" aria-pressed="false">Past year</button>
       </div>
       <div class="seg tiers" id="storyTiers" role="group" aria-label="How serious: show this and worse"></div>
       <div class="row chips" id="storyCats" role="group" aria-label="Kinds of story"></div>
@@ -543,13 +543,25 @@ details.fold > section + section { margin-top: 16px; }
           <button type="button" data-view="now" aria-pressed="false">Now</button>
           <button type="button" data-view="people" aria-pressed="false">People</button>
           <button type="button" data-view="oil" aria-pressed="false">Oil &amp; gas</button>
+          <button type="button" data-view="grid" aria-pressed="false">Power</button>
           <button type="button" data-view="clean" aria-pressed="false">Clean power</button>
+          <button type="button" data-view="minerals" aria-pressed="false">Metals</button>
+          <button type="button" data-view="supply" aria-pressed="false">Ore to steel</button>
           <button type="button" data-view="water" aria-pressed="false">Water</button>
-          <button type="button" data-view="shipping" aria-pressed="false">Shipping</button>
-          <button type="button" data-view="security" aria-pressed="false">Conflict</button>
           <button type="button" data-view="farm" aria-pressed="false">Farming</button>
+          <button type="button" data-view="food" aria-pressed="false">Food</button>
+          <button type="button" data-view="drought" aria-pressed="false">Drought</button>
+          <button type="button" data-view="shipping" aria-pressed="false">Shipping</button>
+          <button type="button" data-view="aviation" aria-pressed="false">Aviation</button>
+          <button type="button" data-view="security" aria-pressed="false">Conflict</button>
+          <button type="button" data-view="unrest" aria-pressed="false">Unrest</button>
+          <button type="button" data-view="disasters" aria-pressed="false">Disasters</button>
+          <button type="button" data-view="tradecurbs" aria-pressed="false">Trade curbs</button>
+          <button type="button" data-view="internet" aria-pressed="false">Internet</button>
+          <button type="button" data-view="chips" aria-pressed="false">Chips</button>
+          <button type="button" data-view="bio" aria-pressed="false">Pandemics</button>
         </div>
-        <select id="view" aria-label="All views"></select>
+        <select id="view" aria-label="All views, with more"></select>
         <p class="view-note" id="viewNote"></p>
         <button type="button" class="sm" id="viewGo" hidden></button>
       </section>
@@ -2764,7 +2776,8 @@ async function simLocalCore(env, shocks) {
     L({ id: "hover-line", type: "line", source: "hover", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": css("--ink"), "line-width": 3.5, "line-opacity": 0.35 } });
     // storyboard: a soft disc per surge (area = articles), numbered HTML markers on top
     L({ id: "story-halo", type: "circle", source: "story", layout: { ...hidden, "circle-sort-key": ["get", "a"] }, paint: {
-      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["min", 26, ["max", 7, ["*", 0.5, ["sqrt", ["get", "a"]]]]], 6, ["min", 60, ["max", 14, ["*", 1.1, ["sqrt", ["get", "a"]]]]]],
+      // s: √(articles ÷ the window's most-covered story), so a year of monthly totals draws no bigger than a day
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, ["+", 6, ["*", 20, ["get", "s"]]], 6, ["+", 12, ["*", 46, ["get", "s"]]]],
       "circle-color": css("--conflict"), "circle-opacity": ["case", ["boolean", ["get", "on"], false], 0.3, 0.12],
       "circle-stroke-color": css("--conflict"), "circle-stroke-width": ["case", ["boolean", ["get", "on"], false], 2, 0.8], "circle-stroke-opacity": 0.7 } });
     // scenarios: zones, flows that moved (width = change, oil kb/d or gas in oil equivalent), and what was switched off
@@ -3984,10 +3997,15 @@ async function simLocalCore(env, shocks) {
   const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const hhmm = d => String(d.getUTCHours()).padStart(2, "0") + ":00";
   const md = d => `${MON[d.getUTCMonth()]} ${d.getUTCDate()}`;
+  // what one bucket of each window covers (the year window is monthly; see story_year in fetch_live.py)
+  const PER = { day: "hour", week: "day", month: "3 days", year: "month" };
+  // a topic's date: day and month, plus the year in the year window
+  const mdy = t => { const d = new Date(t); return md(d) + (storyWin === "year" ? " " + d.getUTCFullYear() : ""); };
   function when(t, t1, win) {
     const a = new Date(t), b = new Date(new Date(t1) - 1);
     if (win === "day") return `${md(a)}, ${hhmm(a)}–${hhmm(new Date(t1))} UTC`;
     if (win === "week") return `${DOW[a.getUTCDay()]} ${md(a)}`;
+    if (win === "year") return `${MON[a.getUTCMonth()]} ${a.getUTCFullYear()}`;
     return a.getUTCMonth() === b.getUTCMonth() ? `${md(a)}–${b.getUTCDate()}` : `${md(a)} – ${md(b)}`;
   }
   // bar sparkline; `hi` marks one bucket in the conflict colour
@@ -4043,17 +4061,18 @@ async function simLocalCore(env, shocks) {
       ? `${byTier.map(([n, name]) => `<b>${n}</b> ${n === 1 ? name.replace(/ies$/, "y").replace(/s$/, "") : name}`).join(", ")} in the past ${storyWin}. <span class="small">Updated ${ago(S.updated)}.</span>`
       : `Nothing at this level in the past ${storyWin}.`;
     const B = W.buckets;
-    $("storyChart").innerHTML = `<div id="storyBars">${spark(W.total, 300, 56, -1)}</div><div class="axis"><span>${when(B[0], B[1] || B[0], storyWin)}</span><span>all conflict reports per ${storyWin === "day" ? "hour" : storyWin === "week" ? "day" : "3 days"}</span><span>${storyWin === "day" ? "now" : md(new Date(B[B.length - 1]))}</span></div>`;
+    $("storyChart").innerHTML = `<div id="storyBars">${spark(W.total, 300, 56, -1)}</div><div class="axis"><span>${when(B[0], B[1] || B[0], storyWin)}</span><span>all conflict reports per ${PER[storyWin]}</span><span>${storyWin === "day" ? "now" : storyWin === "year" ? when(B[B.length - 1], B[B.length - 1], "year") : md(new Date(B[B.length - 1]))}</span></div>`;
     $("storyCards").innerHTML = items.map((it, i) => {
       const tok = storyTok(it), no = `<span class="no" style="background:var(${tok})">${i + 1}</span>`;
-      if (it.k === "topic") return `<li class="topic"><button type="button" data-i="${i}" style="--story-c:var(${tok})">${no}<span class="when">${md(new Date(it.t1))} ${tierBadge(it)}</span><span class="ttl">${esc(storyLabel(it))}</span>
+      if (it.k === "topic") return `<li class="topic"><button type="button" data-i="${i}" style="--story-c:var(${tok})">${no}<span class="when">${mdy(it.t1)} ${tierBadge(it)}</span><span class="ttl">${esc(storyLabel(it))}</span>
         <span class="plc">${esc(it.n)} · <span class="tag" style="color:var(${tok})">${esc(kindName(storyKind(it)))}</span></span><span class="st">${it.d > 1 ? `${fmt(it.a)} articles · ${fmt(it.d)} outlets` : esc((it.u && it.u[0] && new URL(it.u[0]).hostname.replace(/^www\./, "")) || "")}</span></button></li>`;
       const peak = it.x[B.indexOf(it.t)] || Math.max(...it.x);
       return `<li><button type="button" data-i="${i}">${no}<span class="when">${when(it.t, it.t1, storyWin)} ${tierBadge(it)}</span><span class="ttl">${esc(storyLabel(it))}</span>
         <span class="plc">${esc(it.n)}</span>${spark(it.x, 64, 30, B.indexOf(it.t))}<span class="st">${fmt(it.e)} reports · ${fmt(it.a)} articles · ${it.base ? "×" + fmt(peak / it.base, peak / it.base < 10 ? 1 : 0) + " usual" : "new"}</span></button></li>`;
     }).join("");
     $("storyPos").textContent = items.length ? `– / ${items.length}` : "";
-    map.getSource("story").setData(storyFC = { type: "FeatureCollection", features: items.map((it, i) => ({ type: "Feature", geometry: { type: "Point", coordinates: [it.lon, it.lat] }, properties: { i, n: it.n, title: storyLabel(it), e: it.e, a: it.a, on: false } })) });
+    const maxA = Math.max(1, ...items.map(it => it.k === "topic" ? 0 : it.a || 0));
+    map.getSource("story").setData(storyFC = { type: "FeatureCollection", features: items.map((it, i) => ({ type: "Feature", geometry: { type: "Point", coordinates: [it.lon, it.lat] }, properties: { i, n: it.n, title: storyLabel(it), e: it.e, a: it.a, s: Math.sqrt((it.a || 0) / maxA), on: false } })) });
     storyMarkers = items.map((it, i) => {
       const el = document.createElement("button");
       el.type = "button"; el.className = "story-mk t" + storyTier(it); el.textContent = i + 1; el.setAttribute("aria-label", `Story ${i + 1}: ${storyLabel(it)}`); el.style.background = `var(${storyTok(it)})`;
@@ -4081,7 +4100,7 @@ async function simLocalCore(env, shocks) {
       const src = { Disasters: it.cat === "quake" ? "USGS earthquake catalogue (public domain); the alert is USGS PAGER's estimate of damage." : "NASA EONET (public domain), from the agencies that track storms and floods." }[storyKind(it)]
         || "GDELT article search. Kept because at least two outlets reported it at this place; the place is the first city or country the headline names, so read the articles.";
       openDetail(`Storyboard · ${kindName(storyKind(it))} · ${i + 1} of ${items.length}`, `var(${storyTok(it)})`, storyLabel(it),
-        row("When", it.t === it.t1 ? md(new Date(it.t)) : `${md(new Date(it.t))} – ${md(new Date(it.t1))}`) + row("Place", esc(it.n)) + row("Kind", esc(kindName(storyKind(it)))) + row("Severity", tierBadge(it))
+        row("When", it.t === it.t1 ? mdy(it.t) : `${mdy(it.t)} – ${mdy(it.t1)}`) + row("Place", esc(it.n)) + row("Kind", esc(kindName(storyKind(it)))) + row("Severity", tierBadge(it))
         + (it.d > 1 ? row("Articles", fmt(it.a), true) + row("Outlets", fmt(it.d), true) : ""),
         src, (links ? `<ul class="links">${links}</ul>` : "") + newsBlock());
       detail.dataset.story = "1";
@@ -4092,7 +4111,7 @@ async function simLocalCore(env, shocks) {
     $("storyBars").innerHTML = spark(W.total, 300, 56, B.indexOf(it.t));
     const rows = row("When", when(it.t, it.t1, storyWin), true) + row("Place", esc(it.n)) + row("Severity", tierBadge(it)) + row("Conflict reports", fmt(it.e), true) + row("News articles", fmt(it.a), true)
       + row("· assaults (CAMEO 18)", fmt(it.r[0]), true) + row("· fighting (19)", fmt(it.r[1]), true) + row("· mass violence (20)", fmt(it.r[2]), true)
-      + row("Usual level", it.base ? `${fmt(it.base, 1)} per ${storyWin === "day" ? "hour" : storyWin === "week" ? "day" : "3 days"} (×${fmt(peak / it.base, 1)} here)` : "None reported before", true)
+      + row("Usual level", it.base ? `${fmt(it.base, 1)} per ${PER[storyWin]} (×${fmt(peak / it.base, 1)} here)` : "None reported before", true)
       + row("Main actors", it.act ? esc(it.act.map(a => cap(a.toLowerCase())).join(", ")) : null);
     openDetail(`Storyboard · ${i + 1} of ${items.length}`, "var(--conflict)", storyLabel(it), rows,
       "GDELT codes events from news articles automatically. The headline is the most-cited article's title and may describe a different event in the same place.",

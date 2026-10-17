@@ -1066,6 +1066,13 @@ def gdelt1_day(day, cache_dir):
     body = http_get(f"{GDELT1}{day}.export.CSV.zip", timeout=120, retries=3, not_found_ok=True)
     if body is None:
         return None
+    rows = gdelt1_parse(body, day)
+    write_json(path, {"rows": rows})
+    return rows
+
+
+def gdelt1_parse(body, day):
+    """Rows of one zipped GDELT 1.0 daily file, filtered to CAMEO 18-20 events with a city or region."""
     z = zipfile.ZipFile(io.BytesIO(body))
     text = z.read(z.namelist()[0]).decode("utf-8", "replace")
     rows = []
@@ -1082,7 +1089,6 @@ def gdelt1_day(day, cache_dir):
         # same layout as the GDELT 2.0 cache rows, plus actor names; dateadded is the file day
         rows.append([c[0], c[1], int(c[G1_ROOT]), 0.0, nart, c[G1_GFID], c[G1_GNAME], c[G1_GCC],
                      lat, lon, day + "000000", c[G1_URL], c[G1_A1], c[G1_A2]])
-    write_json(path, {"rows": rows})
     return rows
 
 
@@ -1199,8 +1205,8 @@ def story_tier(it):
     if it.get("k") == "surge":
         if not title:
             return 1
-        if STORY_ONE.search(title):
-            return 3   # one person killed: a journalist, an official
+        if STORY_ONE.search(title) and it.get("e", 0) < 1000:
+            return 3   # one person killed: a journalist, an official (unless the whole world reported it)
         return 4 if it.get("e", 0) >= 15 or it.get("z", 0) >= 60 or it.get("a", 0) >= 500 else 3
     if it.get("cat") == "unrest" and re.search(r"\b(coup|martial law|troops|army deployed|toppl\w*|ousted)\b", title, re.I):
         return 4
@@ -1295,14 +1301,24 @@ def story_window(rows, buckets, bucket_of, n_items, base_rows=None, base_buckets
         R = reg.get(region_key(r[6], r[7]))
         if R:
             R["base"] += 1 + min(r[4], 50) ** 0.5
+    return story_rank(reg, buckets, tot, n_items, base_buckets)
+
+
+def story_rank(reg, buckets, tot, n_items, base_buckets=0, scale=None):
+    """Pick the surges from per-region bucket series: reg = {key: {x, a, rows: {b: [row]}, cc, base}} (story_window), or with
+    per-bucket event counts `n`, CAMEO root counts `r` and actor counts `act` when `rows` holds only each bucket's top rows
+    (story_year). `scale` multiplies each bucket before comparing (a part-month counts as a whole one); 0 leaves it out."""
+    B = len(buckets)
+    scale = scale or [1] * B
+    nb = sum(1 for f in scale if f)
     cand = []
     for k, R in reg.items():
-        x = R["x"]
+        x = [v * f for v, f in zip(R["x"], scale)]
         s = sum(x)
         for b in range(B):
-            if x[b] < 6:
+            if x[b] < 6 or not scale[b]:
                 continue
-            others = (s - x[b] + R["base"]) / max(1, B - 1 + base_buckets)
+            others = (s - x[b] + R["base"]) / max(1, nb - 1 + base_buckets)
             z = (x[b] - others) / math.sqrt(others + 4.0)
             if z > 1.5:
                 cand.append((z * math.log1p(x[b]), k, b, others))
@@ -1331,7 +1347,7 @@ def story_window(rows, buckets, bucket_of, n_items, base_rows=None, base_buckets
             if len(urls) == 4:
                 break
         title = next((t for t in (slug_title(u) for u in urls) if t), None)
-        roots = [sum(1 for r in rs if r[2] == x) for x in (18, 19, 20)]
+        roots = R["r"][b] if "r" in R else [sum(1 for r in rs if r[2] == x) for x in (18, 19, 20)]
         fight = title and STORY_FIGHT.search(title)
         # GDELT miscodes plenty of articles as fighting ("medical students visit rural South Dakota"), so a headline has to say
         # itself that something was attacked, fought over or killed; one about courts, crime or anniversaries also needs a fight word
@@ -1345,8 +1361,8 @@ def story_window(rows, buckets, bucket_of, n_items, base_rows=None, base_buckets
             continue
         used.add((k, b))
         per_cc[R["cc"]] = per_cc.get(R["cc"], 0) + 1
-        actors = {}
-        for r in rs:
+        actors = dict(R["act"][b]) if "act" in R else {}
+        for r in rs if "act" not in R else ():
             for a in r[12:14]:
                 if a:
                     actors[a] = actors.get(a, 0) + 1
@@ -1359,7 +1375,7 @@ def story_window(rows, buckets, bucket_of, n_items, base_rows=None, base_buckets
         if hc and math.hypot((hc[1] - plon) * math.cos(math.radians(plat)), hc[2] - plat) * 111 > 100:
             pname, plon, plat = f"{hc[0]}, {pname.split(',')[-1].strip()}", hc[1], hc[2]
         it = {"k": "surge", "cat": "conflict", "label": "Conflict", "t": buckets[b][0], "t1": buckets[b][1], "n": pname, "cc": R["cc"],
-              "lat": round(plat, 4), "lon": round(plon, 4), "e": len(rs), "a": R["a"][b],
+              "lat": round(plat, 4), "lon": round(plon, 4), "e": R["n"][b] if "n" in R else len(rs), "a": R["a"][b],
               "r": roots, "z": round(score, 1), "base": round(base, 1),
               "x": [round(v) for v in R["x"]], "u": urls}
         if title:
@@ -1371,6 +1387,162 @@ def story_window(rows, buckets, bucket_of, n_items, base_rows=None, base_buckets
             break
     items.sort(key=lambda it: it["t"])
     return {"buckets": [b[0] for b in buckets], "total": tot, "items": items}
+
+
+# --- year window: a year of GDELT 1.0 daily files is ~3 GB to download and ~450 MB as rows, so each day is reduced to
+# per-region totals plus its few most-cited rows (gdelt1y/days/YYYYMMDD.json), and a finished month is merged into
+# gdelt1y/YYYYMM.json. Missing days are fetched a few dozen per run, so the year fills in over about a day of builds.
+YEAR_TOP_ROWS = 4
+
+
+def year_reduce(rows):
+    """{region key: {cc, x, a, n, r: [n18, n19, n20], act: {actor: n}, rows: [most-cited rows]}} for one day's (or month's) rows."""
+    out = {}
+    for r in rows:
+        k = region_key(r[6], r[7])
+        A = out.get(k)
+        if A is None:
+            A = out[k] = {"cc": r[7], "x": 0.0, "a": 0, "n": 0, "r": [0, 0, 0], "act": {}, "rows": []}
+        A["x"] += 1 + min(r[4], 50) ** 0.5
+        A["a"] += r[4]
+        A["n"] += 1
+        A["r"][r[2] - 18] += 1
+        for a in r[12:14]:
+            if a:
+                A["act"][a] = A["act"].get(a, 0) + 1
+        A["rows"].append(r)
+    for A in out.values():
+        A["x"] = round(A["x"], 2)
+        A["act"] = dict(sorted(A["act"].items(), key=lambda kv: -kv[1])[:4])
+        A["rows"] = year_top(A["rows"])
+    return out
+
+
+def year_top(rows):
+    """The most-cited rows, one per article URL."""
+    seen, top = set(), []
+    for r in sorted(rows, key=lambda r: -r[4]):
+        if r[11] not in seen:
+            seen.add(r[11])
+            top.append(r)
+            if len(top) == YEAR_TOP_ROWS:
+                break
+    return top
+
+
+def year_merge(parts):
+    """Merge reduced days into one reduced month."""
+    out = {}
+    for P in parts:
+        for k, A in P.items():
+            M = out.get(k)
+            if M is None:
+                out[k] = M = {"cc": A["cc"], "x": 0.0, "a": 0, "n": 0, "r": [0, 0, 0], "act": {}, "rows": []}
+            M["x"] += A["x"]
+            M["a"] += A["a"]
+            M["n"] += A["n"]
+            M["r"] = [u + v for u, v in zip(M["r"], A["r"])]
+            for a, n in A["act"].items():
+                M["act"][a] = M["act"].get(a, 0) + n
+            M["rows"].extend(A["rows"])
+    for M in out.values():
+        M["x"] = round(M["x"], 2)
+        M["act"] = dict(sorted(M["act"].items(), key=lambda kv: -kv[1])[:4])
+        M["rows"] = year_top(M["rows"])
+    return out
+
+
+def year_months(now, cache1, cachey, log, max_new=30):
+    """Twelve reduced months, oldest first, ending with the current one: [(YYYYMM, reduced or None, days_have, days_in_month)]."""
+    os.makedirs(os.path.join(cachey, "days"), exist_ok=True)
+    first = (now.replace(day=1) - timedelta(days=1)).replace(day=1)
+    months = []
+    y, m = now.year, now.month
+    for _ in range(12):
+        months.append(f"{y:04d}{m:02d}")
+        y, m = (y, m - 1) if m > 1 else (y - 1, 12)
+    months.reverse()
+    keep = set(months)
+    for fn in os.listdir(cachey):
+        if fn.endswith(".json") and fn[:6] not in keep:
+            os.remove(os.path.join(cachey, fn))
+    for fn in os.listdir(os.path.join(cachey, "days")):
+        if fn[:6] not in keep:
+            os.remove(os.path.join(cachey, "days", fn))
+    fetched, out = 0, []
+    yesterday = (now - timedelta(days=1)).strftime("%Y%m%d")
+    # newest months first, so a part-filled year has its recent end
+    for ym in reversed(months):
+        path = os.path.join(cachey, ym + ".json")
+        y, m = int(ym[:4]), int(ym[4:])
+        n_days = ((datetime(y + (m == 12), m % 12 + 1, 1) - datetime(y, m, 1)).days)
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                M = json.load(f)
+            out.append((ym, M["reg"], M["have"], n_days))
+            continue
+        parts, have, missing = [], 0, 0
+        for d in range(1, n_days + 1):
+            day = f"{ym}{d:02d}"
+            if day > yesterday:
+                break
+            dpath = os.path.join(cachey, "days", day + ".json")
+            P = None
+            if os.path.exists(dpath):
+                with open(dpath, encoding="utf-8") as f:
+                    P = json.load(f)
+            else:
+                rows = None
+                # the month window's rows cache, or the one story_scenarios.py --backfill-year leaves (same layout)
+                src = next((c for c in (cache1, os.path.join(CACHE, "gdelt1_year")) if os.path.exists(os.path.join(c, day + ".json"))), None)
+                if src:
+                    rows = gdelt1_day(day, src)
+                elif fetched < max_new:
+                    fetched += 1
+                    try:
+                        body = http_get(f"{GDELT1}{day}.export.CSV.zip", timeout=120, retries=2, not_found_ok=True)
+                        rows = gdelt1_parse(body, day) if body is not None else []
+                    except Exception as e:  # noqa: BLE001
+                        log("story", f"warning: GDELT 1.0 {day}: {e}")
+                if rows is not None:
+                    P = year_reduce(rows)
+                    write_json(dpath, P)
+            if P is None:
+                missing += 1
+                continue
+            parts.append(P)
+            have += 1
+        reg = year_merge(parts) if parts else None
+        if ym < now.strftime("%Y%m") and not missing:
+            write_json(path, {"have": have, "reg": reg or {}})   # a finished month is kept whole; its days go
+            for d in range(1, n_days + 1):
+                dp = os.path.join(cachey, "days", f"{ym}{d:02d}.json")
+                if os.path.exists(dp):
+                    os.remove(dp)
+        out.append((ym, reg, have, n_days))
+    log("story", f"year: {sum(1 for o in out if o[1])}/12 months, {fetched} daily files fetched this run")
+    out.reverse()
+    return out
+
+
+def story_year(months, n_items):
+    """Year window: monthly buckets of the reduced months; a month that is only partly in is scaled up, an empty one left out."""
+    B = len(months)
+    buckets = []
+    for ym, _reg, _h, _n in months:
+        y, m = int(ym[:4]), int(ym[4:])
+        buckets.append((f"{y:04d}-{m:02d}-01T00:00:00Z", f"{y + (m == 12):04d}-{m % 12 + 1:02d}-01T00:00:00Z"))
+    scale = [(n / h if h >= 5 else 0) if reg else 0 for _ym, reg, h, n in months]
+    reg, tot = {}, [0] * B
+    for b, (_ym, M, _h, _n) in enumerate(months):
+        for k, A in (M or {}).items():
+            R = reg.get(k)
+            if R is None:
+                R = reg[k] = {"x": [0] * B, "a": [0] * B, "n": [0] * B, "r": [[0, 0, 0] for _ in range(B)], "act": [{} for _ in range(B)],
+                              "rows": {}, "cc": A["cc"], "base": 0}
+            R["x"][b], R["a"][b], R["n"][b], R["r"][b], R["act"][b], R["rows"][b] = A["x"], A["a"], A["n"], A["r"], A["act"], A["rows"]
+            tot[b] += A["n"]
+    return story_rank(reg, buckets, tot, n_items, scale=scale)
 
 
 def run_story(args, ctx):
@@ -1469,6 +1641,8 @@ def run_story(args, ctx):
         return i if 0 <= i < 10 else None
     out["windows"]["month"] = story_window(rows1, mbk, tri_of, 30)
     log(feed, f"GDELT 1.0: {len(rows1)} events from {len(have)} daily files")
+    del rows1
+    out["windows"]["year"] = story_year(year_months(now, cache1, os.path.join(CACHE, "gdelt1y"), log, args.year_days), 36)
     # beyond fighting: unrest, trade curbs, industrial accidents, blackouts, shipping, disease, harvests, cables, cloud, cyber
     # and chips (GDELT article searches), plus earthquakes, storms and floods (USGS, NASA EONET); see news_topics.py
     try:
@@ -1481,10 +1655,15 @@ def run_story(args, ctx):
         F = nt.Fetch(os.path.join(CACHE, "news"), lambda m: log(feed, m))
         G = nt.Gazetteer(labels, totals)
         tops = nt.story_topics(F, G, log=lambda m: log(feed, m)) + nt.story_disasters(F, now, log=lambda m: log(feed, m), G=G)
-        for w, days in (("day", 1), ("week", 7), ("month", 31)):
+        # topic searches cover three months and disasters a year; longer windows keep only the most serious of them
+        for it in tops:
+            it["tier"] = story_tier(it)
+        for w, days, cap in (("day", 1, 99), ("week", 7, 99), ("month", 31, 30), ("year", 366, 30)):
             since = iso(now - timedelta(days=days))
             win = out["windows"][w]
-            win["items"] = sorted(win["items"] + [it for it in tops if it["t1"] >= since], key=lambda it: it["t"])
+            mine = sorted((it for it in tops if it["t1"] >= since), key=lambda it: it["t1"], reverse=True)
+            mine = sorted(mine, key=lambda it: (-it["tier"], -it.get("d", 1)))[:cap]   # worst, then most reported, then newest
+            win["items"] = sorted(win["items"] + mine, key=lambda it: it["t"])
         log(feed, f"topics: {len(tops)} items")
     except Exception as e:  # noqa: BLE001 - the conflict storyboard stands on its own
         log(feed, f"warning: topic news skipped: {type(e).__name__}: {e}")
@@ -1509,6 +1688,7 @@ def main():
     ap.add_argument("--only", default=",".join(FEEDS),
                     help="comma-separated subset of: " + ",".join(FEEDS))
     ap.add_argument("--days", type=int, default=14, help="GDELT window in days (default 14)")
+    ap.add_argument("--year-days", type=int, default=30, help="GDELT 1.0 daily files to fetch per run for the storyboard's year (default 30)")
     ap.add_argument("--ais-seconds", type=int, default=240, help="AIS listen time (default 240)")
     ap.add_argument("--archive", metavar="DIR", help="also add this run to the rolling archive in DIR (see archive.py)")
     ap.add_argument("--archive-budget-mb", type=float, default=1000, help="archive size cap in MB (default 1000)")

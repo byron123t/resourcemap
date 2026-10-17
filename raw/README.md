@@ -110,7 +110,7 @@ Outputs: `site/data/fabs.geojson`, `chip_sites.geojson` (a hand list in the scri
 
 ## raw/live_cache/ — live feeds (downloaded automatically)
 
-`pipeline/live/fetch_live.py` keeps its downloads here so reruns only fetch what's new: `gdelt/` (GDELT 2.0 15-minute event files, used for conflict reports and the day/week storyboard), `gdelt1/` (GDELT 1.0 daily files, used for the month storyboard), `firms/` and `ais_static.json`. The farmland and land-cover layers have no raw files: the browser loads them as tiles from NASA GIBS.
+`pipeline/live/fetch_live.py` keeps its downloads here so reruns only fetch what's new: `gdelt/` (GDELT 2.0 15-minute event files, used for conflict reports and the day/week storyboard), `gdelt1/` (GDELT 1.0 daily files, used for the month storyboard), `gdelt1y/` (the same files reduced to per-region totals, one per finished month plus `days/` for the current one; the year storyboard), `news/` (topic searches, USGS and EONET answers), `firms/` and `ais_static.json`. The farmland and land-cover layers have no raw files: the browser loads them as tiles from NASA GIBS.
 
 ## Suggested additions (not wired in yet)
 

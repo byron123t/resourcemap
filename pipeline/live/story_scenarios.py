@@ -397,8 +397,10 @@ def windows(story, days, grids, prev, extra=()):
                 old.append(x)
         except (KeyError, ValueError, TypeError):
             pass
+    # the storyboard's own year window (monthly surges over GDELT 1.0) when the snapshot has one
+    yr = build([it for it in W.get("year", {}).get("items", []) if it.get("k", "surge") == "surge"], grids, now) if W.get("year") else []
     year = []
-    for x in month + sorted(older + old, key=lambda x: x["t"], reverse=True):
+    for x in month + sorted(yr + older + old, key=lambda x: x["t"], reverse=True):
         twin = next((y for y in year if y.get("cat", "conflict") == x.get("cat", "conflict")
                      and haversine_km(x["at"][1], x["at"][0], y["at"][1], y["at"][0]) < MERGE_KM), None)
         if twin:

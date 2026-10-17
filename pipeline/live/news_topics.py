@@ -325,7 +325,7 @@ def grouped(found):
     return out
 
 
-def story_topics(F, G, log=print, timespan="1month"):
+def story_topics(F, G, log=print, timespan="3months"):
     """Storyboard items for every topic category: [{cat, label, t, t1, n, cc, lat, lon, a, d, title, u}]."""
     items = []
     for cat, q in TOPICS:
@@ -349,9 +349,9 @@ def story_topics(F, G, log=print, timespan="1month"):
 
 
 def story_disasters(F, now, log=print, G=None):
-    """Storyboard items for M6+ earthquakes (USGS) and storms and floods (NASA EONET) in the last 30 days."""
+    """Storyboard items for M6+ earthquakes (USGS) and storms and floods (NASA EONET) in the last year."""
     items = []
-    url = USGS + "?" + urllib.parse.urlencode({"format": "geojson", "starttime": (now - timedelta(days=31)).strftime("%Y-%m-%d"), "minmagnitude": "6.0"})
+    url = USGS + "?" + urllib.parse.urlencode({"format": "geojson", "starttime": (now - timedelta(days=366)).strftime("%Y-%m-%d"), "minmagnitude": "6.0"})
     for f in (F.json("usgs_story.json", url) or {}).get("features", []):
         p, (lon, lat) = f["properties"], f["geometry"]["coordinates"][:2]
         if (p.get("mag") or 0) < 7 and p.get("alert") not in ("yellow", "orange", "red"):
@@ -361,7 +361,7 @@ def story_disasters(F, now, log=print, G=None):
         items.append({"k": "topic", "cat": "quake", "label": STORY_CATS["quake"], "t": t, "t1": t, "n": place, "lat": round(lat, 4), "lon": round(lon, 4),
                       "a": 1, "d": 1, "mag": round(p["mag"], 1), "al": p.get("alert"), "title": f"M{p['mag']:.1f} earthquake near {place.split(',')[0]}" + (f" ({p['alert']} alert for damage)" if p.get("alert") else ""),
                       "u": [p["url"]] if p.get("url") else []})
-    url = EONET + "?" + urllib.parse.urlencode({"status": "all", "days": "31", "category": "severeStorms,floods,volcanoes"})
+    url = EONET + "?" + urllib.parse.urlencode({"status": "all", "days": "366", "category": "severeStorms,floods,volcanoes"})
     for e in (F.json("eonet_story.json", url) or {}).get("events", []):
         g = [x for x in e.get("geometry", []) if x.get("type") == "Point"]
         if not g:

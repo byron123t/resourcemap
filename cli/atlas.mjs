@@ -73,7 +73,7 @@ const HELP = {
   correlate: ["atlas correlate <fieldA> <fieldB> [--min-pop 1000000] [--top 8]", "Spearman rank correlation between two country fields (any shading field: net, cens, beds, docs, chipX, chipM, fdep, minr, og, pw_gw, bws, kpop, kdens...),\nwith the countries that break the pattern most. Example: atlas correlate net cens"],
   shading: ["atlas shading [field] [--top 15] [--asc] [--min-pop 1000000]", "Without a field: the background-shading options (country fields and their units, basin fields).\nWith a field (e.g. net, cens, og, pw_gw, chipX, fdep, minr): rank countries by it."],
   sources: ["atlas sources [--json]", "Every data source with its licence, as shown in the page's Sources panel."],
-  live: ["atlas live [feed] [--limit 10] [--sort f] [--where expr] [--near lon,lat --km N] [--window day|week|month] [--kind K] [--min-tier incident]",
+  live: ["atlas live [feed] [--limit 10] [--sort f] [--where expr] [--near lon,lat --km N] [--window day|week|month|year] [--kind K] [--min-tier incident]",
     "Without a feed: the live manifest (feeds, update time, counts). With one (fires, events, ships, aircraft, jets, airliners, navy, story): its top items.\nLive files exist only after pipeline/live/fetch_live.py has run (or with --remote)."],
   scenarios: ["atlas scenarios [--group g]", "Ready-made scenarios (needs cli/lib/scenario.mjs): group, title, what it tests and its shocks."],
   news: ["atlas news [--window week|month|year]", "Scenarios built from this week's / month's / year's news, with their three levels (de-escalate, current, escalate)."],
