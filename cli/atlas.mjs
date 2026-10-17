@@ -6,7 +6,7 @@ import { AtlasError, configure } from "./lib/api.mjs";
 import { parseLonLat, parseBbox } from "./lib/data.mjs";
 
 // ---------- arguments ----------
-const VALUE_FLAGS = new Set(["data", "site", "near", "km", "bbox", "country", "where", "sort", "limit", "offset", "fields", "format", "layers", "top", "group", "window", "level", "view", "at", "min-pop", "from", "to", "kind"]);
+const VALUE_FLAGS = new Set(["data", "site", "near", "km", "bbox", "country", "where", "sort", "limit", "offset", "fields", "format", "layers", "top", "group", "window", "level", "view", "at", "min-pop", "from", "to", "kind", "min-tier"]);
 const BOOL_FLAGS = new Set(["json", "no-color", "url", "counts", "asc", "help", "geometry", "wide"]);
 export function parseArgs(argv) {
   const pos = [], flags = { where: [] };
@@ -73,7 +73,7 @@ const HELP = {
   correlate: ["atlas correlate <fieldA> <fieldB> [--min-pop 1000000] [--top 8]", "Spearman rank correlation between two country fields (any shading field: net, cens, beds, docs, chipX, chipM, fdep, minr, og, pw_gw, bws, kpop, kdens...),\nwith the countries that break the pattern most. Example: atlas correlate net cens"],
   shading: ["atlas shading [field] [--top 15] [--asc] [--min-pop 1000000]", "Without a field: the background-shading options (country fields and their units, basin fields).\nWith a field (e.g. net, cens, og, pw_gw, chipX, fdep, minr): rank countries by it."],
   sources: ["atlas sources [--json]", "Every data source with its licence, as shown in the page's Sources panel."],
-  live: ["atlas live [feed] [--limit 10] [--sort f] [--where expr] [--near lon,lat --km N] [--window day|week|month]",
+  live: ["atlas live [feed] [--limit 10] [--sort f] [--where expr] [--near lon,lat --km N] [--window day|week|month] [--kind K] [--min-tier incident]",
     "Without a feed: the live manifest (feeds, update time, counts). With one (fires, events, ships, aircraft, jets, airliners, navy, story): its top items.\nLive files exist only after pipeline/live/fetch_live.py has run (or with --remote)."],
   scenarios: ["atlas scenarios [--group g]", "Ready-made scenarios (needs cli/lib/scenario.mjs): group, title, what it tests and its shocks."],
   news: ["atlas news [--window week|month|year]", "Scenarios built from this week's / month's / year's news, with their three levels (de-escalate, current, escalate)."],
@@ -292,7 +292,7 @@ async function cmdSources(a, f) {
   table(r.sources, [{ key: "name", head: "source", max: 46 }, { key: "licence", head: "licence", max: 40 }, { key: "what", head: "what", max: 50 }, { key: "when", head: "when", max: 22 }]);
 }
 async function cmdLive(a, f) {
-  const r = await api.live(a[0], { ...queryOpts(f), window: f.window, kind: f.kind });
+  const r = await api.live(a[0], { ...queryOpts(f), window: f.window, kind: f.kind, minTier: f["min-tier"] });
   if (f.json) return json(r);
   if (!a[0]) {
     title(`Live snapshot generated ${r.generated} (${r.age} ago)`);
@@ -302,7 +302,8 @@ async function cmdLive(a, f) {
   if (a[0] === "story") {
     title(`Storyboard, ${r.window} window (updated ${r.updated})`);
     out(dim("kinds: " + Object.entries(r.kinds || {}).map(([k, n]) => `${k} ${n}`).join(" · ") + "  (filter with --kind)"));
-    table(r.items, [{ key: "kind", head: "kind", max: 17 }, { key: "title", head: "headline", max: 50 }, { key: "place", head: "place", max: 26 }, { get: x => (x.when || "").slice(0, 10), head: "when" },
+    out(dim("severity: " + Object.entries(r.tiers || {}).map(([k, n]) => `${k} ${n}`).join(" · ") + "  (filter with --min-tier, e.g. incident)"));
+    table(r.items, [{ key: "severity", head: "severity", max: 9 }, { key: "kind", head: "kind", max: 17 }, { key: "title", head: "headline", max: 50 }, { key: "place", head: "place", max: 26 }, { get: x => (x.when || "").slice(0, 10), head: "when" },
       { get: x => x.reports != null ? x.reports : x.outlets != null ? `${x.outlets} outlets` : "", head: "reports", num: true }]);
     return;
   }

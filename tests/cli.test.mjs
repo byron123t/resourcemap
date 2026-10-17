@@ -164,3 +164,12 @@ test("analysis: trade, correlate, combine and place context", async () => {
   assert.equal(n.context.country.k, "TWN");
   assert.ok(n.context.basin && n.context.basin.waterStress);
 });
+
+test("storyboard items carry a severity tier and filter by it", { skip: !existsSync(path.join(DATA, "live", "story.json")) && "no live story.json" }, async () => {
+  const r = await api.live("story", { limit: 100, window: "month" });
+  assert.ok(r.items.every(x => x.tier >= 1 && x.tier <= 5 && x.severity));
+  for (let i = 1; i < r.items.length; i++) assert.ok(r.items[i - 1].tier >= r.items[i].tier, "worst first");
+  const inc = await api.live("story", { limit: 100, window: "month", minTier: "incidents" });
+  assert.ok(inc.items.every(x => x.tier >= 3));
+  await assert.rejects(api.live("story", { minTier: "nope" }), /bad tier/);
+});

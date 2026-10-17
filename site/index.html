@@ -187,6 +187,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .notes { font-size: 11.5px; line-height: 1.5; color: var(--ink-3); display: flex; flex-direction: column; gap: 6px; }
 .notes p { margin: 0; }
 .notes a { color: var(--ink-2); }
+details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 
 /* --- detail card + tooltip --- */
 .detail {
@@ -287,6 +288,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .story > * { flex-shrink: 0; }
 .story .sum { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); }
 .story .sum.small { font-size: 11.5px; color: var(--ink-3); }
+.story .sum span.small { color: var(--ink-3); }
 .story .chart svg { display: block; width: 100%; height: 56px; }
 .story .chart .axis { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 10px; color: var(--ink-3); margin-top: 2px; }
 .stepper { display: flex; gap: 6px; align-items: center; }
@@ -302,13 +304,46 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .cards .ttl { font-weight: 600; font-size: 12.5px; line-height: 1.3; grid-column: 2; }
 .cards .plc { font-size: 11.5px; color: var(--ink-2); grid-column: 2; }
 .cards svg { grid-column: 3; grid-row: 1 / span 3; width: 64px; height: 30px; align-self: center; }
+.cards .topic .ttl, .cards .topic .plc { grid-column: 2 / -1; }
 .cards .st { grid-column: 2 / -1; font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); }
 .story-mk { width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1.5px solid var(--panel); background: var(--conflict); color: #fff; font: 600 10.5px/1 var(--f-mono); cursor: pointer; box-shadow: 0 1px 3px rgb(0 0 0 / .35); }
 #story .chips button { font: inherit; font-size: 11px; padding: 3px 8px; border: 1px solid var(--panel-line); border-radius: 999px; background: var(--land); color: var(--ink-2); cursor: pointer; }
 #story .chips button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
 #story .chips i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: 0; }
 .cards .tag { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
-.story-mk.on { width: 26px; height: 26px; font-size: 12px; border-color: var(--ink); z-index: 2; }
+.story-mk.on { border-color: var(--ink); z-index: 2; }
+/* severity tiers: story, news, incident, conflict, disaster */
+.seg.tiers button { font-size: 11.5px; padding: 5px 2px; line-height: 1.15; }
+.seg.tiers button small { display: block; font-family: var(--f-mono); font-size: 10px; opacity: .75; font-weight: 400; }
+.seg.tiers button:disabled { opacity: .4; cursor: default; }
+.tier { display: inline-block; font-family: var(--f-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: .05em; padding: 0 5px; border: 1px solid var(--panel-line); border-radius: 3px; color: var(--ink-3); line-height: 15px; vertical-align: 1px; }
+.tier.t2 { color: var(--ink-2); border-color: var(--ink-3); }
+.tier.t3 { color: var(--fire); border-color: var(--fire); }
+.tier.t4 { color: var(--conflict); border-color: var(--conflict); }
+.tier.t5 { color: #fff; background: var(--conflict); border-color: var(--conflict); }
+.story-mk.t1 { width: 15px; height: 15px; font-size: 8.5px; opacity: .85; } .story-mk.t2 { width: 17px; height: 17px; font-size: 9.5px; }
+.story-mk.t4 { width: 22px; height: 22px; } .story-mk.t5 { width: 27px; height: 27px; font-size: 12px; border-color: var(--ink); }
+.story-mk.on { width: 28px; height: 28px; font-size: 12px; }
+.chart-box summary, details.fold > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 6px; }
+.chart-box summary { font-size: 12px; color: var(--ink-2); }
+.chart-box summary::-webkit-details-marker, details.fold > summary::-webkit-details-marker { display: none; }
+.chart-box summary::before, details.fold > summary::before { content: "▸"; font-size: 10px; color: var(--ink-3); transition: transform .15s; }
+.chart-box[open] summary::before, details.fold[open] > summary::before { transform: rotate(90deg); }
+.chart-box[open] summary { margin-bottom: 6px; }
+details.fold { border-top: 1px solid var(--panel-line); padding-top: 10px; }
+details.fold > summary { margin: 0; }
+details.fold[open] > summary { margin-bottom: 10px; }
+details.fold > section + section { margin-top: 16px; }
+.onmap-list { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; }
+.onmap-list li { display: grid; grid-template-columns: 18px 1fr auto 22px; align-items: center; gap: 8px; padding: 3px 0 3px 6px; font-size: 13px; }
+.onmap-list li .sw { width: 14px; height: 14px; display: block; }
+.onmap-list .count { font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-2); }
+.onmap-list .x { border: 0; background: none; color: var(--ink-3); font-size: 16px; line-height: 1; cursor: pointer; padding: 0 4px; border-radius: 4px; }
+.onmap-list .x:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.onmap-list li.none { color: var(--ink-3); font-size: 12.5px; display: block; padding-left: 0; }
+.onmap .group-title .n { font-family: var(--f-mono); font-weight: 400; color: var(--ink-3); letter-spacing: 0; }
+.onmap button.sm { font: inherit; font-size: 12px; padding: 4px 8px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
+.onmap .base-legend { margin-bottom: 8px; }
 .story-spark { padding: 4px 18px 0; } .story-spark svg { display: block; width: 100%; height: 40px; }
 .lc-key { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; font-size: 11px; color: var(--ink-2); line-height: 1.3; }
 .lc-key i { display: inline-block; width: 9px; height: 10px; vertical-align: -1px; box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .25); }
@@ -429,7 +464,7 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
       </div>
       <button class="toggle-sheet" id="toggleSheet" aria-expanded="true">Hide</button>
       <div class="seg mode" role="group" aria-label="Choose a mode">
-        <button type="button" data-mode="map" aria-pressed="true">Map layers</button>
+        <button type="button" data-mode="map" aria-pressed="true">Map</button>
         <button type="button" data-mode="story" aria-pressed="false">Storyboard</button>
         <button type="button" data-mode="sim" aria-pressed="false">Scenarios</button>
       </div>
@@ -440,9 +475,10 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         <button type="button" data-win="week" aria-pressed="true">Past week</button>
         <button type="button" data-win="month" aria-pressed="false">Past month</button>
       </div>
+      <div class="seg tiers" id="storyTiers" role="group" aria-label="How serious: show this and worse"></div>
       <div class="row chips" id="storyCats" role="group" aria-label="Kinds of story"></div>
       <p class="sum" id="storySum">Loading the storyboard…</p>
-      <div class="chart" id="storyChart"></div>
+      <details class="chart-box" id="storyChartBox"><summary>Conflict reports over time</summary><div class="chart" id="storyChart"></div></details>
       <div class="stepper">
         <button type="button" id="storyPrev" aria-label="Previous story">← Prev</button>
         <button type="button" id="storyPlay" aria-pressed="false">Play</button>
@@ -518,6 +554,22 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         <button type="button" class="sm" id="viewGo" hidden></button>
       </section>
 
+      <section class="search">
+        <h3 class="group-title"><label for="q">Find a place, site or country</label></h3>
+        <input id="q" type="search" placeholder="e.g. Rumaila, Three Gorges, Rotterdam, 36.95, -76.31" autocomplete="off">
+        <ul class="results" id="results"></ul>
+      </section>
+
+
+      <section class="onmap" id="onMap">
+        <h3 class="group-title">On the map <span class="n" id="onMapN"></span></h3>
+        <ul class="onmap-list" id="onMapList"></ul>
+        <div class="base-legend" id="agriLegend" hidden></div>
+        <div class="base-legend" id="baseLegend" hidden></div>
+        <button type="button" class="sm" id="onMapAdd">+ Add or change layers</button>
+      </section>
+
+      <details class="fold" id="allLayers"><summary class="group-title">All layers &amp; settings</summary>
       <section>
         <h3 class="group-title">Live</h3>
         <div class="layers">
@@ -562,7 +614,6 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
           <label id="agriYearWrap">Year<select id="agriYear"></select></label>
           <label>Opacity<input type="range" id="agriOpacity" min="10" max="100" step="5" value="70"></label>
         </div>
-        <div class="base-legend" id="agriLegend" hidden></div>
       </section>
 
       <section>
@@ -685,7 +736,6 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
             <option value="c:fdep">Wheat, maize and rice imported</option>
           </optgroup>
         </select>
-        <div class="base-legend" id="baseLegend" hidden></div>
       </section>
 
       <section>
@@ -714,23 +764,18 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
         <p class="dt-note" id="dtNote">Zoomed out (below zoom 5), only the biggest fields, mines, plants, pipelines, ports, fires and report clusters show, and only major naval bases and missile sites unless you pick a base type. Zoom in or pick <b>Every site</b> for the rest.</p>
       </section>
 
-      <section class="search">
-        <h3 class="group-title"><label for="q">Find a place, site or country</label></h3>
-        <input id="q" type="search" placeholder="e.g. Rumaila, Three Gorges, Rotterdam, 36.95, -76.31" autocomplete="off">
-        <ul class="results" id="results"></ul>
-      </section>
-
       <section>
         <h3 class="group-title">Circle size</h3>
         <div class="sizes" id="sizes"></div>
       </section>
 
-      <section class="notes">
-        <h3 class="group-title">Sources</h3>
+      </details>
+
+      <details class="notes fold" id="notesBox"><summary class="group-title">Sources &amp; caveats</summary>
         <ul class="srcs" id="sources"></ul>
         <p><strong>Read with care.</strong> Totals add up only what each site reports; many large oil fields, including Saudi Arabia's, publish no production. The US critical-mineral set is far more detailed than the global one, so the US shows many more deposits. Solar, wind, hydro and nuclear come from a 2021 database. Refinery capacities are nameplate figures from Climate TRACE; a few missing ones use the country median. Gas is converted at 6,000 cf per barrel of oil equivalent. Country totals count operating sites only; offshore sites go to the nearest country. Country water stress is an area-weighted average of Aqueduct basin scores. Borders follow Natural Earth's de facto lines and don't imply endorsement.</p>
         <p><strong>Live layers.</strong> Fires, conflict reports, ships and aircraft are snapshots refreshed every 30 minutes or so by the site's build, not a live stream; each layer shows when it was taken. Conflict reports are machine-coded from news articles and are often duplicated, misplaced (to a country's centre, say) or wrong; open the linked articles before relying on one. A fire next to a conflict report isn't proof of an attack. Warship positions come from USNI News's weekly fleet tracker, which names a port or sea area rather than coordinates, so they're approximate and only cover publicly reported US Navy ships; other navies rarely publish positions and their warships usually switch AIS off. Worldwide merchant ships need an aisstream.io key in the build; without one the ship layer shows the Baltic, live. Business jets cover about 35 common jet types and airliners about 60 passenger, regional and freighter types, not every plane; aircraft whose owners have opted out of public tracking (the FAA's LADD list and privacy ICAO addresses) are left out, and no owner names are shown. Search a registration or callsign to find one. Military bases combine Wikidata and OpenStreetMap and are still incomplete, so a gap doesn't mean there's no base. Cable routes are schematic.</p>
-      </section>
+      </details>
     </div>
   </aside>
 
@@ -2768,6 +2813,7 @@ async function simLocalCore(env, shocks) {
     bindImagery();
     bindAgri();
     bindStory();
+    bindOnMap();
     simBind();
     syncMain(true);
     const hv = (location.hash.match(/view=(\w+)/) || [])[1];
@@ -2783,7 +2829,39 @@ async function simLocalCore(env, shocks) {
   // streets and buildings come in at street scale in every view; the checkbox brings them in from zoom 6
   const OSM_AUTO = 8;
   const osmOn = () => $("lyr-osm").checked || (!!map && map.getZoom() >= OSM_AUTO);
+  // "On the map": the ticked layers and picked shadings, each with an × to take it off; the full lists sit folded below.
+  // Base-map layers (borders, lakes, roads, streets) are left out so the list stays about what the view shows.
+  const ONMAP_SKIP = new Set(["names", "disputed", "maritime", "lakes", "roads", "osm"]);
+  let onMapQ = 0;
+  const onMapLater = () => { if (!onMapQ) onMapQ = requestAnimationFrame(() => { onMapQ = 0; onMapRender(); }); };
+  function onMapRender() {
+    const rows = [];
+    document.querySelectorAll('#allLayers input[id^="lyr-"]:checked').forEach(c => {
+      const k = c.id.slice(4), lab = c.closest("label.layer"); if (ONMAP_SKIP.has(k) || !lab) return;
+      const sw = lab.querySelector(".sw"), nm = lab.querySelector(".name").firstChild.textContent.trim(), ct = lab.querySelector(".count");
+      rows.push(`<li>${sw ? sw.outerHTML : "<span></span>"}<span>${esc(nm)}</span><span class="count">${ct ? esc(ct.textContent) : ""}</span><button type="button" class="x" data-off="${k}" aria-label="Hide ${esc(nm)}">×</button></li>`);
+    });
+    [["imagery", "Imagery"], ["agri", "Land"], ["base", "Shading"]].forEach(([id, what]) => {
+      const el = $(id); if (!el.value) return;
+      rows.push(`<li><span></span><span>${what}: ${esc(el.selectedOptions[0].textContent)}</span><span></span><button type="button" class="x" data-clear="${id}" aria-label="Remove ${what.toLowerCase()}">×</button></li>`);
+    });
+    $("onMapList").innerHTML = rows.join("") || `<li class="none">Only the base map. Pick a view above, or add layers.</li>`;
+    $("onMapN").textContent = rows.length ? rows.length : "";
+  }
+  function bindOnMap() {
+    $("onMapList").addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.off) { $("lyr-" + b.dataset.off).checked = false; applyGroup(b.dataset.off); }
+      if (b.dataset.clear) { const el = $(b.dataset.clear); el.value = ""; el.dispatchEvent(new Event("change")); }
+      onMapLater();
+    });
+    ["imagery", "agri", "base"].forEach(id => $(id).addEventListener("change", onMapLater));
+    $("allLayers").addEventListener("change", onMapLater);
+    $("onMapAdd").addEventListener("click", () => { $("allLayers").open = true; $("allLayers").scrollIntoView({ behavior: "smooth", block: "start" }); });
+    onMapLater();
+  }
   function applyGroup(k) {
+    onMapLater();
     const on = k === "osm" ? osmOn() : $("lyr-" + k).checked, g = GROUPS[k];
     if (on) g.data.forEach(ensure);
     g.layers.forEach(id => map.getLayer(id) && map.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
@@ -2860,7 +2938,7 @@ async function simLocalCore(env, shocks) {
   function viewGo() {
     const conf = VIEWS[curView], go = conf && conf.go; if (!go) return;
     // a story view opens the storyboard on one kind of story (go.kind is a STORY_KINDS label)
-    if (go.story) { storyCat = go.kind || "all"; if (curMode === "story") storyRender(); else setMode("story"); return; }
+    if (go.story) { storyCat = go.kind || "all"; storyMin = go.tier || 1; if (curMode === "story") storyRender(); else setMode("story"); return; }
     const after = () => { if (conf.img && conf.img.startsWith("geo")) { const k = geoPick(conf.img === "geoir"); if ($("imagery").value !== k) { $("imagery").value = k; applyImagery(false); } } };
     if (go.locate) {
       if (!navigator.geolocation) return;
@@ -3488,6 +3566,7 @@ async function simLocalCore(env, shocks) {
   const baseField = () => ($("base").value || "").split(":")[1];
   const baseLabel = () => { const o = $("base").selectedOptions[0]; return o ? o.textContent : ""; };
   function applyBase() {
+    onMapLater();
     if (!map || !map.getLayer("water-fill")) return;
     const [kind, field] = ($("base").value || "").split(":");
     const lg = $("baseLegend");
@@ -3835,6 +3914,7 @@ async function simLocalCore(env, shocks) {
   }
   let offKey = "";
   async function applyImagery(fromPicker) {
+    onMapLater();
     // offline, an online choice is swapped for a saved mosaic (the picker keeps the choice for when the network is back)
     offKey = offImg($("imagery").value);
     const I = IMG[offKey], seq = ++imgSeq;
@@ -3921,10 +4001,16 @@ async function simLocalCore(env, shocks) {
   // kinds of story and their colour tokens (conflict surges, and topic news from pipeline/live/news_topics.py)
   const STORY_KINDS = { Conflict: "--conflict", Unrest: "--fire", Trade: "--fab", "Industry & energy": "--oil", Shipping: "--lane", Health: "--health",
     "Food & farms": "--food", "Cyber & internet": "--cloud", Disasters: "--sim-dry" };
-  let storyCat = "all";
+  // severity tiers, set per item by the pipeline (story_tier in fetch_live.py); the ladder shows one tier and everything worse
+  const STORY_TIERS = [[1, "Stories", "Story"], [2, "News", "News"], [3, "Incidents", "Incident"], [4, "Conflicts", "Conflict"], [5, "Disasters", "Disaster"]];
+  let storyCat = "all", storyMin = 1;
   const storyKind = it => it.label || "Conflict";
+  const KIND_SHOW = { Conflict: "Fighting", Disasters: "Quakes & storms" };
+  const kindName = k => KIND_SHOW[k] || k;
+  const storyTier = it => it.tier || (it.k === "surge" ? 4 : 2);
   const storyAll = () => (DATA.story && DATA.story.windows[storyWin] || { items: [] }).items;
-  const storyItems = () => storyCat === "all" ? storyAll() : storyAll().filter(it => storyKind(it) === storyCat);
+  const storyItems = () => storyAll().filter(it => storyTier(it) >= storyMin && (storyCat === "all" || storyKind(it) === storyCat));
+  const tierBadge = it => `<span class="tier t${storyTier(it)}">${STORY_TIERS[storyTier(it) - 1][2]}</span>`;
   const storyLabel = it => it.title || it.n.split(",")[0];
   const storyTok = it => STORY_KINDS[storyKind(it)] || "--ink-3";
   function storyClear() {
@@ -3934,35 +4020,43 @@ async function simLocalCore(env, shocks) {
   function storyStop() { clearInterval(storyTimer); storyTimer = null; $("storyPlay").setAttribute("aria-pressed", "false"); $("storyPlay").textContent = "Play"; }
   function storyRender() {
     const S = DATA.story; if (!S || !storyOn) return;
-    const W = S.windows[storyWin], all = W.items;
-    // kind chips with counts; a kind with nothing in this window falls back to all
+    const W = S.windows[storyWin], every = W.items;
+    // severity ladder: each step counts its tier and worse; an empty step can't be picked
+    const atLeast = t => every.filter(it => storyTier(it) >= t).length;
+    if (!atLeast(storyMin)) storyMin = 1;
+    $("storyTiers").innerHTML = STORY_TIERS.map(([t, name]) => `<button type="button" data-tier="${t}" aria-pressed="${t === storyMin}"${atLeast(t) ? "" : " disabled"}
+      title="${t === 1 ? "Everything" : `${name} and worse`}">${name}<small>${t === 1 ? "all " : ""}${atLeast(t)}</small></button>`).join("");
+    $("storyTiers").querySelectorAll("button").forEach(b => b.onclick = () => { storyMin = +b.dataset.tier; if (detail.dataset.story) closeDetail(); storyRender(); });
+    const all = every.filter(it => storyTier(it) >= storyMin);
+    // kind chips with counts; a kind with nothing at this severity falls back to all
     const counts = {}; all.forEach(it => counts[storyKind(it)] = (counts[storyKind(it)] || 0) + 1);
     if (storyCat !== "all" && !counts[storyCat]) storyCat = "all";
-    $("storyCats").innerHTML = `<button type="button" data-cat="all" aria-pressed="${storyCat === "all"}">All ${all.length}</button>`
-      + Object.keys(STORY_KINDS).filter(k => counts[k]).map(k => `<button type="button" data-cat="${esc(k)}" aria-pressed="${storyCat === k}"><i style="background:var(${STORY_KINDS[k]})"></i>${esc(k)} ${counts[k]}</button>`).join("");
+    $("storyCats").hidden = Object.keys(counts).length < 2;
+    $("storyCats").innerHTML = `<button type="button" data-cat="all" aria-pressed="${storyCat === "all"}">All kinds</button>`
+      + Object.keys(STORY_KINDS).filter(k => counts[k]).map(k => `<button type="button" data-cat="${esc(k)}" aria-pressed="${storyCat === k}"><i style="background:var(${STORY_KINDS[k]})"></i>${esc(kindName(k))} ${counts[k]}</button>`).join("");
     $("storyCats").querySelectorAll("button").forEach(b => b.onclick = () => { storyCat = b.dataset.cat; if (detail.dataset.story) closeDetail(); storyRender(); });
     const items = storyItems();
     storyStop(); storyClear(); storyCur = -1;
-    const surges = all.filter(it => it.k !== "topic"), top = surges.reduce((m, it) => !m || it.z > m.z ? it : m, null), ev = surges.reduce((s, it) => s + it.e, 0), other = all.length - surges.length;
-    $("storySum").innerHTML = all.length
-      ? `${surges.length ? `<b>${surges.length} conflict surges</b>, ${fmt(ev)} reports between them` : "No conflict surges"}${other ? ` and <b>${other} other stories</b>` : ""} in the past ${storyWin}.`
-        + (top ? ` Biggest jump: <b>${esc(top.n.split(",")[0])}</b>, ${when(top.t, top.t1, storyWin)}.` : "") + ` Snapshot updated ${ago(S.updated)}.`
-      : `Nothing stood out in the past ${storyWin}.`;
+    // one line: how many of each tier, worst first
+    const byTier = STORY_TIERS.slice().reverse().map(([t, name]) => [items.filter(it => storyTier(it) === t).length, name.toLowerCase()]).filter(([n]) => n);
+    $("storySum").innerHTML = items.length
+      ? `${byTier.map(([n, name]) => `<b>${n}</b> ${n === 1 ? name.replace(/ies$/, "y").replace(/s$/, "") : name}`).join(", ")} in the past ${storyWin}. <span class="small">Updated ${ago(S.updated)}.</span>`
+      : `Nothing at this level in the past ${storyWin}.`;
     const B = W.buckets;
     $("storyChart").innerHTML = `<div id="storyBars">${spark(W.total, 300, 56, -1)}</div><div class="axis"><span>${when(B[0], B[1] || B[0], storyWin)}</span><span>all conflict reports per ${storyWin === "day" ? "hour" : storyWin === "week" ? "day" : "3 days"}</span><span>${storyWin === "day" ? "now" : md(new Date(B[B.length - 1]))}</span></div>`;
     $("storyCards").innerHTML = items.map((it, i) => {
       const tok = storyTok(it), no = `<span class="no" style="background:var(${tok})">${i + 1}</span>`;
-      if (it.k === "topic") return `<li><button type="button" data-i="${i}" style="--story-c:var(${tok})">${no}<span class="when">${md(new Date(it.t1))}</span><span class="ttl">${esc(storyLabel(it))}</span>
-        <span class="plc">${esc(it.n)} · <span class="tag" style="color:var(${tok})">${esc(storyKind(it))}</span></span><span></span><span class="st">${it.d > 1 ? `${fmt(it.a)} articles · ${fmt(it.d)} outlets` : esc((it.u && it.u[0] && new URL(it.u[0]).hostname.replace(/^www\./, "")) || "")}</span></button></li>`;
+      if (it.k === "topic") return `<li class="topic"><button type="button" data-i="${i}" style="--story-c:var(${tok})">${no}<span class="when">${md(new Date(it.t1))} ${tierBadge(it)}</span><span class="ttl">${esc(storyLabel(it))}</span>
+        <span class="plc">${esc(it.n)} · <span class="tag" style="color:var(${tok})">${esc(kindName(storyKind(it)))}</span></span><span class="st">${it.d > 1 ? `${fmt(it.a)} articles · ${fmt(it.d)} outlets` : esc((it.u && it.u[0] && new URL(it.u[0]).hostname.replace(/^www\./, "")) || "")}</span></button></li>`;
       const peak = it.x[B.indexOf(it.t)] || Math.max(...it.x);
-      return `<li><button type="button" data-i="${i}">${no}<span class="when">${when(it.t, it.t1, storyWin)}</span><span class="ttl">${esc(storyLabel(it))}</span>
+      return `<li><button type="button" data-i="${i}">${no}<span class="when">${when(it.t, it.t1, storyWin)} ${tierBadge(it)}</span><span class="ttl">${esc(storyLabel(it))}</span>
         <span class="plc">${esc(it.n)}</span>${spark(it.x, 64, 30, B.indexOf(it.t))}<span class="st">${fmt(it.e)} reports · ${fmt(it.a)} articles · ${it.base ? "×" + fmt(peak / it.base, peak / it.base < 10 ? 1 : 0) + " usual" : "new"}</span></button></li>`;
     }).join("");
     $("storyPos").textContent = items.length ? `– / ${items.length}` : "";
     map.getSource("story").setData(storyFC = { type: "FeatureCollection", features: items.map((it, i) => ({ type: "Feature", geometry: { type: "Point", coordinates: [it.lon, it.lat] }, properties: { i, n: it.n, title: storyLabel(it), e: it.e, a: it.a, on: false } })) });
     storyMarkers = items.map((it, i) => {
       const el = document.createElement("button");
-      el.type = "button"; el.className = "story-mk"; el.textContent = i + 1; el.setAttribute("aria-label", `Story ${i + 1}: ${storyLabel(it)}`); el.style.background = `var(${storyTok(it)})`;
+      el.type = "button"; el.className = "story-mk t" + storyTier(it); el.textContent = i + 1; el.setAttribute("aria-label", `Story ${i + 1}: ${storyLabel(it)}`); el.style.background = `var(${storyTok(it)})`;
       el.addEventListener("click", ev => { ev.stopPropagation(); storyGo(i, true); });
       return new maplibregl.Marker({ element: el }).setLngLat([it.lon, it.lat]).addTo(map);
     });
@@ -3986,8 +4080,8 @@ async function simLocalCore(env, shocks) {
       $("storyBars").innerHTML = spark(W.total, 300, 56, -1);
       const src = { Disasters: it.cat === "quake" ? "USGS earthquake catalogue (public domain); the alert is USGS PAGER's estimate of damage." : "NASA EONET (public domain), from the agencies that track storms and floods." }[storyKind(it)]
         || "GDELT article search. Kept because at least two outlets reported it at this place; the place is the first city or country the headline names, so read the articles.";
-      openDetail(`Storyboard · ${storyKind(it)} · ${i + 1} of ${items.length}`, `var(${storyTok(it)})`, storyLabel(it),
-        row("When", it.t === it.t1 ? md(new Date(it.t)) : `${md(new Date(it.t))} – ${md(new Date(it.t1))}`) + row("Place", esc(it.n)) + row("Kind", esc(storyKind(it)))
+      openDetail(`Storyboard · ${kindName(storyKind(it))} · ${i + 1} of ${items.length}`, `var(${storyTok(it)})`, storyLabel(it),
+        row("When", it.t === it.t1 ? md(new Date(it.t)) : `${md(new Date(it.t))} – ${md(new Date(it.t1))}`) + row("Place", esc(it.n)) + row("Kind", esc(kindName(storyKind(it)))) + row("Severity", tierBadge(it))
         + (it.d > 1 ? row("Articles", fmt(it.a), true) + row("Outlets", fmt(it.d), true) : ""),
         src, (links ? `<ul class="links">${links}</ul>` : "") + newsBlock());
       detail.dataset.story = "1";
@@ -3996,7 +4090,7 @@ async function simLocalCore(env, shocks) {
     }
     const peak = it.x[B.indexOf(it.t)] || 0;
     $("storyBars").innerHTML = spark(W.total, 300, 56, B.indexOf(it.t));
-    const rows = row("When", when(it.t, it.t1, storyWin), true) + row("Place", esc(it.n)) + row("Conflict reports", fmt(it.e), true) + row("News articles", fmt(it.a), true)
+    const rows = row("When", when(it.t, it.t1, storyWin), true) + row("Place", esc(it.n)) + row("Severity", tierBadge(it)) + row("Conflict reports", fmt(it.e), true) + row("News articles", fmt(it.a), true)
       + row("· assaults (CAMEO 18)", fmt(it.r[0]), true) + row("· fighting (19)", fmt(it.r[1]), true) + row("· mass violence (20)", fmt(it.r[2]), true)
       + row("Usual level", it.base ? `${fmt(it.base, 1)} per ${storyWin === "day" ? "hour" : storyWin === "week" ? "day" : "3 days"} (×${fmt(peak / it.base, 1)} here)` : "None reported before", true)
       + row("Main actors", it.act ? esc(it.act.map(a => cap(a.toLowerCase())).join(", ")) : null);
@@ -4012,7 +4106,7 @@ async function simLocalCore(env, shocks) {
   }
   // three modes: map layers, storyboard, scenarios. The storyboard and scenarios switch the map to their own few layers;
   // the user's layer checkboxes are saved on leaving the map and put back on return.
-  let curMode = "map", modeSaved = null;
+  let curMode = "map", modeSaved = null, storyShade = null;
   function setMode(mode) {
     if (mode === curMode) return;
     const prev = curMode; curMode = mode;
@@ -4026,6 +4120,17 @@ async function simLocalCore(env, shocks) {
     const keep = { story: STORY_LAYERS, sim: SIM_LAYERS }[mode];
     VIEW_KEYS.forEach(k => { $("lyr-" + k).checked = keep ? keep.includes(k) : modeSaved[k]; applyGroup(k); });
     if (mode === "map") modeSaved = null;
+    // the storyboard also clears background shading and land cover, and the map gets them back
+    if (mode === "story") {
+      if (!storyShade) storyShade = { base: $("base").value, agri: $("agri").value };
+      if ($("base").value) { $("base").value = ""; applyBase(); }
+      if ($("agri").value) { $("agri").value = ""; applyAgri(); }
+    }
+    if (mode === "map" && storyShade) {
+      if (storyShade.base && $("base").value !== storyShade.base) { $("base").value = storyShade.base; applyBase(); }
+      if (storyShade.agri && $("agri").value !== storyShade.agri) { $("agri").value = storyShade.agri; applyAgri(); }
+      storyShade = null;
+    }
     if (mode === "story") { storyOn = true; map.setLayoutProperty("story-halo", "visibility", "visible"); ensure("story").then(storyRender); }
     if (mode === "sim") simEnter();
   }
@@ -4792,6 +4897,7 @@ async function simLocalCore(env, shocks) {
       attr: 'Population density 2020: <a href="https://doi.org/10.7927/H49C6VHW" target="_blank" rel="noopener">GPW v4.11, CIESIN</a>, CC BY 4.0, via ' + A_GIBS }
   };
   function applyAgri() {
+    onMapLater();
     const A = AGRI[$("agri").value], lg = $("agriLegend");
     if (map.getLayer("agri")) map.removeLayer("agri");
     if (map.getSource("agri")) map.removeSource("agri");

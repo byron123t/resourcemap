@@ -379,12 +379,19 @@ export async function live(feed, o = {}) {
     const w = o.window || "week", W = s.windows?.[w];
     if (!W) throw new AtlasError(`story window "${w}" not found; windows: ${Object.keys(s.windows || {}).join(", ")}`, 2);
     const lim = clampLimit(o.limit, 10, 200);
-    // conflict surges rank by surge score, other stories by how many outlets carried them; o.kind filters by kind (Conflict, Unrest, Trade...)
-    const kind = x => x.label || "Conflict", rank = x => x.k === "topic" ? (x.d || 1) * 20 : (x.z || 0);
-    const all = (W.items || []).filter(x => !o.kind || norm(kind(x)).startsWith(norm(o.kind)));
-    const kinds = {}; (W.items || []).forEach(x => kinds[kind(x)] = (kinds[kind(x)] || 0) + 1);
-    return { feed, window: w, updated: s.updated, buckets: W.buckets?.length, kinds, items: all.slice().sort((a, b) => rank(b) - rank(a)).slice(0, lim)
-      .map(x => ({ kind: kind(x), title: x.title || x.n, place: x.n, cc: x.cc, lon: x.lon, lat: x.lat, when: x.k === "topic" ? x.t1 : x.t, reports: x.e, articles: x.a, outlets: x.d, surge: x.z, usual: x.base, url: x.u?.[0] })) };
+    // worst tier first, then conflict surges by surge score and other stories by how many outlets carried them;
+    // o.kind filters by kind (Conflict, Unrest, Trade...), o.minTier by severity (1 story, 2 news, 3 incident, 4 conflict, 5 disaster)
+    const TIERS = s.tiers || { 1: "Story", 2: "News", 3: "Incident", 4: "Conflict", 5: "Disaster" };
+    const kind = x => x.label || "Conflict", tier = x => x.tier || (x.k === "surge" ? 4 : 2);
+    const rank = x => tier(x) * 1e4 + (x.k === "topic" ? (x.d || 1) * 20 : (x.z || 0));
+    let min = o.minTier;
+    if (min != null && !/^\d$/.test(String(min))) min = +(Object.entries(TIERS).find(([, n]) => norm(n).startsWith(norm(String(min)).replace(/s$/, ""))) || [])[0];
+    if (min != null && !(min >= 1 && min <= 5)) throw new AtlasError(`bad tier "${o.minTier}": use 1-5 or ${Object.values(TIERS).join(", ")}`);
+    const all = (W.items || []).filter(x => (!o.kind || norm(kind(x)).startsWith(norm(o.kind))) && (!min || tier(x) >= +min));
+    const kinds = {}, tiers = {};
+    (W.items || []).forEach(x => { kinds[kind(x)] = (kinds[kind(x)] || 0) + 1; tiers[TIERS[tier(x)]] = (tiers[TIERS[tier(x)]] || 0) + 1; });
+    return { feed, window: w, updated: s.updated, buckets: W.buckets?.length, kinds, tiers, items: all.slice().sort((a, b) => rank(b) - rank(a)).slice(0, lim)
+      .map(x => ({ tier: tier(x), severity: TIERS[tier(x)], kind: kind(x), title: x.title || x.n, place: x.n, cc: x.cc, lon: x.lon, lat: x.lat, when: x.k === "topic" ? x.t1 : x.t, reports: x.e, articles: x.a, outlets: x.d, surge: x.z, usual: x.base, url: x.u?.[0] })) };
   }
   const meta = feeds.find(f => f.feed === feed);
   const res = await query(feed, { ...o, sort: o.sort || LIVE_SORT[feed] || undefined, limit: o.limit ?? 10 });

@@ -1163,9 +1163,50 @@ STORY_FIGHT = re.compile(r"\b(strikes?|struck|air ?strikes?|drones?|missiles?|ro
 
 # always dropped, even with a fight word: courts ("Judge strikes down..."), crime and policing, celebrities, retrospectives, weapons tests
 STORY_OFF = re.compile(r"\b(judge|court|trial|verdict|convict\w*|sentenc\w*|lawsuit|cops?|sheriff\w*|deputy|hunter|bludgeon\w*|"
-                       r"actor|actress|singer|star|celebrity|anniversary|years on|years after|test[- ]?fire\w*|tests?|drill|prison|building fire|house fire|plane crash|possible|could|may)\b|"
+                       r"actor|actress|singer|star|celebrity|anniversary|years on|years after|test[- ]?fire\w*|tests?|drill|prison|building fire|house fire|plane crash|possible|could|may|"
+                       r"war of words|serial killer|crash(es|ed)? into|road accident|charred|who fought|barely reported|found dead|mystery|sought)\b|"
                        r"\bfires? (two |a |\w+ )?(ballistic )?(missiles?|rockets?) (off|into|toward)", re.I)
 STORY_HARM = re.compile(r"\b(kill\w*|dead|deaths?|attack\w*|gunmen|violence|massacre\w*|wounded|injured|hostages?|siege|seized?)\b", re.I)
+
+# Severity tiers for storyboard items, lowest to highest. Each item gets `tier` (1-5) from what it reports:
+#   1 story     thinly reported, or a jump in conflict reports without a headline to explain it
+#   2 news      widely reported but nobody hurt and nothing broken (export curbs, tariffs, chip rules)
+#   3 incident  damage or a few deaths: an explosion, a cable cut, a cyberattack, deadly unrest, a storm or quake near people
+#   4 conflict  armed fighting: strikes, clashes, offensives
+#   5 disaster  mass harm: dozens or more dead, or a PAGER orange or red earthquake
+STORY_TIERS = {1: "Story", 2: "News", 3: "Incident", 4: "Conflict", 5: "Disaster"}
+STORY_MASS = re.compile(r"\b(dozens|scores|hundreds|thousands)\b[^.]{0,40}\b(killed|dead|die[sd]?|deaths|kill)\b|\b(massacre\w*|mass casualt\w*|famine)\b|"
+                        r"\b(more than |at least |over )?([2-9]\d|\d{3,})\s+(people\s+|civilians\s+|soldiers\s+)?(killed|dead|die[sd]?)\b", re.I)
+STORY_DAMAGE = re.compile(r"\b(kill\w*|dead|deaths?|dies|injur\w*|wounded|explosions?|blasts?|fires?|collaps\w*|cut|severed|damaged?|outages?|blackouts?|"
+                          r"attack\w*|ransomware|hack\w*|breach\w*|outbreaks?|cases|culled?|cull\w*|spill\w*|sinks?|sank|seized?|curfew|martial law|coup|"
+                          r"state of emergency|halt\w*|shut\w*|stopp\w*)\b", re.I)
+
+STORY_ONE = re.compile(r"\b(journalist|man|woman|tourist|leader|official|commander|activist|priest|mayor|judge|son|daughter)\b[^.]{0,40}\b(killed|dies|dead|shot|injured)\b|"
+                       r"\bkill(s|ed)? (a |an |the )?(\w+ )?(journalist|leader|official|mayor|commander)\b", re.I)
+
+
+def story_tier(it):
+    """Severity tier (1-5, see STORY_TIERS) of one storyboard item."""
+    title = it.get("title") or ""
+    if it.get("cat") == "quake":
+        al = it.get("al") or (re.search(r"\((\w+) alert", title) or [None, None])[1]
+        mag = it.get("mag") or float((re.search(r"M(\d+(\.\d+)?)", title) or [0, 0])[1])
+        return 5 if al in ("orange", "red") or mag >= 7.5 else 3
+    if it.get("cat") in ("storm", "flood", "fire", "volcano"):
+        return 5 if STORY_MASS.search(title) or re.search(r"\bsuper typhoon|category [45]\b", title, re.I) else 3
+    if STORY_MASS.search(title):
+        return 5
+    if it.get("k") == "surge":
+        if not title:
+            return 1
+        if STORY_ONE.search(title):
+            return 3   # one person killed: a journalist, an official
+        return 4 if it.get("e", 0) >= 15 or it.get("z", 0) >= 60 or it.get("a", 0) >= 500 else 3
+    if it.get("cat") == "unrest" and re.search(r"\b(coup|martial law|troops|army deployed|toppl\w*|ousted)\b", title, re.I):
+        return 4
+    if STORY_DAMAGE.search(title):
+        return 3
+    return 1 if it.get("d", 0) <= 2 and it.get("a", 0) <= 3 else 2
 
 
 _COUNTRY_RE = None
@@ -1447,6 +1488,10 @@ def run_story(args, ctx):
         log(feed, f"topics: {len(tops)} items")
     except Exception as e:  # noqa: BLE001 - the conflict storyboard stands on its own
         log(feed, f"warning: topic news skipped: {type(e).__name__}: {e}")
+    for win in out["windows"].values():
+        for it in win["items"]:
+            it["tier"] = story_tier(it)
+    out["tiers"] = STORY_TIERS
     size = write_json(os.path.join(OUT, "story.json"), out)
     counts = {k: len(v["items"]) for k, v in out["windows"].items()}
     log(feed, f"wrote story.json: {counts}, {mb(size)}")

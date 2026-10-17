@@ -359,7 +359,7 @@ def story_disasters(F, now, log=print, G=None):
         t = datetime.fromtimestamp(p["time"] / 1000, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         place = re.sub(r"^\d+ km [NSEW]+ of |^(The )?\d{4} |\s*Earthquake$", "", p.get("place") or "")
         items.append({"k": "topic", "cat": "quake", "label": STORY_CATS["quake"], "t": t, "t1": t, "n": place, "lat": round(lat, 4), "lon": round(lon, 4),
-                      "a": 1, "d": 1, "title": f"M{p['mag']:.1f} earthquake near {place.split(',')[0]}" + (f" ({p['alert']} alert for damage)" if p.get("alert") else ""),
+                      "a": 1, "d": 1, "mag": round(p["mag"], 1), "al": p.get("alert"), "title": f"M{p['mag']:.1f} earthquake near {place.split(',')[0]}" + (f" ({p['alert']} alert for damage)" if p.get("alert") else ""),
                       "u": [p["url"]] if p.get("url") else []})
     url = EONET + "?" + urllib.parse.urlencode({"status": "all", "days": "31", "category": "severeStorms,floods,volcanoes"})
     for e in (F.json("eonet_story.json", url) or {}).get("events", []):
