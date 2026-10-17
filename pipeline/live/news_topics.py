@@ -368,9 +368,11 @@ def story_disasters(F, now, log=print, G=None):
             continue
         cat = {"severeStorms": "storm", "floods": "flood"}.get((e.get("categories") or [{}])[0].get("id"), "storm")
         title = re.sub(r"\s+\d{5,}$", "", e["title"]).strip()
-        # only storms and floods that reach a city of 300,000+ (within 300 km of the track), placed at the closest pass
+        # only storms and floods that reach a city of 300,000+ (within 300 km of the track), placed at the closest pass while
+        # the storm is still one (34 knots or more where EONET gives winds), not where its remnants fade out over land
         best = None
-        for pt in g if G else g[-1:]:
+        live = [pt for pt in g if (pt.get("magnitudeValue") or 0) >= 34] if any(pt.get("magnitudeValue") for pt in g) else g
+        for pt in (live or g) if G else g[-1:]:
             x, y = pt["coordinates"]
             for c in (G.cities if G else []):
                 if abs(c["y"] - y) < 3 and (best is None or _hav(y, x, c["y"], c["x"]) < best[0]):

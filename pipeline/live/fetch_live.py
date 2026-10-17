@@ -1052,6 +1052,8 @@ GDELT1 = "https://data.gdeltproject.org/events/"
 G1_A1, G1_A2, G1_ROOT, G1_NART = 6, 16, 28, 33
 G1_GTYPE, G1_GNAME, G1_GCC, G1_GLAT, G1_GLON, G1_GFID, G1_ADDED, G1_URL = 49, 50, 51, 53, 54, 55, 56, 57
 G1_NCOLS = 58
+# set by run_story: GeoNames places (geo_place.Places) and article titles and summaries (geo_place.Articles)
+PLACES = ARTICLES = None
 
 
 def gdelt1_day(day, cache_dir):
@@ -1148,6 +1150,7 @@ def slug_title(url):
     for seg in path.split("/"):
         seg = re.sub(r"\.(s?html?|php|aspx?|cms)$", "", seg, flags=re.I)
         seg = re.sub(r"^\d+[.\-_]", "", seg)  # "26606982.saudi-backed-..." article-id prefixes
+        seg = re.sub(r"(?<=[a-z])160(?=[a-z])", "-", seg)  # a no-break space (&#160;) that lost its "&#;": "crashes160into"
         words = [w for w in re.split(r"[-_+]+", seg)
                  if w and not RE_SLUG_JUNK.match(w) and not re.fullmatch(r"[\d.]+|\w*\d{4,}\w*", w)]
         cand = " ".join(words)
@@ -1170,7 +1173,9 @@ STORY_FIGHT = re.compile(r"\b(strikes?|struck|air ?strikes?|drones?|missiles?|ro
 # always dropped, even with a fight word: courts ("Judge strikes down..."), crime and policing, celebrities, retrospectives, weapons tests
 STORY_OFF = re.compile(r"\b(judge|court|trial|verdict|convict\w*|sentenc\w*|lawsuit|cops?|sheriff\w*|deputy|hunter|bludgeon\w*|"
                        r"actor|actress|singer|star|celebrity|anniversary|years on|years after|test[- ]?fire\w*|tests?|drill|prison|building fire|house fire|plane crash|possible|could|may|"
-                       r"war of words|serial killer|crash(es|ed)? into|road accident|charred|who fought|barely reported|found dead|mystery|sought)\b|"
+                       r"war of words|serial killer|crash(es|ed)? into|head-on crash|road accident|charred|who fought|barely reported|found dead|mystery|sought|"
+                       r"behind bars|bail|senate|campaign|candidates?|congress|opinions?|punishment|classroom|police raid|deputies|"
+                       r"world war|gets \d+ years|years in prison)\b|"
                        r"\bfires? (two |a |\w+ )?(ballistic )?(missiles?|rockets?) (off|into|toward)", re.I)
 STORY_HARM = re.compile(r"\b(kill\w*|dead|deaths?|attack\w*|gunmen|violence|massacre\w*|wounded|injured|hostages?|siege|seized?)\b", re.I)
 
@@ -1323,7 +1328,19 @@ def story_rank(reg, buckets, tot, n_items, base_buckets=0, scale=None):
             if z > 1.5:
                 cand.append((z * math.log1p(x[b]), k, b, others))
     cand.sort(reverse=True)
-    items, per_cc, used = [], {}, set()
+    items, per_cc, used, placed = [], {}, set(), []
+
+    def top_urls(rs):
+        urls, seen_u = [], set()
+        for r in sorted(rs, key=lambda r: -r[4]):
+            if r[11] and r[11] not in seen_u:
+                seen_u.add(r[11])
+                urls.append(r[11])
+            if len(urls) == 4:
+                break
+        return urls
+    if ARTICLES:  # the article titles and summaries of the likeliest stories, fetched together
+        ARTICLES.prefetch(u for _s, k, b, _o in cand[:n_items * 6] for u in top_urls(reg[k]["rows"][b])[:2])
     for score, k, b, base in cand:
         R = reg[k]
         if per_cc.get(R["cc"], 0) >= 3:
@@ -1339,46 +1356,59 @@ def story_rank(reg, buckets, tot, n_items, base_buckets=0, scale=None):
             c = city.setdefault(r[5] or r[6], [0, r])
             c[0] += 1 + r[4]
         top = max(city.values(), key=lambda c: c[0])[1]
-        urls, seen_u = [], set()
-        for r in sorted(rs, key=lambda r: -r[4]):
-            if r[11] and r[11] not in seen_u:
-                seen_u.add(r[11])
-                urls.append(r[11])
-            if len(urls) == 4:
-                break
-        title = next((t for t in (slug_title(u) for u in urls) if t), None)
+        urls = top_urls(rs)
+        art = next((a for a in (ARTICLES.get(u) for u in urls[:2]) if a and a.get("t")), None) if ARTICLES else None
+        slug = next((t for t in (slug_title(u) for u in urls) if t), None)
+        title = (art and art["t"]) or slug
         roots = R["r"][b] if "r" in R else [sum(1 for r in rs if r[2] == x) for x in (18, 19, 20)]
         fight = title and STORY_FIGHT.search(title)
         # GDELT miscodes plenty of articles as fighting ("medical students visit rural South Dakota"), so a headline has to say
         # itself that something was attacked, fought over or killed; one about courts, crime or anniversaries also needs a fight word
         if title and (STORY_OFF.search(title) or not (fight or (STORY_HARM.search(title) and not STORY_NOISE.search(title)))):
             continue
-        # a headline that names countries, none of them the place's own, was geocoded to the wrong place
-        # ("Pakistan says airstrikes kill militants" at Hangu, Tianjin, China)
-        named = headline_countries(title) if title else set()
-        home = place_name(top[6]).split(",")[-1].strip()
-        if named and not any(c == home or c.startswith(home) or home.startswith(c) for c in named):
-            continue
-        used.add((k, b))
-        per_cc[R["cc"]] = per_cc.get(R["cc"], 0) + 1
         actors = dict(R["act"][b]) if "act" in R else {}
         for r in rs if "act" not in R else ():
             for a in r[12:14]:
                 if a:
                     actors[a] = actors.get(a, 0) + 1
-        # GDELT often places a story at the wrong town in the right country (a Voronezh strike at Borisoglebsk, Murmansk); when
-        # the headline names a city there, more than 100 km away, the story moves to it
-        pname, plat, plon = place_name(top[6]), top[8], top[9]
-        if title and headline_foreign_city(title, pname.split(",")[-1].strip()):
-            continue  # "Russian airstrikes choke key bridges in Kyiv" placed at Volgograd
-        hc = title and headline_city(title, pname.split(",")[-1].strip())
-        if hc and math.hypot((hc[1] - plon) * math.cos(math.radians(plat)), hc[2] - plat) * 111 > 100:
-            pname, plon, plat = f"{hc[0]}, {pname.split(',')[-1].strip()}", hc[1], hc[2]
+        pname, plat, plon, geo = place_name(top[6]), top[8], top[9], None
+        if PLACES:
+            # the place the article names wins over GDELT's (see geo_place.py)
+            res = PLACES.resolve(top[6], R["cc"], plat, plon, title=art and art["t"], lead=art and art.get("d"), slug=slug,
+                                 actors=list(actors)[:4])
+            if res is None:
+                continue  # the headline names countries and the place is in none of them
+            pname, plat, plon, geo = res["n"] or pname, res["lat"], res["lon"], res["geo"]
+        else:
+            # a headline that names countries, none of them the place's own, was geocoded to the wrong place
+            # ("Pakistan says airstrikes kill militants" at Hangu, Tianjin, China)
+            named = headline_countries(title) if title else set()
+            home = pname.split(",")[-1].strip()
+            if named and not any(c == home or c.startswith(home) or home.startswith(c) for c in named):
+                continue
+            if title and headline_foreign_city(title, home):
+                continue  # "Russian airstrikes choke key bridges in Kyiv" placed at Volgograd
+            # GDELT often places a story at the wrong town in the right country; when the headline names a city there,
+            # more than 100 km away, the story moves to it
+            hc = title and headline_city(title, home)
+            if hc and math.hypot((hc[1] - plon) * math.cos(math.radians(plat)), hc[2] - plat) * 111 > 100:
+                pname, plon, plat = f"{hc[0]}, {home}", hc[1], hc[2]
+        # the same story reached through two regions (one article geocoded twice), or twice to one place
+        if urls and any(urls[0] == u or title and title == tt for u, tt, _la, _lo, _b in placed) or any(
+                abs(bb - b) <= 1 and math.hypot((lo - plon) * math.cos(math.radians(plat)), la - plat) * 111 < 40 for _u, _t, la, lo, bb in placed):
+            continue
+        placed.append((urls[0] if urls else None, title, plat, plon, b))
+        used.add((k, b))
+        per_cc[R["cc"]] = per_cc.get(R["cc"], 0) + 1
         it = {"k": "surge", "cat": "conflict", "label": "Conflict", "t": buckets[b][0], "t1": buckets[b][1], "n": pname, "cc": R["cc"],
               "lat": round(plat, 4), "lon": round(plon, 4), "e": R["n"][b] if "n" in R else len(rs), "a": R["a"][b],
               "r": roots, "z": round(score, 1), "base": round(base, 1),
               "x": [round(v) for v in R["x"]], "u": urls}
-        if title:
+        if geo:
+            it["geo"] = geo
+        if art and art.get("t"):
+            it["title"] = art["t"]
+        elif title:
             it["title"] = slug_case(title, {r[6] for r in rs})
         if actors:
             it["act"] = [a for a, _ in sorted(actors.items(), key=lambda kv: -kv[1])[:3]]
@@ -1577,6 +1607,18 @@ def run_story(args, ctx):
             uniq.append(r)
     rows2 = [r + ["", ""] for r in uniq]  # no actor columns in the 2.0 cache
     log(feed, f"GDELT 2.0: {len(rows2)} events over 14 days ({failed} slots failed)")
+    # places: GeoNames, checked against what each article says (geo_place.py); without it GDELT's place stands
+    global PLACES, ARTICLES
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import geo_place
+        PLACES = geo_place.Places(CACHE, lambda m: log(feed, m))
+        nw = PLACES.learn((t, r[7]) for r in rows2[::max(1, len(rows2) // 40000)] for t in (slug_title(r[11]),) if t)
+        ARTICLES = geo_place.Articles(CACHE, lambda m: log(feed, m), max_new=args.articles) if args.articles else None
+        log(feed, f"places: {len(PLACES.names)} GeoNames names, {nw} that are mostly words in headlines")
+    except Exception as e:  # noqa: BLE001
+        PLACES = ARTICLES = None
+        log(feed, f"warning: GeoNames unavailable, keeping GDELT's places: {type(e).__name__}: {e}")
 
     def dt14(s):
         return datetime.strptime(s, "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
@@ -1671,6 +1713,15 @@ def run_story(args, ctx):
         for it in win["items"]:
             it["tier"] = story_tier(it)
     out["tiers"] = STORY_TIERS
+    if ARTICLES:
+        log(feed, f"articles: {ARTICLES.fetched} fetched ({ARTICLES.failed} unavailable), {ARTICLES.prune()} old cache files dropped")
+    if PLACES:
+        geo = {}
+        for win in out["windows"].values():
+            for it in win["items"]:
+                if it["k"] == "surge":
+                    geo[it.get("geo", "?")] = geo.get(it.get("geo", "?"), 0) + 1
+        log(feed, f"places: {geo}")
     size = write_json(os.path.join(OUT, "story.json"), out)
     counts = {k: len(v["items"]) for k, v in out["windows"].items()}
     log(feed, f"wrote story.json: {counts}, {mb(size)}")
@@ -1689,6 +1740,8 @@ def main():
                     help="comma-separated subset of: " + ",".join(FEEDS))
     ap.add_argument("--days", type=int, default=14, help="GDELT window in days (default 14)")
     ap.add_argument("--year-days", type=int, default=30, help="GDELT 1.0 daily files to fetch per run for the storyboard's year (default 30)")
+    ap.add_argument("--articles", type=int, default=1000,
+                    help="news articles to fetch per run for the storyboard's titles and places (default 1000; 0 = none)")
     ap.add_argument("--ais-seconds", type=int, default=240, help="AIS listen time (default 240)")
     ap.add_argument("--archive", metavar="DIR", help="also add this run to the rolling archive in DIR (see archive.py)")
     ap.add_argument("--archive-budget-mb", type=float, default=1000, help="archive size cap in MB (default 1000)")

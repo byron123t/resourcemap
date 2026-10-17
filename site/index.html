@@ -486,7 +486,7 @@ details.fold > section + section { margin-top: 16px; }
         <span class="pos" id="storyPos"></span>
       </div>
       <ol class="cards" id="storyCards"></ol>
-      <p class="sum small">Conflict cards are places where conflict reports (assaults, fighting, mass violence) jumped well above their usual level, picked from GDELT's automatically coded events. The other kinds come from GDELT article searches (unrest, trade curbs, industrial accidents, blackouts, shipping, disease, harvests, cables, cloud, cyber, chips), kept only when at least two outlets report the same thing at the same place, and from USGS earthquakes and NASA EONET storms and floods. Places are read from the headline, so read the linked articles.</p>
+      <p class="sum small">Conflict cards are places where conflict reports (assaults, fighting, mass violence) jumped well above their usual level, picked from GDELT's automatically coded events. The other kinds come from GDELT article searches (unrest, trade curbs, industrial accidents, blackouts, shipping, disease, harvests, cables, cloud, cyber, chips), kept only when at least two outlets report the same thing at the same place, and from USGS earthquakes and NASA EONET storms and floods. Each conflict card is placed where its article says it happened (its title and summary, checked against GeoNames), or at GDELT's place when the article names none; cards marked approximate couldn't be checked. Read the linked articles.</p>
     </div>
     <div class="sim" id="sim" hidden>
       <button type="button" class="sim-back" id="simBack" hidden>← All scenarios</button>
@@ -4030,6 +4030,8 @@ async function simLocalCore(env, shocks) {
   const storyItems = () => storyAll().filter(it => storyTier(it) >= storyMin && (storyCat === "all" || storyKind(it) === storyCat));
   const tierBadge = it => `<span class="tier t${storyTier(it)}">${STORY_TIERS[storyTier(it) - 1][2]}</span>`;
   const storyLabel = it => it.title || it.n.split(",")[0];
+  // how the place was found (fetch_live.py, geo_place.py); the plain cases need no note
+  const STORY_GEO = { region: "region named in the article", approx: "approximate: the article doesn't confirm it" };
   const storyTok = it => STORY_KINDS[storyKind(it)] || "--ink-3";
   function storyClear() {
     storyMarkers.forEach(m => m.remove()); storyMarkers = [];
@@ -4109,7 +4111,7 @@ async function simLocalCore(env, shocks) {
     }
     const peak = it.x[B.indexOf(it.t)] || 0;
     $("storyBars").innerHTML = spark(W.total, 300, 56, B.indexOf(it.t));
-    const rows = row("When", when(it.t, it.t1, storyWin), true) + row("Place", esc(it.n)) + row("Severity", tierBadge(it)) + row("Conflict reports", fmt(it.e), true) + row("News articles", fmt(it.a), true)
+    const rows = row("When", when(it.t, it.t1, storyWin), true) + row("Place", esc(it.n) + (STORY_GEO[it.geo] ? ` <span class="m">· ${STORY_GEO[it.geo]}</span>` : "")) + row("Severity", tierBadge(it)) + row("Conflict reports", fmt(it.e), true) + row("News articles", fmt(it.a), true)
       + row("· assaults (CAMEO 18)", fmt(it.r[0]), true) + row("· fighting (19)", fmt(it.r[1]), true) + row("· mass violence (20)", fmt(it.r[2]), true)
       + row("Usual level", it.base ? `${fmt(it.base, 1)} per ${PER[storyWin]} (×${fmt(peak / it.base, 1)} here)` : "None reported before", true)
       + row("Main actors", it.act ? esc(it.act.map(a => cap(a.toLowerCase())).join(", ")) : null);
@@ -4981,6 +4983,7 @@ async function simLocalCore(env, shocks) {
     ["NASA FIRMS", "https://firms.modaps.eosdis.nasa.gov/", "fires & heat (VIIRS 375 m)", "NASA open data", "", "live:fires"],
     ["GDELT Project", "https://www.gdeltproject.org/", "conflict reports; news panel (DOC API, live)", "free with citation", "", "live:events"],
     ["GDELT 1.0 & 2.0 event files", "https://www.gdeltproject.org/data.html", "storyboard: surges by day, week and month", "free with citation", "", "live:story"],
+    ["GeoNames", "https://www.geonames.org/", "storyboard places: towns of 5,000+ and regions, to check GDELT's geocoding against each article's own title and summary", "CC BY 4.0", "", "live:story"],
     ["USNI News Fleet and Marine Tracker", "https://news.usni.org/category/fleet-tracker", "US Navy warship & carrier positions (weekly, approximate)", "© U.S. Naval Institute; summarised with links to each post", "", "live:navy"],
     ["adsb.lol", "https://adsb.lol/", "military aircraft", "ODbL", "", "live:aircraft"],
     ["adsb.lol", "https://adsb.lol/", "business jets (opted-out aircraft omitted)", "ODbL", "", "live:jets"],
