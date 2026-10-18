@@ -715,7 +715,7 @@ def aircraft_feature(a):
 def run_aircraft(args, ctx):
     feed = "aircraft"
     now = utcnow()
-    d = json.loads(http_get("https://api.adsb.lol/v2/mil", timeout=60))
+    d = json.loads(http_get("https://api.adsb.lol/v2/mil", timeout=30, retries=2))
     ac = d.get("ac") or []
     feats = [f for f in map(aircraft_feature, ac) if f]
     if not feats and not ac:
@@ -769,25 +769,34 @@ AIRLINER_TYPES = {
 }
 
 
-def fetch_types(feed, types, fname):
-    """Query adsb.lol /v2/type for each type, drop opted-out and military aircraft, write fname."""
+def fetch_types(feed, types, fname, budget=300):
+    """Query adsb.lol /v2/type for each type, drop opted-out and military aircraft, write fname.
+
+    adsb.lol sometimes stalls for minutes on every request; a run that waited it out blew the build's
+    30-minute limit, so give up on the feed after budget seconds or 4 straight failures (other than 429)."""
     now = utcnow()
     seen, feats, total, dropped, failed = set(), [], 0, 0, []
+    t0, streak = time.time(), 0
     for i, t in enumerate(types):
+        if time.time() - t0 > budget or streak >= 4:
+            failed.append(t)
+            continue
         if i:
             time.sleep(2)  # adsb.lol answers bursts with 429
         body = None
         for wait in (0, 10, 20, 40):  # back off on 429, give up on other errors
             time.sleep(wait)
             try:
-                body = http_get(f"https://api.adsb.lol/v2/type/{t}", timeout=60, retries=1)
+                body = http_get(f"https://api.adsb.lol/v2/type/{t}", timeout=20, retries=1)
                 break
             except RuntimeError as e:
                 if "429" not in str(e):
                     break
         if body is None:
             failed.append(t)
+            streak += 1
             continue
+        streak = 0
         for a in json.loads(body).get("ac") or []:
             if a.get("hex") in seen:
                 continue
