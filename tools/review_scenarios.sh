@@ -61,6 +61,22 @@ fi
 
 q() { gh pr list -R "$REPO" --head "$BRANCH" --state open --json number,headRefOid,body -q ".[0].$1 // empty"; }
 num=$(q number)
+# The workflow pushes the branch but can't open the PR when Actions may not create PRs; open it here
+# if the branch has commits main lacks and its tip isn't one an earlier (merged or closed) PR had.
+if [ -z "$num" ]; then
+  tip=$(gh api "repos/$REPO/branches/$BRANCH" -q .commit.sha 2>/dev/null || true)
+  ahead=$([ -n "$tip" ] && gh api "repos/$REPO/compare/main...$BRANCH" -q .ahead_by 2>/dev/null || echo 0)
+  if [ -n "$tip" ] && [ "${ahead:-0}" -gt 0 ] && \
+     ! gh pr list -R "$REPO" --head "$BRANCH" --state all --limit 50 --json headRefOid -q '.[].headRefOid' | grep -qx "$tip"; then
+    printf '%s\n' "Scenarios generated from this week's GDELT storyboard surges by \`pipeline/live/story_scenarios.py\`." "" \
+      "Claude review: pending (\`tools/review_scenarios.sh\`). The matching is keyword-based, so expect some noise." "" \
+      "Check the labels and shocks, then open the Scenarios panel locally to try them." "" \
+      "🤖 Generated with [Claude Code](https://claude.com/claude-code)" > "$WORK.body.md"
+    gh pr create -R "$REPO" --head "$BRANCH" --base main --title "Weekly news scenarios" --body-file "$WORK.body.md" > /dev/null
+    log "opened the scenarios PR for ${tip:0:7}"
+    num=$(q number)
+  fi
+fi
 [ -n "$num" ] || { log "no open scenarios PR"; exit 0; }
 head=$(q headRefOid); body=$(q body)
 if grep -q "<!-- reviewed: $head -->" <<<"$body"; then log "PR #$num at ${head:0:7} already reviewed"; exit 0; fi

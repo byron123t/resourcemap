@@ -12,8 +12,9 @@
 # the PR branch and adds its notes to the PR body. When the VPN or the machine is off, the PR
 # simply stays unreviewed; nothing here waits for it.
 #
-# One-time setup: Settings → Actions → General → "Allow GitHub Actions to create and approve
-# pull requests" must be on.
+# Opening the PR needs Settings → Actions → General → "Allow GitHub Actions to create and approve
+# pull requests". With that off, the branch is still pushed and tools/review_scenarios.sh opens the
+# PR with the owner's gh login on its next run; the job only fails if the branch didn't get pushed.
 name: Weekly news scenarios
 
 on:
@@ -78,6 +79,8 @@ jobs:
           } > "$RUNNER_TEMP/pr-body.md"
 
       - uses: peter-evans/create-pull-request@v7
+        id: cpr
+        continue-on-error: true
         with:
           branch: claude/scenarios-weekly
           delete-branch: true
@@ -88,3 +91,11 @@ jobs:
             Co-Authored-By: Claude Code <noreply@anthropic.com>
           title: "Weekly news scenarios"
           body-path: ${{ runner.temp }}/pr-body.md
+
+      - name: Check the branch was pushed
+        if: steps.cpr.outcome == 'failure'
+        run: |
+          # create-pull-request pushes before it asks for the PR; a refusal to open the PR is fine
+          # (review_scenarios.sh opens it), a branch that never reached GitHub is not.
+          git ls-remote --exit-code --heads origin claude/scenarios-weekly
+          echo "Branch claude/scenarios-weekly pushed; GitHub Actions may not open PRs here, so tools/review_scenarios.sh opens it (or open it by hand: https://github.com/${{ github.repository }}/compare/main...claude/scenarios-weekly)." >> "$GITHUB_STEP_SUMMARY"
