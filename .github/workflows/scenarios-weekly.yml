@@ -1,4 +1,5 @@
-# Turns the week's news surges into ready-made Scenarios and opens a PR with them.
+# Turns the news surges into ready-made Scenarios every day and opens (or refreshes) a PR with them.
+# The file and branch keep their old "weekly" names; the PR is refreshed in place until merged.
 #
 # 1. Refresh the storyboard (GDELT) and match its surges to nearby refineries, ports, LNG terminals,
 #    fields, big power plants, cable landings and chokepoints (pipeline/live/story_scenarios.py).
@@ -6,20 +7,19 @@
 #    to merge. Merging to main redeploys Pages, and the page shows the items under
 #    "In the news" (this week, month and year) in the Scenarios panel.
 #
-# The Claude review is not part of this workflow. The model gateway (LiteLLM) is only reachable
-# over the University of Michigan VPN, so tools/review_scenarios.sh runs on the owner's machine
-# from a systemd user timer: it reviews the open PR's file with Claude Code, pushes the edit to
-# the PR branch and adds its notes to the PR body. When the VPN or the machine is off, the PR
-# simply stays unreviewed; nothing here waits for it.
+# The Claude review is not part of this workflow. A Claude Code cloud routine (claude.ai/code/routines)
+# runs about an hour after this job: it reviews the open PR's file, pushes the edit to the PR branch
+# and adds its notes to the PR body. tools/review_scenarios.sh is the older local fallback (LiteLLM
+# over the UMich VPN). If neither runs, the PR simply stays unreviewed; nothing here waits for it.
 #
 # Opening the PR needs Settings → Actions → General → "Allow GitHub Actions to create and approve
-# pull requests". With that off, the branch is still pushed and tools/review_scenarios.sh opens the
-# PR with the owner's gh login on its next run; the job only fails if the branch didn't get pushed.
+# pull requests". With that off, the branch is still pushed and the review routine (or
+# tools/review_scenarios.sh) opens the PR; the job only fails if the branch didn't get pushed.
 name: Weekly news scenarios
 
 on:
   schedule:
-    - cron: "23 6 * * 1"   # Mondays 06:23 UTC
+    - cron: "23 6 * * *"   # daily 06:23 UTC; GDELT is cached by the Pages job, so this adds ~12 topic searches a day
   workflow_dispatch:
 
 permissions:
@@ -69,9 +69,9 @@ jobs:
           python3 -I pipeline/live/story_scenarios.py --check
           node --test tests/presets.test.mjs
           {
-            echo "Scenarios generated from this week's GDELT storyboard surges by \`pipeline/live/story_scenarios.py\`."
+            echo "Scenarios generated from the latest GDELT storyboard surges by \`pipeline/live/story_scenarios.py\`."
             echo
-            echo "Claude review: pending. \`tools/review_scenarios.sh\` runs on the owner's machine over the VPN and adds its notes here; until then, check each item yourself. The matching is keyword-based, so expect some noise."
+            echo "Claude review: pending. The daily review routine adds its notes here; until then, check each item yourself. The matching is keyword-based, so expect some noise."
             echo
             echo "Check the labels and shocks, then open the Scenarios panel locally to try them."
             echo
@@ -86,7 +86,7 @@ jobs:
           delete-branch: true
           add-paths: site/data/scenarios_weekly.json
           commit-message: |
-            Update this week's news scenarios
+            Update the news scenarios
 
             Co-Authored-By: Claude Code <noreply@anthropic.com>
           title: "Weekly news scenarios"
@@ -98,4 +98,4 @@ jobs:
           # create-pull-request pushes before it asks for the PR; a refusal to open the PR is fine
           # (review_scenarios.sh opens it), a branch that never reached GitHub is not.
           git ls-remote --exit-code --heads origin claude/scenarios-weekly
-          echo "Branch claude/scenarios-weekly pushed; GitHub Actions may not open PRs here, so tools/review_scenarios.sh opens it (or open it by hand: https://github.com/${{ github.repository }}/compare/main...claude/scenarios-weekly)." >> "$GITHUB_STEP_SUMMARY"
+          echo "Branch claude/scenarios-weekly pushed; GitHub Actions may not open PRs here, so the review routine opens it (or open it by hand: https://github.com/${{ github.repository }}/compare/main...claude/scenarios-weekly)." >> "$GITHUB_STEP_SUMMARY"
