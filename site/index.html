@@ -141,7 +141,7 @@ h1 { margin: 4px 0 6px; font-family: var(--f-display); font-stretch: 78%; font-w
 .offnote { margin: 6px 0 0; padding: 5px 8px; border: 1px solid var(--panel-line); border-radius: 6px; color: var(--ink-2); font-size: 12px; line-height: 1.4; }
 .offnote b { color: var(--ink); font-weight: 600; }
 .sheet-body { overflow-y: auto; padding: 10px 18px 16px; display: flex; flex-direction: column; gap: 16px; }
-.toggle-sheet { display: none; }
+.toggle-sheet, .grab { display: none; }
 
 .group-title { font-family: var(--f-display); font-stretch: 85%; font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 4px; }
 .layers { display: flex; flex-direction: column; }
@@ -222,7 +222,11 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 .err { position: absolute; inset: 0; display: grid; place-items: center; padding-inline: 24px; text-align: center; color: var(--ink-2); }
 
 @media (max-width: 720px) {
-  .sheet { top: auto; bottom: 0; left: 0; right: 0; width: auto; max-height: 60%; border-radius: 10px 10px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  /* phone: a bottom sheet at three heights (peek = title and modes, half, full); drag the handle or the head */
+  .sheet { top: auto; bottom: 0; left: 0; right: 0; width: auto; max-height: 55%; border-radius: 12px 12px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); transition: max-height .2s ease; }
+  .sheet.full { max-height: calc(100% - 56px); }
+  .grab { display: block; grid-column: 1 / -1; justify-self: center; width: 44px; height: 5px; margin: -4px 0 2px; border: 0; padding: 0; border-radius: 3px; background: var(--ink-3); opacity: .45; cursor: grab; }
+  .sheet-head { touch-action: none; user-select: none; -webkit-user-select: none; }
   .sheet.collapsed .sheet-body, .sheet.collapsed .story, .sheet.collapsed .sim { display: none; }
   .seg.mode { grid-column: 1 / -1; margin-top: 4px; }
   .sheet-head { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 8px; padding: 12px 16px 10px; }
@@ -230,12 +234,28 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
   .lede { display: none; }
   .toggle-sheet { display: block; font: inherit; font-size: 12px; padding: 6px 10px; border: 1px solid var(--panel-line); border-radius: 5px; background: transparent; color: var(--ink); cursor: pointer; }
   .sheet-body { padding-inline: 16px; }
-  .detail { top: 12px; left: 12px; right: 12px; width: auto; max-height: 38%; }
-  .maplibregl-ctrl-bottom-right { bottom: 70px; }
+  .detail { top: 10px; left: 10px; right: 10px; width: auto; max-height: calc(100% - var(--sheet-h, 120px) - 70px); }
+  /* map controls and credits ride above the sheet */
+  .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-bottom-left { bottom: var(--sheet-h, 120px); }
+  .maplibregl-ctrl-scale { display: none; }
+  /* 16 px stops iOS zooming into a focused field; bigger rows for thumbs */
+  select, input[type="search"], input[type="text"], input[type="date"], .search input { font-size: 16px; }
+  .layer { min-height: 40px; }
+  .seg button { min-height: 38px; }
+  .results button { padding-block: 9px; }
+  .close { width: 38px; height: 38px; font-size: 22px; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 
 .base-legend { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+/* "Ask Claude" examples: a prompt to copy, and the CLI command that answers it */
+.notes code, .notes pre.cmd { font-family: var(--f-mono); font-size: 11px; color: var(--ink-2); }
+.notes pre.cmd { margin: 0; padding: 7px 9px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); white-space: pre-wrap; overflow-wrap: anywhere; }
+.asks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.asks li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 6px 8px; border: 1px solid var(--panel-line); border-radius: 5px; }
+.asks q { color: var(--ink); font-size: 12px; quotes: "“" "”"; }
+.asks code { grid-column: 1; font-size: 10.5px; color: var(--ink-3); }
+.asks button { grid-row: 1 / span 2; grid-column: 2; align-self: center; font: inherit; font-size: 11px; padding: 4px 8px; border: 1px solid var(--panel-line); border-radius: 4px; background: transparent; color: var(--ink-2); cursor: pointer; }
 .base-legend .bar { display: grid; gap: 2px; }
 .base-legend .bar i { height: 10px; border-radius: 1px; }
 .base-legend .ticks { display: grid; font-size: 10.5px; color: var(--ink-2); line-height: 1.2; }
@@ -456,6 +476,7 @@ details.fold > section + section { margin-top: 16px; }
 
   <aside class="sheet" id="sheet">
     <div class="sheet-head">
+      <button type="button" class="grab" id="sheetGrab" aria-label="Resize the panel"></button>
       <div>
         <div class="eyebrow">Site-level · 2026 data</div>
         <h1>World Extraction Atlas</h1>
@@ -798,6 +819,15 @@ details.fold > section + section { margin-top: 16px; }
         <div class="sizes" id="sizes"></div>
       </section>
 
+      </details>
+
+      <details class="notes fold" id="claudeBox"><summary class="group-title">Ask Claude about this map</summary>
+        <p>The atlas comes with a command-line tool and an MCP server (<code>cli/</code>), so Claude Code can query every layer, run scenarios and send back links that open this map. Set it up once:</p>
+        <pre class="cmd">git clone https://github.com/byron123t/resourcemap
+claude mcp add atlas -- node "$PWD/resourcemap/cli/mcp.mjs"</pre>
+        <p>Then ask in plain words. Each prompt below uses the tool shown under it:</p>
+        <ul class="asks" id="claudeAsks"></ul>
+        <p>Without Claude, run the same commands yourself: <code>node cli/atlas.mjs help</code>. See <a href="https://github.com/byron123t/resourcemap#cli-and-mcp" target="_blank" rel="noopener">CLI and MCP</a> in the README.</p>
       </details>
 
       <details class="notes fold" id="notesBox"><summary class="group-title">Sources &amp; caveats</summary>
@@ -2543,6 +2573,8 @@ async function simLocalCore(env, shocks) {
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 110, unit: "metric" }), "bottom-right");
     map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: "Data: GEM, WRI, USGS, Natural Earth and others; see Sources in the sidebar" }), "bottom-right");
     keepCanvasInSync();
+    // MapLibre opens the compact credits on narrow maps; on a phone they'd cover the map, so start them folded
+    if (!wide()) map.once("load", () => document.querySelectorAll(".maplibregl-ctrl-attrib.maplibregl-compact-show").forEach(e => e.classList.remove("maplibregl-compact-show")));
     map.on("load", onLoad);
   }
 
@@ -2843,6 +2875,7 @@ async function simLocalCore(env, shocks) {
     bindImagery();
     bindAgri();
     bindWx();
+    bindClaude();
     bindStory();
     bindOnMap();
     simBind();
@@ -3180,9 +3213,52 @@ async function simLocalCore(env, shocks) {
     });
 
     const sheet = $("sheet"), tg = $("toggleSheet");
-    const setSheet = c => { sheet.classList.toggle("collapsed", c); tg.textContent = c ? "Show" : "Hide"; tg.setAttribute("aria-expanded", String(!c)); };
-    tg.addEventListener("click", () => setSheet(!sheet.classList.contains("collapsed")));
-    if (!wide()) setSheet(true);
+    tg.addEventListener("click", () => sheetTo(sheet.classList.contains("collapsed") ? "half" : "peek"));
+    // drag the head up or down (or tap the handle) to step through peek, half and full
+    const STEPS = ["peek", "half", "full"], at = () => sheet.classList.contains("collapsed") ? 0 : sheet.classList.contains("full") ? 2 : 1;
+    let y0 = null, onGrab = false;
+    const head = sheet.querySelector(".sheet-head");
+    head.addEventListener("pointerdown", e => {
+      if (wide() || e.target.closest(".seg, .toggle-sheet")) return;
+      y0 = e.clientY; onGrab = !!e.target.closest(".grab");
+      try { head.setPointerCapture(e.pointerId); } catch (err) {}   // keep the release even when the finger ends over the map
+    });
+    head.addEventListener("pointerup", e => {
+      if (y0 == null) return;
+      const dy = e.clientY - y0; y0 = null;
+      if (Math.abs(dy) > 30) sheetTo(STEPS[Math.max(0, Math.min(2, at() + (dy < 0 ? 1 : -1)))]);
+      else if (onGrab) sheetTo(STEPS[(at() + 1) % 3]);
+    });
+    head.addEventListener("pointercancel", () => { y0 = null; });
+    // the controls in the map's corner sit on top of the sheet, whatever its height
+    const sync = () => document.documentElement.style.setProperty("--sheet-h", wide() ? "0px" : sheet.offsetHeight + 8 + "px");
+    try { new ResizeObserver(sync).observe(sheet); } catch (e) {} sync(); addEventListener("resize", sync);
+    // on a phone, opening a card tucks the sheet away so the map and the card both show
+    new MutationObserver(() => { if (!detail.hidden && !wide()) sheetTo("peek"); }).observe(detail, { attributes: true, attributeFilter: ["hidden"] });
+    if (!wide()) sheetTo("peek");
+  }
+  function sheetTo(st) {
+    const sheet = $("sheet"), tg = $("toggleSheet");
+    sheet.classList.toggle("collapsed", st === "peek"); sheet.classList.toggle("full", st === "full");
+    tg.textContent = st === "peek" ? "Show" : "Hide"; tg.setAttribute("aria-expanded", String(st !== "peek"));
+  }
+
+  // ---------- "Ask Claude" examples (each command was checked against cli/atlas.mjs) ----------
+  const CLAUDE_ASKS = [
+    ["If the Strait of Hormuz closed, how much oil gets stuck and what happens to diesel? Give me a map link.", "atlas scenario choke.hormuz.100"],
+    ["What's within 30 km of Kharkiv: power plants, airports, people, water risk?", "atlas near 36.25,50.0 --km 30"],
+    ["Which countries rely most on Russian wheat?", "atlas trade wheat --from RUS"],
+    ["Do countries that censor the internet have fewer people online? Who breaks the pattern?", "atlas correlate cens net"],
+    ["List Taiwan's biggest chip fabs and open the chips view there.", "atlas query fabs --country TWN; atlas url --view chips --at 120.9,24.3,7"],
+    ["Which conflict stories this week are near refineries or ports, and what would escalation do?", "atlas news --window week; atlas scenario \"<label>\" --level esc"]
+  ];
+  function bindClaude() {
+    $("claudeAsks").innerHTML = CLAUDE_ASKS.map(([q, c], i) => `<li><q>${esc(q)}</q><code>${esc(c)}</code><button type="button" data-i="${i}">Copy</button></li>`).join("");
+    $("claudeAsks").addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      const done = t => { b.textContent = t; setTimeout(() => { b.textContent = "Copy"; }, 1500); };
+      try { navigator.clipboard.writeText(CLAUDE_ASKS[+b.dataset.i][0]).then(() => done("Copied"), () => done("Select it")); } catch (err) { done("Select it"); }
+    });
   }
 
   // ---------- size legend ----------
