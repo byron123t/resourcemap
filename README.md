@@ -230,6 +230,15 @@ Zones also re-route road and rail traffic. The model is the classic `<script id=
 
 **Farmland, land cover & people.** `AGRI` holds four GIBS rasters: SEDAC croplands and pastures (share of each cell, around 2000), MODIS IGBP land cover (yearly, 2001–2024) and GPW v4.11 population density (2020). GPW is a static layer, so it uses the `default` time. `applyAgri()` adds the chosen one under the borders, and above any satellite imagery, with its own opacity slider and legend.
 
+**Reading the map.**
+- **Shapes and colours:** refineries are squares, LNG terminals triangles and ports open diamonds (symbol layers with canvas icons from `SITE_ICONS`, sized through `icon-size` = radius ÷ `ICON_R`), so they read apart from the fields around them. Oil pipelines are brown (`--pipe-oil`), gas pipelines blue and dashed (`--gas`, also used for LNG).
+- **Sizes:** circle area follows the figure up to 18 px; above that the radius grows with the log (`squash()`, capped at 40 px), so giants still look bigger than large sites. Labels on the five largest sites in view come from `topLabels()`.
+- **Key:** a floating key (`#mapKey`, `renderSizes()`/`renderKey()`) shows only the layers that are on, with size samples that stop at each layer's largest site. Below zoom 5 with "Largest sites", it also says how many smaller sites in view are left out (`keyHidden()`).
+- **Shading:** country and basin shading fades when site layers are on and as you zoom in (`shadeFade()`, `shadeK()`).
+- **Grouped:** the third site-detail choice merges 3+ sites of one layer in a grid cell into a numbered disc below zoom 6 (`aggSplit()`). Off by default, because every site otherwise sits at its true position.
+- **Connections:** hovering or picking a field, refinery, LNG terminal, power plant or port outlines the pipelines passing within a few km, and for ports, the shipping lanes (`linksAt()`, a 0.25° vertex grid). Picking a country outlines it and dims the rest (`country-dim`), and its card shows each figure as a bar against the world's largest with its share of the world.
+- **Panel:** search comes first; views are picked by topic (`viewPicker()`, `VIEW_TOPIC`); "Hide" folds the panel to its title on desktop. In Scenarios, a bar over the map (`#simGlance`) shows each step's headline number, and each step shows its first sentence until opened.
+
 **Phones.** Under 720 px the sidebar becomes a bottom sheet with three heights: peek (title and modes), half and full. Drag its head or tap the handle to step between them; `sheetTo()` sets one. Opening a card tucks the sheet down to peek. A `ResizeObserver` keeps `--sheet-h` at the sheet's height so the zoom buttons and credits sit above it. The credits start folded, and fields use 16 px text so iOS doesn't zoom in on focus.
 
 **Ask Claude.** The sidebar's "Ask Claude about this map" box shows how to add the MCP server to Claude Code and gives example prompts, each with the `atlas` command that answers it (`CLAUDE_ASKS`). Check the commands against `cli/atlas.mjs` when you change them.
@@ -256,8 +265,8 @@ Zones also re-route road and rail traffic. The model is the classic `<script id=
 
 ## Known issues / what to fix next
 
-1. **Dense regions overlap at world zoom.** With no aggregation, the Permian, Ruhr or Pearl River Delta read as a solid blob below zoom 3. Per-country totals are in the country panel; a heat or density layer at low zoom would be the next step if that matters.
-2. **Circles are capped at 26 px** (`RC`), so the very largest sites look the same size as merely big ones. Consider a log scale or a legend note.
+1. **Dense regions still crowd at regional zoom.** The Permian or Ruhr read as a mass of dots around zoom 5–8. "Grouped" (site detail) merges them below zoom 6; above that every site is drawn.
+2. **Sizes are compressed above 18 px** (`squash()`), so circle area is only proportional to the figure for small and mid-sized sites; the key shows real values.
 3. **Data gaps:**
    - Solar, wind, hydro and nuclear come from the 2021 WRI database. Swap in the GEM Global Integrated Power Tracker (`raw/README.md` has the links).
    - The US critical-minerals set is far denser than the global one.
