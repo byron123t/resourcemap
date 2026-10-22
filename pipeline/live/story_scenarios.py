@@ -437,6 +437,12 @@ def bad_shocks(sh):
     return out
 
 
+def _views():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from view_for import views
+    return views()
+
+
 def check(doc):
     """Problems that would make the page drop an item (mirrors the loader in index.html), as strings."""
     if not isinstance(doc, dict) or not isinstance(doc.get("items"), list):
@@ -458,6 +464,8 @@ def check(doc):
                 continue
             if x.get("url") is not None and not re.match(r"https?://", str(x["url"])):
                 bad.append(f"{tag}: url must be http(s) or null")
+            if x.get("view") is not None and x["view"] not in _views():
+                bad.append(f"{tag}: view {x['view']!r} is not a key of VIEWS in site/index.html")
             sh = x.get("shocks")
             if not isinstance(sh, list) or not sh:
                 bad.append(f"{tag}: needs at least one shock")
@@ -599,6 +607,14 @@ def main():
     for w, items in wins.items():
         for x in items:
             log(f"{w}: {x['label']}: {x['trend']}, {len(x['months'])} month(s), z {x['z']}")
+    # the map view each scenario opens in (VIEW_FOR in site/index.html); the reviewer may change it
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from view_for import view_for
+    for v in wins.values():
+        for x in v:
+            if not x.get("view"):
+                x["view"] = view_for(src="sim", cat=x.get("cat", "conflict"), shocks=[s[0] for s in x.get("shocks") or []],
+                                     text=" ".join(filter(None, [x.get("label"), x.get("why")])))
     items = wins["week"]
     doc = {"updated": story["updated"], "source": "GDELT storyboard surges matched to sites within "
            f"{ENERGY_KM} km (cables {CABLE_KM} km, chokepoints {CHOKE_KM} km); see pipeline/live/story_scenarios.py",

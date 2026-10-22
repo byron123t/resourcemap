@@ -135,7 +135,7 @@ test("scenario: Hormuz closed", { skip: !HAS_ENGINE && "cli/lib/scenario.mjs not
   assert.ok(p.presets.some(x => /Hormuz/.test(x.title)));
   const r = await api.runScenario("choke.hormuz.100");
   assert.ok(r.steps.length >= 2 && r.steps[0].title);
-  assert.match(r.url, /#sim=choke\.hormuz\.100/);
+  assert.match(r.url, /#view=shipping&sim=choke\.hormuz\.100/, "opens in the view that shows it");
   const byTitle = await api.runScenario("Red Sea closed");
   assert.equal(byTitle.shocksString, "choke.bab.100;choke.suez.100");
   const k = await api.kinds();

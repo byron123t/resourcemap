@@ -217,7 +217,7 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 /* --- scenario result bar over the map --- */
 .sim-bar { position: absolute; z-index: 3; top: 16px; left: 362px; right: 340px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; pointer-events: none; }
 .sheet.collapsed ~ .sim-bar { left: 16px; }
-.sim-bar button { pointer-events: auto; flex: 0 1 auto; min-width: 0; text-align: left; font: inherit; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-top: 3px solid var(--panel-line); border-radius: 5px; padding: 5px 9px; cursor: pointer; box-shadow: 0 3px 12px rgb(0 0 0 / .12); display: flex; flex-direction: column; }
+.sim-bar button { pointer-events: auto; flex: none; text-align: left; font: inherit; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-top: 3px solid var(--panel-line); border-radius: 5px; padding: 5px 9px; cursor: pointer; box-shadow: 0 3px 12px rgb(0 0 0 / .12); display: flex; flex-direction: column; }
 .sim-bar button[aria-current="true"] { border-top-color: var(--sim-down); }
 .sim-bar .ttl { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: .03em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
 .sim-bar .big { font-family: var(--f-display); font-stretch: 85%; font-size: 16px; font-weight: 700; color: var(--sim-down); white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -239,6 +239,8 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 .kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .kv dd.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .kv .rank { color: var(--ink-3); font-size: 11px; }
+.viewgo { padding: 0 16px 10px; }
+.viewgo button { font: inherit; font-size: 12px; padding: 5px 9px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
 .kv .cbar { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px; margin-top: 2px; }
 .kv .cbar i { display: block; height: 4px; border-radius: 2px; background: var(--ink-2); opacity: .55; }
 .kv .cbar em { font-style: normal; font-size: 10px; color: var(--ink-3); font-family: var(--f-mono); }
@@ -814,7 +816,7 @@ details.fold > section + section { margin-top: 16px; }
           <label class="layer"><input type="checkbox" id="lyr-terrain"><svg class="sw" viewBox="0 0 14 14"><path d="M1 12l4-7 2.5 3.5L9.5 5l3.5 7z" fill="var(--hs-shadow)" stroke="var(--ink-3)" stroke-width=".8" stroke-linejoin="round"/></svg><span class="name">Terrain shading<small>hillshade from elevation tiles</small></span></label>
           <label class="layer"><input type="checkbox" id="lyr-lakes"><svg class="sw" viewBox="0 0 14 14"><path d="M2 8c0-4 4-6 7-5s4 4 2 7-9 3-9-2z" fill="var(--water)" stroke="var(--river)"/></svg><span class="name">Lakes &amp; reservoirs</span><span class="count" id="n-lakes"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-ice"><svg class="sw" viewBox="0 0 14 14"><rect x="1.5" y="2.5" width="11" height="9" fill="var(--ice)" stroke="var(--ice-line)"/></svg><span class="name">Glaciers &amp; ice sheets</span><span class="count" id="n-ice"></span></label>
-          <label class="layer"><input type="checkbox" id="lyr-names" checked><svg class="sw" viewBox="0 0 14 14"><path d="M1 3h5v4h7" fill="none" stroke="var(--border)" stroke-width="1.5"/><text x="2" y="13" font-size="7" font-weight="700" fill="var(--ink-2)">AB</text></svg><span class="name">Borders &amp; place names</span></label>
+          <label class="layer"><input type="checkbox" id="lyr-names" checked><svg class="sw" viewBox="0 0 14 14"><path d="M1 3h5v4h7" fill="none" stroke="var(--border)" stroke-width="1.5"/><text x="2" y="13" font-size="7" font-weight="700" fill="var(--ink-2)">AB</text></svg><span class="name">Place names<small>borders always show</small></span></label>
           <label class="layer"><input type="checkbox" id="lyr-disputed" checked><svg class="sw" viewBox="0 0 14 14"><defs><pattern id="hp" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0v4" stroke="var(--disputed)" stroke-width="1.5"/></pattern></defs><rect x="1" y="2" width="12" height="10" fill="url(#hp)" stroke="var(--disputed)" stroke-dasharray="2 1.5"/></svg><span class="name">Disputed territories</span><span class="count" id="n-disputed"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-maritime" checked><svg class="sw" viewBox="0 0 14 14"><path d="M1 7h12" stroke="var(--sea-ink)" stroke-width="1.5" stroke-dasharray="1 2.5" stroke-linecap="round"/></svg><span class="name">Maritime boundaries</span></label>
         </div>
@@ -1586,6 +1588,56 @@ onmessage = async ev => {
 //   env.domains() -> Promise of domains.json; env.pop(lon, lat, km) -> Promise of people; env.country(iso3) -> name
 //   env.traffic(zones) -> Promise of a #simTransport result with .names (city names) and .parts {road, rail}
 //   env.basins() -> Promise of {B: basins.json, WB: {wr, ws}, at(x, y, tol): basin index, box: [[x0, y0, x1, y1]]}
+// Which map view (a key of VIEWS) best shows a story or a scenario. Rules are tried in order and the first match wins;
+// a rule matches when every key it has matches: src ("story" or "sim"), kind (storyboard kind), cat (news category),
+// shock (any of the shock kinds), text (case-insensitive regex on the title, label and why). Shared with the CLI
+// (cli/lib/page.mjs) and with pipeline/live/view_for.py, which parses this literal as JSON, so keep it plain JSON.
+const VIEW_FOR = [
+  {"cat": ["quake", "storm", "flood"], "view": "disasters"},
+  {"cat": ["fire", "wildfire"], "view": "fire"},
+  {"text": "wildfire|bushfire|(forest|grass|brush) ?fire", "view": "fire"},
+  {"src": "sim", "shock": ["outbreak"], "view": "bio"},
+  {"cat": ["outbreak"], "view": "healthnews"},
+  {"src": "sim", "shock": ["crop"], "view": "food"},
+  {"cat": ["animal", "harvest"], "view": "foodnews"},
+  {"cat": ["cyber"], "view": "cybernews"},
+  {"cat": ["cloud"], "view": "internet"},
+  {"shock": ["cloud"], "view": "internet"},
+  {"cat": ["cable"], "view": "cablesnavy"},
+  {"shock": ["cable"], "view": "cablesnavy"},
+  {"cat": ["chips"], "view": "chips"},
+  {"shock": ["fab", "chip"], "view": "chips"},
+  {"shock": ["water"], "view": "water"},
+  {"shock": ["choke", "port"], "view": "shipping"},
+  {"shock": ["power"], "view": "grid"},
+  {"shock": ["mine"], "view": "supply"},
+  {"shock": ["refinery", "field", "pipeline", "lng"], "view": "oil"},
+  {"kind": ["Disasters"], "view": "disasters"},
+  {"kind": ["Health"], "view": "healthnews"},
+  {"kind": ["Food & farms"], "view": "foodnews"},
+  {"kind": ["Cyber & internet"], "view": "cybernews"},
+  {"kind": ["Trade"], "view": "tradecurbs"},
+  {"kind": ["Shipping"], "view": "shipping"},
+  {"kind": ["Unrest"], "view": "unrest"},
+  {"kind": ["Industry & energy"], "text": "explosion|blast|leak|spill|accident|collapse|\\bfire", "view": "hazards"},
+  {"kind": ["Industry & energy"], "view": "oil"},
+  {"text": "migrant|smuggl|capsiz|border crossing", "view": "borders"},
+  {"text": "\\b(refiner\\w*|oil|gas|pipelines?|power|grid|plants?|ports?|terminals?|depots?|dams?|substations?|energy|fuel)\\b", "view": "warinfra"},
+  {"view": "security"}
+];
+// ctx: { src, kind, cat, shocks: [kind, ...], text }
+function viewFor(ctx, rules = VIEW_FOR) {
+  const sh = ctx.shocks || [], t = ctx.text || "";
+  for (const r of rules) {
+    if (r.src && r.src !== ctx.src) continue;
+    if (r.kind && !r.kind.includes(ctx.kind)) continue;
+    if (r.cat && !r.cat.includes(ctx.cat)) continue;
+    if (r.shock && !sh.some(k => r.shock.includes(k))) continue;
+    if (r.text && !new RegExp(r.text, "i").test(t)) continue;
+    return r.view;
+  }
+  return "overview";
+}
 const CHIP_CAT = { litho: "Lithography", wafer: "Silicon wafers", chem: "Chip chemicals", gas: "Speciality gas", quartz: "High-purity quartz", packaging: "Chip packaging", mineral: "Chip minerals" };
 const cFmt = (v, d = 0) => v == null ? "–" : Number(v).toLocaleString("en-US", { maximumFractionDigits: d });
 const cSmart = v => v == null ? "–" : v >= 100 ? cFmt(v) : v >= 10 ? cFmt(v, 1) : v >= 1 ? cFmt(v, 2) : cFmt(v, 3);
@@ -2233,7 +2285,7 @@ async function simLocalCore(env, shocks) {
     osm: { layers: ["osm-water", "osm-bldg", "osm-case", "osm-street", "osm-rail", "osm-names"], data: [] },
     choke: { layers: [], data: ["chokepoints"] }, rivers: { layers: ["rivers"], data: ["rivers"] },
     terrain: { layers: ["hillshade"], data: [] }, lakes: { layers: ["lakes", "lakes-line"], data: ["lakes"] }, ice: { layers: ["glaciers"], data: ["glaciers"] },
-    names: { layers: ["borders"], data: [] }, disputed: { layers: ["disputed", "disputed-edge", "disputed-lines"], data: [] }, maritime: { layers: ["maritime"], data: [] },
+    names: { layers: [], data: [] }, disputed: { layers: ["disputed", "disputed-edge", "disputed-lines"], data: [] }, maritime: { layers: ["maritime"], data: [] },
     fires: { layers: ["fires-pts"], data: ["fires"] }, events: { layers: ["events-pts"], data: ["events"] },
     ships: { layers: ["ships-pts"], data: ["ships"] }, aircraft: { layers: ["aircraft-pts"], data: ["aircraft"] }, jets: { layers: ["jets-pts"], data: ["jets"] }, airliners: { layers: ["airliners-pts"], data: ["airliners"] }, navy: { layers: ["navy-pts"], data: ["navy"] },
     cables: { layers: ["cables", "cables-plan", "landings-pts"], data: ["cables", "landings"] },
@@ -2732,7 +2784,9 @@ async function simLocalCore(env, shocks) {
     L({ id: "disputed-edge", type: "line", source: "disputed", minzoom: 4, layout: { "line-join": "round" },
       paint: { "line-color": css("--disputed"), "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.6, 8, 1.4, 12, 2], "line-opacity": ["interpolate", ["linear"], ["zoom"], 4, 0, 6, 0.55] } });
     L({ id: "maritime", type: "line", source: "maritime", layout: { "line-cap": "round" }, paint: { "line-color": css("--sea-ink"), "line-width": 1.1, "line-dasharray": [0.2, 2.5], "line-opacity": 0.8 } });
-    L({ id: "borders", type: "line", source: "borders", layout: { "line-join": "round" }, paint: { "line-color": css("--border"), "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.5, 6, 1.1, 10, 1.6] } });
+    // country borders show in every view and mode; a soft halo keeps them readable over imagery and strong shading
+    L({ id: "borders-case", type: "line", source: "borders", layout: { "line-join": "round" }, paint: { "line-color": css("--halo"), "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1.6, 6, 3, 10, 4], "line-opacity": 0.55 } });
+    L({ id: "borders", type: "line", source: "borders", layout: { "line-join": "round" }, paint: { "line-color": css("--border"), "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.6, 6, 1.3, 10, 1.8] } });
     L({ id: "disputed-lines", type: "line", source: "disputed_lines", paint: { "line-color": css("--disputed"), "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1.1, 6, 1.4, 10, 2], "line-dasharray": [3, 2] } });
     L({ id: "country-sel", type: "line", source: "countries", filter: ["==", ["get", "k"], "__none__"], paint: { "line-color": css("--ink"), "line-width": 2 } });
     // 3b. OpenStreetMap streets and names: above the borders and any satellite imagery (a hybrid map), below every data layer
@@ -2945,7 +2999,9 @@ async function simLocalCore(env, shocks) {
     if (at.length && isFinite(at[0]) && isFinite(at[1])) map.jumpTo({ center: [at[0], at[1]], zoom: isFinite(at[2]) ? Math.min(17, at[2]) : 8 });
     map.on("zoomend", renderSizes);
     map.on("moveend", keyLater); map.on("moveend", topLater); map.on("zoomend", aggZoom);
-    $("simGlance").addEventListener("click", e => { const b = e.target.closest("button[data-i]"); if (b) { simPlay(false); simShowStep(+b.dataset.i, true); } });
+    $("simGlance").addEventListener("click", e => {
+      const v = e.target.closest("button[data-view]"); if (v) { const b = simShockBox(simShocks); openInView(v.dataset.view); if (b) simFit(b, simShocks.some(s => s.k === "zone") ? 7 : 5); return; }
+      const b = e.target.closest("button[data-i]"); if (b) { simPlay(false); simShowStep(+b.dataset.i, true); } });
     $("keyToggle").addEventListener("click", () => { const k = $("mapKey"), shut = k.classList.toggle("shut"); $("keyToggle").setAttribute("aria-expanded", String(!shut)); });
     if (!wide()) { $("mapKey").classList.add("shut"); $("keyToggle").setAttribute("aria-expanded", "false"); }
   }
@@ -4399,6 +4455,19 @@ async function simLocalCore(env, shocks) {
       map.fitBounds(b, { padding: { top: 60, bottom: 60, left: wide() ? 400 : 30, right: wide() ? 60 : 30 }, maxZoom: 4, duration: 800 });
     }
   }
+  // The map view that best shows a story (VIEW_FOR in #simCore); the pipeline may have set one already (it.view).
+  // In the storyboard and scenarios the map shows the mode's own few layers plus that view's.
+  const storyView = it => VIEWS[it.view] ? it.view : viewFor({ src: "story", kind: storyKind(it), cat: it.cat, text: [it.title, it.n].filter(Boolean).join(" ") });
+  function modeLayers(base, v) {
+    const want = new Set(base.concat(VIEWS[v] ? VIEWS[v].on : []));
+    VIEW_KEYS.forEach(k => { const c = $("lyr-" + k), on = want.has(k); if (c.checked !== on) { c.checked = on; applyGroup(k); } });
+  }
+  // leave the storyboard or scenarios for the map, in a view, at a place
+  function openInView(v, c, z) {
+    setMode("map"); setView(v);
+    if (c) map.flyTo({ center: c, zoom: z || Math.max(5, map.getZoom()), padding: { left: wide() ? 370 : 0, right: 0, top: 0, bottom: wide() ? 0 : innerHeight * 0.3 } });
+  }
+  const viewBtn = (v, id) => VIEWS[v] ? `<div class="viewgo"><button type="button" class="sm" id="${id}">Open the map in “${esc(VIEWS[v].label.split(":")[0])}” view →</button></div>` : "";
   function storyGo(i, fly) {
     const items = storyItems(), it = items[i]; if (!it) return;
     storyCur = i;
@@ -4407,6 +4476,8 @@ async function simLocalCore(env, shocks) {
     storyMarkers.forEach((m, j) => m.getElement().classList.toggle("on", j === i));
     storyFC.features.forEach(f => f.properties.on = f.properties.i === i); map.getSource("story").setData(storyFC);
     $("storyPos").textContent = `${i + 1} / ${items.length}`;
+    const sv = storyView(it); modeLayers(STORY_LAYERS, sv);
+    const goView = () => { const b = $("storyViewGo"); if (b) b.onclick = () => openInView(sv, [it.lon, it.lat], 6); };
     if (fly) map.flyTo({ center: [it.lon, it.lat], zoom: Math.max(4.5, Math.min(map.getZoom(), 6)), padding: { left: wide() ? 370 : 0, right: wide() ? 340 : 0, top: 0, bottom: wide() ? 0 : innerHeight * 0.4 }, speed: 1.4 });
     const W = DATA.story.windows[storyWin], B = W.buckets;
     const links = (it.u || []).map(u => { let h = u; try { h = new URL(u).hostname.replace(/^www\./, ""); } catch (e) {} return link(u, h); }).join("");
@@ -4417,8 +4488,8 @@ async function simLocalCore(env, shocks) {
       openDetail(`Storyboard · ${kindName(storyKind(it))} · ${i + 1} of ${items.length}`, `var(${storyTok(it)})`, storyLabel(it),
         row("When", it.t === it.t1 ? mdy(it.t) : `${mdy(it.t)} – ${mdy(it.t1)}`) + row("Place", esc(it.n)) + row("Kind", esc(kindName(storyKind(it)))) + row("Severity", tierBadge(it))
         + (it.d > 1 ? row("Articles", fmt(it.a), true) + row("Outlets", fmt(it.d), true) : ""),
-        src, (links ? `<ul class="links">${links}</ul>` : "") + newsBlock());
-      detail.dataset.story = "1";
+        src, viewBtn(sv, "storyViewGo") + (links ? `<ul class="links">${links}</ul>` : "") + newsBlock());
+      detail.dataset.story = "1"; goView();
       loadNews(it.n.split(",")[0], it.cat === "quake" || it.cat === "storm" || it.cat === "flood" ? "(earthquake OR storm OR flood OR damage)" : undefined);
       return;
     }
@@ -4430,8 +4501,8 @@ async function simLocalCore(env, shocks) {
       + row("Main actors", it.act ? esc(it.act.map(a => cap(a.toLowerCase())).join(", ")) : null);
     openDetail(`Storyboard · ${i + 1} of ${items.length}`, "var(--conflict)", storyLabel(it), rows,
       "GDELT codes events from news articles automatically. The headline is the most-cited article's title and may describe a different event in the same place.",
-      `<div class="sec" style="margin:10px 18px 0">This place over the past ${storyWin}</div><div class="story-spark">${spark(it.x, 300, 40, B.indexOf(it.t))}</div>` + (links ? `<ul class="links">${links}</ul>` : "") + newsBlock());
-    detail.dataset.story = "1";
+      `<div class="sec" style="margin:10px 18px 0">This place over the past ${storyWin}</div><div class="story-spark">${spark(it.x, 300, 40, B.indexOf(it.t))}</div>` + viewBtn(sv, "storyViewGo") + (links ? `<ul class="links">${links}</ul>` : "") + newsBlock());
+    detail.dataset.story = "1"; goView();
     loadNews(it.n.split(",")[0]);
   }
   function storyStep(d) {
@@ -4766,8 +4837,9 @@ async function simLocalCore(env, shocks) {
   }
   function simHash() {
     try {
-      const toks = location.hash.slice(1).split("&").filter(t => t && !t.startsWith("sim="));
-      if (curMode === "sim" && simShocks.length) toks.push("sim=" + simShocks.map(simTok).join(";"));
+      // a scenario link opens in the scenario's view, so "back to the map" lands somewhere that shows it
+      const sim = curMode === "sim" && simShocks.length, toks = location.hash.slice(1).split("&").filter(t => t && !t.startsWith("sim=") && !(sim && t.startsWith("view=")));
+      if (sim) toks.push("view=" + simView(), "sim=" + simShocks.map(simTok).join(";"));
       history.replaceState(null, "", "#" + toks.join("&"));
     } catch (e) {}
   }
@@ -5123,11 +5195,19 @@ async function simLocalCore(env, shocks) {
     simShowStep(i, false, apply);
   }
   let simCur = "", simSwipeT = 0;
+  // the view that best shows the scenario: a news item's own pick, else VIEW_FOR from its category and shock kinds
+  function simView() {
+    const x = simNews && simNews.x;
+    if (x && VIEWS[x.view]) return x.view;
+    return viewFor({ src: "sim", cat: x && x.cat, shocks: simShocks.map(s => s.k), text: x ? [x.label, x.why].join(" ") : simShocks.map(s => s.n || "").join(" ") });
+  }
   // the result at a glance, floating over the map: each step's headline number; click one to go to it
   function simBarRender() {
     const bar = $("simGlance"), on = curMode === "sim" && simSteps.length >= 2 && !$("simFlow").hidden;
     bar.hidden = !on; if (!on) return;
-    bar.innerHTML = simSteps.map((st, i) => `<button type="button" data-i="${i}" aria-current="${i === simStep}"><span class="ttl">${esc(st.title)}</span><span class="big ${st.cls || ""}">${esc(st.big)}</span></button>`).join("");
+    const v = simView();
+    bar.innerHTML = simSteps.map((st, i) => `<button type="button" data-i="${i}" aria-current="${i === simStep}"><span class="ttl">${esc(st.title)}</span><span class="big ${st.cls || ""}">${esc(st.big)}</span></button>`).join("")
+      + (VIEWS[v] ? `<button type="button" class="vgo" data-view="${v}"><span class="ttl">Map view</span><span class="big k">${esc(VIEWS[v].label.split(":")[0])} →</span></button>` : "");
   }
   // show a step: highlight it, switch on its layers (apply), shade its countries, and move the map to it (move)
   function simShowStep(i, move, apply = true) {
@@ -5141,7 +5221,8 @@ async function simLocalCore(env, shocks) {
     else if (card && move) card.scrollIntoView({ block: "nearest", behavior: "smooth" });
     $("simPos").textContent = `${i + 1} / ${simSteps.length}`;
     if (apply) {
-      VIEW_KEYS.forEach(k => { const c = $("lyr-" + k), on = st.on.includes(k) || k === "lakes"; if (c.checked !== on) { c.checked = on; applyGroup(k); } });
+      // the first step ("what's hit") opens in the scenario's view; later steps show just what they're about
+      modeLayers(st.on.concat(["lakes"]), i === 0 ? simView() : null);
       const ag = st.agri || simAgri0 || "";
       if ($("agri").value !== ag) { $("agri").value = ag; applyAgri(); }
       simChips();
@@ -5426,7 +5507,7 @@ async function simLocalCore(env, shocks) {
     set("osm-case", "line-color", css("--street-case")); set("osm-street", "line-color", ["match", ["get", "class"], ["motorway", "trunk", "primary"], css("--street-major"), css("--street")]);
     set("osm-rail", "line-color", css("--rail")); set("osm-names", "text-color", css("--street-ink")); set("osm-names", "text-halo-color", css("--halo"));
     set("lakes", "fill-color", css("--water")); set("lakes-line", "line-color", css("--river")); set("rivers", "line-color", css("--river"));
-    set("maritime", "line-color", css("--sea-ink")); set("borders", "line-color", css("--border")); set("disputed-lines", "line-color", css("--disputed")); set("disputed-edge", "line-color", css("--disputed"));
+    set("maritime", "line-color", css("--sea-ink")); set("borders", "line-color", css("--border")); set("borders-case", "line-color", css("--halo")); set("disputed-lines", "line-color", css("--disputed")); set("disputed-edge", "line-color", css("--disputed"));
     set("lanes", "line-color", css("--lane")); set("roads", "line-color", css("--road")); set("rail", "line-color", css("--rail")); set("rail-ties", "line-color", css("--rail-tie"));
     Object.entries(SITE_ICONS()).forEach(([id, a]) => map.updateImage(id, siteIcon(...a)));
     set("gw-major", "line-color", css("--gw")); set("gw-mining", "circle-color", css("--panel")); set("gw-mining", "circle-stroke-color", css("--stress"));

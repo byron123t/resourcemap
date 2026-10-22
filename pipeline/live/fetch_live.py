@@ -1731,6 +1731,16 @@ def run_story(args, ctx):
                 if it["k"] == "surge":
                     geo[it.get("geo", "?")] = geo.get(it.get("geo", "?"), 0) + 1
         log(feed, f"places: {geo}")
+    # the map view that best shows each story (VIEW_FOR in site/index.html), for the page, the CLI and the reviewer
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from view_for import view_for
+        for win in out["windows"].values():
+            for it in win["items"]:
+                it["view"] = view_for(src="story", kind=it.get("label") or "Conflict", cat=it.get("cat"),
+                                      text=" ".join(filter(None, [it.get("title"), it.get("n")])))
+    except Exception as e:  # noqa: BLE001 - the page picks a view itself when the field is missing
+        log(feed, f"views: {type(e).__name__}: {e}")
     size = write_json(os.path.join(OUT, "story.json"), out)
     counts = {k: len(v["items"]) for k, v in out["windows"].items()}
     log(feed, f"wrote story.json: {counts}, {mb(size)}")

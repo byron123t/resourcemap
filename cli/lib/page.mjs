@@ -16,7 +16,7 @@ export const INDEX = process.env.ATLAS_INDEX || path.join(REPO, "site", "index.h
 
 // the constants the CLI depends on; tests check that each one still extracts
 export const REQUIRED = ["FILES", "GROUPS", "VIEWS", "VIEW_KEYS", "VIEW_DEFAULT", "CHORO", "SOURCES", "Q", "EXTRA",
-  "SIM_KIND", "SIM_CHOKE", "SIM_GROUPS", "SIM_NEWS", "LIVE"];
+  "SIM_KIND", "SIM_CHOKE", "SIM_GROUPS", "SIM_NEWS", "LIVE", "VIEW_FOR"];
 
 let html = null, ctx = null;
 const cache = new Map();
@@ -180,6 +180,10 @@ function evaluate(name, depth = 0) {
 // Public: a page constant by name (evaluated once). Throws if it can't be found or evaluated.
 export function pageConst(name) { return evaluate(name); }
 export function hasConst(name) { return !!constSource(name, { quiet: true }); }
+
+// The map view (a VIEWS key) that best shows a story or scenario, by the page's own rules (VIEW_FOR, viewFor).
+// ctx: { src: "story" | "sim", kind, cat, shocks: [kind...], text }
+export function viewFor(ctx) { evaluate("VIEW_FOR"); return evaluate("viewFor")(ctx); }
 
 // named getters for the constants the CLI uses
 export const page = {};

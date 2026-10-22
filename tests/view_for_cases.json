@@ -1,0 +1,221 @@
+[
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Conflict",
+   "text": "Drone strike hits oil refinery in Ryazan"
+  },
+  "view": "warinfra"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Conflict",
+   "text": "Clashes in the city of Taiz"
+  },
+  "view": "security"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Unrest",
+   "text": "Protesters block roads in Nairobi"
+  },
+  "view": "unrest"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Disasters",
+   "cat": "quake",
+   "text": "M6.4 earthquake near Hualien"
+  },
+  "view": "disasters"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Industry & energy",
+   "text": "Explosion at chemical plant"
+  },
+  "view": "hazards"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Industry & energy",
+   "text": "OPEC cuts output"
+  },
+  "view": "oil"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Trade",
+   "text": "New export curbs on gallium"
+  },
+  "view": "tradecurbs"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Shipping",
+   "text": "Tanker seized in the Gulf"
+  },
+  "view": "shipping"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Health",
+   "cat": "outbreak",
+   "text": "Cholera outbreak"
+  },
+  "view": "healthnews"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Cyber & internet",
+   "cat": "cable",
+   "text": "Cable cut in the Red Sea"
+  },
+  "view": "cablesnavy"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "shocks": [
+    "choke"
+   ],
+   "text": "Strait of Hormuz"
+  },
+  "view": "shipping"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "shocks": [
+    "refinery"
+   ],
+   "text": "Jamnagar offline"
+  },
+  "view": "oil"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "cat": "conflict",
+   "shocks": [
+    "zone"
+   ],
+   "text": "Attacks near Riyadh. Saudi Aramco Riyadh Refinery and power plants nearby."
+  },
+  "view": "warinfra"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "cat": "conflict",
+   "shocks": [
+    "zone"
+   ],
+   "text": "Fighting near Sanaa"
+  },
+  "view": "security"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "cat": "storm",
+   "shocks": [
+    "zone"
+   ],
+   "text": "Hurricane Simon"
+  },
+  "view": "disasters"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "shocks": [
+    "outbreak"
+   ],
+   "text": "Pandemic flu"
+  },
+  "view": "bio"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "cat": "harvest",
+   "shocks": [
+    "crop"
+   ],
+   "text": "Wheat rust in Ukraine"
+  },
+  "view": "food"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "shocks": [
+    "fab"
+   ],
+   "text": "Taiwan fabs"
+  },
+  "view": "chips"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "shocks": [
+    "water"
+   ],
+   "text": "Indus drought"
+  },
+  "view": "water"
+ },
+ {
+  "ctx": {
+   "src": "sim",
+   "shocks": [
+    "power"
+   ],
+   "text": "Plant offline"
+  },
+  "view": "grid"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Conflict",
+   "text": "Grass fire at Canadian military base kills 4 soldiers"
+  },
+  "view": "fire"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Conflict",
+   "text": "Capsizings cause the deaths of 12 migrants off Greek islands"
+  },
+  "view": "borders"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Conflict",
+   "text": "Drones hit the Amsterdam port of Damietta"
+  },
+  "view": "warinfra"
+ },
+ {
+  "ctx": {
+   "src": "story",
+   "kind": "Conflict",
+   "text": "Gunmen attack a village near Damaturu"
+  },
+  "view": "security"
+ }
+]

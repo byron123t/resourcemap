@@ -220,11 +220,12 @@ async function cmdViews(a, f) {
   if (f.json) return json(r);
   let g = null;
   for (const v of r.views) {
-    if (v.group !== g) { out((g ? "\n" : "") + bold(v.group)); g = v.group; }
+    if (v.group !== g) { out((g ? "\n" : "") + bold(v.group) + dim(v.topic && v.topic !== v.group ? `  (topic "${v.topic}" in the page)` : "")); g = v.group; }
     out(`  ${cyan(v.key.padEnd(13))} ${v.label}${v.shading ? dim(" · shading: " + v.shading.label) : ""}`);
     out(dim(`  ${"".padEnd(13)} layers: ${v.layers.join(", ")}`));
   }
   out(dim(`\nOpen one: atlas view <key> --url`));
+  out(dim(`Stories and scenarios open in the first view whose rule matches (VIEW_FOR in site/index.html; --json lists the rules).`));
 }
 async function cmdView(a, f) {
   const v = api.view(need(a[0], "view", "view key"), { site: f.site });
@@ -304,7 +305,7 @@ async function cmdLive(a, f) {
     out(dim("kinds: " + Object.entries(r.kinds || {}).map(([k, n]) => `${k} ${n}`).join(" · ") + "  (filter with --kind)"));
     out(dim("severity: " + Object.entries(r.tiers || {}).map(([k, n]) => `${k} ${n}`).join(" · ") + "  (filter with --min-tier, e.g. incident)"));
     table(r.items, [{ key: "severity", head: "severity", max: 9 }, { key: "kind", head: "kind", max: 17 }, { key: "title", head: "headline", max: 50 }, { key: "place", head: "place", max: 26 }, { get: x => (x.when || "").slice(0, 10), head: "when" },
-      { get: x => x.reports != null ? x.reports : x.outlets != null ? `${x.outlets} outlets` : "", head: "reports", num: true }]);
+      { get: x => x.reports != null ? x.reports : x.outlets != null ? `${x.outlets} outlets` : "", head: "reports", num: true }, { key: "view", head: "map view", max: 12 }]);
     return;
   }
   if (r.manifest) out(dim(`${r.manifest.source} · updated ${r.manifest.updated} (${r.manifest.age} ago)\n`));
@@ -329,6 +330,7 @@ async function cmdNews(a, f) {
     if (x.why) out("   " + x.why);
     for (const l of ["de", "cur", "esc"]) if (x.lv?.[l]) out(dim(`   ${l.padEnd(3)} `) + x.lv[l]);
     if (x.url) out(dim("   " + x.url));
+    if (x.view) out(dim("   map view: " + x.view));
   });
 }
 async function cmdKinds(a, f) {
@@ -364,7 +366,8 @@ async function cmdScenario(a, f) {
   }
   if (r.facts?.length) { out("\n" + bold("Details")); for (const x of r.facts) out("  • " + x); }
   if (r.notes?.length) { out(""); for (const x of r.notes) out(dim("  " + x)); }
-  out("\n" + cyan(r.url));
+  if (r.view) out("\n" + dim(`map view: ${r.view}${r.viewLabel ? " (" + r.viewLabel + ")" : ""}`));
+  out((r.view ? "" : "\n") + cyan(r.url));
 }
 async function cmdUrl(a, f) {
   const [lon, lat, zoom] = f.at ? String(f.at).split(",").map(Number) : [];

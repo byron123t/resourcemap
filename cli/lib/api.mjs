@@ -1,6 +1,6 @@
 // Every CLI command and MCP tool is one function here. Each returns plain JSON-able data;
 // cli/atlas.mjs formats it for a terminal and cli/mcp.mjs hands it to an agent.
-import { page, pageConst, stripHtml, baseOptions } from "./page.mjs";
+import { page, pageConst, stripHtml, baseOptions, viewFor } from "./page.mjs";
 import {
   AtlasError, loadJSON, loadLayer, layerRegistry, resolveLayer, layerCatalogue, fieldSummary, fieldDocs, record, nameOf,
   distanceKm, inBbox, haversine, parseWhere, compareBy, resolveCountry, countryTest, countries, mergedTotals, norm, isNum,
@@ -312,12 +312,13 @@ export async function correlate(fa, fb, { minPop = 1e6, top = 8 } = {}) {
 // ---------- views ----------
 const viewRow = (key, v, site) => {
   const base = v.base ? baseOptions().find(b => b.value === v.base) : null;
-  return { key, group: v.g, label: v.label, layers: v.on || [], data: [...new Set((v.on || []).flatMap(k => (page.GROUPS[k] && page.GROUPS[k].data.length ? page.GROUPS[k].data : [])))], shading: v.base ? { value: v.base, label: base?.label || v.base } : null,
+  return { key, group: v.g, topic: (pageConst("VIEW_TOPIC") || {})[v.g] || v.g, label: v.label, layers: v.on || [], data: [...new Set((v.on || []).flatMap(k => (page.GROUPS[k] && page.GROUPS[k].data.length ? page.GROUPS[k].data : [])))], shading: v.base ? { value: v.base, label: base?.label || v.base } : null,
     filters: Object.fromEntries(["fuel", "mineral", "fire", "bases", "air", "status", "img", "agri"].filter(f => v[f] != null && v[f] !== page.VIEW_DEFAULT[f]).map(f => [f, v[f]])),
     big: v.big || null, note: stripHtml(v.note), connection: stripHtml(v.x), go: v.go ? { label: v.go.label, ...(v.go.c ? { lon: v.go.c[0], lat: v.go.c[1], zoom: v.go.z } : {}) } : null,
     url: siteUrl(site) + "#view=" + key };
 };
-export function views({ site } = {}) { return { views: Object.entries(page.VIEWS).map(([k, v]) => viewRow(k, v, site)) }; }
+// rules: how stories and scenarios pick a view (VIEW_FOR in the page; first match wins)
+export function views({ site } = {}) { return { views: Object.entries(page.VIEWS).map(([k, v]) => viewRow(k, v, site)), rules: page.VIEW_FOR }; }
 export function view(key, { site } = {}) {
   const v = page.VIEWS[key];
   if (!v) {
@@ -391,7 +392,9 @@ export async function live(feed, o = {}) {
     const kinds = {}, tiers = {};
     (W.items || []).forEach(x => { kinds[kind(x)] = (kinds[kind(x)] || 0) + 1; tiers[TIERS[tier(x)]] = (tiers[TIERS[tier(x)]] || 0) + 1; });
     return { feed, window: w, updated: s.updated, buckets: W.buckets?.length, kinds, tiers, items: all.slice().sort((a, b) => rank(b) - rank(a)).slice(0, lim)
-      .map(x => ({ tier: tier(x), severity: TIERS[tier(x)], kind: kind(x), title: x.title || x.n, place: x.n, cc: x.cc, lon: x.lon, lat: x.lat, when: x.k === "topic" ? x.t1 : x.t, reports: x.e, articles: x.a, outlets: x.d, surge: x.z, usual: x.base, url: x.u?.[0] })) };
+      .map(x => { const view = page.VIEWS[x.view] ? x.view : viewFor({ src: "story", kind: kind(x), cat: x.cat, text: [x.title, x.n].filter(Boolean).join(" ") });
+        return { tier: tier(x), severity: TIERS[tier(x)], kind: kind(x), title: x.title || x.n, place: x.n, cc: x.cc, lon: x.lon, lat: x.lat, when: x.k === "topic" ? x.t1 : x.t, reports: x.e, articles: x.a, outlets: x.d, surge: x.z, usual: x.base, url: x.u?.[0],
+          view, map: x.lon != null ? mapUrl({ view, lon: x.lon, lat: x.lat, zoom: 6, site: o.site }).url : undefined }; }) };
   }
   const meta = feeds.find(f => f.feed === feed);
   const res = await query(feed, { ...o, sort: o.sort || LIVE_SORT[feed] || undefined, limit: o.limit ?? 10 });
@@ -450,17 +453,19 @@ export async function scenarios({ group } = {}) {
   if (group && !rows.length) throw new AtlasError(`no scenario group "${group}". Groups: ${groups.map(g => g.group).join(", ")}`, 2);
   return { groups, presets: rows.map(p => ({ ...p, shocksString: simTokens(p.shocks), url: mapUrl({ shocks: p.shocks }).url })) };
 }
+// the map view a news scenario opens in: its own pick (scenarios_weekly.json "view"), else VIEW_FOR's
+const newsView = x => page.VIEWS[x.view] ? x.view : viewFor({ src: "sim", cat: x.cat, shocks: (x.shocks || []).map(s => s[0]), text: [x.label, x.why].filter(Boolean).join(" ") });
 export async function news({ window = "week", limit } = {}) {
   if (!page.SIM_NEWS[window]) throw new AtlasError(`window must be one of ${Object.keys(page.SIM_NEWS).join(", ")}`);
   const E = await engine(), items = await E.listNews(window);
   const lim = clampLimit(limit, 50, 500);
-  return { window, label: page.SIM_NEWS[window], count: items.length, items: items.slice(0, lim) };
+  return { window, label: page.SIM_NEWS[window], count: items.length, items: items.slice(0, lim).map(x => ({ ...x, view: newsView(x) })) };
 }
 export async function runScenario(input, { level = "cur", site, countries } = {}) {
   if (!["de", "cur", "esc"].includes(level)) throw new AtlasError("level must be de, cur or esc");
   const E = await engine(), s = String(input ?? "").trim();
   if (!s) throw new AtlasError("scenario needs a preset title, a news label or a shocks string like choke.hormuz.100");
-  let shocks, title = null, from = "shocks";
+  let shocks, title = null, from = "shocks", picked = null;
   if (s.split(";").every(t => SIM_TOKEN.test(t.trim()) || !t.trim())) {
     try { shocks = E.parseShocks(s); } catch (e) { throw new AtlasError(e.message); }
   } else {
@@ -471,7 +476,7 @@ export async function runScenario(input, { level = "cur", site, countries } = {}
       for (const w of Object.keys(page.SIM_NEWS)) {
         const items = await E.listNews(w).catch(() => []);
         const it = items.find(x => norm(x.label) === n) || items.find(x => norm(x.label).includes(n));
-        if (it) { shocks = it.levels?.[level] || it.shocks; title = it.label; from = `news:${w}`; break; }
+        if (it) { shocks = it.levels?.[level] || it.shocks; title = it.label; from = `news:${w}`; picked = it; break; }
       }
     }
     if (!shocks) throw new AtlasError(`no preset or news scenario matches "${s}" (list them with: atlas scenarios / atlas news)`, 2);
@@ -479,8 +484,10 @@ export async function runScenario(input, { level = "cur", site, countries } = {}
   if (!shocks?.length) throw new AtlasError(`no shocks parsed from "${s}"`);
   const res = await E.runScenario(shocks, { countries });
   const shocksString = simTokens(shocks);
+  // the link opens the scenario in the map view that best shows it (the page does the same)
+  const view = picked ? newsView(picked) : viewFor({ src: "sim", shocks: shocks.map(s => s[0]), text: title || res.title || "" });
   return { from, level: from.startsWith("news") ? level : undefined, preset: title || undefined, ...res, title: title || res.title, shocksString,
-    url: site || process.env.ATLAS_SITE ? mapUrl({ shocks, site }).url : res.url || mapUrl({ shocks }).url };
+    view, viewLabel: page.VIEWS[view]?.label, url: mapUrl({ view, shocks, site }).url };
 }
 
 export { TABLES };
