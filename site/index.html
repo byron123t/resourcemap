@@ -202,12 +202,28 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .notes a { color: var(--ink-2); }
 details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 
+/* --- keyboard: a hint bar along the bottom of the map (pointer devices only) and the full list on "?" --- */
+.key-hints { position: absolute; z-index: 2; left: 362px; bottom: 6px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: 11px; color: var(--ink-2);
+  background: color-mix(in srgb, var(--panel) 85%, transparent); border: 1px solid var(--panel-line); border-radius: 5px; padding: 3px 8px; pointer-events: none; }
+.key-hints button { pointer-events: auto; font: inherit; color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer; }
+.sheet.collapsed ~ .key-hints { left: 16px; }
+.key-hints kbd, .key-help kbd { font: 600 10px/1 var(--f-mono); padding: 2px 4px; border: 1px solid var(--panel-line); border-bottom-width: 2px; border-radius: 3px; background: var(--land); color: var(--ink); }
+.key-help { position: absolute; z-index: 7; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(460px, 92vw); max-height: 80vh; overflow-y: auto; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 8px; box-shadow: 0 10px 40px rgb(0 0 0 / .25); padding: 4px 16px 14px; }
+.kh-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--panel-line); margin-bottom: 8px; }
+.key-help dl { display: grid; grid-template-columns: max-content 1fr; gap: 7px 14px; margin: 0; font-size: 12.5px; }
+.key-help dt { white-space: nowrap; } .key-help dd { margin: 0; color: var(--ink-2); }
+@media (hover: none), (max-width: 900px) { .key-hints { display: none; } #app .map-key { bottom: 16px; } }
 /* --- map styles: a row of small swatches above the zoom buttons --- */
-.map-styles { display: flex; gap: 3px; padding: 3px; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-radius: 6px; box-shadow: 0 2px 8px rgb(0 0 0 / .12); }
+.map-styles { display: grid; grid-template-columns: repeat(5, auto); gap: 2px; padding: 3px; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-radius: 6px; box-shadow: 0 2px 8px rgb(0 0 0 / .12); }
 .map-styles button { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 50px; padding: 3px 2px 2px; font: inherit; font-size: 10px; color: var(--ink-2); background: none; border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
 .map-styles button:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 5%, transparent); }
 .map-styles button[aria-pressed="true"] { color: var(--ink); font-weight: 600; border-color: var(--ink); }
-.map-styles i { display: block; width: 40px; height: 26px; border-radius: 3px; border: 1px solid var(--panel-line); }
+.map-styles i { position: relative; display: block; width: 40px; height: 24px; border-radius: 3px; border: 1px solid var(--panel-line); }
+.map-styles kbd { position: absolute; right: 1px; bottom: 1px; font: 600 8.5px/1 var(--f-mono); color: #fff; background: rgb(0 0 0 / .55); border-radius: 2px; padding: 1px 2px; }
+.ms-clouds { background: radial-gradient(ellipse at 35% 40%, #fff 0 22%, transparent 45%), radial-gradient(ellipse at 75% 70%, #f2f2f2 0 15%, transparent 35%), linear-gradient(135deg, #3d6b8a, #22445c); }
+.ms-radar { background: repeating-linear-gradient(115deg, #3a3a3a 0 3px, #8a8a8a 3px 5px, #555 5px 8px); }
+.ms-fire { background: radial-gradient(circle at 45% 50%, #fff6b0 0 3px, #ff8a1f 5px, transparent 9px), linear-gradient(135deg, #3a1d10, #6b2a12); }
+.ms-green { background: linear-gradient(135deg, #d9c79a 0 25%, #8fbf5a 40%, #2f7d32 75%); }
 .ms-map { background: linear-gradient(135deg, #e9e7df 0 55%, #b9d3e0 55%); }
 .ms-sat { background: radial-gradient(circle at 30% 40%, #6f8a4a, transparent 45%), radial-gradient(circle at 70% 70%, #a08a62, transparent 50%), linear-gradient(135deg, #4f6b3a, #2d4f63); }
 .ms-today { background: radial-gradient(ellipse at 60% 35%, #fff 0 18%, transparent 40%), linear-gradient(135deg, #5d7d45, #2a5878); }
@@ -215,7 +231,7 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 .ms-night { background: radial-gradient(circle at 30% 40%, #ffd76a 0 3px, transparent 4px), radial-gradient(circle at 65% 60%, #ffcf5a 0 2px, transparent 3px), radial-gradient(circle at 75% 30%, #ffe08a 0 1.5px, transparent 2.5px), #0b1020; }
 .ms-terrain { background: linear-gradient(160deg, #f1efe8 0 30%, #b8b3a6 45%, #f1efe8 55%, #9d988b 70%, #ece9e1 85%); }
 /* --- map key: what the shapes, colours and sizes on screen mean, for the layers that are on --- */
-.map-key { position: absolute; z-index: 3; left: 362px; bottom: 16px; max-width: 270px; max-height: 45%; overflow-y: auto; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-radius: 6px; box-shadow: 0 3px 14px rgb(0 0 0 / .12); font-size: 11.5px; color: var(--ink-2); }
+.map-key { position: absolute; z-index: 3; left: 362px; bottom: 40px; max-width: 270px; max-height: 45%; overflow-y: auto; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-radius: 6px; box-shadow: 0 3px 14px rgb(0 0 0 / .12); font-size: 11.5px; color: var(--ink-2); }
 .sheet.collapsed ~ .map-key { left: 16px; }
 .key-head { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 8px; font: inherit; font-family: var(--f-display); font-stretch: 85%; font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); background: none; border: 0; padding: 6px 10px; cursor: pointer; }
 .key-head::after { content: "▾"; font-size: 10px; }
@@ -289,8 +305,8 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
   /* map controls and credits ride above the sheet */
   .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-bottom-left { bottom: var(--sheet-h, 120px); }
   .maplibregl-ctrl-scale { display: none; }
-  .map-styles button { width: 44px; } .map-styles i { width: 34px; height: 22px; }
-  .map-key { left: 10px; bottom: var(--sheet-h, 120px); max-width: 62%; max-height: 30%; }
+  .map-styles button { width: 42px; font-size: 9.5px; } .map-styles i { width: 32px; height: 20px; } .map-styles kbd { display: none; }
+  #app .map-key { left: 10px; bottom: var(--sheet-h, 120px); max-width: 62%; max-height: 30%; }
   .sim-bar { top: 10px; left: 10px; right: 10px; }
   #detail:not([hidden]) ~ .sim-bar { display: none; }
   /* 16 px stops iOS zooming into a focused field; bigger rows for thumbs */
@@ -875,6 +891,8 @@ claude mcp add atlas -- node "$PWD/resourcemap/cli/mcp.mjs"</pre>
   </aside>
 
   <article class="detail" id="detail" hidden aria-live="polite"></article>
+  <div class="key-hints" id="keyHints" aria-hidden="true"><span><kbd>1</kbd>–<kbd>0</kbd> styles</span><span><kbd>[</kbd><kbd>]</kbd> views</span><span><kbd>M</kbd><kbd>B</kbd><kbd>S</kbd> modes</span><span><kbd>J</kbd><kbd>K</kbd> next</span><span><kbd>I</kbd> info</span><span><kbd>/</kbd> search</span><button type="button" tabindex="-1"><kbd>?</kbd> all keys</button></div>
+  <div class="key-help" id="keyHelp" hidden role="dialog" aria-label="Keyboard shortcuts"></div>
   <nav class="sim-bar" id="simGlance" hidden aria-label="Scenario result, step by step"></nav>
   <aside class="map-key" id="mapKey" hidden aria-label="Map key">
     <button type="button" class="key-head" id="keyToggle" aria-expanded="true">Key</button>
@@ -3002,6 +3020,7 @@ async function simLocalCore(env, shocks) {
     bindAgri();
     bindWx();
     bindClaude();
+    bindKeys();
     bindStory();
     bindOnMap();
     simBind();
@@ -3472,6 +3491,50 @@ async function simLocalCore(env, shocks) {
     const sheet = $("sheet"), tg = $("toggleSheet");
     sheet.classList.toggle("collapsed", st === "peek"); sheet.classList.toggle("full", st === "full");
     tg.textContent = st === "peek" ? "Show" : "Hide"; tg.setAttribute("aria-expanded", String(st !== "peek"));
+  }
+
+  // ---------- keyboard shortcuts: hinted along the bottom of the map, all listed by "?" ----------
+  const KEYS = [
+    ["1 – 0", "Map style: map, satellite, today, clouds, radar, thermal, fire, night, green, terrain"],
+    ["[  ]", "Previous / next view"], ["{  }", "Previous / next topic"],
+    ["M  B  S", "Map, Storyboard, Scenarios"],
+    ["J  K", "Next / previous story or scenario step"], ["Space", "Play or pause the stories or steps"],
+    ["I", "Info on what's under the pointer (or in the middle of the map)"],
+    ["/", "Search for a place, site or country"], ["H", "Hide or show the panel"], ["L", "Fold or open the map key"],
+    ["W", "Back to the whole world"], ["Esc", "Close the card or this list"], ["?", "Show or hide this list"]
+  ];
+  let keyPt = null;
+  function keyHelp(show) {
+    const el = $("keyHelp"); if (show == null) show = el.hidden;
+    if (show && !el.childElementCount) el.innerHTML = `<div class="kh-head"><b>Keyboard shortcuts</b><button type="button" class="close" aria-label="Close">×</button></div><dl>${KEYS.map(([k, t]) => `<dt>${k.split(/\s+/).map(x => `<kbd>${esc(x)}</kbd>`).join(" ")}</dt><dd>${esc(t)}</dd>`).join("")}</dl>`;
+    el.hidden = !show;
+  }
+  function bindKeys() {
+    map.on("mousemove", e => { keyPt = e.point; });
+    map.getCanvas().addEventListener("mouseleave", () => { keyPt = null; });
+    $("keyHelp").addEventListener("click", e => { if (e.target.closest(".close") || e.target === $("keyHelp")) keyHelp(false); });
+    $("keyHints").addEventListener("click", e => { if (e.target.closest("button")) keyHelp(); });
+    const views = () => Object.keys(VIEWS), topics = () => [...new Set(Object.values(VIEWS).map(c => c.g))];
+    document.addEventListener("keydown", e => {
+      if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+      const k = e.key, mapMode = () => { if (curMode !== "map") setMode("map"); };
+      let done = true;
+      if (/^[0-9]$/.test(k)) setStyle(MAP_STYLES[(+k + 9) % 10].k);
+      else if (k === "[" || k === "]") { mapMode(); const V = views(), i = V.indexOf(curView); setView(V[(i + (k === "]" ? 1 : -1) + V.length) % V.length]); }
+      else if (k === "{" || k === "}") { mapMode(); const T = topics(), i = T.indexOf(VIEWS[curView] ? VIEWS[curView].g : T[0]), g = T[(i + (k === "}" ? 1 : -1) + T.length) % T.length]; setView(Object.keys(VIEWS).find(v => VIEWS[v].g === g)); }
+      else if (k === "m" || k === "b" || k === "s") setMode({ m: "map", b: "story", s: "sim" }[k]);
+      else if (k === "j" || k === "k") { const id = (curMode === "sim" ? "sim" : "story") + (k === "j" ? "Next" : "Prev"); if (curMode === "map") setMode("story"); else $(id).click(); }
+      else if (k === " ") { if (curMode === "story") $("storyPlay").click(); else if (curMode === "sim") $("simPlay").click(); else done = false; }
+      else if (k === "i") { const pt = keyPt || { x: map.getCanvas().clientWidth / 2, y: map.getCanvas().clientHeight / 2 }; map.fire("click", { point: pt, lngLat: map.unproject(pt), originalEvent: e }); }
+      else if (k === "/") { if ($("sheet").classList.contains("collapsed")) $("toggleSheet").click(); if (curMode !== "map") setMode("map"); $("q").focus(); }
+      else if (k === "h") $("toggleSheet").click();
+      else if (k === "l") $("keyToggle").click();
+      else if (k === "w") map.flyTo({ ...initialCamera(), speed: 1.6 });
+      else if (k === "?") keyHelp();
+      else if (k === "Escape") { if (!$("keyHelp").hidden) keyHelp(false); else if (!detail.hidden) closeDetail(); else done = false; }
+      else done = false;
+      if (done) e.preventDefault();
+    });
   }
 
   // ---------- "Ask Claude" examples (each command was checked against cli/atlas.mjs) ----------
@@ -4121,7 +4184,9 @@ async function simLocalCore(env, shocks) {
     s2: { coll: "sentinel-2-l2a", name: "Sentinel-2", min: 9, days: 14, cloud: 30, attr: y => `Contains modified Copernicus Sentinel data ${y}, ${A_PC}` },
     s1: { coll: "sentinel-1-rtc", name: "Sentinel-1", min: 8, days: 12, attr: y => `Contains modified Copernicus Sentinel data ${y}; terrain correction by Catalyst, CC BY 4.0, ${A_PC}` },
     // NAIP flies each US state every 2–3 years, so its window is years, not days
-    naip: { coll: "naip", name: "NAIP", min: 11, max: 18, days: 1500, attr: () => `NAIP imagery, USDA Farm Service Agency (public domain), ${A_PC}` }
+    naip: { coll: "naip", name: "NAIP", min: 11, max: 18, days: 1500, attr: () => `NAIP imagery, USDA Farm Service Agency (public domain), ${A_PC}` },
+    // Landsat 8 and 9 Collection 2 Level-2: surface temperature from the 100 m thermal band (lwir11); each passes every 16 days
+    ls: { coll: "landsat-c2-l2", name: "Landsat", min: 9, days: 40, cloud: 40, platforms: ["landsat-8", "landsat-9"], attr: () => `Landsat imagery courtesy of the U.S. Geological Survey, ${A_PC}` }
   };
   const pc = (fam, label, q, res, need) => ({ src: "pc", kind: "pc", pc: fam, label, q: new URLSearchParams(q).toString(), res, need, min: PC[fam].min, max: PC[fam].max || 14 });
   const S2F = "Gamma RGB 3.7 Saturation 1.5 Sigmoidal RGB 15 0.35";
@@ -4158,7 +4223,10 @@ async function simLocalCore(env, shocks) {
         ["rescale", "0,.8"], ["rescale", "0,1"], ["rescale", "0,1"], ["asset_as_band", "true"]],
         "About 20 m. Water dark blue, vegetation green, buildings and ships yellow to orange.", ["VV", "VH"]),
       naip: pc("naip", "NAIP aerial photos, 60 cm (US only)", [["assets", "image"], ["asset_bidx", "image|1,2,3"], ["nodata", "0"]],
-        "60 cm aerial photos of the lower 48 US states, flown in summer every 2–3 years per state.")
+        "60 cm aerial photos of the lower 48 US states, flown in summer every 2–3 years per state."),
+      // ST_B10 digital numbers: kelvin = DN × 0.00341802 + 149, so 37000–53000 is about 0–63 °C
+      lst: pc("ls", "Landsat surface temperature, 100 m (dark cool, bright hot)", [["assets", "lwir11"], ["rescale", "37000,53000"], ["colormap_name", "inferno"], ["nodata", "0"]],
+        "100 m thermal band (served at 30 m), roughly 0 °C (dark) to 63 °C (white). Landsat 8 and 9 each pass every 16 days, so the least cloudy scene can be weeks old.")
     }],
     ["30 m Landsat & Sentinel-2 (every few days)", {
       hlss: gb("HLS_S30_Nadir_BRDF_Adjusted_Reflectance", 12, "png", "hls", "Sentinel-2 HLS, 30 m", "30 m. One day covers only a few strips, so try nearby days; zoom past 7 for detail.", "Copernicus Sentinel-2 via NASA HLS"),
@@ -4187,7 +4255,10 @@ async function simLocalCore(env, shocks) {
       b31n: gb("MODIS_Terra_Brightness_Temp_Band31_Night", 7, "png", "day", "Terra MODIS surface temperature, night", "1 km brightness temperature at 11 µm, night pass.", "NASA"),
       b31d: gb("MODIS_Terra_Brightness_Temp_Band31_Day", 7, "png", "day", "Terra MODIS surface temperature, day", "1 km brightness temperature at 11 µm, day pass.", "NASA"),
       dnb: gb("VIIRS_SNPP_DayNightBand", 7, "png", "day", "Suomi NPP night lights", "750 m low-light band: city lights, gas flares, fires and blackouts.", "NOAA/NASA"),
-      dnb20: gb("VIIRS_NOAA20_DayNightBand", 7, "png", "day", "NOAA-20 night lights", "750 m low-light band: city lights, gas flares, fires and blackouts.", "NOAA/NASA")
+      dnb20: gb("VIIRS_NOAA20_DayNightBand", 7, "png", "day", "NOAA-20 night lights", "750 m low-light band: city lights, gas flares, fires and blackouts.", "NOAA/NASA"),
+      i5n: gb("VIIRS_NOAA20_Brightness_Temp_BandI5_Night", 9, "png", "day", "NOAA-20 VIIRS thermal 375 m, night pass", "375 m thermal infrared (band I5) at the ~1:30 am pass: warm cities, power plants, flares and fires stand out from cool ground.", "NOAA/NASA"),
+      i5d: gb("VIIRS_NOAA20_Brightness_Temp_BandI5_Day", 9, "png", "day", "NOAA-20 VIIRS thermal 375 m, day pass", "375 m thermal infrared (band I5) at the ~1:30 pm pass.", "NOAA/NASA"),
+      ndvi: gb("MODIS_Terra_NDVI_8Day", 9, "png", "base", "Vegetation (NDVI), 8-day, 250 m", "250 m MODIS vegetation index over the latest 8 days: green is dense, healthy plant cover.", "NASA")
     }],
     // NASA mosaics saved by tools/offline.py; listed only when the page is served with an offline store
     ["Saved on this machine (works offline)", {
@@ -4218,6 +4289,7 @@ async function simLocalCore(env, shocks) {
   function pcFilter(I, end, days, cloud) {
     const args = [{ op: "anyinteracts", args: [{ property: "datetime" }, { interval: [new Date(Date.parse(end) - days * 864e5).toISOString().slice(0, 10) + "T00:00:00Z", end + "T23:59:59Z"] }] }];
     if (cloud) args.push({ op: "<=", args: [{ property: "eo:cloud_cover" }, cloud] });
+    if (PC[I.pc].platforms) args.push({ op: "in", args: [{ property: "platform" }, PC[I.pc].platforms] });
     if (I.need) args.push({ op: "a_contains", args: [{ property: "sar:polarizations" }, I.need] });
     return args.length > 1 ? { op: "and", args } : args[0];
   }
@@ -4310,36 +4382,81 @@ async function simLocalCore(env, shocks) {
     } catch (e) { if (seq === esriSeq && $("esriWhen")) $("esriWhen").textContent = ""; }
   }
   let offKey = "";
-  // ---------- map styles: the quick switch over the map (plain map, satellite, today, thermal, night, terrain) ----------
-  // Each is an imagery pick (offline, applyImagery swaps in a saved mosaic) plus, for terrain, hill shading on a plain map.
-  const MAP_STYLES = [["map", "Map", "Plain map"], ["sat", "Satellite", "Sharpest satellite mosaic (Esri, 1–5 years old)"], ["today", "Today", "Today's satellite pass (NOAA-20 VIIRS, true colour)"],
-    ["thermal", "Thermal", "Infrared from the geostationary satellite over this part of the world, every 10 min, day and night"], ["night", "Night", "Night lights (NASA Black Marble)"], ["terrain", "Terrain", "Plain map with hill shading"]];
-  const STYLE_IMG = { map: () => "", terrain: () => "", sat: () => "esri", today: () => "v20", thermal: () => geoPick(true), night: () => "blk" };
+  // ---------- map styles: the quick switch over the map ----------
+  // A style is a base imagery pick (offline, applyImagery swaps in a saved mosaic), plus sharper "detail" layers that
+  // take over as you zoom in (detail: [imagery key, from zoom]), and for terrain, hill shading on the plain map.
+  // Keys 1–9 and 0 pick them in order.
+  const fireGeo = () => { const x = map.getCenter().wrap().lng; return x < -110 ? "ft_w" : x < -25 ? "ft_e" : x < 55 ? "ft_mtg" : "t721"; };
+  const MAP_STYLES = [
+    { k: "map", label: "Map", base: () => "", t: "Plain map" },
+    { k: "sat", label: "Satellite", base: () => "esri", t: "Sharpest satellite mosaic (Esri, down to ~50 cm in cities, 1–5 years old)" },
+    { k: "today", label: "Today", base: () => "v20", detail: [["s2tc", 9]], t: "Today's NOAA-20 pass (375 m); from zoom 9, the newest clear Sentinel-2 scene (10 m, last 2 weeks)" },
+    { k: "clouds", label: "Clouds", base: () => geoPick(false), t: "Live weather-satellite image of this part of the world, every 10 min" },
+    { k: "radar", label: "Radar", base: () => "esri", detail: [["s1vv", 8]], t: "Sentinel-1 radar (10 m) from zoom 8: sees through cloud, day or night; ships and flooding stand out" },
+    { k: "thermal", label: "Thermal", base: () => geoPick(true), detail: [["i5n", 5], ["lst", 9]], t: "Live infrared every 10 min (2 km); from zoom 5, last night's VIIRS pass (375 m); from zoom 9, Landsat surface temperature (100 m)" },
+    { k: "fire", label: "Fire", base: fireGeo, detail: [["s2sw", 9]], t: "Live fire temperature (or burn-scar false colour over Asia); from zoom 9, Sentinel-2 short-wave infrared (20 m)" },
+    { k: "night", label: "Night", base: () => "blk", t: "Night lights (NASA Black Marble, 500 m)" },
+    { k: "green", label: "Green", base: () => "ndvi", detail: [["s2nd", 9]], t: "Vegetation index, 8-day (250 m); from zoom 9, Sentinel-2 NDVI (10 m)" },
+    { k: "terrain", label: "Terrain", base: () => "", t: "Plain map with hill shading" }
+  ];
+  const STYLE = Object.fromEntries(MAP_STYLES.map(x => [x.k, x]));
+  let styleCur = "", styleBusy = false, detailSeq = 0;
   function styleOf() {
-    const v = $("imagery").value;
+    const v = $("imagery").value, S = STYLE[styleCur];
+    if (S && S.base() === v && (styleCur === "terrain") === $("lyr-terrain").checked) return styleCur;
     if (!v) return $("lyr-terrain").checked ? "terrain" : "map";
     if (["esri", "eox", "off_bm", "off_bmng"].includes(v)) return "sat";
     if (["v20", "v21", "vnpp", "terra", "aqua"].includes(v)) return "today";
-    if (/^ir_|^b31/.test(v)) return "thermal";
+    if (/^(goes|mtg|hima)/.test(v)) return "clouds";
+    if (/^ir_|^b31|^i5/.test(v) || v === "lst") return "thermal";
+    if (/^ft_|^t721|^vm11/.test(v)) return "fire";
     if (/blk$|^dnb/.test(v)) return "night";
+    if (v === "ndvi" || v === "s2nd") return "green";
+    if (/^s1/.test(v)) return "radar";
     return "";
   }
   function styleSync() {
     const el = $("mapStyles"); if (!el) return;
-    if (!el.childElementCount) el.innerHTML = MAP_STYLES.map(([k, l, t]) => `<button type="button" data-style="${k}" title="${esc(t)}" aria-pressed="false"><i class="ms-${k}"></i>${l}</button>`).join("");
+    if (!el.childElementCount) el.innerHTML = MAP_STYLES.map((x, i) => `<button type="button" data-style="${x.k}" title="${esc(x.t)} (key ${(i + 1) % 10})" aria-pressed="false" aria-keyshortcuts="${(i + 1) % 10}"><i class="ms-${x.k}"><kbd>${(i + 1) % 10}</kbd></i>${x.label}</button>`).join("");
     const cur = styleOf();
     el.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.style === cur)));
   }
+  // sharper layers over the base, each shown from its zoom up (above the base, below farmland and weather)
+  async function applyDetails(list) {
+    const seq = ++detailSeq;
+    ["imagery-d0", "imagery-d1"].forEach(id => { if (map.getLayer(id)) map.removeLayer(id); if (map.getSource(id)) map.removeSource(id); });
+    for (const [j, [key, from]] of (list || []).entries()) {
+      const I = IMG[key]; if (!I || offUse.imagery) continue;
+      let time = null;
+      try {
+        if (I.src === "pc") { if (!pcEnd) pcEnd = utcDay(0); const P = PC[I.pc];
+          time = await pcRegister({ collections: [P.coll], "filter-lang": "cql2-json", filter: pcFilter(I, utcDay(0), P.days, P.cloud), sortby: [P.cloud ? { field: "eo:cloud_cover", direction: "asc" } : { field: "datetime", direction: "desc" }] }); }
+        else if (I.kind === "day") time = lastFullDay();
+        else if (I.src === "gibs") time = await gibsLatest(I);
+      } catch (e) { continue; }
+      if (seq !== detailSeq || !map.getLayer("imagery")) return;
+      const id = "imagery-d" + j;
+      map.addSource(id, { type: "raster", tiles: imgTiles(I, time), tileSize: 256, minzoom: I.min || 0, maxzoom: I.max, attribution: I.src === "pc" ? pcAttr(I) : I.attr });
+      map.addLayer({ id, type: "raster", source: id, minzoom: from, paint: { "raster-opacity": +$("imgOpacity").value / 100, "raster-fade-duration": 150 } },
+        map.getLayer("agri") ? "agri" : map.getLayer("wx") ? "wx" : "disputed");
+    }
+  }
   function setStyle(st) {
+    const S = STYLE[st]; if (!S) return;
+    styleCur = st;
     const terr = st === "terrain";
     if ($("lyr-terrain").checked !== terr) { $("lyr-terrain").checked = terr; applyGroup("terrain"); }
-    const img = STYLE_IMG[st]();
+    const img = S.base();
     if (img) { $("imgOpacity").value = 100; if (map.getLayer("imagery")) map.setPaintProperty("imagery", "raster-opacity", 1); }
-    if ($("imagery").value !== img) { $("imagery").value = img; applyImagery(false); }
+    styleBusy = true;
+    const done = () => { styleBusy = false; applyDetails(S.detail); };
+    if ($("imagery").value !== img || (img && !map.getLayer("imagery"))) { $("imagery").value = img; applyImagery(false).then(done, done); }
+    else done();
     styleSync(); onMapLater();
   }
   async function applyImagery(fromPicker) {
     onMapLater(); styleSync();
+    if (!styleBusy) { styleCur = ""; applyDetails(null); }   // a pick from the menu or a view drops the style's detail layers
     // offline, an online choice is swapped for a saved mosaic (the picker keeps the choice for when the network is back)
     offKey = offImg($("imagery").value);
     const I = IMG[offKey], seq = ++imgSeq;
@@ -4389,7 +4506,7 @@ async function simLocalCore(env, shocks) {
     $("mapStyles").addEventListener("click", e => { const b = e.target.closest("button[data-style]"); if (b) setStyle(b.dataset.style); });
     $("lyr-terrain").addEventListener("change", styleSync);
     $("imgDate").addEventListener("change", () => $("imgDate").value && applyImagery(true));
-    $("imgOpacity").addEventListener("input", e => map.getLayer("imagery") && map.setPaintProperty("imagery", "raster-opacity", +e.target.value / 100));
+    $("imgOpacity").addEventListener("input", e => ["imagery", "imagery-d0", "imagery-d1"].forEach(l => map.getLayer(l) && map.setPaintProperty(l, "raster-opacity", +e.target.value / 100)));
     map.on("zoomend", pcHint);
     let esriT = 0; map.on("moveend", () => { clearTimeout(esriT); esriT = setTimeout(esriWhen, 500); });
     $("imgHint").addEventListener("click", e => { const I = IMG[$("imagery").value]; if (e.target.id === "imgZoom" && I) map.easeTo({ zoom: I.min + 1 }); });
@@ -5518,6 +5635,7 @@ async function simLocalCore(env, shocks) {
     ["EUMETSAT View", "https://view.eumetsat.int/", "Meteosat imagery", "© EUMETSAT, data policy applies", "every 10–15 min"],
     ["EOX Sentinel-2 cloudless", "https://s2maps.eu/", "2024 mosaic", "CC BY-NC-SA 4.0", "2024"],
     ["Copernicus Sentinel-2 L2A, via Microsoft Planetary Computer", "https://planetarycomputer.microsoft.com/dataset/sentinel-2-l2a", "10 m optical scenes on demand", "Copernicus Sentinel data terms (free, credit required)", "live, last 30 days"],
+    ["USGS Landsat 8 and 9 Collection 2 Level-2, via Microsoft Planetary Computer", "https://planetarycomputer.microsoft.com/dataset/landsat-c2-l2", "100 m surface temperature on demand (Thermal style, from zoom 9)", "public domain (USGS)", "every 16 days per satellite"],
     ["USDA NAIP, via Microsoft Planetary Computer", "https://planetarycomputer.microsoft.com/dataset/naip", "60 cm US aerial photos on demand", "public domain", "every 2–3 years per state"],
     ["Copernicus Sentinel-1 RTC (Catalyst), via Microsoft Planetary Computer", "https://planetarycomputer.microsoft.com/dataset/sentinel-1-rtc", "10 m radar scenes on demand", "CC BY 4.0", "live, last 30 days"],
     ["Ramankutty et al. 2010, Global Croplands 2000 (NASA SEDAC)", "https://doi.org/10.7927/H4C8276G", "cropland share, via GIBS", "CC BY 4.0", "2000"],
