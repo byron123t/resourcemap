@@ -2316,7 +2316,7 @@ async function simLocalCore(env, shocks) {
     osm: { layers: ["osm-water", "osm-bldg", "osm-case", "osm-street", "osm-rail", "osm-names"], data: [] },
     choke: { layers: [], data: ["chokepoints"] }, rivers: { layers: ["rivers"], data: ["rivers"] },
     terrain: { layers: ["hillshade"], data: [] }, lakes: { layers: ["lakes", "lakes-line"], data: ["lakes"] }, ice: { layers: ["glaciers"], data: ["glaciers"] },
-    names: { layers: [], data: [] }, disputed: { layers: ["disputed", "disputed-edge", "disputed-lines"], data: [] }, maritime: { layers: ["maritime"], data: [] },
+    names: { layers: ["osm-towns", "osm-villages"], data: [] }, disputed: { layers: ["disputed", "disputed-edge", "disputed-lines"], data: [] }, maritime: { layers: ["maritime"], data: [] },
     fires: { layers: ["fires-pts"], data: ["fires"] }, events: { layers: ["events-pts"], data: ["events"] },
     ships: { layers: ["ships-pts"], data: ["ships"] }, aircraft: { layers: ["aircraft-pts"], data: ["aircraft"] }, jets: { layers: ["jets-pts"], data: ["jets"] }, airliners: { layers: ["airliners-pts"], data: ["airliners"] }, navy: { layers: ["navy-pts"], data: ["navy"] },
     cables: { layers: ["cables", "cables-plan", "landings-pts"], data: ["cables", "landings"] },
@@ -2833,6 +2833,15 @@ async function simLocalCore(env, shocks) {
         "line-opacity": ["interpolate", ["linear"], ["zoom"], 6, ["*", 0.7, tunnel], 9, tunnel] } });
     L({ id: "osm-rail", type: "line", ...osmSrc, "source-layer": "transportation", minzoom: 9, filter: ["match", ["get", "class"], ["rail", "transit"], true, false],
       paint: { "line-color": css("--rail"), "line-width": ["interpolate", ["linear"], ["zoom"], 9, 0.6, 14, 1.4, 17, 2.5], "line-dasharray": [3, 1.5], "line-opacity": tunnel } });
+    // towns and villages from OpenStreetMap once zoomed in (Natural Earth's 7,300 places stop at bigger towns);
+    // switched with "Place names" like the HTML labels
+    const placeName = ["coalesce", ["get", "name_en"], ["get", "name:latin"], ["get", "name"]];
+    L({ id: "osm-towns", type: "symbol", source: "osm", "source-layer": "place", minzoom: 7, filter: ["match", ["get", "class"], ["town"], true, false],
+      layout: { "text-field": placeName, "text-font": ["Noto Sans Regular"], "text-size": ["interpolate", ["linear"], ["zoom"], 7, 10.5, 12, 13], "text-max-width": 8, "text-padding": 4, "symbol-sort-key": ["coalesce", ["get", "rank"], 99] },
+      paint: { "text-color": css("--ink"), "text-halo-color": css("--halo"), "text-halo-width": 1.5 } });
+    L({ id: "osm-villages", type: "symbol", source: "osm", "source-layer": "place", minzoom: 10, filter: ["match", ["get", "class"], ["village", "suburb"], true, false],
+      layout: { "text-field": placeName, "text-font": ["Noto Sans Regular"], "text-size": ["interpolate", ["linear"], ["zoom"], 10, 9.5, 14, 12], "text-max-width": 8, "text-padding": 4, "symbol-sort-key": ["coalesce", ["get", "rank"], 99] },
+      paint: { "text-color": css("--ink-2"), "text-halo-color": css("--halo"), "text-halo-width": 1.3 } });
     L({ id: "osm-names", type: "symbol", ...osmSrc, "source-layer": "transportation_name", minzoom: 12, filter: ["has", "name"],
       layout: { ...hidden, "symbol-placement": "line", "text-field": ["coalesce", ["get", "name_en"], ["get", "name"]], "text-font": ["Noto Sans Regular"],
         "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 16, 13], "text-max-angle": 30, "symbol-spacing": 300 },
@@ -4114,7 +4123,8 @@ async function simLocalCore(env, shocks) {
     const z = map.getZoom(), W = map.getCanvas().clientWidth, H = map.getCanvas().clientHeight, boxes = [], mr = $("map").getBoundingClientRect();
     if ($("lyr-choke").checked) chokeMarkers.forEach(m => { const r = m.getElement().getBoundingClientRect(); boxes.push([r.left - mr.left, r.top - mr.top, r.right - mr.left, r.bottom - mr.top]); });
     for (const l of LABELS) {
-      const show = l.t === "c" ? l.z <= z + 2.2 : l.t === "m" ? l.z <= z + 1.6 && (l.z >= z - 3.5) : l.t === "g" ? l.z <= z + 0.6 : l.z <= z + 0.4;
+      // places: the largest cities (label zoom ≤ 3) show from world zoom, the rest a little before their own zoom
+      const show = l.t === "c" ? l.z <= z + 2.2 : l.t === "m" ? l.z <= z + 1.6 && (l.z >= z - 3.5) : l.t === "g" ? l.z <= z + 0.6 : l.z <= z + (l.z <= 3 ? 1.6 : 0.4);
       if (!show) { if (!l.el.hidden) l.el.hidden = true; continue; }
       const big = (l.t === "c" && l.z <= 2.5 && z < 4) || (l.t === "m" && l.z <= 1.5);
       l.el.classList.toggle("big", big);
@@ -5669,7 +5679,7 @@ async function simLocalCore(env, shocks) {
     set("glaciers", "fill-color", css("--ice")); set("glaciers", "fill-outline-color", css("--ice-line"));
     set("osm-water", "fill-color", ["match", ["get", "class"], "ocean", css("--ocean"), css("--water")]); set("osm-bldg", "fill-color", css("--building")); set("osm-bldg", "fill-outline-color", css("--building-line"));
     set("osm-case", "line-color", css("--street-case")); set("osm-street", "line-color", ["match", ["get", "class"], ["motorway", "trunk", "primary"], css("--street-major"), css("--street")]);
-    set("osm-rail", "line-color", css("--rail")); set("osm-names", "text-color", css("--street-ink")); set("osm-names", "text-halo-color", css("--halo"));
+    set("osm-rail", "line-color", css("--rail")); set("osm-names", "text-color", css("--street-ink")); set("osm-towns", "text-color", css("--ink")); set("osm-villages", "text-color", css("--ink-2")); ["osm-towns", "osm-villages"].forEach(l => set(l, "text-halo-color", css("--halo"))); set("osm-names", "text-halo-color", css("--halo"));
     set("lakes", "fill-color", css("--water")); set("lakes-line", "line-color", css("--river")); set("rivers", "line-color", css("--river"));
     set("maritime", "line-color", css("--sea-ink")); set("borders", "line-color", css("--border")); set("borders-case", "line-color", css("--halo")); set("disputed-lines", "line-color", css("--disputed")); set("disputed-edge", "line-color", css("--disputed"));
     set("lanes", "line-color", css("--lane")); set("roads", "line-color", css("--road")); set("rail", "line-color", css("--rail")); set("rail-ties", "line-color", css("--rail-tie"));
