@@ -202,6 +202,18 @@ select, .search input { width: 100%; box-sizing: border-box; font: inherit; font
 .notes a { color: var(--ink-2); }
 details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 
+/* --- map styles: a row of small swatches above the zoom buttons --- */
+.map-styles { display: flex; gap: 3px; padding: 3px; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-radius: 6px; box-shadow: 0 2px 8px rgb(0 0 0 / .12); }
+.map-styles button { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 50px; padding: 3px 2px 2px; font: inherit; font-size: 10px; color: var(--ink-2); background: none; border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
+.map-styles button:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.map-styles button[aria-pressed="true"] { color: var(--ink); font-weight: 600; border-color: var(--ink); }
+.map-styles i { display: block; width: 40px; height: 26px; border-radius: 3px; border: 1px solid var(--panel-line); }
+.ms-map { background: linear-gradient(135deg, #e9e7df 0 55%, #b9d3e0 55%); }
+.ms-sat { background: radial-gradient(circle at 30% 40%, #6f8a4a, transparent 45%), radial-gradient(circle at 70% 70%, #a08a62, transparent 50%), linear-gradient(135deg, #4f6b3a, #2d4f63); }
+.ms-today { background: radial-gradient(ellipse at 60% 35%, #fff 0 18%, transparent 40%), linear-gradient(135deg, #5d7d45, #2a5878); }
+.ms-thermal { background: radial-gradient(ellipse at 40% 45%, #f2f2f2 0 15%, #7a7a7a 40%, #2b2b2b 75%); }
+.ms-night { background: radial-gradient(circle at 30% 40%, #ffd76a 0 3px, transparent 4px), radial-gradient(circle at 65% 60%, #ffcf5a 0 2px, transparent 3px), radial-gradient(circle at 75% 30%, #ffe08a 0 1.5px, transparent 2.5px), #0b1020; }
+.ms-terrain { background: linear-gradient(160deg, #f1efe8 0 30%, #b8b3a6 45%, #f1efe8 55%, #9d988b 70%, #ece9e1 85%); }
 /* --- map key: what the shapes, colours and sizes on screen mean, for the layers that are on --- */
 .map-key { position: absolute; z-index: 3; left: 362px; bottom: 16px; max-width: 270px; max-height: 45%; overflow-y: auto; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-radius: 6px; box-shadow: 0 3px 14px rgb(0 0 0 / .12); font-size: 11.5px; color: var(--ink-2); }
 .sheet.collapsed ~ .map-key { left: 16px; }
@@ -277,6 +289,7 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
   /* map controls and credits ride above the sheet */
   .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-bottom-left { bottom: var(--sheet-h, 120px); }
   .maplibregl-ctrl-scale { display: none; }
+  .map-styles button { width: 44px; } .map-styles i { width: 34px; height: 22px; }
   .map-key { left: 10px; bottom: var(--sheet-h, 120px); max-width: 62%; max-height: 30%; }
   .sim-bar { top: 10px; left: 10px; right: 10px; }
   #detail:not([hidden]) ~ .sim-bar { display: none; }
@@ -2658,6 +2671,8 @@ async function simLocalCore(env, shocks) {
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 110, unit: "metric" }), "bottom-right");
     map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: "Data: GEM, WRI, USGS, Natural Earth and others; see Sources in the sidebar" }), "bottom-right");
+    // one-tap map styles above the zoom buttons (bottom controls stack upwards, so this goes on top)
+    map.addControl({ onAdd: () => { const el = document.createElement("div"); el.className = "maplibregl-ctrl map-styles"; el.id = "mapStyles"; el.setAttribute("role", "group"); el.setAttribute("aria-label", "Map style"); return el; }, onRemove() {} }, "bottom-right");
     keepCanvasInSync();
     // MapLibre opens the compact credits on narrow maps; on a phone they'd cover the map, so start them folded
     if (!wide()) map.once("load", () => document.querySelectorAll(".maplibregl-ctrl-attrib.maplibregl-compact-show").forEach(e => e.classList.remove("maplibregl-compact-show")));
@@ -4295,8 +4310,36 @@ async function simLocalCore(env, shocks) {
     } catch (e) { if (seq === esriSeq && $("esriWhen")) $("esriWhen").textContent = ""; }
   }
   let offKey = "";
+  // ---------- map styles: the quick switch over the map (plain map, satellite, today, thermal, night, terrain) ----------
+  // Each is an imagery pick (offline, applyImagery swaps in a saved mosaic) plus, for terrain, hill shading on a plain map.
+  const MAP_STYLES = [["map", "Map", "Plain map"], ["sat", "Satellite", "Sharpest satellite mosaic (Esri, 1–5 years old)"], ["today", "Today", "Today's satellite pass (NOAA-20 VIIRS, true colour)"],
+    ["thermal", "Thermal", "Infrared from the geostationary satellite over this part of the world, every 10 min, day and night"], ["night", "Night", "Night lights (NASA Black Marble)"], ["terrain", "Terrain", "Plain map with hill shading"]];
+  const STYLE_IMG = { map: () => "", terrain: () => "", sat: () => "esri", today: () => "v20", thermal: () => geoPick(true), night: () => "blk" };
+  function styleOf() {
+    const v = $("imagery").value;
+    if (!v) return $("lyr-terrain").checked ? "terrain" : "map";
+    if (["esri", "eox", "off_bm", "off_bmng"].includes(v)) return "sat";
+    if (["v20", "v21", "vnpp", "terra", "aqua"].includes(v)) return "today";
+    if (/^ir_|^b31/.test(v)) return "thermal";
+    if (/blk$|^dnb/.test(v)) return "night";
+    return "";
+  }
+  function styleSync() {
+    const el = $("mapStyles"); if (!el) return;
+    if (!el.childElementCount) el.innerHTML = MAP_STYLES.map(([k, l, t]) => `<button type="button" data-style="${k}" title="${esc(t)}" aria-pressed="false"><i class="ms-${k}"></i>${l}</button>`).join("");
+    const cur = styleOf();
+    el.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.style === cur)));
+  }
+  function setStyle(st) {
+    const terr = st === "terrain";
+    if ($("lyr-terrain").checked !== terr) { $("lyr-terrain").checked = terr; applyGroup("terrain"); }
+    const img = STYLE_IMG[st]();
+    if (img) { $("imgOpacity").value = 100; if (map.getLayer("imagery")) map.setPaintProperty("imagery", "raster-opacity", 1); }
+    if ($("imagery").value !== img) { $("imagery").value = img; applyImagery(false); }
+    styleSync(); onMapLater();
+  }
   async function applyImagery(fromPicker) {
-    onMapLater();
+    onMapLater(); styleSync();
     // offline, an online choice is swapped for a saved mosaic (the picker keeps the choice for when the network is back)
     offKey = offImg($("imagery").value);
     const I = IMG[offKey], seq = ++imgSeq;
@@ -4342,6 +4385,9 @@ async function simLocalCore(env, shocks) {
     $("imagery").innerHTML = '<option value="">None (map only)</option>' + IMAGERY.map(([g, o]) => [g, Object.entries(o).filter(have)]).filter(([, es]) => es.length).map(([g, es]) =>
       `<optgroup label="${esc(g)}">${es.map(([k, I]) => `<option value="${k}">${esc(I.label)}</option>`).join("")}</optgroup>`).join("");
     $("imagery").addEventListener("change", () => applyImagery(false));
+    styleSync();
+    $("mapStyles").addEventListener("click", e => { const b = e.target.closest("button[data-style]"); if (b) setStyle(b.dataset.style); });
+    $("lyr-terrain").addEventListener("change", styleSync);
     $("imgDate").addEventListener("change", () => $("imgDate").value && applyImagery(true));
     $("imgOpacity").addEventListener("input", e => map.getLayer("imagery") && map.setPaintProperty("imagery", "raster-opacity", +e.target.value / 100));
     map.on("zoomend", pcHint);
