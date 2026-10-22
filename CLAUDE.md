@@ -1,5 +1,6 @@
 # Notes for Claude Code
 
+- The working copy lives in WSL at `~/github/resourcemap` (ext4), not under `/mnt/c`: file access through `/mnt` is slow and the OneDrive folder synced every cache write in `raw/` and `site/data/live/`. Keep caches and builds on the WSL side; open it from Windows as `\\wsl$\<distro>\home\<user>\github\resourcemap` if needed.
 - The app is one file: `site/index.html`. The map logic lives in the second `<script>` block. Read the README section "How the page works" before editing.
 - Serve with `python -m http.server 8765 --directory site` (or `python3 tools/offline.py serve`, which also serves the offline store). Don't open it as `file://`, because `fetch()` of `data/` fails there.
 - **Verify visual changes.** Run `python tools/screenshot.py` (needs `pip install playwright && playwright install chromium`) and look at `tools/shots/*.png`. Rendering problems such as misaligned glyphs or lattice artifacts only show up at fractional zooms, so check at least 1.5, 2.4, 3.4, 4.5 and 6. Software WebGL is slow, so allow 5–15 s per screenshot.
