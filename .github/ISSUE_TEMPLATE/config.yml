@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Read the sources and caveats first
+    url: https://github.com/byron123t/resourcemap#known-issues--what-to-fix-next
+    about: Known gaps and limits of the data and models.

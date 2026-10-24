@@ -4,6 +4,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Site-level world map of oil, gas, coal, ore, critical minerals, industry, power, water, military bases, airports, ports, data centres, undersea cables and farmland, with live satellite imagery, fire detections, conflict reports, warships and aircraft, and a storyboard of recent surges in conflict news.">
 <title>World Extraction Atlas</title>
+<!-- link previews (Reddit, Slack, X, Discord): og.jpg is a screenshot made by tools/og_image.py -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="World Extraction Atlas">
+<meta property="og:title" content="World Extraction Atlas: where the world's energy, metals, food and data come from">
+<meta property="og:description" content="A free live map of oil and gas, mines, power, pipelines, ports, chips, cables and water, with today's conflict and disaster news, satellite imagery, and what-if scenarios: close a strait, switch off a refinery, dry up a river.">
+<meta property="og:url" content="https://byron123t.github.io/resourcemap/">
+<meta property="og:image" content="https://byron123t.github.io/resourcemap/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="World map with oil fields, refineries, pipelines and shipping chokepoints">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1c1d1b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23f4f3ee' stroke='%231c1d1b' stroke-width='2'/%3E%3Cpath d='M4 13h24M4 19h24M16 2c-5 6-5 22 0 28M16 2c5 6 5 22 0 28' fill='none' stroke='%231c1d1b' stroke-width='1.4'/%3E%3Ccircle cx='21' cy='11' r='3.2' fill='%23eb6834' stroke='%231c1d1b'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="vendor/fonts.css">
 <link rel="stylesheet" href="vendor/maplibre-gl.css">
 <style>
@@ -22,7 +35,7 @@
   --panel-line: #dddcd4;
   --ink: #1c1f1f;
   --ink-2: #545750;
-  --ink-3: #7c7f78;
+  --ink-3: #676a63;
   --sea-ink: #4a7387;
   --oil: #eb6834;
   --coal: #4a3aa7;
@@ -213,9 +226,37 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 .key-help dl { display: grid; grid-template-columns: max-content 1fr; gap: 7px 14px; margin: 0; font-size: 12.5px; }
 .key-help dt { white-space: nowrap; } .key-help dd { margin: 0; color: var(--ink-2); }
 @media (hover: none), (max-width: 900px) { .key-hints { display: none; } #app .map-key { bottom: 16px; } }
+/* --- accessibility: skip link, link-style buttons --- */
+.skip { position: absolute; left: 8px; top: -60px; z-index: 20; background: var(--ink); color: var(--panel); padding: 8px 12px; border-radius: 4px; font-weight: 600; }
+.skip:focus { top: 8px; }
+.linkish { font: inherit; color: var(--ink-2); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+.foot-links { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-top: 8px; border-top: 1px solid var(--panel-line); font-size: 12px; }
+.foot-links a { color: var(--ink-2); }
+.foot-links kbd { font: 600 10px/1 var(--f-mono); padding: 1px 4px; border: 1px solid var(--panel-line); border-radius: 3px; }
+/* --- first-visit welcome card --- */
+.welcome { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / .35); }
+.welcome-card { position: relative; width: min(560px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; background: var(--panel); color: var(--ink); border: 1px solid var(--panel-line); border-radius: 10px; box-shadow: 0 16px 50px rgb(0 0 0 / .3); padding: 18px 20px 16px; }
+.welcome-card .close { position: absolute; top: 8px; right: 8px; }
+.welcome-card h2 { margin: 4px 30px 8px 0; font-family: var(--f-display); font-stretch: 80%; font-weight: 800; font-size: 23px; line-height: 1.12; text-wrap: balance; }
+.welcome-card p { margin: 0 0 10px; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+.welcome-go { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0 12px; }
+.welcome-go button { text-align: left; font: inherit; color: var(--ink); background: var(--land); border: 1px solid var(--panel-line); border-radius: 7px; padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; min-height: 64px; }
+.welcome-go button:hover { border-color: var(--ink); }
+.welcome-go b { font-size: 14px; line-height: 1.25; }
+.welcome-go span { font-size: 12px; color: var(--ink-2); line-height: 1.35; }
+.welcome-go button[data-go="hormuz"] { border-left: 4px solid var(--sim-down); }
+.welcome-small { font-size: 11.5px !important; color: var(--ink-3) !important; }
+.welcome-small kbd { font: 600 10px/1 var(--f-mono); padding: 1px 4px; border: 1px solid var(--panel-line); border-radius: 3px; }
+@media (max-width: 520px) { .welcome-go { grid-template-columns: 1fr; } .welcome-card h2 { font-size: 20px; } }
+@media (prefers-reduced-motion: reduce) { .sheet { transition: none !important; } }
+/* phones: no double-tap zoom on controls; keep cards clear of the notch */
+button, a, select, input, summary { touch-action: manipulation; }
+@media (max-width: 720px) { .detail { top: max(10px, env(safe-area-inset-top)); } .sim-bar { top: max(10px, env(safe-area-inset-top)); } }
 /* --- map styles: a row of small swatches above the zoom buttons --- */
 .map-styles { display: grid; grid-template-columns: repeat(5, auto); gap: 2px; padding: 3px; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-radius: 6px; box-shadow: 0 2px 8px rgb(0 0 0 / .12); }
 .map-styles button { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 50px; padding: 3px 2px 2px; font: inherit; font-size: 10px; color: var(--ink-2); background: none; border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
+.ms-more { display: none !important; }
+@media (max-width: 720px) { .ms-more { display: flex !important; } }
 .map-styles button:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 5%, transparent); }
 .map-styles button[aria-pressed="true"] { color: var(--ink); font-weight: 600; border-color: var(--ink); }
 .map-styles i { position: relative; display: block; width: 40px; height: 24px; border-radius: 3px; border: 1px solid var(--panel-line); }
@@ -244,9 +285,9 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 .key-more { color: var(--ink); background: color-mix(in srgb, var(--focus) 10%, transparent); border-radius: 4px; padding: 4px 6px; line-height: 1.35; }
 /* --- scenario result bar over the map --- */
 .sim-bar { position: absolute; z-index: 3; top: 16px; left: 362px; right: 340px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; pointer-events: none; }
-.sheet.collapsed ~ .sim-bar { left: 16px; }
 .sim-bar button { pointer-events: auto; flex: none; text-align: left; font: inherit; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-top: 3px solid var(--panel-line); border-radius: 5px; padding: 5px 9px; cursor: pointer; box-shadow: 0 3px 12px rgb(0 0 0 / .12); display: flex; flex-direction: column; }
 .sim-bar button[aria-current="true"] { border-top-color: var(--sim-down); }
+#detail[hidden] ~ .sim-bar { right: 16px; }
 .sim-bar .ttl { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: .03em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
 .sim-bar .big { font-family: var(--f-display); font-stretch: 85%; font-size: 16px; font-weight: 700; color: var(--sim-down); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .sim-bar .big.up { color: var(--sim-up); } .sim-bar .big.k { color: var(--ink); }
@@ -305,7 +346,13 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
   /* map controls and credits ride above the sheet */
   .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-bottom-left { bottom: var(--sheet-h, 120px); }
   .maplibregl-ctrl-scale { display: none; }
-  .map-styles button { width: 42px; font-size: 9.5px; } .map-styles i { width: 32px; height: 20px; } .map-styles kbd { display: none; }
+  .map-styles button { width: 46px; font-size: 10px; } .map-styles i { width: 36px; height: 22px; } .map-styles kbd { display: none; }
+  /* folded to one "Style" button until tapped */
+  .map-styles { grid-template-columns: repeat(5, auto); }
+  .map-styles:not(.open) { grid-template-columns: auto; }
+  .map-styles:not(.open) button[data-style] { display: none; }
+  .map-styles.open .ms-more { grid-column: 1 / -1; flex-direction: row; justify-content: center; width: auto; }
+  .map-styles.open .ms-more i { display: none; }
   #app .map-key { left: 10px; bottom: var(--sheet-h, 120px); max-width: 62%; max-height: 30%; }
   .sim-bar { top: 10px; left: 10px; right: 10px; }
   #detail:not([hidden]) ~ .sim-bar { display: none; }
@@ -405,7 +452,7 @@ details.notes { display: block; } details.notes > * + * { margin-top: 6px; }
 .story-mk.on { border-color: var(--ink); z-index: 2; }
 /* severity tiers: story, news, incident, conflict, disaster */
 .seg.tiers button { font-size: 11.5px; padding: 5px 2px; line-height: 1.15; }
-.seg.tiers button small { display: block; font-family: var(--f-mono); font-size: 10px; opacity: .75; font-weight: 400; }
+.seg.tiers button small { display: block; font-family: var(--f-mono); font-size: 10px; opacity: .9; font-weight: 400; }
 .seg.tiers button:disabled { opacity: .4; cursor: default; }
 .tier { display: inline-block; font-family: var(--f-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: .05em; padding: 0 5px; border: 1px solid var(--panel-line); border-radius: 3px; color: var(--ink-3); line-height: 15px; vertical-align: 1px; }
 .tier.t2 { color: var(--ink-2); border-color: var(--ink-3); }
@@ -541,11 +588,12 @@ details.fold > section + section { margin-top: 16px; }
 .detail .zoom-btn { margin: 0 16px 14px; font: inherit; font-size: 12.5px; padding: 6px 10px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
 </style>
 
+<a class="skip" href="#q">Skip to search</a>
 <div id="app">
   <div id="map" role="region" aria-label="World map of resources, industry, water and infrastructure"></div>
   <div id="labels" aria-hidden="true"></div>
 
-  <aside class="sheet" id="sheet">
+  <aside class="sheet" id="sheet" aria-label="Atlas controls">
     <div class="sheet-head">
       <button type="button" class="grab" id="sheetGrab" aria-label="Resize the panel"></button>
       <div>
@@ -629,13 +677,13 @@ details.fold > section + section { margin-top: 16px; }
     </div>
     <div class="sheet-body" id="sheetBody">
       <section class="search">
-        <h3 class="group-title"><label for="q">Find a place, site or country</label></h3>
+        <h2 class="group-title"><label for="q">Find a place, site or country</label></h2>
         <input id="q" type="search" placeholder="e.g. Rumaila, Three Gorges, Rotterdam, 36.95, -76.31" autocomplete="off">
         <ul class="results" id="results"></ul>
       </section>
 
       <section class="viewbox">
-        <h3 class="group-title"><label for="view">View</label></h3>
+        <h2 class="group-title"><label for="view">View</label></h2>
         <div class="vgroups" id="viewGroups" role="group" aria-label="Topics"></div>
         <div class="vlist" id="viewList" role="group" aria-label="Views in this topic"></div>
         <select id="view" hidden aria-hidden="true" tabindex="-1"></select>
@@ -646,7 +694,7 @@ details.fold > section + section { margin-top: 16px; }
 
 
       <section class="onmap" id="onMap">
-        <h3 class="group-title">On the map <span class="n" id="onMapN"></span></h3>
+        <h2 class="group-title">On the map <span class="n" id="onMapN"></span></h2>
         <ul class="onmap-list" id="onMapList"></ul>
         <div class="base-legend" id="agriLegend" hidden></div>
         <div class="base-legend" id="wxLegend" hidden></div>
@@ -656,7 +704,7 @@ details.fold > section + section { margin-top: 16px; }
 
       <details class="fold" id="allLayers"><summary class="group-title">All layers &amp; settings</summary>
       <section>
-        <h3 class="group-title">Live</h3>
+        <h2 class="group-title">Live</h2>
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-fires"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="var(--fire)" stroke="var(--conflict)" stroke-width="1.5"/></svg><span class="name">Fires &amp; heat<small class="live" id="st-fires">NASA FIRMS VIIRS, last 24 h</small></span><span class="count" id="n-fires"></span></label>
           <label class="layer" for="fireMode"><span></span><span></span><select id="fireMode" aria-label="Which fire detections">
@@ -672,7 +720,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section class="imagery">
-        <h3 class="group-title"><label for="imagery">Satellite imagery</label></h3>
+        <h2 class="group-title"><label for="imagery">Satellite imagery</label></h2>
         <select id="imagery"></select>
         <div class="row2" id="imgCtl" hidden>
           <label id="imgDateWrap"><span id="imgDateLbl">Day (UTC)</span><input type="date" id="imgDate"></label>
@@ -687,7 +735,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section class="imagery">
-        <h3 class="group-title"><label for="agri">Farmland, land cover &amp; people</label></h3>
+        <h2 class="group-title"><label for="agri">Farmland, land cover &amp; people</label></h2>
         <select id="agri">
           <option value="">None</option>
           <option value="crop">Cropland share of land (2000)</option>
@@ -702,7 +750,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section class="imagery">
-        <h3 class="group-title"><label for="wx">Weather: temperature &amp; rain</label></h3>
+        <h2 class="group-title"><label for="wx">Weather: temperature &amp; rain</label></h2>
         <select id="wx">
           <option value="">None</option>
           <option value="rain">Rain and snow, latest half hour (GPM IMERG)</option>
@@ -718,7 +766,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section>
-        <h3 class="group-title">Resources</h3>
+        <h2 class="group-title">Resources</h2>
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-oilgas"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--oil)" stroke="var(--mark-ring)"/></svg><span class="name">Oil &amp; gas fields<small>production, M boe/yr</small></span><span class="count" id="n-oilgas"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-coal"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--coal)" stroke="var(--mark-ring)"/></svg><span class="name">Coal mines<small>capacity, Mt/yr</small></span><span class="count" id="n-coal"></span></label>
@@ -731,7 +779,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section>
-        <h3 class="group-title">Industry, power &amp; LNG</h3>
+        <h2 class="group-title">Industry, power &amp; LNG</h2>
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-power"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--power)" stroke="var(--mark-ring)"/></svg><span class="name">Power plants<small>capacity, GW</small></span><span class="count" id="n-power"></span></label>
           <label class="layer" for="fuel"><span></span><span></span><select id="fuel" aria-label="Power plant fuel">
@@ -747,7 +795,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section>
-        <h3 class="group-title">Lines &amp; routes</h3>
+        <h2 class="group-title">Lines &amp; routes</h2>
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-pipes"><svg class="sw" viewBox="0 0 14 14"><path d="M1 4h12" stroke="var(--pipe-oil)" stroke-width="2"/><path d="M1 10h12" stroke="var(--gas)" stroke-width="2" stroke-dasharray="3 2"/></svg><span class="name">Pipelines<small>oil brown, gas blue dashed; width = capacity</small></span><span class="count" id="n-pipes"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-lanes"><svg class="sw" viewBox="0 0 14 14"><path d="M1 9c4-5 8-5 12-2" fill="none" stroke="var(--lane)" stroke-width="2" stroke-dasharray="3 2"/></svg><span class="name">Shipping lanes</span><span class="count" id="n-lanes"></span></label>
@@ -762,7 +810,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section>
-        <h3 class="group-title">Defence &amp; infrastructure</h3>
+        <h2 class="group-title">Defence &amp; infrastructure</h2>
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-bases"><svg class="sw" viewBox="0 0 14 14"><rect x="2.5" y="2.5" width="9" height="9" fill="var(--mil)" stroke="var(--mark-ring)"/></svg><span class="name">Military bases<small>Wikidata + OpenStreetMap</small></span><span class="count" id="n-bases"></span></label>
           <label class="layer" for="baseType"><span></span><span></span><select id="baseType" aria-label="Base type">
@@ -777,7 +825,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section>
-        <h3 class="group-title">Information, health &amp; food</h3>
+        <h2 class="group-title">Information, health &amp; food</h2>
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-cloud"><svg class="sw" viewBox="0 0 14 14"><rect x="2" y="4" width="10" height="6" rx="3" fill="var(--cloud)" stroke="var(--mark-ring)"/></svg><span class="name">Cloud regions<small>AWS, Azure, Google, Oracle and others; placed at the city</small></span><span class="count" id="n-cloud"></span></label>
           <label class="layer"><input type="checkbox" id="lyr-fabs"><svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="var(--fab)" stroke="var(--mark-ring)"/></svg><span class="name">Chip fabs<small>Wikipedia list; size = wafers a month</small></span><span class="count" id="n-fabs"></span></label>
@@ -787,7 +835,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section>
-        <h3 class="group-title"><label for="base">Background shading</label></h3>
+        <h2 class="group-title"><label for="base">Background shading</label></h2>
         <select id="base">
           <option value="">None</option>
           <optgroup label="Water">
@@ -840,7 +888,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section>
-        <h3 class="group-title">Geography &amp; borders</h3>
+        <h2 class="group-title">Geography &amp; borders</h2>
         <div class="layers">
           <label class="layer"><input type="checkbox" id="lyr-terrain"><svg class="sw" viewBox="0 0 14 14"><path d="M1 12l4-7 2.5 3.5L9.5 5l3.5 7z" fill="var(--hs-shadow)" stroke="var(--ink-3)" stroke-width=".8" stroke-linejoin="round"/></svg><span class="name">Terrain shading<small>hillshade from elevation tiles</small></span></label>
           <label class="layer"><input type="checkbox" id="lyr-lakes"><svg class="sw" viewBox="0 0 14 14"><path d="M2 8c0-4 4-6 7-5s4 4 2 7-9 3-9-2z" fill="var(--water)" stroke="var(--river)"/></svg><span class="name">Lakes &amp; reservoirs</span><span class="count" id="n-lakes"></span></label>
@@ -852,7 +900,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section>
-        <h3 class="group-title">Status</h3>
+        <h2 class="group-title">Status</h2>
         <div class="seg" role="group" aria-label="Filter sites by status">
           <button type="button" id="st-all" aria-pressed="true">All active</button>
           <button type="button" id="st-op" aria-pressed="false">Operating</button>
@@ -867,7 +915,7 @@ details.fold > section + section { margin-top: 16px; }
       </section>
 
       <section>
-        <h3 class="group-title">Circle size</h3>
+        <h2 class="group-title">Circle size</h2>
         <div class="sizes" id="sizes"></div>
       </section>
 
@@ -887,12 +935,34 @@ claude mcp add atlas -- node "$PWD/resourcemap/cli/mcp.mjs"</pre>
         <p><strong>Read with care.</strong> Totals add up only what each site reports; many large oil fields, including Saudi Arabia's, publish no production. The US critical-mineral set is far more detailed than the global one, so the US shows many more deposits. Solar, wind, hydro and nuclear come from a 2021 database. Refinery capacities are nameplate figures from Climate TRACE; a few missing ones use the country median. Gas is converted at 6,000 cf per barrel of oil equivalent. Country totals count operating sites only; offshore sites go to the nearest country. Country water stress is an area-weighted average of Aqueduct basin scores. Borders follow Natural Earth's de facto lines and don't imply endorsement.</p>
         <p><strong>Live layers.</strong> Fires, conflict reports, ships and aircraft are snapshots refreshed every 30 minutes or so by the site's build, not a live stream; each layer shows when it was taken. Conflict reports are machine-coded from news articles and are often duplicated, misplaced (to a country's centre, say) or wrong; open the linked articles before relying on one. A fire next to a conflict report isn't proof of an attack. Warship positions come from USNI News's weekly fleet tracker, which names a port or sea area rather than coordinates, so they're approximate and only cover publicly reported US Navy ships; other navies rarely publish positions and their warships usually switch AIS off. Worldwide merchant ships need an aisstream.io key in the build; without one the ship layer shows the Baltic, live. Business jets cover about 35 common jet types and airliners about 60 passenger, regional and freighter types, not every plane; aircraft whose owners have opted out of public tracking (the FAA's LADD list and privacy ICAO addresses) are left out, and no owner names are shown. Search a registration or callsign to find one. Military bases combine Wikidata and OpenStreetMap and are still incomplete, so a gap doesn't mean there's no base. Cable routes are schematic.</p>
       </details>
+      <footer class="foot-links">
+        <button type="button" class="linkish" id="aboutOpen">About this map</button>
+        <a href="https://github.com/byron123t/resourcemap/issues/new/choose" target="_blank" rel="noopener">Feedback &amp; bugs</a>
+        <a href="https://github.com/byron123t/resourcemap" target="_blank" rel="noopener">Source</a>
+        <a href="https://github.com/byron123t/resourcemap/blob/main/LICENSE" target="_blank" rel="noopener">Noncommercial licence</a>
+        <button type="button" class="linkish" id="keysOpen">Keyboard: <kbd>?</kbd></button>
+      </footer>
     </div>
   </aside>
 
   <article class="detail" id="detail" hidden aria-live="polite"></article>
   <div class="key-hints" id="keyHints" aria-hidden="true"><span><kbd>1</kbd>–<kbd>0</kbd> styles</span><span><kbd>[</kbd><kbd>]</kbd> views</span><span><kbd>M</kbd><kbd>B</kbd><kbd>S</kbd> modes</span><span><kbd>J</kbd><kbd>K</kbd> next</span><span><kbd>I</kbd> info</span><span><kbd>/</kbd> search</span><button type="button" tabindex="-1"><kbd>?</kbd> all keys</button></div>
   <div class="key-help" id="keyHelp" hidden role="dialog" aria-label="Keyboard shortcuts"></div>
+  <div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+    <div class="welcome-card">
+      <button type="button" class="close" id="welcomeClose" aria-label="Close">×</button>
+      <p class="eyebrow">Free · live · noncommercial</p>
+      <h2 id="welcomeTitle">Where the world's energy, metals, food and data come from, and what breaks when something stops.</h2>
+      <p>Oil and gas fields, refineries, pipelines, mines, power plants, ports, chip fabs, undersea cables and water stress, site by site, with today's conflict and disaster news and live satellite imagery. Pick a starting point:</p>
+      <div class="welcome-go">
+        <button type="button" data-go="hormuz"><b>What if the Strait of Hormuz closed?</b><span>Run the scenario: oil stuck, diesel short, tankers rerouted</span></button>
+        <button type="button" data-go="story"><b>What's happening this week</b><span>Fighting, disasters and trade news, placed on the map</span></button>
+        <button type="button" data-go="oil"><b>Where oil and gas flow</b><span>Fields, refineries, pipelines and chokepoints</span></button>
+        <button type="button" data-go="map"><b>Just look around</b><span>Tap anything for details; 35 ready-made views</span></button>
+      </div>
+      <p class="welcome-small">Data from GEM, WRI, USGS, NASA, GDELT, OpenStreetMap and more (see Sources & caveats). Conflict reports are machine-coded from news and scenario numbers are illustrative: read the caveats before relying on them. Keyboard users: press <kbd>?</kbd>.</p>
+    </div>
+  </div>
   <nav class="sim-bar" id="simGlance" hidden aria-label="Scenario result, step by step"></nav>
   <aside class="map-key" id="mapKey" hidden aria-label="Map key">
     <button type="button" class="key-head" id="keyToggle" aria-expanded="true">Key</button>
@@ -2685,6 +2755,8 @@ async function simLocalCore(env, shocks) {
       ...initialCamera(), minZoom: 0.3, maxZoom: 17, attributionControl: false, dragRotate: false, pixelRatio: window.devicePixelRatio || 1
     });
     map.touchZoomRotate.disableRotation();
+    // people who ask their system for less motion get jumps instead of camera flights
+    try { if (matchMedia("(prefers-reduced-motion: reduce)").matches) { const jump = map.jumpTo.bind(map); map.flyTo = map.easeTo = o => jump(o || {}); } } catch (e) {}
     if (/debug/.test(location.hash)) window.__atlasMap = map; // used by tools/screenshot.py
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 110, unit: "metric" }), "bottom-right");
@@ -3030,6 +3102,7 @@ async function simLocalCore(env, shocks) {
     bindWx();
     bindClaude();
     bindKeys();
+    bindWelcome();
     bindStory();
     bindOnMap();
     simBind();
@@ -3525,7 +3598,7 @@ async function simLocalCore(env, shocks) {
     $("keyHints").addEventListener("click", e => { if (e.target.closest("button")) keyHelp(); });
     const views = () => Object.keys(VIEWS), topics = () => [...new Set(Object.values(VIEWS).map(c => c.g))];
     document.addEventListener("keydown", e => {
-      if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+      if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable || !$("welcome").hidden) return;
       const k = e.key, mapMode = () => { if (curMode !== "map") setMode("map"); };
       let done = true;
       if (/^[0-9]$/.test(k)) setStyle(MAP_STYLES[(+k + 9) % 10].k);
@@ -3544,6 +3617,41 @@ async function simLocalCore(env, shocks) {
       else done = false;
       if (done) e.preventDefault();
     });
+  }
+
+  // ---------- welcome card: once per browser, unless the link already says where to go (view, scenario or place) ----------
+  const WELCOME_KEY = "atlas.welcomed";
+  function welcome(show) {
+    const el = $("welcome");
+    if (show) { el.hidden = false; welcome.back = document.activeElement; requestAnimationFrame(() => el.querySelector(".welcome-go button").focus()); return; }
+    el.hidden = true;
+    try { localStorage.setItem(WELCOME_KEY, "1"); } catch (e) {}
+    if (welcome.back && welcome.back.focus) welcome.back.focus();
+  }
+  function bindWelcome() {
+    $("welcomeClose").onclick = () => welcome(false);
+    $("welcome").addEventListener("click", e => {
+      if (e.target === $("welcome")) return welcome(false);
+      const b = e.target.closest("button[data-go]"); if (!b) return;
+      welcome(false);
+      const go = b.dataset.go;
+      if (go === "hormuz") {
+        try { history.replaceState(null, "", "#view=shipping&sim=choke.hormuz.100"); } catch (err) {}
+        setView("shipping"); setMode("sim");
+      } else if (go === "story") setMode("story");
+      else if (go === "oil") { if (curMode !== "map") setMode("map"); setView("oil"); map.flyTo({ center: [50, 27], zoom: 4.2 }); }
+    });
+    $("welcome").addEventListener("keydown", e => {
+      if (e.key === "Escape") { e.stopPropagation(); welcome(false); }
+      if (e.key === "Tab") {   // keep focus inside the card
+        const f = [...$("welcome").querySelectorAll("button")], i = f.indexOf(document.activeElement);
+        if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+      }
+    });
+    $("aboutOpen").onclick = () => welcome(true);
+    $("keysOpen").onclick = () => keyHelp(true);
+    let seen = false; try { seen = !!localStorage.getItem(WELCOME_KEY); } catch (e) {}
+    if (!seen && !/(?:^#|&)(view|sim|at)=/.test(location.hash)) welcome(true);
   }
 
   // ---------- "Ask Claude" examples (each command was checked against cli/atlas.mjs) ----------
@@ -4427,8 +4535,10 @@ async function simLocalCore(env, shocks) {
   }
   function styleSync() {
     const el = $("mapStyles"); if (!el) return;
-    if (!el.childElementCount) el.innerHTML = MAP_STYLES.map((x, i) => `<button type="button" data-style="${x.k}" title="${esc(x.t)} (key ${(i + 1) % 10})" aria-pressed="false" aria-keyshortcuts="${(i + 1) % 10}"><i class="ms-${x.k}"><kbd>${(i + 1) % 10}</kbd></i>${x.label}</button>`).join("");
+    if (!el.childElementCount) el.innerHTML = `<button type="button" class="ms-more" aria-expanded="false" aria-label="Map style"><i></i>Style</button>`
+      + MAP_STYLES.map((x, i) => `<button type="button" data-style="${x.k}" title="${esc(x.t)} (key ${(i + 1) % 10})" aria-pressed="false" aria-keyshortcuts="${(i + 1) % 10}"><i class="ms-${x.k}"><kbd>${(i + 1) % 10}</kbd></i>${x.label}</button>`).join("");
     const cur = styleOf();
+    el.querySelector(".ms-more i").className = "ms-" + (cur || "map");
     el.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.style === cur)));
   }
   // sharper layers over the base, each shown from its zoom up (above the base, below farmland and weather)
@@ -4513,7 +4623,12 @@ async function simLocalCore(env, shocks) {
       `<optgroup label="${esc(g)}">${es.map(([k, I]) => `<option value="${k}">${esc(I.label)}</option>`).join("")}</optgroup>`).join("");
     $("imagery").addEventListener("change", () => applyImagery(false));
     styleSync();
-    $("mapStyles").addEventListener("click", e => { const b = e.target.closest("button[data-style]"); if (b) setStyle(b.dataset.style); });
+    $("mapStyles").addEventListener("click", e => {
+      const el = $("mapStyles"), more = e.target.closest(".ms-more");
+      if (more) { const open = el.classList.toggle("open"); more.setAttribute("aria-expanded", String(open)); return; }
+      const b = e.target.closest("button[data-style]"); if (!b) return;
+      setStyle(b.dataset.style); el.classList.remove("open"); el.querySelector(".ms-more").setAttribute("aria-expanded", "false");
+    });
     $("lyr-terrain").addEventListener("change", styleSync);
     $("imgDate").addEventListener("change", () => $("imgDate").value && applyImagery(true));
     $("imgOpacity").addEventListener("input", e => ["imagery", "imagery-d0", "imagery-d1"].forEach(l => map.getLayer(l) && map.setPaintProperty(l, "raster-opacity", +e.target.value / 100)));

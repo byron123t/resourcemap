@@ -59,7 +59,11 @@ if [ -z "${LITELLM_API_KEY:-}" ] || [ -z "${LITELLM_BASE_URL:-}" ]; then
 fi
 [ -n "${LITELLM_API_KEY:-}" ] && [ -n "${LITELLM_BASE_URL:-}" ] || { log "LITELLM_API_KEY / LITELLM_BASE_URL not set"; exit 1; }
 
-q() { gh pr list -R "$REPO" --head "$BRANCH" --state open --json number,headRefOid,body -q ".[0].$1 // empty"; }
+# only PRs from this repository's own branch, opened by the workflow or the owner: a fork can name its branch the same,
+# and its PR must never get a review (it would spend tokens on someone else's text)
+OWNER=${REPO%%/*}
+q() { gh pr list -R "$REPO" --head "$BRANCH" --state open --json number,headRefOid,body,isCrossRepository,author \
+  -q "[.[] | select((.isCrossRepository | not) and (.author.login == \"app/github-actions\" or .author.login == \"github-actions\" or .author.login == \"$OWNER\"))] | .[0].$1 // empty"; }
 num=$(q number)
 # The workflow pushes the branch but can't open the PR when Actions may not create PRs; open it here
 # if the branch has commits main lacks and its tip isn't one an earlier (merged or closed) PR had.

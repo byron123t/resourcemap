@@ -1,0 +1,16 @@
+name: Idea or data request
+description: A layer, scenario, view or feature you'd like to see
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: And what question would it help you answer?
+    validations:
+      required: true
+  - type: input
+    id: data
+    attributes:
+      label: Open data source (optional)
+      description: A dataset with a licence that allows reuse, if you know one.

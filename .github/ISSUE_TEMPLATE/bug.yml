@@ -1,0 +1,26 @@
+name: Something's wrong on the map
+description: A bug, a misplaced site or story, wrong numbers, or something that doesn't load
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong?
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link to the map at that spot
+      description: Copy the address bar (it keeps the view, place and scenario), or use "Copy link" in Scenarios.
+  - type: input
+    id: device
+    attributes:
+      label: Browser and device
+      placeholder: e.g. Firefox 131 on Windows, Safari on iPhone 15
+  - type: textarea
+    id: source
+    attributes:
+      label: Better source (optional)
+      description: If a site, figure or place is wrong, a link to a reliable source helps a lot.
