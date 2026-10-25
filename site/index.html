@@ -152,7 +152,7 @@ body { background: var(--ocean); color: var(--ink); font-family: var(--f-body); 
 .sheet-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--panel-line); }
 .eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 h1 { margin: 4px 0 6px; font-family: var(--f-display); font-stretch: 78%; font-weight: 800; font-size: 26px; line-height: 1.05; letter-spacing: -.01em; text-wrap: balance; }
-.lede { margin: 0; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+.lede { display: none; }
 .offnote { margin: 6px 0 0; padding: 5px 8px; border: 1px solid var(--panel-line); border-radius: 6px; color: var(--ink-2); font-size: 12px; line-height: 1.4; }
 .offnote b { color: var(--ink); font-weight: 600; }
 .sheet-body { overflow-y: auto; padding: 10px 18px 16px; display: flex; flex-direction: column; gap: 16px; }
@@ -254,13 +254,13 @@ button, a, select, input, summary { touch-action: manipulation; }
 @media (max-width: 720px) { .detail { top: max(10px, env(safe-area-inset-top)); } .sim-bar { top: max(10px, env(safe-area-inset-top)); } }
 /* --- map styles: a row of small swatches above the zoom buttons --- */
 .map-styles { display: grid; grid-template-columns: repeat(5, auto); gap: 2px; padding: 3px; background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--panel-line); border-radius: 6px; box-shadow: 0 2px 8px rgb(0 0 0 / .12); }
-.map-styles button { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 50px; padding: 3px 2px 2px; font: inherit; font-size: 10px; color: var(--ink-2); background: none; border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
+.map-styles button { display: flex; flex-direction: column; align-items: center; gap: 1px; width: 38px; padding: 2px 1px 1px; font: inherit; font-size: 9px; color: var(--ink-2); background: none; border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
 .ms-more { display: none !important; }
 @media (max-width: 720px) { .ms-more { display: flex !important; } }
 .map-styles button:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 5%, transparent); }
 .map-styles button[aria-pressed="true"] { color: var(--ink); font-weight: 600; border-color: var(--ink); }
-.map-styles i { position: relative; display: block; width: 40px; height: 24px; border-radius: 3px; border: 1px solid var(--panel-line); }
-.map-styles kbd { position: absolute; right: 1px; bottom: 1px; font: 600 8.5px/1 var(--f-mono); color: #fff; background: rgb(0 0 0 / .55); border-radius: 2px; padding: 1px 2px; }
+.map-styles i { position: relative; display: block; width: 28px; height: 18px; border-radius: 3px; border: 1px solid var(--panel-line); }
+.map-styles kbd { position: absolute; right: 0; bottom: 0; font: 600 7.5px/1 var(--f-mono); color: #fff; background: rgb(0 0 0 / .55); border-radius: 2px; padding: 1px 2px; }
 .ms-clouds { background: radial-gradient(ellipse at 35% 40%, #fff 0 22%, transparent 45%), radial-gradient(ellipse at 75% 70%, #f2f2f2 0 15%, transparent 35%), linear-gradient(135deg, #3d6b8a, #22445c); }
 .ms-radar { background: repeating-linear-gradient(115deg, #3a3a3a 0 3px, #8a8a8a 3px 5px, #555 5px 8px); }
 .ms-fire { background: radial-gradient(circle at 45% 50%, #fff6b0 0 3px, #ff8a1f 5px, transparent 9px), linear-gradient(135deg, #3a1d10, #6b2a12); }
@@ -391,6 +391,12 @@ button, a, select, input, summary { touch-action: manipulation; }
 .viewbox { display: flex; flex-direction: column; gap: 6px; }
 .view-note { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
 .view-note .x { display: block; margin-top: 4px; color: var(--ink-3); }
+/* small "More" folds for explanations that don't need to be on screen */
+details.more-mini { display: inline; }
+details.more-mini[open] { display: block; margin-top: 4px; }
+details.more-mini > summary { display: inline; cursor: pointer; color: var(--ink-3); text-decoration: underline; list-style: none; font-size: 11.5px; }
+details.more-mini > summary::-webkit-details-marker { display: none; }
+details.more-mini[open] > summary { display: none; }
 .view-note .x b { color: var(--ink-2); font-weight: 600; }
 .viewbox button.sm { align-self: flex-start; font: inherit; font-size: 12px; padding: 4px 8px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
 .imagery button.sm, .imagery .scenes .list button { font: inherit; font-size: 12px; text-align: left; padding: 5px 8px; border: 1px solid var(--panel-line); border-radius: 5px; background: var(--land); color: var(--ink); cursor: pointer; }
@@ -626,11 +632,11 @@ details.fold > section + section { margin-top: 16px; }
         <span class="pos" id="storyPos"></span>
       </div>
       <ol class="cards" id="storyCards"></ol>
-      <p class="sum small">Conflict cards are places where conflict reports (assaults, fighting, mass violence) jumped well above their usual level, picked from GDELT's automatically coded events. The other kinds come from GDELT article searches (unrest, trade curbs, industrial accidents, blackouts, shipping, disease, harvests, cables, cloud, cyber, chips), kept only when at least two outlets report the same thing at the same place, and from USGS earthquakes and NASA EONET storms and floods. Each conflict card is placed where its article says it happened (its title and summary, checked against GeoNames), or at GDELT's place when the article names none; cards marked approximate couldn't be checked. Read the linked articles.</p>
+      <details class="sum small more-mini"><summary>How stories are picked</summary>Conflict cards are places where conflict reports (assaults, fighting, mass violence) jumped well above their usual level, picked from GDELT's automatically coded events. The other kinds come from GDELT article searches (unrest, trade curbs, industrial accidents, blackouts, shipping, disease, harvests, cables, cloud, cyber, chips), kept only when at least two outlets report the same thing at the same place, and from USGS earthquakes and NASA EONET storms and floods. Each conflict card is placed where its article says it happened (its title and summary, checked against GeoNames), or at GDELT's place when the article names none; cards marked approximate couldn't be checked. Read the linked articles.</details>
     </div>
     <div class="sim" id="sim" hidden>
       <button type="button" class="sim-back" id="simBack" hidden>← All scenarios</button>
-      <p class="sum" id="simSum">What breaks if something stops? Pick a ready-made scenario, or build your own: the model re-routes oil and gas, roads and rail, and river water around it.</p>
+      <p class="sum" id="simSum">What breaks if something stops? Pick a scenario or build your own.</p>
       <div class="sim-news" id="simNews" hidden>
         <div class="sim-levels" id="simLevels" role="radiogroup" aria-label="How the story could go"></div>
         <p class="sum small" id="simLvText"></p>
@@ -946,7 +952,7 @@ claude mcp add atlas -- node "$PWD/resourcemap/cli/mcp.mjs"</pre>
   </aside>
 
   <article class="detail" id="detail" hidden aria-live="polite"></article>
-  <div class="key-hints" id="keyHints" aria-hidden="true"><span><kbd>1</kbd>–<kbd>0</kbd> styles</span><span><kbd>[</kbd><kbd>]</kbd> views</span><span><kbd>M</kbd><kbd>B</kbd><kbd>S</kbd> modes</span><span><kbd>J</kbd><kbd>K</kbd> next</span><span><kbd>I</kbd> info</span><span><kbd>/</kbd> search</span><button type="button" tabindex="-1"><kbd>?</kbd> all keys</button></div>
+  <div class="key-hints" id="keyHints" aria-hidden="true"><button type="button" tabindex="-1"><kbd>?</kbd> shortcuts</button></div>
   <div class="key-help" id="keyHelp" hidden role="dialog" aria-label="Keyboard shortcuts"></div>
   <div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
     <div class="welcome-card">
@@ -3214,7 +3220,9 @@ async function simLocalCore(env, shocks) {
     curView = v;
     viewPicker(conf.g);
     $("view").value = v;
-    $("viewNote").innerHTML = conf.note + (conf.x ? `<span class="x">Connection: ${conf.x}</span>` : "");
+    // first sentence shows; the rest of the note and the cross-domain connection fold under "More"
+    const m = String(conf.note).match(/^(.+?\.)\s+(.+)$/s), lead = m ? m[1] : conf.note, rest = (m ? m[2] : "") + (conf.x ? `<span class="x">Connection: ${conf.x}</span>` : "");
+    $("viewNote").innerHTML = lead + (rest ? ` <details class="more-mini"><summary>More</summary>${rest}</details>` : "");
     $("viewGo").hidden = !conf.go; if (conf.go) $("viewGo").textContent = conf.go.label + (conf.go.c ? " →" : "");
     // lakes are part of the base map (without them inland water reads as land), and roads and streets are on
     // unless a view says streets: false (the sea and air views)
@@ -3696,7 +3704,7 @@ async function simLocalCore(env, shocks) {
         const m = filtered(k, true).filter(inb).length - filtered(k).filter(inb).length;
         if (m > 0) { n += m; by.push(`${smart(m)} ${Q[k].plural}`); }
       });
-      if (n) keyMore = `<div class="key-more">Showing the largest sites. <b>Zoom in</b> (or pick "Every site" under settings) for ${n.toLocaleString()} more here: ${by.slice(0, 3).join(", ")}.</div>`;
+      if (n) keyMore = `<div class="key-more" title="Zoomed out, only the largest sites show (${by.join(", ")} left out here). Zoom in, or pick Every site under settings.">+${n.toLocaleString()} smaller sites here · zoom in</div>`;
     }
     renderKey();
   }
@@ -3804,6 +3812,7 @@ async function simLocalCore(env, shocks) {
   const detail = $("detail");
   const row = (k, v, num) => v == null || v === "" ? "" : `<dt>${k}</dt><dd${num ? ' class="num"' : ""}>${v}</dd>`;
   function openDetail(kindLabel, color, title, rows, foot, extra) {
+    if (foot && !/<a\s/.test(foot) && foot.length > 90) foot = `<details class="more-mini"><summary>About this data</summary>${foot}</details>`;
     detail.innerHTML = `<div class="detail-head"><div><div class="kind eyebrow"><i style="background:${color}"></i>${esc(kindLabel)}</div><h2>${esc(title)}</h2></div><button class="close" id="closeDetail" aria-label="Close details">×</button></div><dl class="kv">${rows}</dl>${extra || ""}${foot ? `<div class="foot">${foot}</div>` : ""}`;
     detail.hidden = false; delete detail.dataset.story; delete detail.dataset.sim;
     $("closeDetail").onclick = closeDetail;
@@ -5345,7 +5354,7 @@ async function simLocalCore(env, shocks) {
   function simRender(r, facts) {
     const out = [], key = [], head = $("simHead");
     if (!simShocks.length) {
-      $("simSum").textContent = "What breaks if something stops? Pick a ready-made scenario below, or build your own. The model re-routes oil and gas, roads and rail, and river water around it.";
+      $("simSum").textContent = "What breaks if something stops? Pick a scenario or build your own.";
       $("simOut").innerHTML = ""; head.hidden = true; simSteps = []; simChainRender(); return;
     }
     const cls = (d, bad) => Math.abs(d) < 1e-6 ? "" : (bad ? d > 0 : d < 0) ? "dn" : "up";
@@ -5388,7 +5397,7 @@ async function simLocalCore(env, shocks) {
     head.innerHTML = cards.map(([v, t, c]) => `<div><b class="${c || ""}">${v}</b><span>${t}</span></div>`).join("");
     head.hidden = !cards.length || simSteps.length > 1;
     $("simSum").textContent = (simNews ? simNews.x.label : simShocks.length === 1 ? simShocks[0].n : simShocks.length + " changes together") + ". "
-      + (simSteps.length > 1 ? "What follows, step by step (tap a step to see it on the map):" : cards.length ? "What happens:" : "No measurable effect.");
+      + (simSteps.length > 1 ? "Step by step:" : cards.length ? "What happens:" : "No measurable effect.");
     simChainRender();
     if (facts.water) key.push(`<div class="sim-key"><span><i style="background:var(--sim-dry)"></i>basins losing water (darker: more)</span><span><i style="background:var(--sim-move)"></i>where people may move</span></div>`);
     if (facts.traffic && facts.traffic.type === "result") key.push(`<div class="sim-key"><span><i style="background:var(--sim-up)"></i>more road or rail traffic</span><span><i style="background:var(--sim-down)"></i>less</span><span>dotted: rail</span></div>`);
