@@ -4,8 +4,8 @@
  "items": [
   {
    "cat": "conflict",
-   "label": "Strikes near Strait of Hormuz",
-   "why": "Mina Saqr (oil port), Bandar-E Shahid Rejaie (oil port), Hulaylah Oil Terminal and 3 more within 75 km. In the news: Limited U.S. defensive strikes reported in Strait of Hormuz amid midterm eve.",
+   "label": "US strikes near the Strait of Hormuz",
+   "why": "Limited US defensive strikes were reported around Qeshm Island and the Strait of Hormuz, putting the oil ports Mina Saqr and Bandar-E Shahid Rejaie, Hulaylah terminal and the Khasab cable landing at risk.",
    "url": "https://fox11online.com/news/nation-world/limited-us-defensive-strikes-reported-in-strait-of-hormuz-amid-midterm-eve-official-iran-war-vice-president-jd-vance-president-donald-trump-qeshm-island-elections-explosions",
    "shocks": [
     [
@@ -115,7 +115,7 @@
     "Khasab, Oman",
     "Strait of Hormuz"
    ],
-   "view": "cablesnavy"
+   "view": "shipping"
   },
   {
    "cat": "storm",
@@ -196,162 +196,6 @@
     "Sri Damodaram Sanjeevaiah Thermal Power Station"
    ],
    "view": "disasters"
-  },
-  {
-   "cat": "conflict",
-   "label": "Air strikes near Cúcuta",
-   "why": "Cerrito Gas Field (Norte de Santander, Colombia) (oil/gas field), Rio Zulia Oil and Gas Field (Norte de Santander, Colombia) (oil/gas field), Cerro Gordo Oil and Gas Field (Norte de Santander, Colombia) (oil/gas field) and 2 more within 75 km. In the news: At least seven wounded after a bomb explodes near Cúcuta's main bridge to Venezuela.",
-   "url": "https://www.latintimes.com/cucuta-bombing-colombia-venezuela-bridge-closed-600626",
-   "shocks": [
-    [
-     "zone",
-     [
-      -72.5,
-      7.91,
-      75
-     ],
-     0.7
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "zone",
-      [
-       -72.5,
-       7.91,
-       15
-      ],
-      0.3
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       -72.5,
-       7.91,
-       75
-      ],
-      0.7
-     ]
-    ],
-    "esc": [
-     [
-      "zone",
-      [
-       -72.5,
-       7.91,
-       135
-      ],
-      0.95
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Calms down: only the nearest site, Cerrito Gas Field (Norte de Santander, Colombia), is hit, 30% damage within 15 km.",
-    "cur": "As reported: 5 sites within 75 km, 70% damage.",
-    "esc": "Spreads to 135 km, 95% damage, reaching 7 more sites (Gibraltar Gas Field (Boyaca, Colombia), Acordionero Oil and Gas Field (Cesar, Colombia) +3 …)."
-   },
-   "trend": "easing",
-   "likely": "de",
-   "at": [
-    -72.5,
-    7.91
-   ],
-   "months": [
-    "2026-11"
-   ],
-   "place": "Cúcuta, Norte de Santander Department, Colombia",
-   "t": "2026-11-02T00:00:00Z",
-   "z": 44.1,
-   "matched": [
-    "Cerrito Gas Field (Norte de Santander, Colombia)",
-    "Rio Zulia Oil and Gas Field (Norte de Santander, Colombia)",
-    "Cerro Gordo Oil and Gas Field (Norte de Santander, Colombia)",
-    "Tibú Oil and Gas Field (Norte de Santander, Colombia) +1",
-    "Termotasajero power station"
-   ],
-   "view": "warinfra"
-  },
-  {
-   "cat": "conflict",
-   "label": "Attacks near Amman",
-   "why": "Jordan Petroleum Al Zarqa Refinery, IPP3 ICE power plant (0.6 GW, gas), Amman East power plant (0.4 GW, gas) and 4 more within 45 km. In the news: Jordan says security officer killed in Amman in 'terrorist attack'.",
-   "url": "https://mobile.naharnet.com/stories/en/323576-jordan-says-security-officer-killed-in-amman-in-terrorist-attack",
-   "shocks": [
-    [
-     "zone",
-     [
-      35.93,
-      31.95,
-      45
-     ],
-     0.7
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "zone",
-      [
-       35.93,
-       31.95,
-       10
-      ],
-      0.3
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       35.93,
-       31.95,
-       45
-      ],
-      0.7
-     ]
-    ],
-    "esc": [
-     [
-      "zone",
-      [
-       35.93,
-       31.95,
-       85
-      ],
-      0.95
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Calms down: only the nearest site, Amman, is hit, 30% damage within 10 km.",
-    "cur": "As reported: 7 sites within 45 km, 70% damage.",
-    "esc": "Spreads to 85 km, 95% damage, reaching 1 more site (Al Qatrana power plant)."
-   },
-   "trend": "rising",
-   "likely": "esc",
-   "at": [
-    35.93,
-    31.95
-   ],
-   "months": [
-    "2026-11"
-   ],
-   "place": "Amman, (JO11), Jordan",
-   "t": "2026-11-05T00:00:00Z",
-   "z": 54.4,
-   "matched": [
-    "Jordan Petroleum Al Zarqa Refinery",
-    "IPP3 ICE power plant",
-    "Amman East power plant",
-    "Zarqa power plant",
-    "Samra power plant",
-    "Rehab power plant",
-    "Amman"
-   ],
-   "view": "warinfra"
   }
  ],
  "windows": {
@@ -359,8 +203,8 @@
    "items": [
     {
      "cat": "conflict",
-     "label": "Strikes near Strait of Hormuz",
-     "why": "Mina Saqr (oil port), Bandar-E Shahid Rejaie (oil port), Hulaylah Oil Terminal and 3 more within 75 km. In the news: Limited U.S. defensive strikes reported in Strait of Hormuz amid midterm eve.",
+     "label": "US strikes near the Strait of Hormuz",
+     "why": "Limited US defensive strikes were reported around Qeshm Island and the Strait of Hormuz, putting the oil ports Mina Saqr and Bandar-E Shahid Rejaie, Hulaylah terminal and the Khasab cable landing at risk.",
      "url": "https://fox11online.com/news/nation-world/limited-us-defensive-strikes-reported-in-strait-of-hormuz-amid-midterm-eve-official-iran-war-vice-president-jd-vance-president-donald-trump-qeshm-island-elections-explosions",
      "shocks": [
       [
@@ -470,7 +314,7 @@
       "Khasab, Oman",
       "Strait of Hormuz"
      ],
-     "view": "cablesnavy"
+     "view": "shipping"
     },
     {
      "cat": "storm",
@@ -551,162 +395,6 @@
       "Sri Damodaram Sanjeevaiah Thermal Power Station"
      ],
      "view": "disasters"
-    },
-    {
-     "cat": "conflict",
-     "label": "Air strikes near Cúcuta",
-     "why": "Cerrito Gas Field (Norte de Santander, Colombia) (oil/gas field), Rio Zulia Oil and Gas Field (Norte de Santander, Colombia) (oil/gas field), Cerro Gordo Oil and Gas Field (Norte de Santander, Colombia) (oil/gas field) and 2 more within 75 km. In the news: At least seven wounded after a bomb explodes near Cúcuta's main bridge to Venezuela.",
-     "url": "https://www.latintimes.com/cucuta-bombing-colombia-venezuela-bridge-closed-600626",
-     "shocks": [
-      [
-       "zone",
-       [
-        -72.5,
-        7.91,
-        75
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         -72.5,
-         7.91,
-         15
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         -72.5,
-         7.91,
-         75
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         -72.5,
-         7.91,
-         135
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Cerrito Gas Field (Norte de Santander, Colombia), is hit, 30% damage within 15 km.",
-      "cur": "As reported: 5 sites within 75 km, 70% damage.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 7 more sites (Gibraltar Gas Field (Boyaca, Colombia), Acordionero Oil and Gas Field (Cesar, Colombia) +3 …)."
-     },
-     "trend": "easing",
-     "likely": "de",
-     "at": [
-      -72.5,
-      7.91
-     ],
-     "months": [
-      "2026-11"
-     ],
-     "place": "Cúcuta, Norte de Santander Department, Colombia",
-     "t": "2026-11-02T00:00:00Z",
-     "z": 44.1,
-     "matched": [
-      "Cerrito Gas Field (Norte de Santander, Colombia)",
-      "Rio Zulia Oil and Gas Field (Norte de Santander, Colombia)",
-      "Cerro Gordo Oil and Gas Field (Norte de Santander, Colombia)",
-      "Tibú Oil and Gas Field (Norte de Santander, Colombia) +1",
-      "Termotasajero power station"
-     ],
-     "view": "warinfra"
-    },
-    {
-     "cat": "conflict",
-     "label": "Attacks near Amman",
-     "why": "Jordan Petroleum Al Zarqa Refinery, IPP3 ICE power plant (0.6 GW, gas), Amman East power plant (0.4 GW, gas) and 4 more within 45 km. In the news: Jordan says security officer killed in Amman in 'terrorist attack'.",
-     "url": "https://mobile.naharnet.com/stories/en/323576-jordan-says-security-officer-killed-in-amman-in-terrorist-attack",
-     "shocks": [
-      [
-       "zone",
-       [
-        35.93,
-        31.95,
-        45
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         35.93,
-         31.95,
-         10
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         35.93,
-         31.95,
-         45
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         35.93,
-         31.95,
-         85
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Amman, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 7 sites within 45 km, 70% damage.",
-      "esc": "Spreads to 85 km, 95% damage, reaching 1 more site (Al Qatrana power plant)."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      35.93,
-      31.95
-     ],
-     "months": [
-      "2026-11"
-     ],
-     "place": "Amman, (JO11), Jordan",
-     "t": "2026-11-05T00:00:00Z",
-     "z": 54.4,
-     "matched": [
-      "Jordan Petroleum Al Zarqa Refinery",
-      "IPP3 ICE power plant",
-      "Amman East power plant",
-      "Zarqa power plant",
-      "Samra power plant",
-      "Rehab power plant",
-      "Amman"
-     ],
-     "view": "warinfra"
     }
    ]
   },
@@ -714,8 +402,8 @@
    "items": [
     {
      "cat": "conflict",
-     "label": "Attacks near Riyadh",
-     "why": "Saudi Aramco Riyadh Refinery, Riyadh 5 power plant (0.6 GW, oil), Riyadh 7 power plant (1.3 GW, gas) and 6 more within 65 km. In the news: 12 killed in attack on Riyadh airport.",
+     "label": "Houthi attack on Riyadh airport",
+     "why": "A Houthi attack on Riyadh airport killed 12; Saudi Aramco Riyadh Refinery and the city power plants lie within range of further drone strikes.",
      "url": "https://www.dunfermlinepress.com/news/national/26625812.12-killed-attack-riyadh-airport---saudi-authorities/",
      "shocks": [
       [
@@ -723,9 +411,9 @@
        [
         46.77,
         24.64,
-        65
+        40
        ],
-       0.85
+       0.6
       ]
      ],
      "levels": {
@@ -735,7 +423,7 @@
         [
          46.77,
          24.64,
-         15
+         10
         ],
         0.35
        ]
@@ -746,9 +434,9 @@
         [
          46.77,
          24.64,
-         65
+         40
         ],
-        0.85
+        0.6
        ]
       ],
       "esc": [
@@ -757,16 +445,16 @@
         [
          46.77,
          24.64,
-         120
+         80
         ],
         1.0
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Riyadh, is hit, 35% damage within 15 km.",
-      "cur": "As reported: 9 sites within 65 km, 85% damage.",
-      "esc": "Spreads to 120 km, 100% damage, reaching 3 more sites (Jafurah Cogeneration power plant, Riyadh City-13 power station …)."
+      "de": "Calms down: only the nearest site is hit, 35% damage within 10 km.",
+      "cur": "As reported: sites within 40 km, 60% damage.",
+      "esc": "Spreads to 80 km, 100% damage."
      },
      "trend": "easing",
      "likely": "de",
@@ -1172,83 +860,6 @@
      "view": "fire"
     },
     {
-     "cat": "conflict",
-     "label": "Air strikes near Cúcuta",
-     "why": "Cerrito Gas Field (Norte de Santander, Colombia) (oil/gas field), Rio Zulia Oil and Gas Field (Norte de Santander, Colombia) (oil/gas field), Cerro Gordo Oil and Gas Field (Norte de Santander, Colombia) (oil/gas field) and 2 more within 75 km. In the news: At least seven wounded after a bomb explodes near Cúcuta's main bridge to Venezuela.",
-     "url": "https://www.latintimes.com/cucuta-bombing-colombia-venezuela-bridge-closed-600626",
-     "shocks": [
-      [
-       "zone",
-       [
-        -72.5,
-        7.91,
-        75
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         -72.5,
-         7.91,
-         15
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         -72.5,
-         7.91,
-         75
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         -72.5,
-         7.91,
-         135
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Cerrito Gas Field (Norte de Santander, Colombia), is hit, 30% damage within 15 km.",
-      "cur": "As reported: 5 sites within 75 km, 70% damage.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 7 more sites (Gibraltar Gas Field (Boyaca, Colombia), Acordionero Oil and Gas Field (Cesar, Colombia) +3 …)."
-     },
-     "trend": "easing",
-     "likely": "de",
-     "at": [
-      -72.5,
-      7.91
-     ],
-     "months": [
-      "2026-11"
-     ],
-     "place": "Cúcuta, Norte de Santander Department, Colombia",
-     "t": "2026-11-02T00:00:00Z",
-     "z": 44.1,
-     "matched": [
-      "Cerrito Gas Field (Norte de Santander, Colombia)",
-      "Rio Zulia Oil and Gas Field (Norte de Santander, Colombia)",
-      "Cerro Gordo Oil and Gas Field (Norte de Santander, Colombia)",
-      "Tibú Oil and Gas Field (Norte de Santander, Colombia) +1",
-      "Termotasajero power station"
-     ],
-     "view": "warinfra"
-    },
-    {
      "cat": "storm",
      "label": "Super Typhoon Champi",
      "why": "Su-Ao, Longder power station, Ho-Ping power station and more within 150 km; winds up to 95 knots (NASA EONET).",
@@ -1508,8 +1119,8 @@
     },
     {
      "cat": "conflict",
-     "label": "Strikes near Strait of Hormuz",
-     "why": "Mina Saqr (oil port), Bandar-E Shahid Rejaie (oil port), Hulaylah Oil Terminal and 3 more within 75 km. In the news: Limited U.S. defensive strikes reported in Strait of Hormuz amid midterm eve.",
+     "label": "US strikes near the Strait of Hormuz",
+     "why": "Limited US defensive strikes were reported around Qeshm Island and the Strait of Hormuz, putting the oil ports Mina Saqr and Bandar-E Shahid Rejaie, Hulaylah terminal and the Khasab cable landing at risk.",
      "url": "https://fox11online.com/news/nation-world/limited-us-defensive-strikes-reported-in-strait-of-hormuz-amid-midterm-eve-official-iran-war-vice-president-jd-vance-president-donald-trump-qeshm-island-elections-explosions",
      "shocks": [
       [
@@ -1619,7 +1230,7 @@
       "Khasab, Oman",
       "Strait of Hormuz"
      ],
-     "view": "cablesnavy"
+     "view": "shipping"
     },
     {
      "cat": "storm",
@@ -1776,8 +1387,8 @@
     },
     {
      "cat": "conflict",
-     "label": "Drone strikes near Dammam",
-     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 24 more within 75 km. In the news: 1 killed in Saudi Arabia airport attack as Houthis target drone strikes across nation’s airports.",
+     "label": "Houthi drones near Dammam",
+     "why": "Houthi drone strikes on Saudi airports killed one; Ras Tanura refinery, the Qatif and Abqaiq fields and Ju Aymah terminals lie near Dammam.",
      "url": "https://nypost.com/2026/10/21/world-news/1-killed-in-saudi-arabia-airport-attack-as-houthis-target-drone-strikes-across-nations-airports/",
      "shocks": [
       [
@@ -1868,7 +1479,7 @@
       "Bahrain Petroleum Company Refinery",
       "Al Khobar, Saudi Arabia"
      ],
-     "view": "cablesnavy"
+     "view": "warinfra"
     },
     {
      "cat": "storm",
@@ -2025,8 +1636,8 @@
     },
     {
      "cat": "conflict",
-     "label": "Fighting near Sanaa",
-     "why": "Sanaa (≈2.0 M people) within 25 km. In the news: Yemen fighting expands as Houthis attack Saudi airport again: What to know.",
+     "label": "Yemen fighting around Sanaa",
+     "why": "Fighting in Yemen is expanding as Houthis attack Saudi airports; Sanaa and its surroundings are the area at stake.",
      "url": "https://www.aljazeera.com/news/2026/10/11/yemen-fighting-expands-as-houthis-attack-saudi-airport-what-to-know",
      "shocks": [
       [
@@ -2248,100 +1859,6 @@
       "Gove"
      ],
      "view": "fire"
-    },
-    {
-     "cat": "conflict",
-     "label": "Attacks near Mokha",
-     "why": "Assab (oil port) within 65 km. In the news: Attacks on Saudi airports claimed by Houthi rebels kill 3 people, officials say.",
-     "url": "https://www.winnipegfreepress.com/world/2026/10/07/iran-backed-houthis-claim-new-attacks-on-saudi-arabia-and-yemens-aden-airport",
-     "shocks": [
-      [
-       "zone",
-       [
-        43.24,
-        13.32,
-        65
-       ],
-       0.7
-      ],
-      [
-       "choke",
-       "bab",
-       0.5
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         43.24,
-         13.32,
-         65
-        ],
-        0.3
-       ],
-       [
-        "choke",
-        "bab",
-        0.1
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         43.24,
-         13.32,
-         65
-        ],
-        0.7
-       ],
-       [
-        "choke",
-        "bab",
-        0.5
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         43.24,
-         13.32,
-         120
-        ],
-        0.95
-       ],
-       [
-        "choke",
-        "bab",
-        1
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Assab, is hit, 30% damage within 65 km. Ships keep using Bab el-Mandeb, a few divert.",
-      "cur": "As reported: 1 site within 65 km, 70% damage. Half the traffic avoids Bab el-Mandeb.",
-      "esc": "Spreads to 120 km, 95% damage. Bab el-Mandeb closes."
-     },
-     "trend": "easing",
-     "likely": "de",
-     "at": [
-      43.24,
-      13.32
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Mokha, Taizz, Yemen",
-     "t": "2026-10-07T00:00:00Z",
-     "z": 164.2,
-     "matched": [
-      "Assab",
-      "Bab el-Mandeb"
-     ],
-     "view": "shipping"
     },
     {
      "cat": "fire",
@@ -3277,8 +2794,8 @@
     },
     {
      "cat": "conflict",
-     "label": "Drone strikes near Dammam",
-     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 24 more within 75 km. In the news: 1 killed in Saudi Arabia airport attack as Houthis target drone strikes across nation’s airports.",
+     "label": "Houthi drones near Dammam",
+     "why": "Houthi drone strikes on Saudi airports killed one; Ras Tanura refinery, the Qatif and Abqaiq fields and Ju Aymah terminals lie near Dammam.",
      "url": "https://nypost.com/2026/10/21/world-news/1-killed-in-saudi-arabia-airport-attack-as-houthis-target-drone-strikes-across-nations-airports/",
      "shocks": [
       [
@@ -3371,7 +2888,7 @@
       "Bahrain Petroleum Company Refinery",
       "Al Khobar, Saudi Arabia"
      ],
-     "view": "cablesnavy"
+     "view": "warinfra"
     },
     {
      "cat": "flood",
@@ -4495,85 +4012,6 @@
       "Hachinohe thermal power station"
      ],
      "view": "disasters"
-    },
-    {
-     "cat": "conflict",
-     "label": "Explosion near Daejeon",
-     "why": "Sejong (KOMIPO) power station (0.5 GW, gas), Shinsejong power station (0.6 GW, gas), Smart Energy Center (Cheongju) power station (0.6 GW, gas) and 4 more within 75 km. In the news: Blast at rocket fuel factory in South Korea kills five.",
-     "url": "https://www.newcastleherald.com.au/story/9271662/blast-at-rocket-fuel-factory-in-south-korea-kills-five/",
-     "shocks": [
-      [
-       "zone",
-       [
-        127.42,
-        36.32,
-        75
-       ],
-       0.6
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         127.42,
-         36.32,
-         10
-        ],
-        0.25
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         127.42,
-         36.32,
-         75
-        ],
-        0.6
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         127.42,
-         36.32,
-         135
-        ],
-        0.85
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Daejeon, is hit, 25% damage within 10 km.",
-      "cur": "As reported: 7 sites within 75 km, 60% damage.",
-      "esc": "Spreads to 135 km, 85% damage, reaching 37 more sites (Boryeong LNG Terminal, Pyeongtaek Hang …)."
-     },
-     "trend": "easing",
-     "likely": "de",
-     "at": [
-      127.42,
-      36.32
-     ],
-     "months": [
-      "2026-05"
-     ],
-     "place": "Daejeon, Taejon-gwangyoksi, South Korea",
-     "t": "2026-05-31T00:00:00Z",
-     "z": 136.1,
-     "matched": [
-      "Sejong (KOMIPO) power station",
-      "Shinsejong power station",
-      "Smart Energy Center (Cheongju) power station",
-      "Muju",
-      "Eumseong power station",
-      "Gunsan CC power station",
-      "Daejeon"
-     ],
-     "view": "warinfra"
     },
     {
      "cat": "flood",
