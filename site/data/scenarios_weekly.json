@@ -1,21 +1,21 @@
 {
- "updated": "2026-10-16T19:37:03Z",
+ "updated": "2026-11-28T15:42:16Z",
  "source": "GDELT storyboard surges matched to sites within 75 km (cables 50 km, chokepoints 150 km); see pipeline/live/story_scenarios.py",
  "items": [
   {
    "cat": "conflict",
-   "label": "Attacks near Riyadh",
-   "why": "Saudi Aramco Riyadh Refinery, Riyadh 5 power plant (0.6 GW, oil), Riyadh 7 power plant (1.3 GW, gas) and 6 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
-   "url": "https://www.dunfermlinepress.com/news/national/26625812.12-killed-attack-riyadh-airport---saudi-authorities/",
+   "label": "Attacks near Jazan",
+   "why": "Saudi Aramco Jazan Refinery, Jizan (oil port), Shuqaiq Steam Power Plant (2.6 GW, oil) and 2 more within 50 km. In the news: Nepal condoles death of citizen killed in Houthi attack on Saudi oil refinery, urges restraint.",
+   "url": "https://news.webindia123.com/news/Articles/World/20261127/4525055.html",
    "shocks": [
     [
      "zone",
      [
-      46.77,
-      24.64,
-      65
+      42.55,
+      16.89,
+      50
      ],
-     0.85
+     0.65
     ]
    ],
    "levels": {
@@ -23,161 +23,8 @@
      [
       "zone",
       [
-       46.77,
-       24.64,
-       15
-      ],
-      0.35
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       46.77,
-       24.64,
-       65
-      ],
-      0.85
-     ]
-    ],
-    "esc": [
-     [
-      "zone",
-      [
-       46.77,
-       24.64,
-       120
-      ],
-      1.0
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Calms down: only the nearest site, Riyadh, is hit, 35% damage within 15 km.",
-    "cur": "As reported: 9 sites within 65 km, 85% damage.",
-    "esc": "Spreads to 120 km, 100% damage, reaching 3 more sites (Jafurah Cogeneration power plant, Riyadh City-13 power station …)."
-   },
-   "trend": "rising",
-   "likely": "esc",
-   "at": [
-    46.77,
-    24.64
-   ],
-   "months": [
-    "2026-10"
-   ],
-   "place": "Riyadh, Saudi Arabia",
-   "t": "2026-10-10T00:00:00Z",
-   "z": 997.1,
-   "matched": [
-    "Saudi Aramco Riyadh Refinery",
-    "Riyadh 5 power plant",
-    "Riyadh 7 power plant",
-    "Riyadh PP11 power station",
-    "Riyadh 8 power plant",
-    "Riyadh 10 power plant",
-    "Riyadh 9 power plant",
-    "Riyadh City-14 power station"
-   ]
-  },
-  {
-   "cat": "storm",
-   "label": "Hurricane Simon",
-   "why": "Manzanillo (Manuel Álvarez Moreno) power station, Manzanillo, Manzanillo (Mexico) LNG Terminal within 150 km; winds up to 135 knots (NASA EONET).",
-   "url": "https://www.metoc.navy.mil/jtwc/products/ep2026.tcw",
-   "shocks": [
-    [
-     "zone",
-     [
-      -105,
-      18.4,
-      150
-     ],
-     0.7
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "zone",
-      [
-       -105,
-       18.4,
-       90
-      ],
-      0.35
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       -105,
-       18.4,
-       150
-      ],
-      0.7
-     ]
-    ],
-    "esc": [
-     [
-      "zone",
-      [
-       -105,
-       18.4,
-       200
-      ],
-      0.95
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Lighter than feared: 90 km around the storm's landfall, 35% damage, repaired fast.",
-    "cur": "As reported: 150 km around the storm's landfall, 70% damage.",
-    "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 95% damage."
-   },
-   "trend": "steady",
-   "likely": "cur",
-   "at": [
-    -105,
-    18.4
-   ],
-   "months": [
-    "2026-10"
-   ],
-   "place": "Hurricane Simon",
-   "t": "2026-10-11T06:00:00Z",
-   "z": 135.0,
-   "matched": [
-    "Manzanillo (Manuel Álvarez Moreno) power station",
-    "Manzanillo",
-    "Manzanillo (Mexico) LNG Terminal"
-   ]
-  },
-  {
-   "cat": "conflict",
-   "label": "Strikes near Kyiv",
-   "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
-   "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
-   "shocks": [
-    [
-     "zone",
-     [
-      30.52,
-      50.44,
-      25
-     ],
-     0.6
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "zone",
-      [
-       30.52,
-       50.44,
+       42.55,
+       16.89,
        10
       ],
       0.25
@@ -187,418 +34,328 @@
      [
       "zone",
       [
-       30.52,
-       50.44,
-       25
+       42.55,
+       16.89,
+       50
       ],
-      0.6
+      0.65
      ]
     ],
     "esc": [
      [
       "zone",
       [
-       30.52,
-       50.44,
-       45
-      ],
-      0.85
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
-    "cur": "As reported: 3 sites within 25 km, 60% damage.",
-    "esc": "Spreads to 45 km, 85% damage."
-   },
-   "trend": "easing",
-   "likely": "de",
-   "at": [
-    30.52,
-    50.44
-   ],
-   "months": [
-    "2026-10"
-   ],
-   "place": "Kyiv, Ukraine",
-   "t": "2026-10-07T00:00:00Z",
-   "z": 335.1,
-   "matched": [
-    "Kyiv CHP-5 power station",
-    "Kiev",
-    "Kyiv"
-   ]
-  },
-  {
-   "cat": "storm",
-   "label": "Hurricane Isaias",
-   "why": "McWilliams power station, Gulf Clean Energy Center, Pensacola and more within 150 km; winds up to 80 knots (NASA EONET).",
-   "url": "https://www.nhc.noaa.gov/archive/2026/ISAIAS.shtml",
-   "shocks": [
-    [
-     "zone",
-     [
-      -86.5,
-      30.8,
-      150
-     ],
-     0.35
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "zone",
-      [
-       -86.5,
-       30.8,
+       42.55,
+       16.89,
        90
       ],
-      0.2
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       -86.5,
-       30.8,
-       150
-      ],
-      0.35
-     ]
-    ],
-    "esc": [
-     [
-      "zone",
-      [
-       -86.5,
-       30.8,
-       200
-      ],
-      0.6
+      0.9
      ]
     ]
    },
    "lv": {
-    "de": "Lighter than feared: 90 km around the storm's landfall, 20% damage, repaired fast.",
-    "cur": "As reported: 150 km around the storm's landfall, 35% damage.",
-    "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 60% damage."
-   },
-   "trend": "steady",
-   "likely": "cur",
-   "at": [
-    -86.5,
-    30.8
-   ],
-   "months": [
-    "2026-10"
-   ],
-   "place": "Hurricane Isaias",
-   "t": "2026-10-10T03:00:00Z",
-   "z": 80.0,
-   "matched": [
-    "McWilliams power station",
-    "Gulf Clean Energy Center",
-    "Pensacola",
-    "Goodway Refining Atmore Refinery",
-    "Lansing Smith Generating Plant",
-    "Joseph M Farley",
-    "Barry Steam Plant",
-    "Barry Steam Plant"
-   ]
-  },
-  {
-   "cat": "conflict",
-   "label": "Missile strikes near Balakovo",
-   "why": "Saratovskaya HPP (1.4 GW, hydro), Balakovo CHP-4 power station (0.4 GW, gas) and Balakovo NPP (4.0 GW, nuclear) within 25 km. In the news: Putin defies trumps Ukraine ceasefire as Russian missiles hit power grid and American businesses.",
-   "url": "https://finchannel.com/putin-defies-trumps-ukraine-ceasefire-as-russian-missiles-hit-power-grid-and-american-businesses/138155/americas/white-house-en/2026/10/",
-   "shocks": [
-    [
-     "zone",
-     [
-      47.8,
-      52.03,
-      25
-     ],
-     0.7
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "zone",
-      [
-       47.8,
-       52.03,
-       10
-      ],
-      0.3
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       47.8,
-       52.03,
-       25
-      ],
-      0.7
-     ]
-    ],
-    "esc": [
-     [
-      "zone",
-      [
-       47.8,
-       52.03,
-       45
-      ],
-      0.95
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Calms down: only the nearest site, Saratovskaya HPP, is hit, 30% damage within 10 km.",
-    "cur": "As reported: 3 sites within 25 km, 70% damage.",
-    "esc": "Spreads to 45 km, 95% damage."
-   },
-   "trend": "easing",
-   "likely": "de",
-   "at": [
-    47.8,
-    52.03
-   ],
-   "months": [
-    "2026-10"
-   ],
-   "place": "Balakovo, Saratovskaya Oblast', Russia",
-   "t": "2026-10-14T00:00:00Z",
-   "z": 177.6,
-   "matched": [
-    "Saratovskaya HPP",
-    "Balakovo CHP-4 power station",
-    "Balakovo NPP"
-   ]
-  },
-  {
-   "cat": "storm",
-   "label": "Cyclone Rachel",
-   "why": "Costa Azul LNG Terminal — Import Terminal, Baja California III power station, Presidente Juárez power station and more within 150 km; winds up to 50 knots (NASA EONET).",
-   "url": "https://www.metoc.navy.mil/jtwc/products/ep1826.tcw",
-   "shocks": [
-    [
-     "zone",
-     [
-      -116.3,
-      31.8,
-      150
-     ],
-     0.2
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "zone",
-      [
-       -116.3,
-       31.8,
-       90
-      ],
-      0.1
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       -116.3,
-       31.8,
-       150
-      ],
-      0.2
-     ]
-    ],
-    "esc": [
-     [
-      "zone",
-      [
-       -116.3,
-       31.8,
-       200
-      ],
-      0.45
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Lighter than feared: 90 km around the storm's landfall, 10% damage, repaired fast.",
-    "cur": "As reported: 150 km around the storm's landfall, 20% damage.",
-    "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 45% damage."
-   },
-   "trend": "steady",
-   "likely": "cur",
-   "at": [
-    -116.3,
-    31.8
-   ],
-   "months": [
-    "2026-10"
-   ],
-   "place": "Cyclone Rachel",
-   "t": "2026-10-11T06:00:00Z",
-   "z": 50.0,
-   "matched": [
-    "Costa Azul LNG Terminal — Import Terminal",
-    "Baja California III power station",
-    "Presidente Juárez power station",
-    "Rosarito",
-    "Pio Pico energy center",
-    "Otay Mesa Generating Project",
-    "Tijuana (city)",
-    "Termoelectrica de Mexicali power station"
-   ]
-  },
-  {
-   "cat": "conflict",
-   "label": "Missile strikes near Dhahran",
-   "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 22 more within 75 km. In the news: Saudi aramco in Houthi crosshairs as missile attacks threaten Kingdoms energy hub.",
-   "url": "https://www.geo.tv/latest/686388-saudi-aramco-in-houthi-crosshairs-as-missile-attacks-threaten-kingdoms-energy-hub",
-   "shocks": [
-    [
-     "zone",
-     [
-      50.14,
-      26.3,
-      75
-     ],
-     0.7
-    ],
-    [
-     "cable",
-     "al-khobar-saudi-arabia",
-     1
-    ],
-    [
-     "cable",
-     "amwaj-island-bahrain",
-     1
-    ],
-    [
-     "cable",
-     "manama-bahrain",
-     1
-    ]
-   ],
-   "levels": {
-    "de": [
-     [
-      "zone",
-      [
-       50.14,
-       26.3,
-       15
-      ],
-      0.3
-     ]
-    ],
-    "cur": [
-     [
-      "zone",
-      [
-       50.14,
-       26.3,
-       75
-      ],
-      0.7
-     ],
-     [
-      "cable",
-      "al-khobar-saudi-arabia",
-      1
-     ],
-     [
-      "cable",
-      "amwaj-island-bahrain",
-      1
-     ],
-     [
-      "cable",
-      "manama-bahrain",
-      1
-     ]
-    ],
-    "esc": [
-     [
-      "zone",
-      [
-       50.14,
-       26.3,
-       135
-      ],
-      0.95
-     ],
-     [
-      "cable",
-      "al-khobar-saudi-arabia",
-      1
-     ],
-     [
-      "cable",
-      "amwaj-island-bahrain",
-      1
-     ],
-     [
-      "cable",
-      "manama-bahrain",
-      1
-     ]
-    ]
-   },
-   "lv": {
-    "de": "Calms down: only the nearest site, Al Dammam power plant, is hit, 30% damage within 15 km.",
-    "cur": "As reported: 25 sites within 75 km, 70% damage. Nearby cables cut.",
-    "esc": "Spreads to 135 km, 95% damage, reaching 11 more sites (Ain dar Oil Field (Saudi Arabia), SATORP Saudi Aramco Total Jubail Refinery …). Nearby cables cut."
+    "de": "Calms down: only the nearest site, Shuqaiq Steam Power Plant, is hit, 25% damage within 10 km.",
+    "cur": "As reported: 5 sites within 50 km, 65% damage.",
+    "esc": "Spreads to 90 km, 90% damage."
    },
    "trend": "rising",
    "likely": "esc",
    "at": [
-    50.14,
-    26.3
+    42.55,
+    16.89
    ],
    "months": [
-    "2026-10"
+    "2026-11"
    ],
-   "place": "Dhahran, Ash Sharqiyah, Saudi Arabia",
-   "t": "2026-10-13T00:00:00Z",
-   "z": 219.6,
+   "place": "Jazan, Jizan, Saudi Arabia",
+   "t": "2026-11-25T00:00:00Z",
+   "z": 167.7,
    "matched": [
-    "Ras  Tannurah",
-    "Abqaiq Oil Field (Saudi Arabia)",
-    "Saudi Aramco Ras Tanura Refinery",
-    "Qatif Oil Field (Saudi Arabia)",
-    "Khuff Gas Field (Bahrain)",
-    "Bahrain Petroleum Company Refinery",
-    "Sitrah",
-    "Bahrain Hidd FLNG Terminal",
-    "Al Khobar, Saudi Arabia",
-    "Amwaj Island, Bahrain",
-    "Manama, Bahrain"
-   ]
+    "Jizan",
+    "Saudi Aramco Jazan Refinery",
+    "Shuqaiq Steam Power Plant",
+    "Jizan Central power plant",
+    "Jizan IGCC power plant"
+   ],
+   "view": "warinfra"
   },
   {
    "cat": "conflict",
-   "label": "Attacks near Ryazan",
-   "why": "TNK-BP Ryazan Refinery, Novo-Ryazan power station (0.3 GW, gas), Ryazanskaya GRES power station (1.9 GW, gas) and 1 more within 70 km. In the news: Ukraine resumes attacks on Russian oil refineries officials say after brief truce.",
-   "url": "https://www.mankatofreepress.com/news/business/ukraine-resumes-attacks-on-russian-oil-refineries-officials-say-after-brief-truce/article_561af0fd-3dc3-5b14-a87f-cae68c579826.html",
+   "label": "Attacks near Tripoli",
+   "why": "NOC Zawia Refinery, Mina Tarabulus (Tripoli) (oil port), Az Zawiya (oil port) and 6 more within 60 km. In the news: Russia-Ukraine war spreads to Africa as ships attacked.",
+   "url": "https://www.premiumtimesng.com/foreign/world-foreign/927377-russia-ukraine-war-spreads-to-africa-as-ships-attacked.html",
    "shocks": [
     [
      "zone",
      [
-      39.69,
-      54.63,
+      13.18,
+      32.89,
+      60
+     ],
+     0.65
+    ],
+    [
+     "cable",
+     "tripoli-libya",
+     1
+    ]
+   ],
+   "levels": {
+    "de": [
+     [
+      "zone",
+      [
+       13.18,
+       32.89,
+       10
+      ],
+      0.25
+     ]
+    ],
+    "cur": [
+     [
+      "zone",
+      [
+       13.18,
+       32.89,
+       60
+      ],
+      0.65
+     ],
+     [
+      "cable",
+      "tripoli-libya",
+      1
+     ]
+    ],
+    "esc": [
+     [
+      "zone",
+      [
+       13.18,
+       32.89,
+       110
+      ],
+      0.9
+     ],
+     [
+      "cable",
+      "tripoli-libya",
+      1
+     ]
+    ]
+   },
+   "lv": {
+    "de": "Calms down: only the nearest site, Tripoli, is hit, 25% damage within 10 km.",
+    "cur": "As reported: 9 sites within 60 km, 65% damage. Nearby cables cut.",
+    "esc": "Spreads to 110 km, 90% damage, reaching 1 more site (Bahr Es Salam (Structures B&C) Oil and Gas Field (Libya)). Nearby cables cut."
+   },
+   "trend": "easing",
+   "likely": "de",
+   "at": [
+    13.18,
+    32.89
+   ],
+   "months": [
+    "2026-11"
+   ],
+   "place": "Tripoli, Tarabulus, Libya",
+   "t": "2026-11-23T00:00:00Z",
+   "z": 163.7,
+   "matched": [
+    "Mina Tarabulus (Tripoli)",
+    "Az Zawiya",
+    "NOC Zawia Refinery",
+    "Tahara Oil and Gas Field (Libya)",
+    "South Tripoli power station",
+    "West Tripoli power station",
+    "West Tripoli Thermal power station",
+    "Al Zawiya power station",
+    "Tripoli, Libya"
+   ],
+   "view": "cablesnavy"
+  },
+  {
+   "cat": "conflict",
+   "label": "Attacks near Kaliningrad",
+   "why": "Kravtsovskoye (D-6) Oil Field (Russia) (oil/gas field), Kaliningrad CHP-2 power station (0.9 GW, gas) and Pregolskaya power station (0.5 GW, gas) within 70 km. In the news: Russia-bound ship towed away after it was attacked in Gulf of Finland.",
+   "url": "https://www.hellenicshippingnews.com/russia-bound-ship-towed-away-after-it-was-attacked-in-gulf-of-finland/",
+   "shocks": [
+    [
+     "zone",
+     [
+      20.51,
+      54.71,
+      70
+     ],
+     0.65
+    ],
+    [
+     "cable",
+     "zelenogradsk-russia",
+     1
+    ]
+   ],
+   "levels": {
+    "de": [
+     [
+      "zone",
+      [
+       20.51,
+       54.71,
+       15
+      ],
+      0.25
+     ]
+    ],
+    "cur": [
+     [
+      "zone",
+      [
+       20.51,
+       54.71,
+       70
+      ],
+      0.65
+     ],
+     [
+      "cable",
+      "zelenogradsk-russia",
+      1
+     ]
+    ],
+    "esc": [
+     [
+      "zone",
+      [
+       20.51,
+       54.71,
+       130
+      ],
+      0.9
+     ],
+     [
+      "cable",
+      "zelenogradsk-russia",
+      1
+     ]
+    ]
+   },
+   "lv": {
+    "de": "Calms down: only the nearest site, Kaliningrad CHP-2 power station, is hit, 25% damage within 15 km.",
+    "cur": "As reported: 3 sites within 70 km, 65% damage. Nearby cables cut.",
+    "esc": "Spreads to 130 km, 90% damage, reaching 6 more sites (Klaipeda FSRU, Klaipeda …). Nearby cables cut."
+   },
+   "trend": "easing",
+   "likely": "de",
+   "at": [
+    20.51,
+    54.71
+   ],
+   "months": [
+    "2026-11"
+   ],
+   "place": "Kaliningrad, Kaliningradskaya Oblast', Russia",
+   "t": "2026-11-23T00:00:00Z",
+   "z": 142.8,
+   "matched": [
+    "Kravtsovskoye (D-6) Oil Field (Russia)",
+    "Kaliningrad CHP-2 power station",
+    "Pregolskaya power station",
+    "Zelenogradsk, Russia"
+   ],
+   "view": "cablesnavy"
+  },
+  {
+   "cat": "conflict",
+   "label": "Attacks near Mumbai",
+   "why": "BPCL Mumbai Refinery, HPCL Mumbai Refinery, Mumbai (Bombay) (oil port) and 3 more within 25 km. In the news: French Embassy in India pays homage to victims of 26/11 Mumbai terror attacks, expresses solidarity with India…",
+   "url": "https://aninews.in/news/world/asia/jaishankar-pays-tribute-to-victims-of-2611-mumbai-terror-attacks-reiterates-commitment-to-combat-terrorism20261126074324/",
+   "shocks": [
+    [
+     "zone",
+     [
+      72.83,
+      18.98,
+      25
+     ],
+     0.85
+    ]
+   ],
+   "levels": {
+    "de": [
+     [
+      "zone",
+      [
+       72.83,
+       18.98,
+       10
+      ],
+      0.35
+     ]
+    ],
+    "cur": [
+     [
+      "zone",
+      [
+       72.83,
+       18.98,
+       25
+      ],
+      0.85
+     ]
+    ],
+    "esc": [
+     [
+      "zone",
+      [
+       72.83,
+       18.98,
+       45
+      ],
+      1.0
+     ]
+    ]
+   },
+   "lv": {
+    "de": "Calms down: only the nearest site, Mumbai (Bombay), is hit, 35% damage within 10 km.",
+    "cur": "As reported: 6 sites within 25 km, 85% damage.",
+    "esc": "Spreads to 45 km, 100% damage."
+   },
+   "trend": "rising",
+   "likely": "esc",
+   "at": [
+    72.83,
+    18.98
+   ],
+   "months": [
+    "2026-11"
+   ],
+   "place": "Mumbai, Maharashtra, India",
+   "t": "2026-11-25T00:00:00Z",
+   "z": 125.5,
+   "matched": [
+    "Mumbai (Bombay)",
+    "BPCL Mumbai Refinery",
+    "HPCL Mumbai Refinery",
+    "Trombay power station",
+    "Uran Combined Cycle power plant",
+    "Mumbai",
+    "Mumbai, India"
+   ],
+   "view": "warinfra"
+  },
+  {
+   "cat": "conflict",
+   "label": "Drone strikes near Khartoum",
+   "why": "KRC Khartoum Refinery, Khartoum (≈4.8 M people) and Omdurman (≈2.4 M people) within 70 km. In the news: Drone strikes hit residential areas and a UN facility in Khartoum as the attacks become Sudan's leading cause …",
+   "url": "https://www.latintimes.com/sudan-drone-strikes-khartoum-un-facility-601738",
+   "shocks": [
+    [
+     "zone",
+     [
+      32.53,
+      15.55,
       70
      ],
      0.65
@@ -609,9 +366,9 @@
      [
       "zone",
       [
-       39.69,
-       54.63,
-       15
+       32.53,
+       15.55,
+       10
       ],
       0.25
      ]
@@ -620,8 +377,8 @@
      [
       "zone",
       [
-       39.69,
-       54.63,
+       32.53,
+       15.55,
        70
       ],
       0.65
@@ -631,8 +388,8 @@
      [
       "zone",
       [
-       39.69,
-       54.63,
+       32.53,
+       15.55,
        130
       ],
       0.9
@@ -640,40 +397,40 @@
     ]
    },
    "lv": {
-    "de": "Calms down: only the nearest site, TNK-BP Ryazan Refinery, is hit, 25% damage within 15 km.",
-    "cur": "As reported: 4 sites within 70 km, 65% damage.",
-    "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shatura GRES power station)."
+    "de": "Calms down: only the nearest site, Khartoum, is hit, 25% damage within 10 km.",
+    "cur": "As reported: 3 sites within 70 km, 65% damage.",
+    "esc": "Spreads to 130 km, 90% damage."
    },
-   "trend": "rising",
-   "likely": "esc",
+   "trend": "easing",
+   "likely": "de",
    "at": [
-    39.69,
-    54.63
+    32.53,
+    15.55
    ],
    "months": [
-    "2026-10"
+    "2026-11"
    ],
-   "place": "Ryazan, Ryazanskaya Oblast', Russia",
-   "t": "2026-10-13T00:00:00Z",
-   "z": 130.6,
+   "place": "Khartoum, Sudan",
+   "t": "2026-11-25T00:00:00Z",
+   "z": 47.7,
    "matched": [
-    "TNK-BP Ryazan Refinery",
-    "Novo-Ryazan power station",
-    "Ryazanskaya GRES power station",
-    "Ryazanskaya GRES power station"
-   ]
+    "KRC Khartoum Refinery",
+    "Khartoum",
+    "Omdurman"
+   ],
+   "view": "warinfra"
   },
   {
    "cat": "conflict",
-   "label": "Fighting near Sanaa",
-   "why": "Sanaa (≈2.0 M people) within 25 km. In the news: Yemen fighting expands as Houthis attack Saudi airport what to know.",
-   "url": "https://www.aljazeera.com/news/2026/10/11/yemen-fighting-expands-as-houthis-attack-saudi-airport-what-to-know",
+   "label": "Drone strikes near Kyiv",
+   "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian ship hit by suspected Ukrainian drones in Gulf of Finland; Finnish PM says Kyiv has right to retaliate.",
+   "url": "https://news.webindia123.com/news/Articles/World/20261122/4522883.html",
    "shocks": [
     [
      "zone",
      [
-      44.21,
-      15.35,
+      30.52,
+      50.45,
       25
      ],
      0.7
@@ -684,8 +441,8 @@
      [
       "zone",
       [
-       44.21,
-       15.35,
+       30.52,
+       50.45,
        10
       ],
       0.3
@@ -695,8 +452,8 @@
      [
       "zone",
       [
-       44.21,
-       15.35,
+       30.52,
+       50.45,
        25
       ],
       0.7
@@ -706,8 +463,8 @@
      [
       "zone",
       [
-       44.21,
-       15.35,
+       30.52,
+       50.45,
        45
       ],
       0.95
@@ -715,40 +472,43 @@
     ]
    },
    "lv": {
-    "de": "Calms down: only the nearest site, Sanaa, is hit, 30% damage within 10 km.",
-    "cur": "As reported: 1 site within 25 km, 70% damage.",
+    "de": "Calms down: only the nearest site, Kyiv, is hit, 30% damage within 10 km.",
+    "cur": "As reported: 3 sites within 25 km, 70% damage.",
     "esc": "Spreads to 45 km, 95% damage."
    },
    "trend": "rising",
    "likely": "esc",
    "at": [
-    44.21,
-    15.35
+    30.52,
+    50.45
    ],
    "months": [
-    "2026-10"
+    "2026-11"
    ],
-   "place": "Sanaa, Sana', Yemen",
-   "t": "2026-10-10T00:00:00Z",
-   "z": 148.9,
+   "place": "Kyiv, Kyiv City, Ukraine",
+   "t": "2026-11-22T00:00:00Z",
+   "z": 139.2,
    "matched": [
-    "Sanaa"
-   ]
+    "Kyiv CHP-5 power station",
+    "Kiev",
+    "Kyiv"
+   ],
+   "view": "warinfra"
   },
   {
    "cat": "conflict",
-   "label": "Missile strikes near Voronezh",
-   "why": "Novovoronezh (1.9 GW, nuclear) within 45 km. In the news: Ukraine says missile strike destroyed Russian warplanes at Voronezh airfield.",
-   "url": "https://www.themoscowtimes.com/2026/10/15/ukraine-says-missile-strike-destroyed-6-russian-warplanes-at-voronezh-airfield-a93991",
+   "label": "Drone strikes near Lipowiec",
+   "why": "Dębowiec Śląski Gas Field (Poland) +1 (oil/gas field), Porąbka-Żar (0.5 GW, hydro), Laziska power station (0.9 GW, coal) and 6 more within 75 km. In the news: Poland discovers debris from Russian missiles and jet-powered drone.",
+   "url": "https://en.apa.az/europe/poland-discovers-debris-from-russian-missiles-and-jet-powered-drone-537466",
    "shocks": [
     [
      "zone",
      [
-      39.19,
-      51.66,
-      45
+      19.05,
+      49.88,
+      75
      ],
-     0.65
+     0.7
     ]
    ],
    "levels": {
@@ -756,75 +516,83 @@
      [
       "zone",
       [
-       39.19,
-       51.66,
-       45
+       19.05,
+       49.88,
+       25
       ],
-      0.25
+      0.3
      ]
     ],
     "cur": [
      [
       "zone",
       [
-       39.19,
-       51.66,
-       45
+       19.05,
+       49.88,
+       75
       ],
-      0.65
+      0.7
      ]
     ],
     "esc": [
      [
       "zone",
       [
-       39.19,
-       51.66,
-       85
+       19.05,
+       49.88,
+       135
       ],
-      0.9
+      0.95
      ]
     ]
    },
    "lv": {
-    "de": "Calms down: only the nearest site, Novovoronezh, is hit, 25% damage within 45 km.",
-    "cur": "As reported: 1 site within 45 km, 65% damage.",
-    "esc": "Spreads to 85 km, 90% damage."
+    "de": "Calms down: only the nearest site, Porąbka-Żar, is hit, 30% damage within 25 km.",
+    "cur": "As reported: 9 sites within 75 km, 70% damage.",
+    "esc": "Spreads to 135 km, 95% damage, reaching 3 more sites (Rylowa Gas Field (Poland) +1, Cierny Vah Pumped Storage Hydroelectric Power Plant Slovakia …)."
    },
-   "trend": "rising",
-   "likely": "esc",
+   "trend": "easing",
+   "likely": "de",
    "at": [
-    39.19,
-    51.66
+    19.05,
+    49.88
    ],
    "months": [
-    "2026-10"
+    "2026-11"
    ],
-   "place": "Voronezh, Russia",
-   "t": "2026-10-15T00:00:00Z",
-   "z": 126.2,
+   "place": "Lipowiec, Slaskie, Poland",
+   "t": "2026-11-19T00:00:00Z",
+   "z": 134.3,
    "matched": [
-    "Novovoronezh"
-   ]
+    "Dębowiec Śląski Gas Field (Poland) +1",
+    "Porąbka-Żar",
+    "Laziska power station",
+    "Jaworzno power station",
+    "Siersza power station",
+    "Rybnik power station",
+    "Lagisza power station",
+    "Skawina power station"
+   ],
+   "view": "warinfra"
   },
   {
    "cat": "conflict",
-   "label": "Missile strikes near Aden",
-   "why": "ARC Aden Refinery, Aden (oil port) and Aden (≈1.0 M people) within 25 km. In the news: Houthis launch missile attack on Yemen presidential palace in Aden.",
-   "url": "https://arynews.tv/houthis-launch-missile-attack-on-yemen-presidential-palace-in-aden",
+   "label": "Explosions near Loviisa",
+   "why": "Neste Porvoo Refinery, Hamina LNG Terminal, Loviisa Y1 (1.0 GW, nuclear) and 1 more within 65 km. In the news: Putin's sanctioned ship burns out of control as Finland warns of explosions.",
+   "url": "https://londonlovesbusiness.com/putins-sanctioned-ship-burns-out-of-control-as-finland-warns-of-explosions/",
    "shocks": [
     [
      "zone",
      [
-      45.01,
-      12.78,
-      25
+      26.23,
+      60.45,
+      65
      ],
      0.7
     ],
     [
      "cable",
-     "aden-yemen",
+     "kotka-finland",
      1
     ]
    ],
@@ -833,9 +601,9 @@
      [
       "zone",
       [
-       45.01,
-       12.78,
-       10
+       26.23,
+       60.45,
+       20
       ],
       0.3
      ]
@@ -844,15 +612,15 @@
      [
       "zone",
       [
-       45.01,
-       12.78,
-       25
+       26.23,
+       60.45,
+       65
       ],
       0.7
      ],
      [
       "cable",
-      "aden-yemen",
+      "kotka-finland",
       1
      ]
     ],
@@ -860,42 +628,44 @@
      [
       "zone",
       [
-       45.01,
-       12.78,
-       45
+       26.23,
+       60.45,
+       120
       ],
       0.95
      ],
      [
       "cable",
-      "aden-yemen",
+      "kotka-finland",
       1
      ]
     ]
    },
    "lv": {
-    "de": "Calms down: only the nearest site, Aden, is hit, 30% damage within 10 km.",
-    "cur": "As reported: 3 sites within 25 km, 70% damage. Nearby cables cut.",
-    "esc": "Spreads to 45 km, 95% damage. Nearby cables cut."
+    "de": "Calms down: only the nearest site, Loviisa Y1, is hit, 30% damage within 20 km.",
+    "cur": "As reported: 4 sites within 65 km, 70% damage. Nearby cables cut.",
+    "esc": "Spreads to 120 km, 95% damage, reaching 3 more sites (Helsinki, Portovaya LNG Terminal — T1 …). Nearby cables cut."
    },
-   "trend": "rising",
-   "likely": "esc",
+   "trend": "easing",
+   "likely": "de",
    "at": [
-    45.01,
-    12.78
+    26.23,
+    60.45
    ],
    "months": [
-    "2026-10"
+    "2026-11"
    ],
-   "place": "Aden, Yemen",
-   "t": "2026-10-15T00:00:00Z",
-   "z": 44.8,
+   "place": "Loviisa, Uusimaa Region, Finland",
+   "t": "2026-11-22T00:00:00Z",
+   "z": 54.8,
    "matched": [
-    "Aden",
-    "ARC Aden Refinery",
-    "Aden",
-    "Aden, Yemen"
-   ]
+    "Neste Porvoo Refinery",
+    "Hamina LNG Terminal",
+    "Loviisa Y1",
+    "Vuosaari power station",
+    "Kotka, Finland"
+   ],
+   "view": "cablesnavy"
   }
  ],
  "windows": {
@@ -903,18 +673,18 @@
    "items": [
     {
      "cat": "conflict",
-     "label": "Attacks near Riyadh",
-     "why": "Saudi Aramco Riyadh Refinery, Riyadh 5 power plant (0.6 GW, oil), Riyadh 7 power plant (1.3 GW, gas) and 6 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
-     "url": "https://www.dunfermlinepress.com/news/national/26625812.12-killed-attack-riyadh-airport---saudi-authorities/",
+     "label": "Attacks near Jazan",
+     "why": "Saudi Aramco Jazan Refinery, Jizan (oil port), Shuqaiq Steam Power Plant (2.6 GW, oil) and 2 more within 50 km. In the news: Nepal condoles death of citizen killed in Houthi attack on Saudi oil refinery, urges restraint.",
+     "url": "https://news.webindia123.com/news/Articles/World/20261127/4525055.html",
      "shocks": [
       [
        "zone",
        [
-        46.77,
-        24.64,
-        65
+        42.55,
+        16.89,
+        50
        ],
-       0.85
+       0.65
       ]
      ],
      "levels": {
@@ -922,161 +692,8 @@
        [
         "zone",
         [
-         46.77,
-         24.64,
-         15
-        ],
-        0.35
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         46.77,
-         24.64,
-         65
-        ],
-        0.85
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         46.77,
-         24.64,
-         120
-        ],
-        1.0
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Riyadh, is hit, 35% damage within 15 km.",
-      "cur": "As reported: 9 sites within 65 km, 85% damage.",
-      "esc": "Spreads to 120 km, 100% damage, reaching 3 more sites (Jafurah Cogeneration power plant, Riyadh City-13 power station …)."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      46.77,
-      24.64
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Riyadh, Saudi Arabia",
-     "t": "2026-10-10T00:00:00Z",
-     "z": 997.1,
-     "matched": [
-      "Saudi Aramco Riyadh Refinery",
-      "Riyadh 5 power plant",
-      "Riyadh 7 power plant",
-      "Riyadh PP11 power station",
-      "Riyadh 8 power plant",
-      "Riyadh 10 power plant",
-      "Riyadh 9 power plant",
-      "Riyadh City-14 power station"
-     ]
-    },
-    {
-     "cat": "storm",
-     "label": "Hurricane Simon",
-     "why": "Manzanillo (Manuel Álvarez Moreno) power station, Manzanillo, Manzanillo (Mexico) LNG Terminal within 150 km; winds up to 135 knots (NASA EONET).",
-     "url": "https://www.metoc.navy.mil/jtwc/products/ep2026.tcw",
-     "shocks": [
-      [
-       "zone",
-       [
-        -105,
-        18.4,
-        150
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         -105,
-         18.4,
-         90
-        ],
-        0.35
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         -105,
-         18.4,
-         150
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         -105,
-         18.4,
-         200
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 35% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 70% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 95% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      -105,
-      18.4
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Hurricane Simon",
-     "t": "2026-10-11T06:00:00Z",
-     "z": 135.0,
-     "matched": [
-      "Manzanillo (Manuel Álvarez Moreno) power station",
-      "Manzanillo",
-      "Manzanillo (Mexico) LNG Terminal"
-     ]
-    },
-    {
-     "cat": "conflict",
-     "label": "Strikes near Kyiv",
-     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
-     "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
-     "shocks": [
-      [
-       "zone",
-       [
-        30.52,
-        50.44,
-        25
-       ],
-       0.6
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         30.52,
-         50.44,
+         42.55,
+         16.89,
          10
         ],
         0.25
@@ -1086,418 +703,328 @@
        [
         "zone",
         [
-         30.52,
-         50.44,
-         25
+         42.55,
+         16.89,
+         50
         ],
-        0.6
+        0.65
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         30.52,
-         50.44,
-         45
-        ],
-        0.85
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 60% damage.",
-      "esc": "Spreads to 45 km, 85% damage."
-     },
-     "trend": "easing",
-     "likely": "de",
-     "at": [
-      30.52,
-      50.44
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Kyiv, Ukraine",
-     "t": "2026-10-07T00:00:00Z",
-     "z": 335.1,
-     "matched": [
-      "Kyiv CHP-5 power station",
-      "Kiev",
-      "Kyiv"
-     ]
-    },
-    {
-     "cat": "storm",
-     "label": "Hurricane Isaias",
-     "why": "McWilliams power station, Gulf Clean Energy Center, Pensacola and more within 150 km; winds up to 80 knots (NASA EONET).",
-     "url": "https://www.nhc.noaa.gov/archive/2026/ISAIAS.shtml",
-     "shocks": [
-      [
-       "zone",
-       [
-        -86.5,
-        30.8,
-        150
-       ],
-       0.35
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         -86.5,
-         30.8,
+         42.55,
+         16.89,
          90
         ],
-        0.2
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         -86.5,
-         30.8,
-         150
-        ],
-        0.35
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         -86.5,
-         30.8,
-         200
-        ],
-        0.6
+        0.9
        ]
       ]
      },
      "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 20% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 35% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 60% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      -86.5,
-      30.8
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Hurricane Isaias",
-     "t": "2026-10-10T03:00:00Z",
-     "z": 80.0,
-     "matched": [
-      "McWilliams power station",
-      "Gulf Clean Energy Center",
-      "Pensacola",
-      "Goodway Refining Atmore Refinery",
-      "Lansing Smith Generating Plant",
-      "Joseph M Farley",
-      "Barry Steam Plant",
-      "Barry Steam Plant"
-     ]
-    },
-    {
-     "cat": "conflict",
-     "label": "Missile strikes near Balakovo",
-     "why": "Saratovskaya HPP (1.4 GW, hydro), Balakovo CHP-4 power station (0.4 GW, gas) and Balakovo NPP (4.0 GW, nuclear) within 25 km. In the news: Putin defies trumps Ukraine ceasefire as Russian missiles hit power grid and American businesses.",
-     "url": "https://finchannel.com/putin-defies-trumps-ukraine-ceasefire-as-russian-missiles-hit-power-grid-and-american-businesses/138155/americas/white-house-en/2026/10/",
-     "shocks": [
-      [
-       "zone",
-       [
-        47.8,
-        52.03,
-        25
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         47.8,
-         52.03,
-         10
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         47.8,
-         52.03,
-         25
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         47.8,
-         52.03,
-         45
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Saratovskaya HPP, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 70% damage.",
-      "esc": "Spreads to 45 km, 95% damage."
-     },
-     "trend": "easing",
-     "likely": "de",
-     "at": [
-      47.8,
-      52.03
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Balakovo, Saratovskaya Oblast', Russia",
-     "t": "2026-10-14T00:00:00Z",
-     "z": 177.6,
-     "matched": [
-      "Saratovskaya HPP",
-      "Balakovo CHP-4 power station",
-      "Balakovo NPP"
-     ]
-    },
-    {
-     "cat": "storm",
-     "label": "Cyclone Rachel",
-     "why": "Costa Azul LNG Terminal — Import Terminal, Baja California III power station, Presidente Juárez power station and more within 150 km; winds up to 50 knots (NASA EONET).",
-     "url": "https://www.metoc.navy.mil/jtwc/products/ep1826.tcw",
-     "shocks": [
-      [
-       "zone",
-       [
-        -116.3,
-        31.8,
-        150
-       ],
-       0.2
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         -116.3,
-         31.8,
-         90
-        ],
-        0.1
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         -116.3,
-         31.8,
-         150
-        ],
-        0.2
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         -116.3,
-         31.8,
-         200
-        ],
-        0.45
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 10% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 20% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 45% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      -116.3,
-      31.8
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Cyclone Rachel",
-     "t": "2026-10-11T06:00:00Z",
-     "z": 50.0,
-     "matched": [
-      "Costa Azul LNG Terminal — Import Terminal",
-      "Baja California III power station",
-      "Presidente Juárez power station",
-      "Rosarito",
-      "Pio Pico energy center",
-      "Otay Mesa Generating Project",
-      "Tijuana (city)",
-      "Termoelectrica de Mexicali power station"
-     ]
-    },
-    {
-     "cat": "conflict",
-     "label": "Missile strikes near Dhahran",
-     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 22 more within 75 km. In the news: Saudi aramco in Houthi crosshairs as missile attacks threaten Kingdoms energy hub.",
-     "url": "https://www.geo.tv/latest/686388-saudi-aramco-in-houthi-crosshairs-as-missile-attacks-threaten-kingdoms-energy-hub",
-     "shocks": [
-      [
-       "zone",
-       [
-        50.14,
-        26.3,
-        75
-       ],
-       0.7
-      ],
-      [
-       "cable",
-       "al-khobar-saudi-arabia",
-       1
-      ],
-      [
-       "cable",
-       "amwaj-island-bahrain",
-       1
-      ],
-      [
-       "cable",
-       "manama-bahrain",
-       1
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         50.14,
-         26.3,
-         15
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         50.14,
-         26.3,
-         75
-        ],
-        0.7
-       ],
-       [
-        "cable",
-        "al-khobar-saudi-arabia",
-        1
-       ],
-       [
-        "cable",
-        "amwaj-island-bahrain",
-        1
-       ],
-       [
-        "cable",
-        "manama-bahrain",
-        1
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         50.14,
-         26.3,
-         135
-        ],
-        0.95
-       ],
-       [
-        "cable",
-        "al-khobar-saudi-arabia",
-        1
-       ],
-       [
-        "cable",
-        "amwaj-island-bahrain",
-        1
-       ],
-       [
-        "cable",
-        "manama-bahrain",
-        1
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Al Dammam power plant, is hit, 30% damage within 15 km.",
-      "cur": "As reported: 25 sites within 75 km, 70% damage. Nearby cables cut.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 11 more sites (Ain dar Oil Field (Saudi Arabia), SATORP Saudi Aramco Total Jubail Refinery …). Nearby cables cut."
+      "de": "Calms down: only the nearest site, Shuqaiq Steam Power Plant, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 5 sites within 50 km, 65% damage.",
+      "esc": "Spreads to 90 km, 90% damage."
      },
      "trend": "rising",
      "likely": "esc",
      "at": [
-      50.14,
-      26.3
+      42.55,
+      16.89
      ],
      "months": [
-      "2026-10"
+      "2026-11"
      ],
-     "place": "Dhahran, Ash Sharqiyah, Saudi Arabia",
-     "t": "2026-10-13T00:00:00Z",
-     "z": 219.6,
+     "place": "Jazan, Jizan, Saudi Arabia",
+     "t": "2026-11-25T00:00:00Z",
+     "z": 167.7,
      "matched": [
-      "Ras  Tannurah",
-      "Abqaiq Oil Field (Saudi Arabia)",
-      "Saudi Aramco Ras Tanura Refinery",
-      "Qatif Oil Field (Saudi Arabia)",
-      "Khuff Gas Field (Bahrain)",
-      "Bahrain Petroleum Company Refinery",
-      "Sitrah",
-      "Bahrain Hidd FLNG Terminal",
-      "Al Khobar, Saudi Arabia",
-      "Amwaj Island, Bahrain",
-      "Manama, Bahrain"
-     ]
+      "Jizan",
+      "Saudi Aramco Jazan Refinery",
+      "Shuqaiq Steam Power Plant",
+      "Jizan Central power plant",
+      "Jizan IGCC power plant"
+     ],
+     "view": "warinfra"
     },
     {
      "cat": "conflict",
-     "label": "Attacks near Ryazan",
-     "why": "TNK-BP Ryazan Refinery, Novo-Ryazan power station (0.3 GW, gas), Ryazanskaya GRES power station (1.9 GW, gas) and 1 more within 70 km. In the news: Ukraine resumes attacks on Russian oil refineries officials say after brief truce.",
-     "url": "https://www.mankatofreepress.com/news/business/ukraine-resumes-attacks-on-russian-oil-refineries-officials-say-after-brief-truce/article_561af0fd-3dc3-5b14-a87f-cae68c579826.html",
+     "label": "Attacks near Tripoli",
+     "why": "NOC Zawia Refinery, Mina Tarabulus (Tripoli) (oil port), Az Zawiya (oil port) and 6 more within 60 km. In the news: Russia-Ukraine war spreads to Africa as ships attacked.",
+     "url": "https://www.premiumtimesng.com/foreign/world-foreign/927377-russia-ukraine-war-spreads-to-africa-as-ships-attacked.html",
      "shocks": [
       [
        "zone",
        [
-        39.69,
-        54.63,
+        13.18,
+        32.89,
+        60
+       ],
+       0.65
+      ],
+      [
+       "cable",
+       "tripoli-libya",
+       1
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         13.18,
+         32.89,
+         10
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         13.18,
+         32.89,
+         60
+        ],
+        0.65
+       ],
+       [
+        "cable",
+        "tripoli-libya",
+        1
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         13.18,
+         32.89,
+         110
+        ],
+        0.9
+       ],
+       [
+        "cable",
+        "tripoli-libya",
+        1
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Tripoli, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 9 sites within 60 km, 65% damage. Nearby cables cut.",
+      "esc": "Spreads to 110 km, 90% damage, reaching 1 more site (Bahr Es Salam (Structures B&C) Oil and Gas Field (Libya)). Nearby cables cut."
+     },
+     "trend": "easing",
+     "likely": "de",
+     "at": [
+      13.18,
+      32.89
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Tripoli, Tarabulus, Libya",
+     "t": "2026-11-23T00:00:00Z",
+     "z": 163.7,
+     "matched": [
+      "Mina Tarabulus (Tripoli)",
+      "Az Zawiya",
+      "NOC Zawia Refinery",
+      "Tahara Oil and Gas Field (Libya)",
+      "South Tripoli power station",
+      "West Tripoli power station",
+      "West Tripoli Thermal power station",
+      "Al Zawiya power station",
+      "Tripoli, Libya"
+     ],
+     "view": "cablesnavy"
+    },
+    {
+     "cat": "conflict",
+     "label": "Attacks near Kaliningrad",
+     "why": "Kravtsovskoye (D-6) Oil Field (Russia) (oil/gas field), Kaliningrad CHP-2 power station (0.9 GW, gas) and Pregolskaya power station (0.5 GW, gas) within 70 km. In the news: Russia-bound ship towed away after it was attacked in Gulf of Finland.",
+     "url": "https://www.hellenicshippingnews.com/russia-bound-ship-towed-away-after-it-was-attacked-in-gulf-of-finland/",
+     "shocks": [
+      [
+       "zone",
+       [
+        20.51,
+        54.71,
+        70
+       ],
+       0.65
+      ],
+      [
+       "cable",
+       "zelenogradsk-russia",
+       1
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         20.51,
+         54.71,
+         15
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         20.51,
+         54.71,
+         70
+        ],
+        0.65
+       ],
+       [
+        "cable",
+        "zelenogradsk-russia",
+        1
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         20.51,
+         54.71,
+         130
+        ],
+        0.9
+       ],
+       [
+        "cable",
+        "zelenogradsk-russia",
+        1
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Kaliningrad CHP-2 power station, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 3 sites within 70 km, 65% damage. Nearby cables cut.",
+      "esc": "Spreads to 130 km, 90% damage, reaching 6 more sites (Klaipeda FSRU, Klaipeda …). Nearby cables cut."
+     },
+     "trend": "easing",
+     "likely": "de",
+     "at": [
+      20.51,
+      54.71
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Kaliningrad, Kaliningradskaya Oblast', Russia",
+     "t": "2026-11-23T00:00:00Z",
+     "z": 142.8,
+     "matched": [
+      "Kravtsovskoye (D-6) Oil Field (Russia)",
+      "Kaliningrad CHP-2 power station",
+      "Pregolskaya power station",
+      "Zelenogradsk, Russia"
+     ],
+     "view": "cablesnavy"
+    },
+    {
+     "cat": "conflict",
+     "label": "Attacks near Mumbai",
+     "why": "BPCL Mumbai Refinery, HPCL Mumbai Refinery, Mumbai (Bombay) (oil port) and 3 more within 25 km. In the news: French Embassy in India pays homage to victims of 26/11 Mumbai terror attacks, expresses solidarity with India…",
+     "url": "https://aninews.in/news/world/asia/jaishankar-pays-tribute-to-victims-of-2611-mumbai-terror-attacks-reiterates-commitment-to-combat-terrorism20261126074324/",
+     "shocks": [
+      [
+       "zone",
+       [
+        72.83,
+        18.98,
+        25
+       ],
+       0.85
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         72.83,
+         18.98,
+         10
+        ],
+        0.35
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         72.83,
+         18.98,
+         25
+        ],
+        0.85
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         72.83,
+         18.98,
+         45
+        ],
+        1.0
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Mumbai (Bombay), is hit, 35% damage within 10 km.",
+      "cur": "As reported: 6 sites within 25 km, 85% damage.",
+      "esc": "Spreads to 45 km, 100% damage."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      72.83,
+      18.98
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Mumbai, Maharashtra, India",
+     "t": "2026-11-25T00:00:00Z",
+     "z": 125.5,
+     "matched": [
+      "Mumbai (Bombay)",
+      "BPCL Mumbai Refinery",
+      "HPCL Mumbai Refinery",
+      "Trombay power station",
+      "Uran Combined Cycle power plant",
+      "Mumbai",
+      "Mumbai, India"
+     ],
+     "view": "warinfra"
+    },
+    {
+     "cat": "conflict",
+     "label": "Drone strikes near Khartoum",
+     "why": "KRC Khartoum Refinery, Khartoum (≈4.8 M people) and Omdurman (≈2.4 M people) within 70 km. In the news: Drone strikes hit residential areas and a UN facility in Khartoum as the attacks become Sudan's leading cause …",
+     "url": "https://www.latintimes.com/sudan-drone-strikes-khartoum-un-facility-601738",
+     "shocks": [
+      [
+       "zone",
+       [
+        32.53,
+        15.55,
         70
        ],
        0.65
@@ -1508,9 +1035,9 @@
        [
         "zone",
         [
-         39.69,
-         54.63,
-         15
+         32.53,
+         15.55,
+         10
         ],
         0.25
        ]
@@ -1519,8 +1046,8 @@
        [
         "zone",
         [
-         39.69,
-         54.63,
+         32.53,
+         15.55,
          70
         ],
         0.65
@@ -1530,8 +1057,8 @@
        [
         "zone",
         [
-         39.69,
-         54.63,
+         32.53,
+         15.55,
          130
         ],
         0.9
@@ -1539,40 +1066,40 @@
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, TNK-BP Ryazan Refinery, is hit, 25% damage within 15 km.",
-      "cur": "As reported: 4 sites within 70 km, 65% damage.",
-      "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shatura GRES power station)."
+      "de": "Calms down: only the nearest site, Khartoum, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 3 sites within 70 km, 65% damage.",
+      "esc": "Spreads to 130 km, 90% damage."
      },
-     "trend": "rising",
-     "likely": "esc",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      39.69,
-      54.63
+      32.53,
+      15.55
      ],
      "months": [
-      "2026-10"
+      "2026-11"
      ],
-     "place": "Ryazan, Ryazanskaya Oblast', Russia",
-     "t": "2026-10-13T00:00:00Z",
-     "z": 130.6,
+     "place": "Khartoum, Sudan",
+     "t": "2026-11-25T00:00:00Z",
+     "z": 47.7,
      "matched": [
-      "TNK-BP Ryazan Refinery",
-      "Novo-Ryazan power station",
-      "Ryazanskaya GRES power station",
-      "Ryazanskaya GRES power station"
-     ]
+      "KRC Khartoum Refinery",
+      "Khartoum",
+      "Omdurman"
+     ],
+     "view": "warinfra"
     },
     {
      "cat": "conflict",
-     "label": "Fighting near Sanaa",
-     "why": "Sanaa (≈2.0 M people) within 25 km. In the news: Yemen fighting expands as Houthis attack Saudi airport what to know.",
-     "url": "https://www.aljazeera.com/news/2026/10/11/yemen-fighting-expands-as-houthis-attack-saudi-airport-what-to-know",
+     "label": "Drone strikes near Kyiv",
+     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian ship hit by suspected Ukrainian drones in Gulf of Finland; Finnish PM says Kyiv has right to retaliate.",
+     "url": "https://news.webindia123.com/news/Articles/World/20261122/4522883.html",
      "shocks": [
       [
        "zone",
        [
-        44.21,
-        15.35,
+        30.52,
+        50.45,
         25
        ],
        0.7
@@ -1583,8 +1110,8 @@
        [
         "zone",
         [
-         44.21,
-         15.35,
+         30.52,
+         50.45,
          10
         ],
         0.3
@@ -1594,8 +1121,8 @@
        [
         "zone",
         [
-         44.21,
-         15.35,
+         30.52,
+         50.45,
          25
         ],
         0.7
@@ -1605,8 +1132,8 @@
        [
         "zone",
         [
-         44.21,
-         15.35,
+         30.52,
+         50.45,
          45
         ],
         0.95
@@ -1614,40 +1141,43 @@
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Sanaa, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 1 site within 25 km, 70% damage.",
+      "de": "Calms down: only the nearest site, Kyiv, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 3 sites within 25 km, 70% damage.",
       "esc": "Spreads to 45 km, 95% damage."
      },
      "trend": "rising",
      "likely": "esc",
      "at": [
-      44.21,
-      15.35
+      30.52,
+      50.45
      ],
      "months": [
-      "2026-10"
+      "2026-11"
      ],
-     "place": "Sanaa, Sana', Yemen",
-     "t": "2026-10-10T00:00:00Z",
-     "z": 148.9,
+     "place": "Kyiv, Kyiv City, Ukraine",
+     "t": "2026-11-22T00:00:00Z",
+     "z": 139.2,
      "matched": [
-      "Sanaa"
-     ]
+      "Kyiv CHP-5 power station",
+      "Kiev",
+      "Kyiv"
+     ],
+     "view": "warinfra"
     },
     {
      "cat": "conflict",
-     "label": "Missile strikes near Voronezh",
-     "why": "Novovoronezh (1.9 GW, nuclear) within 45 km. In the news: Ukraine says missile strike destroyed Russian warplanes at Voronezh airfield.",
-     "url": "https://www.themoscowtimes.com/2026/10/15/ukraine-says-missile-strike-destroyed-6-russian-warplanes-at-voronezh-airfield-a93991",
+     "label": "Drone strikes near Lipowiec",
+     "why": "Dębowiec Śląski Gas Field (Poland) +1 (oil/gas field), Porąbka-Żar (0.5 GW, hydro), Laziska power station (0.9 GW, coal) and 6 more within 75 km. In the news: Poland discovers debris from Russian missiles and jet-powered drone.",
+     "url": "https://en.apa.az/europe/poland-discovers-debris-from-russian-missiles-and-jet-powered-drone-537466",
      "shocks": [
       [
        "zone",
        [
-        39.19,
-        51.66,
-        45
+        19.05,
+        49.88,
+        75
        ],
-       0.65
+       0.7
       ]
      ],
      "levels": {
@@ -1655,75 +1185,83 @@
        [
         "zone",
         [
-         39.19,
-         51.66,
-         45
+         19.05,
+         49.88,
+         25
         ],
-        0.25
+        0.3
        ]
       ],
       "cur": [
        [
         "zone",
         [
-         39.19,
-         51.66,
-         45
+         19.05,
+         49.88,
+         75
         ],
-        0.65
+        0.7
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         39.19,
-         51.66,
-         85
+         19.05,
+         49.88,
+         135
         ],
-        0.9
+        0.95
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Novovoronezh, is hit, 25% damage within 45 km.",
-      "cur": "As reported: 1 site within 45 km, 65% damage.",
-      "esc": "Spreads to 85 km, 90% damage."
+      "de": "Calms down: only the nearest site, Porąbka-Żar, is hit, 30% damage within 25 km.",
+      "cur": "As reported: 9 sites within 75 km, 70% damage.",
+      "esc": "Spreads to 135 km, 95% damage, reaching 3 more sites (Rylowa Gas Field (Poland) +1, Cierny Vah Pumped Storage Hydroelectric Power Plant Slovakia …)."
      },
-     "trend": "rising",
-     "likely": "esc",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      39.19,
-      51.66
+      19.05,
+      49.88
      ],
      "months": [
-      "2026-10"
+      "2026-11"
      ],
-     "place": "Voronezh, Russia",
-     "t": "2026-10-15T00:00:00Z",
-     "z": 126.2,
+     "place": "Lipowiec, Slaskie, Poland",
+     "t": "2026-11-19T00:00:00Z",
+     "z": 134.3,
      "matched": [
-      "Novovoronezh"
-     ]
+      "Dębowiec Śląski Gas Field (Poland) +1",
+      "Porąbka-Żar",
+      "Laziska power station",
+      "Jaworzno power station",
+      "Siersza power station",
+      "Rybnik power station",
+      "Lagisza power station",
+      "Skawina power station"
+     ],
+     "view": "warinfra"
     },
     {
      "cat": "conflict",
-     "label": "Missile strikes near Aden",
-     "why": "ARC Aden Refinery, Aden (oil port) and Aden (≈1.0 M people) within 25 km. In the news: Houthis launch missile attack on Yemen presidential palace in Aden.",
-     "url": "https://arynews.tv/houthis-launch-missile-attack-on-yemen-presidential-palace-in-aden",
+     "label": "Explosions near Loviisa",
+     "why": "Neste Porvoo Refinery, Hamina LNG Terminal, Loviisa Y1 (1.0 GW, nuclear) and 1 more within 65 km. In the news: Putin's sanctioned ship burns out of control as Finland warns of explosions.",
+     "url": "https://londonlovesbusiness.com/putins-sanctioned-ship-burns-out-of-control-as-finland-warns-of-explosions/",
      "shocks": [
       [
        "zone",
        [
-        45.01,
-        12.78,
-        25
+        26.23,
+        60.45,
+        65
        ],
        0.7
       ],
       [
        "cable",
-       "aden-yemen",
+       "kotka-finland",
        1
       ]
      ],
@@ -1732,9 +1270,9 @@
        [
         "zone",
         [
-         45.01,
-         12.78,
-         10
+         26.23,
+         60.45,
+         20
         ],
         0.3
        ]
@@ -1743,15 +1281,15 @@
        [
         "zone",
         [
-         45.01,
-         12.78,
-         25
+         26.23,
+         60.45,
+         65
         ],
         0.7
        ],
        [
         "cable",
-        "aden-yemen",
+        "kotka-finland",
         1
        ]
       ],
@@ -1759,42 +1297,44 @@
        [
         "zone",
         [
-         45.01,
-         12.78,
-         45
+         26.23,
+         60.45,
+         120
         ],
         0.95
        ],
        [
         "cable",
-        "aden-yemen",
+        "kotka-finland",
         1
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Aden, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 70% damage. Nearby cables cut.",
-      "esc": "Spreads to 45 km, 95% damage. Nearby cables cut."
+      "de": "Calms down: only the nearest site, Loviisa Y1, is hit, 30% damage within 20 km.",
+      "cur": "As reported: 4 sites within 65 km, 70% damage. Nearby cables cut.",
+      "esc": "Spreads to 120 km, 95% damage, reaching 3 more sites (Helsinki, Portovaya LNG Terminal — T1 …). Nearby cables cut."
      },
-     "trend": "rising",
-     "likely": "esc",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      45.01,
-      12.78
+      26.23,
+      60.45
      ],
      "months": [
-      "2026-10"
+      "2026-11"
      ],
-     "place": "Aden, Yemen",
-     "t": "2026-10-15T00:00:00Z",
-     "z": 44.8,
+     "place": "Loviisa, Uusimaa Region, Finland",
+     "t": "2026-11-22T00:00:00Z",
+     "z": 54.8,
      "matched": [
-      "Aden",
-      "ARC Aden Refinery",
-      "Aden",
-      "Aden, Yemen"
-     ]
+      "Neste Porvoo Refinery",
+      "Hamina LNG Terminal",
+      "Loviisa Y1",
+      "Vuosaari power station",
+      "Kotka, Finland"
+     ],
+     "view": "cablesnavy"
     }
    ]
   },
@@ -1802,18 +1342,28 @@
    "items": [
     {
      "cat": "conflict",
-     "label": "Attacks near Riyadh",
-     "why": "Saudi Aramco Riyadh Refinery, Riyadh 5 power plant (0.6 GW, oil), Riyadh 7 power plant (1.3 GW, gas) and 6 more within 65 km. In the news: Killed attack Riyadh airport Saudi authorities.",
-     "url": "https://www.dunfermlinepress.com/news/national/26625812.12-killed-attack-riyadh-airport---saudi-authorities/",
+     "label": "Attacks near Khasab",
+     "why": "Mina Saqr (oil port), Hulaylah Oil Terminal and Al Nakheel power station (0.4 GW, gas) within 55 km. In the news: Strait of Hormuz attack: LPG tanker carrying 24 Indian seafarers targeted; all 25 crew safe.",
+     "url": "https://economictimes.indiatimes.com/nri/latest-updates/strait-of-hormuz-attack-lpg-tanker-carrying-24-indian-seafarers-targeted-all-25-crew-safe/articleshow/135916183.cms",
      "shocks": [
       [
        "zone",
        [
-        46.77,
-        24.64,
-        65
+        56.25,
+        26.18,
+        55
        ],
-       0.85
+       0.65
+      ],
+      [
+       "cable",
+       "khasab-oman",
+       1
+      ],
+      [
+       "choke",
+       "hormuz",
+       0.5
       ]
      ],
      "levels": {
@@ -1821,534 +1371,15 @@
        [
         "zone",
         [
-         46.77,
-         24.64,
-         15
-        ],
-        0.35
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         46.77,
-         24.64,
-         65
-        ],
-        0.85
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         46.77,
-         24.64,
-         120
-        ],
-        1.0
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Riyadh, is hit, 35% damage within 15 km.",
-      "cur": "As reported: 9 sites within 65 km, 85% damage.",
-      "esc": "Spreads to 120 km, 100% damage, reaching 3 more sites (Jafurah Cogeneration power plant, Riyadh City-13 power station …)."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      46.77,
-      24.64
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Riyadh, Saudi Arabia",
-     "t": "2026-10-10T00:00:00Z",
-     "z": 997.1,
-     "matched": [
-      "Saudi Aramco Riyadh Refinery",
-      "Riyadh 5 power plant",
-      "Riyadh 7 power plant",
-      "Riyadh PP11 power station",
-      "Riyadh 8 power plant",
-      "Riyadh 10 power plant",
-      "Riyadh 9 power plant",
-      "Riyadh City-14 power station"
-     ]
-    },
-    {
-     "cat": "storm",
-     "label": "Hurricane Simon",
-     "why": "Manzanillo (Manuel Álvarez Moreno) power station, Manzanillo, Manzanillo (Mexico) LNG Terminal within 150 km; winds up to 135 knots (NASA EONET).",
-     "url": "https://www.metoc.navy.mil/jtwc/products/ep2026.tcw",
-     "shocks": [
-      [
-       "zone",
-       [
-        -105,
-        18.4,
-        150
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         -105,
-         18.4,
-         90
-        ],
-        0.35
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         -105,
-         18.4,
-         150
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         -105,
-         18.4,
-         200
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 35% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 70% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 95% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      -105,
-      18.4
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Hurricane Simon",
-     "t": "2026-10-11T06:00:00Z",
-     "z": 135.0,
-     "matched": [
-      "Manzanillo (Manuel Álvarez Moreno) power station",
-      "Manzanillo",
-      "Manzanillo (Mexico) LNG Terminal"
-     ]
-    },
-    {
-     "cat": "fire",
-     "label": "Wildfire in Indonesia",
-     "why": "Pertamina Plaju Refinery within 30 km; about 7,295 hectares burnt (NASA EONET).",
-     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032521",
-     "shocks": [
-      [
-       "zone",
-       [
-        105.06,
-        -3.07,
-        15
-       ],
-       0.3
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         105.06,
-         -3.07,
-         10
-        ],
-        0.15
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         105.06,
-         -3.07,
-         15
-        ],
-        0.3
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         105.06,
-         -3.07,
-         25
-        ],
-        0.55
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
-      "cur": "As reported: 15 km around the fire, 30% damage.",
-      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      105.06,
-      -3.07
-     ],
-     "months": [
-      "2026-09"
-     ],
-     "place": "Wildfire in Indonesia",
-     "t": "2026-09-24T19:00:00Z",
-     "z": 7.295,
-     "matched": [
-      "Pertamina Plaju Refinery"
-     ]
-    },
-    {
-     "cat": "conflict",
-     "label": "Strikes near Kyiv",
-     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
-     "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
-     "shocks": [
-      [
-       "zone",
-       [
-        30.52,
-        50.44,
-        25
-       ],
-       0.6
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         30.52,
-         50.44,
-         10
+         56.25,
+         26.18,
+         35
         ],
         0.25
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         30.52,
-         50.44,
-         25
-        ],
-        0.6
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         30.52,
-         50.44,
-         45
-        ],
-        0.85
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 60% damage.",
-      "esc": "Spreads to 45 km, 85% damage."
-     },
-     "trend": "easing",
-     "likely": "de",
-     "at": [
-      30.52,
-      50.44
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Kyiv, Ukraine",
-     "t": "2026-10-07T00:00:00Z",
-     "z": 335.1,
-     "matched": [
-      "Kyiv CHP-5 power station",
-      "Kiev",
-      "Kyiv"
-     ]
-    },
-    {
-     "cat": "storm",
-     "label": "Super Typhoon Surigae",
-     "why": "Nakagusuku, Kin power station, Kin Wan and more within 150 km; winds up to 125 knots (NASA EONET).",
-     "url": "https://www.metoc.navy.mil/jtwc/products/wp2526.tcw",
-     "shocks": [
-      [
-       "zone",
-       [
-        129.1,
-        25.9,
-        150
        ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
        [
-        "zone",
-        [
-         129.1,
-         25.9,
-         90
-        ],
-        0.35
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         129.1,
-         25.9,
-         150
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         129.1,
-         25.9,
-         200
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 35% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 70% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 95% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      129.1,
-      25.9
-     ],
-     "months": [
-      "2026-09"
-     ],
-     "place": "Super Typhoon Surigae",
-     "t": "2026-09-27T12:00:00Z",
-     "z": 125.0,
-     "matched": [
-      "Nakagusuku",
-      "Kin power station",
-      "Kin Wan",
-      "Gushikawa power station",
-      "Yoshinoura LNG Terminal",
-      "Nishihara",
-      "Yoshinoura thermal power plant",
-      "Nakagusuku LNG Terminal"
-     ]
-    },
-    {
-     "cat": "fire",
-     "label": "Wildfire in Zimbabwe",
-     "why": "Hwange power station within 30 km; about 6,260 hectares burnt (NASA EONET).",
-     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032462",
-     "shocks": [
-      [
-       "zone",
-       [
-        26.58,
-        -18.59,
-        15
-       ],
-       0.3
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         26.58,
-         -18.59,
-         10
-        ],
-        0.15
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         26.58,
-         -18.59,
-         15
-        ],
-        0.3
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         26.58,
-         -18.59,
-         25
-        ],
-        0.55
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
-      "cur": "As reported: 15 km around the fire, 30% damage.",
-      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      26.58,
-      -18.59
-     ],
-     "months": [
-      "2026-09"
-     ],
-     "place": "Wildfire in Zimbabwe",
-     "t": "2026-09-25T19:00:00Z",
-     "z": 6.26,
-     "matched": [
-      "Hwange power station"
-     ]
-    },
-    {
-     "cat": "conflict",
-     "label": "Missile strikes near Balakovo",
-     "why": "Saratovskaya HPP (1.4 GW, hydro), Balakovo CHP-4 power station (0.4 GW, gas) and Balakovo NPP (4.0 GW, nuclear) within 25 km. In the news: Putin defies trumps Ukraine ceasefire as Russian missiles hit power grid and American businesses.",
-     "url": "https://finchannel.com/putin-defies-trumps-ukraine-ceasefire-as-russian-missiles-hit-power-grid-and-american-businesses/138155/americas/white-house-en/2026/10/",
-     "shocks": [
-      [
-       "zone",
-       [
-        47.8,
-        52.03,
-        25
-       ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         47.8,
-         52.03,
-         10
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         47.8,
-         52.03,
-         25
-        ],
-        0.7
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         47.8,
-         52.03,
-         45
-        ],
-        0.95
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Saratovskaya HPP, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 70% damage.",
-      "esc": "Spreads to 45 km, 95% damage."
-     },
-     "trend": "easing",
-     "likely": "de",
-     "at": [
-      47.8,
-      52.03
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Balakovo, Saratovskaya Oblast', Russia",
-     "t": "2026-10-14T00:00:00Z",
-     "z": 177.6,
-     "matched": [
-      "Saratovskaya HPP",
-      "Balakovo CHP-4 power station",
-      "Balakovo NPP"
-     ]
-    },
-    {
-     "cat": "storm",
-     "label": "Tropical Cyclone 01B",
-     "why": "Vishakhapatnam, HPCL Visakh Refinery, Vishakhapatnam (city) and more within 150 km; winds up to 45 knots (NASA EONET).",
-     "url": "https://www.metoc.navy.mil/jtwc/products/io0126.tcw",
-     "shocks": [
-      [
-       "zone",
-       [
-        84,
-        17.8,
-        150
-       ],
-       0.2
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         84,
-         17.8,
-         90
-        ],
+        "choke",
+        "hormuz",
         0.1
        ]
       ],
@@ -2356,209 +1387,82 @@
        [
         "zone",
         [
-         84,
-         17.8,
-         150
+         56.25,
+         26.18,
+         55
         ],
-        0.2
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         84,
-         17.8,
-         200
-        ],
-        0.45
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 10% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 20% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 45% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      84,
-      17.8
-     ],
-     "months": [
-      "2026-09"
-     ],
-     "place": "Tropical Cyclone 01B",
-     "t": "2026-09-23T12:00:00Z",
-     "z": 45.0,
-     "matched": [
-      "Vishakhapatnam",
-      "HPCL Visakh Refinery",
-      "Vishakhapatnam (city)",
-      "Vizag Steel Plant power station",
-      "Vizag Thermal Power Plant",
-      "Simhadri power station"
-     ]
-    },
-    {
-     "cat": "fire",
-     "label": "Wildfire in United States",
-     "why": "[Field not stated] - Denbury Onshore, (Offshore) Oil Asset (Texas, United States) within 30 km; about 5,038 hectares burnt (NASA EONET).",
-     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032281",
-     "shocks": [
-      [
-       "zone",
-       [
-        -94.34,
-        29.59,
-        15
+        0.65
        ],
-       0.3
-      ]
-     ],
-     "levels": {
-      "de": [
        [
-        "zone",
-        [
-         -94.34,
-         29.59,
-         10
-        ],
-        0.15
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         -94.34,
-         29.59,
-         15
-        ],
-        0.3
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         -94.34,
-         29.59,
-         25
-        ],
-        0.55
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
-      "cur": "As reported: 15 km around the fire, 30% damage.",
-      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      -94.34,
-      29.59
-     ],
-     "months": [
-      "2026-09"
-     ],
-     "place": "Wildfire in United States",
-     "t": "2026-09-19T19:00:00Z",
-     "z": 5.038,
-     "matched": [
-      "[Field not stated] - Denbury Onshore, (Offshore) Oil Asset (Texas, United States)"
-     ]
-    },
-    {
-     "cat": "conflict",
-     "label": "Drone strikes near Mecca",
-     "why": "Makkah 2 power plant (0.3 GW, oil), Jeddah PP3 power plant (1.3 GW, oil), Jeddah South power plant (2.6 GW, oil) and 1 more within 75 km. In the news: Saudi led coalition says it destroys Houthi drone south of Mecca.",
-     "url": "https://economictimes.indiatimes.com/news/defence/saudi-led-coalition-says-it-destroys-houthi-drone-south-of-mecca/articleshow/134275846.cms",
-     "shocks": [
-      [
-       "zone",
-       [
-        39.83,
-        21.43,
-        75
+        "cable",
+        "khasab-oman",
+        1
        ],
-       0.7
-      ]
-     ],
-     "levels": {
-      "de": [
        [
-        "zone",
-        [
-         39.83,
-         21.43,
-         10
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         39.83,
-         21.43,
-         75
-        ],
-        0.7
+        "choke",
+        "hormuz",
+        0.5
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         39.83,
-         21.43,
-         135
+         56.25,
+         26.18,
+         100
         ],
-        0.95
+        0.9
+       ],
+       [
+        "cable",
+        "khasab-oman",
+        1
+       ],
+       [
+        "choke",
+        "hormuz",
+        1
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Makkah, is hit, 30% damage within 10 km.",
-      "cur": "As reported: 4 sites within 75 km, 70% damage.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 3 more sites (Saudi Aramco Jeddah Refinery, Shuaiba SWCC power plant …)."
+      "de": "Calms down: only the nearest site, Mina Saqr, is hit, 25% damage within 35 km. Ships keep using Strait of Hormuz, a few divert.",
+      "cur": "As reported: 3 sites within 55 km, 65% damage. Half the traffic avoids Strait of Hormuz, cables at risk.",
+      "esc": "Spreads to 100 km, 90% damage, reaching 6 more sites (Umm Al Qaywayn, Qeshm (Ghadir) power station …). Strait of Hormuz closes and cables are cut."
      },
-     "trend": "steady",
-     "likely": "cur",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      39.83,
-      21.43
+      56.25,
+      26.18
      ],
      "months": [
-      "2026-09"
+      "2026-11"
      ],
-     "place": "Mecca, Makkah, Saudi Arabia",
-     "t": "2026-09-16T00:00:00Z",
-     "z": 233.3,
+     "place": "Khasab, Musandam, Oman",
+     "t": "2026-11-16T00:00:00Z",
+     "z": 219.4,
      "matched": [
-      "Makkah 2 power plant",
-      "Jeddah PP3 power plant",
-      "Jeddah South power plant",
-      "Makkah"
-     ]
+      "Mina Saqr",
+      "Hulaylah Oil Terminal",
+      "Al Nakheel power station",
+      "Khasab, Oman",
+      "Strait of Hormuz"
+     ],
+     "view": "cablesnavy"
     },
     {
      "cat": "storm",
-     "label": "Hurricane Isaias",
-     "why": "McWilliams power station, Gulf Clean Energy Center, Pensacola and more within 150 km; winds up to 80 knots (NASA EONET).",
-     "url": "https://www.nhc.noaa.gov/archive/2026/ISAIAS.shtml",
+     "label": "Tropical Cyclone Murasu",
+     "why": "Amaravati (city), Machilipatnam, Vijayawada (city) and more within 150 km; winds up to 85 knots (NASA EONET).",
+     "url": "https://www.metoc.navy.mil/jtwc/products/io0426.tcw",
      "shocks": [
       [
        "zone",
        [
-        -86.5,
-        30.8,
+        80.3,
+        15.5,
         150
        ],
        0.35
@@ -2569,8 +1473,8 @@
        [
         "zone",
         [
-         -86.5,
-         30.8,
+         80.3,
+         15.5,
          90
         ],
         0.2
@@ -2580,8 +1484,8 @@
        [
         "zone",
         [
-         -86.5,
-         30.8,
+         80.3,
+         15.5,
          150
         ],
         0.35
@@ -2591,8 +1495,8 @@
        [
         "zone",
         [
-         -86.5,
-         30.8,
+         80.3,
+         15.5,
          200
         ],
         0.6
@@ -2607,37 +1511,207 @@
      "trend": "steady",
      "likely": "cur",
      "at": [
-      -86.5,
-      30.8
+      80.3,
+      15.5
      ],
      "months": [
-      "2026-10"
+      "2026-11"
      ],
-     "place": "Hurricane Isaias",
-     "t": "2026-10-10T03:00:00Z",
-     "z": 80.0,
+     "place": "Tropical Cyclone Murasu",
+     "t": "2026-11-03T00:00:00Z",
+     "z": 85.0,
      "matched": [
-      "McWilliams power station",
-      "Gulf Clean Energy Center",
-      "Pensacola",
-      "Goodway Refining Atmore Refinery",
-      "Lansing Smith Generating Plant",
-      "Joseph M Farley",
-      "Barry Steam Plant",
-      "Barry Steam Plant"
-     ]
+      "Amaravati (city)",
+      "Machilipatnam",
+      "Vijayawada (city)",
+      "Dr. Narla Tata Rao Thermal power station",
+      "Bander power station",
+      "Muthukur Mandal power station (Painampuram)",
+      "Kondapalli Combined Cycle power plant",
+      "Sri Damodaram Sanjeevaiah Thermal Power Station"
+     ],
+     "view": "disasters"
     },
     {
      "cat": "fire",
-     "label": "Wildfire in China",
-     "why": "Jinneng Guojin power station, Shanxi Guofeng power station, Jiexiu Chongguang power station and more within 30 km; about 6,298 hectares burnt (NASA EONET).",
-     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032580",
+     "label": "Wildfire in India",
+     "why": "Parichha power station within 30 km; about 14,188 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033959",
      "shocks": [
       [
        "zone",
        [
-        111.93,
-        37.26,
+        78.89,
+        25.72,
+        25
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         78.89,
+         25.72,
+         15
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         78.89,
+         25.72,
+         25
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         78.89,
+         25.72,
+         40
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 15 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 25 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 40 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      78.89,
+      25.72
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Wildfire in India",
+     "t": "2026-11-12T19:00:00Z",
+     "z": 14.188,
+     "matched": [
+      "Parichha power station"
+     ],
+     "view": "fire"
+    },
+    {
+     "cat": "conflict",
+     "label": "Attacks near Tripoli",
+     "why": "NOC Zawia Refinery, Mina Tarabulus (Tripoli) (oil port), Az Zawiya (oil port) and 6 more within 60 km. In the news: Russia-Ukraine war spreads to Africa as ships attacked.",
+     "url": "https://www.premiumtimesng.com/foreign/world-foreign/927377-russia-ukraine-war-spreads-to-africa-as-ships-attacked.html",
+     "shocks": [
+      [
+       "zone",
+       [
+        13.18,
+        32.89,
+        60
+       ],
+       0.65
+      ],
+      [
+       "cable",
+       "tripoli-libya",
+       1
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         13.18,
+         32.89,
+         10
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         13.18,
+         32.89,
+         60
+        ],
+        0.65
+       ],
+       [
+        "cable",
+        "tripoli-libya",
+        1
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         13.18,
+         32.89,
+         110
+        ],
+        0.9
+       ],
+       [
+        "cable",
+        "tripoli-libya",
+        1
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Tripoli, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 9 sites within 60 km, 65% damage. Nearby cables cut.",
+      "esc": "Spreads to 110 km, 90% damage, reaching 1 more site (Bahr Es Salam (Structures B&C) Oil and Gas Field (Libya)). Nearby cables cut."
+     },
+     "trend": "easing",
+     "likely": "de",
+     "at": [
+      13.18,
+      32.89
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Tripoli, Tarabulus, Libya",
+     "t": "2026-11-23T00:00:00Z",
+     "z": 163.7,
+     "matched": [
+      "Mina Tarabulus (Tripoli)",
+      "Az Zawiya",
+      "NOC Zawia Refinery",
+      "Tahara Oil and Gas Field (Libya)",
+      "South Tripoli power station",
+      "West Tripoli power station",
+      "West Tripoli Thermal power station",
+      "Al Zawiya power station",
+      "Tripoli, Libya"
+     ],
+     "view": "cablesnavy"
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in Australia",
+     "why": "Gove within 30 km; about 6,211 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033618",
+     "shocks": [
+      [
+       "zone",
+       [
+        136.86,
+        -12.35,
         15
        ],
        0.3
@@ -2648,8 +1722,8 @@
        [
         "zone",
         [
-         111.93,
-         37.26,
+         136.86,
+         -12.35,
          10
         ],
         0.15
@@ -2659,8 +1733,8 @@
        [
         "zone",
         [
-         111.93,
-         37.26,
+         136.86,
+         -12.35,
          15
         ],
         0.3
@@ -2670,8 +1744,8 @@
        [
         "zone",
         [
-         111.93,
-         37.26,
+         136.86,
+         -12.35,
          25
         ],
         0.55
@@ -2686,33 +1760,480 @@
      "trend": "steady",
      "likely": "cur",
      "at": [
-      111.93,
-      37.26
+      136.86,
+      -12.35
      ],
      "months": [
-      "2026-09"
+      "2026-10"
      ],
-     "place": "Wildfire in China",
-     "t": "2026-09-25T19:00:00Z",
-     "z": 6.298,
+     "place": "Wildfire in Australia",
+     "t": "2026-10-31T19:00:00Z",
+     "z": 6.211,
      "matched": [
-      "Jinneng Guojin power station",
-      "Shanxi Guofeng power station",
-      "Jiexiu Chongguang power station",
-      "Xiaoyi Xinyang power station"
-     ]
+      "Gove"
+     ],
+     "view": "fire"
     },
     {
      "cat": "conflict",
-     "label": "Attacks near Ryazan",
-     "why": "TNK-BP Ryazan Refinery, Novo-Ryazan power station (0.3 GW, gas), Ryazanskaya GRES power station (1.9 GW, gas) and 1 more within 70 km. In the news: Ukraine resumes attacks on Russian oil refineries officials say after brief truce.",
-     "url": "https://www.mankatofreepress.com/news/business/ukraine-resumes-attacks-on-russian-oil-refineries-officials-say-after-brief-truce/article_561af0fd-3dc3-5b14-a87f-cae68c579826.html",
+     "label": "Strikes near Crimea",
+     "why": "Tavri power station (0.5 GW, gas) and Balaklava power station (0.5 GW, gas) within 60 km. In the news: Ukraine launches 'unprecedented' strike on Crimean bridge, Zelenskyy says.",
+     "url": "https://abcnews.com/International/ukraine-attacks-crimean-bridge-2nd-consecutive-night-officials/story?id=138201512",
      "shocks": [
       [
        "zone",
        [
-        39.69,
-        54.63,
+        34.0,
+        45.0,
+        60
+       ],
+       0.65
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         34.0,
+         45.0,
+         25
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         34.0,
+         45.0,
+         60
+        ],
+        0.65
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         34.0,
+         45.0,
+         110
+        ],
+        0.9
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Tavri power station, is hit, 25% damage within 25 km.",
+      "cur": "As reported: 2 sites within 60 km, 65% damage.",
+      "esc": "Spreads to 110 km, 90% damage, reaching 1 more site (Sudak)."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      34.0,
+      45.0
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Crimea, Krym, Avtonomna Respublika, Ukraine",
+     "t": "2026-11-16T00:00:00Z",
+     "z": 146.3,
+     "matched": [
+      "Tavri power station",
+      "Balaklava power station"
+     ],
+     "view": "warinfra"
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in South Sudan, Sudan",
+     "why": "Unity Oil Field (South Sudan) within 30 km; about 5,072 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033815",
+     "shocks": [
+      [
+       "zone",
+       [
+        29.53,
+        9.51,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         29.53,
+         9.51,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         29.53,
+         9.51,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         29.53,
+         9.51,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      29.53,
+      9.51
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Wildfire in South Sudan, Sudan",
+     "t": "2026-11-05T19:00:00Z",
+     "z": 5.072,
+     "matched": [
+      "Unity Oil Field (South Sudan)"
+     ],
+     "view": "fire"
+    },
+    {
+     "cat": "conflict",
+     "label": "Attacks near Mumbai",
+     "why": "BPCL Mumbai Refinery, HPCL Mumbai Refinery, Mumbai (Bombay) (oil port) and 3 more within 25 km. In the news: French Embassy in India pays homage to victims of 26/11 Mumbai terror attacks, expresses solidarity with India…",
+     "url": "https://aninews.in/news/world/asia/jaishankar-pays-tribute-to-victims-of-2611-mumbai-terror-attacks-reiterates-commitment-to-combat-terrorism20261126074324/",
+     "shocks": [
+      [
+       "zone",
+       [
+        72.83,
+        18.98,
+        25
+       ],
+       0.85
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         72.83,
+         18.98,
+         10
+        ],
+        0.35
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         72.83,
+         18.98,
+         25
+        ],
+        0.85
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         72.83,
+         18.98,
+         45
+        ],
+        1.0
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Mumbai (Bombay), is hit, 35% damage within 10 km.",
+      "cur": "As reported: 6 sites within 25 km, 85% damage.",
+      "esc": "Spreads to 45 km, 100% damage."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      72.83,
+      18.98
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Mumbai, Maharashtra, India",
+     "t": "2026-11-25T00:00:00Z",
+     "z": 125.5,
+     "matched": [
+      "Mumbai (Bombay)",
+      "BPCL Mumbai Refinery",
+      "HPCL Mumbai Refinery",
+      "Trombay power station",
+      "Uran Combined Cycle power plant",
+      "Mumbai",
+      "Mumbai, India"
+     ],
+     "view": "warinfra"
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in India",
+     "why": "Parichha power station within 30 km; about 5,669 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033944",
+     "shocks": [
+      [
+       "zone",
+       [
+        78.9,
+        25.73,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         78.9,
+         25.73,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         78.9,
+         25.73,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         78.9,
+         25.73,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      78.9,
+      25.73
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Wildfire in India",
+     "t": "2026-11-12T19:00:00Z",
+     "z": 5.669,
+     "matched": [
+      "Parichha power station"
+     ],
+     "view": "fire"
+    },
+    {
+     "cat": "conflict",
+     "label": "Attacks near Jazan",
+     "why": "Saudi Aramco Jazan Refinery, Jizan (oil port), Shuqaiq Steam Power Plant (2.6 GW, oil) and 2 more within 50 km. In the news: Nepal condoles death of citizen killed in Houthi attack on Saudi oil refinery, urges restraint.",
+     "url": "https://news.webindia123.com/news/Articles/World/20261127/4525055.html",
+     "shocks": [
+      [
+       "zone",
+       [
+        42.55,
+        16.89,
+        50
+       ],
+       0.65
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         42.55,
+         16.89,
+         10
+        ],
+        0.25
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         42.55,
+         16.89,
+         50
+        ],
+        0.65
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         42.55,
+         16.89,
+         90
+        ],
+        0.9
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Shuqaiq Steam Power Plant, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 5 sites within 50 km, 65% damage.",
+      "esc": "Spreads to 90 km, 90% damage."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      42.55,
+      16.89
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Jazan, Jizan, Saudi Arabia",
+     "t": "2026-11-25T00:00:00Z",
+     "z": 167.7,
+     "matched": [
+      "Jizan",
+      "Saudi Aramco Jazan Refinery",
+      "Shuqaiq Steam Power Plant",
+      "Jizan Central power plant",
+      "Jizan IGCC power plant"
+     ],
+     "view": "warinfra"
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in Australia",
+     "why": "Gove within 30 km; about 5,201 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033739",
+     "shocks": [
+      [
+       "zone",
+       [
+        136.56,
+        -12.14,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         136.56,
+         -12.14,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         136.56,
+         -12.14,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         136.56,
+         -12.14,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      136.56,
+      -12.14
+     ],
+     "months": [
+      "2026-10"
+     ],
+     "place": "Wildfire in Australia",
+     "t": "2026-10-31T19:00:00Z",
+     "z": 5.201,
+     "matched": [
+      "Gove"
+     ],
+     "view": "fire"
+    },
+    {
+     "cat": "conflict",
+     "label": "Drone strikes near Khartoum",
+     "why": "KRC Khartoum Refinery, Khartoum (≈4.8 M people) and Omdurman (≈2.4 M people) within 70 km. In the news: Drone strikes hit residential areas and a UN facility in Khartoum as the attacks become Sudan's leading cause …",
+     "url": "https://www.latintimes.com/sudan-drone-strikes-khartoum-un-facility-601738",
+     "shocks": [
+      [
+       "zone",
+       [
+        32.53,
+        15.55,
         70
        ],
        0.65
@@ -2723,9 +2244,9 @@
        [
         "zone",
         [
-         39.69,
-         54.63,
-         15
+         32.53,
+         15.55,
+         10
         ],
         0.25
        ]
@@ -2734,8 +2255,8 @@
        [
         "zone",
         [
-         39.69,
-         54.63,
+         32.53,
+         15.55,
          70
         ],
         0.65
@@ -2745,8 +2266,8 @@
        [
         "zone",
         [
-         39.69,
-         54.63,
+         32.53,
+         15.55,
          130
         ],
         0.9
@@ -2754,115 +2275,40 @@
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, TNK-BP Ryazan Refinery, is hit, 25% damage within 15 km.",
-      "cur": "As reported: 4 sites within 70 km, 65% damage.",
-      "esc": "Spreads to 130 km, 90% damage, reaching 1 more site (Shatura GRES power station)."
+      "de": "Calms down: only the nearest site, Khartoum, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 3 sites within 70 km, 65% damage.",
+      "esc": "Spreads to 130 km, 90% damage."
      },
-     "trend": "rising",
-     "likely": "esc",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      39.69,
-      54.63
+      32.53,
+      15.55
      ],
      "months": [
-      "2026-10"
+      "2026-11"
      ],
-     "place": "Ryazan, Ryazanskaya Oblast', Russia",
-     "t": "2026-10-13T00:00:00Z",
-     "z": 130.6,
+     "place": "Khartoum, Sudan",
+     "t": "2026-11-25T00:00:00Z",
+     "z": 47.7,
      "matched": [
-      "TNK-BP Ryazan Refinery",
-      "Novo-Ryazan power station",
-      "Ryazanskaya GRES power station",
-      "Ryazanskaya GRES power station"
-     ]
-    },
-    {
-     "cat": "storm",
-     "label": "Hurricane Polo",
-     "why": "Guaymas, Carlos Rodríguez Rivero power station, Empalme II power station and more within 150 km; winds up to 65 knots (NASA EONET).",
-     "url": "https://science.nasa.gov/earth/earth-observatory/explosive-intensification-for-hurricane-polo/",
-     "shocks": [
-      [
-       "zone",
-       [
-        -111.5,
-        26.9,
-        150
-       ],
-       0.35
-      ]
+      "KRC Khartoum Refinery",
+      "Khartoum",
+      "Omdurman"
      ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         -111.5,
-         26.9,
-         90
-        ],
-        0.2
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         -111.5,
-         26.9,
-         150
-        ],
-        0.35
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         -111.5,
-         26.9,
-         200
-        ],
-        0.6
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 20% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 35% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 60% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      -111.5,
-      26.9
-     ],
-     "months": [
-      "2026-09"
-     ],
-     "place": "Hurricane Polo",
-     "t": "2026-09-29T12:00:00Z",
-     "z": 65.0,
-     "matched": [
-      "Guaymas",
-      "Carlos Rodríguez Rivero power station",
-      "Empalme II power station",
-      "Empalme I power station"
-     ]
+     "view": "warinfra"
     },
     {
      "cat": "fire",
-     "label": "Wildfire Mud Bayou, Chambers, Texas",
-     "why": "[Field not stated] - Denbury Onshore, (Offshore) Oil Asset (Texas, United States) within 30 km; about 3,935 hectares burnt (NASA EONET).",
-     "url": "https://irwin.doi.gov/observer/incidents/2026-TXMCR-000389",
+     "label": "Wildfire in South Sudan, Sudan",
+     "why": "Unity Oil Field (South Sudan) within 30 km; about 5,071 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033807",
      "shocks": [
       [
        "zone",
        [
-        -94.37,
-        29.57,
+        29.53,
+        9.51,
         15
        ],
        0.3
@@ -2873,8 +2319,8 @@
        [
         "zone",
         [
-         -94.37,
-         29.57,
+         29.53,
+         9.51,
          10
         ],
         0.15
@@ -2884,8 +2330,8 @@
        [
         "zone",
         [
-         -94.37,
-         29.57,
+         29.53,
+         9.51,
          15
         ],
         0.3
@@ -2895,8 +2341,8 @@
        [
         "zone",
         [
-         -94.37,
-         29.57,
+         29.53,
+         9.51,
          25
         ],
         0.55
@@ -2911,47 +2357,38 @@
      "trend": "steady",
      "likely": "cur",
      "at": [
-      -94.37,
-      29.57
+      29.53,
+      9.51
      ],
      "months": [
-      "2026-09"
+      "2026-11"
      ],
-     "place": "Wildfire Mud Bayou, Chambers, Texas",
-     "t": "2026-09-19T23:01:00Z",
-     "z": 3.935385,
+     "place": "Wildfire in South Sudan, Sudan",
+     "t": "2026-11-05T19:00:00Z",
+     "z": 5.071,
      "matched": [
-      "[Field not stated] - Denbury Onshore, (Offshore) Oil Asset (Texas, United States)"
-     ]
+      "Unity Oil Field (South Sudan)"
+     ],
+     "view": "fire"
     },
     {
      "cat": "conflict",
-     "label": "Missile strikes near Dhahran",
-     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 22 more within 75 km. In the news: Saudi aramco in Houthi crosshairs as missile attacks threaten Kingdoms energy hub.",
-     "url": "https://www.geo.tv/latest/686388-saudi-aramco-in-houthi-crosshairs-as-missile-attacks-threaten-kingdoms-energy-hub",
+     "label": "Attacks near Kaliningrad",
+     "why": "Kravtsovskoye (D-6) Oil Field (Russia) (oil/gas field), Kaliningrad CHP-2 power station (0.9 GW, gas) and Pregolskaya power station (0.5 GW, gas) within 70 km. In the news: Russia-bound ship towed away after it was attacked in Gulf of Finland.",
+     "url": "https://www.hellenicshippingnews.com/russia-bound-ship-towed-away-after-it-was-attacked-in-gulf-of-finland/",
      "shocks": [
       [
        "zone",
        [
-        50.14,
-        26.3,
-        75
+        20.51,
+        54.71,
+        70
        ],
-       0.7
+       0.65
       ],
       [
        "cable",
-       "al-khobar-saudi-arabia",
-       1
-      ],
-      [
-       "cable",
-       "amwaj-island-bahrain",
-       1
-      ],
-      [
-       "cable",
-       "manama-bahrain",
+       "zelenogradsk-russia",
        1
       ]
      ],
@@ -2960,272 +2397,9 @@
        [
         "zone",
         [
-         50.14,
-         26.3,
+         20.51,
+         54.71,
          15
-        ],
-        0.3
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         50.14,
-         26.3,
-         75
-        ],
-        0.7
-       ],
-       [
-        "cable",
-        "al-khobar-saudi-arabia",
-        1
-       ],
-       [
-        "cable",
-        "amwaj-island-bahrain",
-        1
-       ],
-       [
-        "cable",
-        "manama-bahrain",
-        1
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         50.14,
-         26.3,
-         135
-        ],
-        0.95
-       ],
-       [
-        "cable",
-        "al-khobar-saudi-arabia",
-        1
-       ],
-       [
-        "cable",
-        "amwaj-island-bahrain",
-        1
-       ],
-       [
-        "cable",
-        "manama-bahrain",
-        1
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Calms down: only the nearest site, Al Dammam power plant, is hit, 30% damage within 15 km.",
-      "cur": "As reported: 25 sites within 75 km, 70% damage. Nearby cables cut.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 11 more sites (Ain dar Oil Field (Saudi Arabia), SATORP Saudi Aramco Total Jubail Refinery …). Nearby cables cut."
-     },
-     "trend": "rising",
-     "likely": "esc",
-     "at": [
-      50.14,
-      26.3
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Dhahran, Ash Sharqiyah, Saudi Arabia",
-     "t": "2026-10-13T00:00:00Z",
-     "z": 219.6,
-     "matched": [
-      "Ras  Tannurah",
-      "Abqaiq Oil Field (Saudi Arabia)",
-      "Saudi Aramco Ras Tanura Refinery",
-      "Qatif Oil Field (Saudi Arabia)",
-      "Khuff Gas Field (Bahrain)",
-      "Bahrain Petroleum Company Refinery",
-      "Sitrah",
-      "Bahrain Hidd FLNG Terminal",
-      "Al Khobar, Saudi Arabia",
-      "Amwaj Island, Bahrain",
-      "Manama, Bahrain"
-     ]
-    },
-    {
-     "cat": "storm",
-     "label": "Cyclone Rachel",
-     "why": "Costa Azul LNG Terminal — Import Terminal, Baja California III power station, Presidente Juárez power station and more within 150 km; winds up to 50 knots (NASA EONET).",
-     "url": "https://www.metoc.navy.mil/jtwc/products/ep1826.tcw",
-     "shocks": [
-      [
-       "zone",
-       [
-        -116.3,
-        31.8,
-        150
-       ],
-       0.2
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         -116.3,
-         31.8,
-         90
-        ],
-        0.1
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         -116.3,
-         31.8,
-         150
-        ],
-        0.2
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         -116.3,
-         31.8,
-         200
-        ],
-        0.45
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 10% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 20% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 45% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      -116.3,
-      31.8
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Cyclone Rachel",
-     "t": "2026-10-11T06:00:00Z",
-     "z": 50.0,
-     "matched": [
-      "Costa Azul LNG Terminal — Import Terminal",
-      "Baja California III power station",
-      "Presidente Juárez power station",
-      "Rosarito",
-      "Pio Pico energy center",
-      "Otay Mesa Generating Project",
-      "Tijuana (city)",
-      "Termoelectrica de Mexicali power station"
-     ]
-    },
-    {
-     "cat": "fire",
-     "label": "Wildfire in Indonesia",
-     "why": "Kota Baru within 30 km; about 5,325 hectares burnt (NASA EONET).",
-     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032802",
-     "shocks": [
-      [
-       "zone",
-       [
-        116.26,
-        -3.46,
-        15
-       ],
-       0.3
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         116.26,
-         -3.46,
-         10
-        ],
-        0.15
-       ]
-      ],
-      "cur": [
-       [
-        "zone",
-        [
-         116.26,
-         -3.46,
-         15
-        ],
-        0.3
-       ]
-      ],
-      "esc": [
-       [
-        "zone",
-        [
-         116.26,
-         -3.46,
-         25
-        ],
-        0.55
-       ]
-      ]
-     },
-     "lv": {
-      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
-      "cur": "As reported: 15 km around the fire, 30% damage.",
-      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
-     },
-     "trend": "steady",
-     "likely": "cur",
-     "at": [
-      116.26,
-      -3.46
-     ],
-     "months": [
-      "2026-10"
-     ],
-     "place": "Wildfire in Indonesia",
-     "t": "2026-10-02T19:00:00Z",
-     "z": 5.325,
-     "matched": [
-      "Kota Baru"
-     ]
-    },
-    {
-     "cat": "conflict",
-     "label": "Drone strikes near Sofiya",
-     "why": "Bobov Dol power station (0.6 GW, coal), PSBELMEKEN (0.4 GW, hydro), PSCHAIRA GEN (0.9 GW, hydro) and 1 more within 75 km. In the news: Bulgaria searches for missing crew after drones hit more Black sea ships.",
-     "url": "https://www.arabnews.com/world/bulgaria-searches-for-missing-crew-after-drones-hit-more-black-sea-ships-3004885",
-     "shocks": [
-      [
-       "zone",
-       [
-        23.32,
-        42.68,
-        75
-       ],
-       0.6
-      ]
-     ],
-     "levels": {
-      "de": [
-       [
-        "zone",
-        [
-         23.32,
-         42.68,
-         10
         ],
         0.25
        ]
@@ -3234,60 +2408,71 @@
        [
         "zone",
         [
-         23.32,
-         42.68,
-         75
+         20.51,
+         54.71,
+         70
         ],
-        0.6
+        0.65
+       ],
+       [
+        "cable",
+        "zelenogradsk-russia",
+        1
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         23.32,
-         42.68,
-         135
+         20.51,
+         54.71,
+         130
         ],
-        0.85
+        0.9
+       ],
+       [
+        "cable",
+        "zelenogradsk-russia",
+        1
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Sofia, is hit, 25% damage within 10 km.",
-      "cur": "As reported: 4 sites within 75 km, 60% damage.",
-      "esc": "Spreads to 135 km, 85% damage, reaching 1 more site (KOZLODUY)."
+      "de": "Calms down: only the nearest site, Kaliningrad CHP-2 power station, is hit, 25% damage within 15 km.",
+      "cur": "As reported: 3 sites within 70 km, 65% damage. Nearby cables cut.",
+      "esc": "Spreads to 130 km, 90% damage, reaching 6 more sites (Klaipeda FSRU, Klaipeda …). Nearby cables cut."
      },
-     "trend": "steady",
-     "likely": "cur",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      23.32,
-      42.68
+      20.51,
+      54.71
      ],
      "months": [
-      "2026-10"
+      "2026-11"
      ],
-     "place": "Sofiya, Sofiya-Grad, Bulgaria",
-     "t": "2026-10-04T00:00:00Z",
-     "z": 129.6,
+     "place": "Kaliningrad, Kaliningradskaya Oblast', Russia",
+     "t": "2026-11-23T00:00:00Z",
+     "z": 142.8,
      "matched": [
-      "Bobov Dol power station",
-      "PSBELMEKEN",
-      "PSCHAIRA GEN",
-      "Sofia"
-     ]
+      "Kravtsovskoye (D-6) Oil Field (Russia)",
+      "Kaliningrad CHP-2 power station",
+      "Pregolskaya power station",
+      "Zelenogradsk, Russia"
+     ],
+     "view": "cablesnavy"
     },
     {
      "cat": "fire",
-     "label": "Wildfire Hatch Grade, Walla Walla, Washington",
-     "why": "Ice Harbor within 30 km; about 2,025 hectares burnt (NASA EONET).",
-     "url": "https://irwin.doi.gov/observer/incidents/2026-WAWFS-000664",
+     "label": "Wildfire in India",
+     "why": "Jabalpur (city) within 30 km; about 5,267 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033960",
      "shocks": [
       [
        "zone",
        [
-        -118.86,
-        46.03,
+        79.92,
+        23.32,
         15
        ],
        0.3
@@ -3298,8 +2483,8 @@
        [
         "zone",
         [
-         -118.86,
-         46.03,
+         79.92,
+         23.32,
          10
         ],
         0.15
@@ -3309,8 +2494,8 @@
        [
         "zone",
         [
-         -118.86,
-         46.03,
+         79.92,
+         23.32,
          15
         ],
         0.3
@@ -3320,8 +2505,8 @@
        [
         "zone",
         [
-         -118.86,
-         46.03,
+         79.92,
+         23.32,
          25
         ],
         0.55
@@ -3336,18 +2521,339 @@
      "trend": "steady",
      "likely": "cur",
      "at": [
-      -118.86,
-      46.03
+      79.92,
+      23.32
      ],
      "months": [
-      "2026-09"
+      "2026-11"
      ],
-     "place": "Wildfire Hatch Grade, Walla Walla, Washington",
-     "t": "2026-09-29T19:50:00Z",
-     "z": 2.0250000000000004,
+     "place": "Wildfire in India",
+     "t": "2026-11-09T19:00:00Z",
+     "z": 5.267,
      "matched": [
-      "Ice Harbor"
-     ]
+      "Jabalpur (city)"
+     ],
+     "view": "fire"
+    },
+    {
+     "cat": "conflict",
+     "label": "Drone strikes near Kyiv",
+     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian ship hit by suspected Ukrainian drones in Gulf of Finland; Finnish PM says Kyiv has right to retaliate.",
+     "url": "https://news.webindia123.com/news/Articles/World/20261122/4522883.html",
+     "shocks": [
+      [
+       "zone",
+       [
+        30.52,
+        50.45,
+        25
+       ],
+       0.7
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         30.52,
+         50.45,
+         10
+        ],
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         30.52,
+         50.45,
+         25
+        ],
+        0.7
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         30.52,
+         50.45,
+         45
+        ],
+        0.95
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Kyiv, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 3 sites within 25 km, 70% damage.",
+      "esc": "Spreads to 45 km, 95% damage."
+     },
+     "trend": "rising",
+     "likely": "esc",
+     "at": [
+      30.52,
+      50.45
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Kyiv, Kyiv City, Ukraine",
+     "t": "2026-11-22T00:00:00Z",
+     "z": 139.2,
+     "matched": [
+      "Kyiv CHP-5 power station",
+      "Kiev",
+      "Kyiv"
+     ],
+     "view": "warinfra"
+    },
+    {
+     "cat": "fire",
+     "label": "Wildfire in South Sudan, Sudan",
+     "why": "Toma South Oil Field (South Sudan) within 30 km; about 5,031 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033852",
+     "shocks": [
+      [
+       "zone",
+       [
+        29.44,
+        9.62,
+        15
+       ],
+       0.3
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         29.44,
+         9.62,
+         10
+        ],
+        0.15
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         29.44,
+         9.62,
+         15
+        ],
+        0.3
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         29.44,
+         9.62,
+         25
+        ],
+        0.55
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
+     },
+     "trend": "steady",
+     "likely": "cur",
+     "at": [
+      29.44,
+      9.62
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Wildfire in South Sudan, Sudan",
+     "t": "2026-11-05T19:00:00Z",
+     "z": 5.031,
+     "matched": [
+      "Toma South Oil Field (South Sudan)"
+     ],
+     "view": "fire"
+    },
+    {
+     "cat": "conflict",
+     "label": "Drone strikes near Lipowiec",
+     "why": "Dębowiec Śląski Gas Field (Poland) +1 (oil/gas field), Porąbka-Żar (0.5 GW, hydro), Laziska power station (0.9 GW, coal) and 6 more within 75 km. In the news: Poland discovers debris from Russian missiles and jet-powered drone.",
+     "url": "https://en.apa.az/europe/poland-discovers-debris-from-russian-missiles-and-jet-powered-drone-537466",
+     "shocks": [
+      [
+       "zone",
+       [
+        19.05,
+        49.88,
+        75
+       ],
+       0.7
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         19.05,
+         49.88,
+         25
+        ],
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         19.05,
+         49.88,
+         75
+        ],
+        0.7
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         19.05,
+         49.88,
+         135
+        ],
+        0.95
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Porąbka-Żar, is hit, 30% damage within 25 km.",
+      "cur": "As reported: 9 sites within 75 km, 70% damage.",
+      "esc": "Spreads to 135 km, 95% damage, reaching 3 more sites (Rylowa Gas Field (Poland) +1, Cierny Vah Pumped Storage Hydroelectric Power Plant Slovakia …)."
+     },
+     "trend": "easing",
+     "likely": "de",
+     "at": [
+      19.05,
+      49.88
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Lipowiec, Slaskie, Poland",
+     "t": "2026-11-19T00:00:00Z",
+     "z": 134.3,
+     "matched": [
+      "Dębowiec Śląski Gas Field (Poland) +1",
+      "Porąbka-Żar",
+      "Laziska power station",
+      "Jaworzno power station",
+      "Siersza power station",
+      "Rybnik power station",
+      "Lagisza power station",
+      "Skawina power station"
+     ],
+     "view": "warinfra"
+    },
+    {
+     "cat": "conflict",
+     "label": "Explosions near Loviisa",
+     "why": "Neste Porvoo Refinery, Hamina LNG Terminal, Loviisa Y1 (1.0 GW, nuclear) and 1 more within 65 km. In the news: Putin's sanctioned ship burns out of control as Finland warns of explosions.",
+     "url": "https://londonlovesbusiness.com/putins-sanctioned-ship-burns-out-of-control-as-finland-warns-of-explosions/",
+     "shocks": [
+      [
+       "zone",
+       [
+        26.23,
+        60.45,
+        65
+       ],
+       0.7
+      ],
+      [
+       "cable",
+       "kotka-finland",
+       1
+      ]
+     ],
+     "levels": {
+      "de": [
+       [
+        "zone",
+        [
+         26.23,
+         60.45,
+         20
+        ],
+        0.3
+       ]
+      ],
+      "cur": [
+       [
+        "zone",
+        [
+         26.23,
+         60.45,
+         65
+        ],
+        0.7
+       ],
+       [
+        "cable",
+        "kotka-finland",
+        1
+       ]
+      ],
+      "esc": [
+       [
+        "zone",
+        [
+         26.23,
+         60.45,
+         120
+        ],
+        0.95
+       ],
+       [
+        "cable",
+        "kotka-finland",
+        1
+       ]
+      ]
+     },
+     "lv": {
+      "de": "Calms down: only the nearest site, Loviisa Y1, is hit, 30% damage within 20 km.",
+      "cur": "As reported: 4 sites within 65 km, 70% damage. Nearby cables cut.",
+      "esc": "Spreads to 120 km, 95% damage, reaching 3 more sites (Helsinki, Portovaya LNG Terminal — T1 …). Nearby cables cut."
+     },
+     "trend": "easing",
+     "likely": "de",
+     "at": [
+      26.23,
+      60.45
+     ],
+     "months": [
+      "2026-11"
+     ],
+     "place": "Loviisa, Uusimaa Region, Finland",
+     "t": "2026-11-22T00:00:00Z",
+     "z": 54.8,
+     "matched": [
+      "Neste Porvoo Refinery",
+      "Hamina LNG Terminal",
+      "Loviisa Y1",
+      "Vuosaari power station",
+      "Kotka, Finland"
+     ],
+     "view": "cablesnavy"
     }
    ]
   },
@@ -3355,18 +2861,18 @@
    "items": [
     {
      "cat": "conflict",
-     "label": "Strikes near Kyiv",
-     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian strikes Ukrainian cities kill least attack Kyiv saw coming.",
-     "url": "https://www.penarthtimes.co.uk/news/national/26615429.russian-strikes-ukrainian-cities-kill-least-21-attack-kyiv-saw-coming/",
+     "label": "Drone strikes near Kyiv",
+     "why": "Kyiv CHP-5 power station (0.7 GW, gas), Kiev (0.4 GW, hydro) and Kyiv (≈2.7 M people) within 25 km. In the news: Russian ship hit by suspected Ukrainian drones in Gulf of Finland; Finnish PM says Kyiv has right to retaliate.",
+     "url": "https://news.webindia123.com/news/Articles/World/20261122/4522883.html",
      "shocks": [
       [
        "zone",
        [
         30.52,
-        50.44,
+        50.45,
         25
        ],
-       0.6
+       0.7
       ]
      ],
      "levels": {
@@ -3375,10 +2881,10 @@
         "zone",
         [
          30.52,
-         50.44,
+         50.45,
          10
         ],
-        0.25
+        0.3
        ]
       ],
       "cur": [
@@ -3386,10 +2892,10 @@
         "zone",
         [
          30.52,
-         50.44,
+         50.45,
          25
         ],
-        0.6
+        0.7
        ]
       ],
       "esc": [
@@ -3397,39 +2903,41 @@
         "zone",
         [
          30.52,
-         50.44,
+         50.45,
          45
         ],
-        0.85
+        0.95
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Kyiv, is hit, 25% damage within 10 km.",
-      "cur": "As reported: 3 sites within 25 km, 60% damage.",
-      "esc": "Spreads to 45 km, 85% damage."
+      "de": "Calms down: only the nearest site, Kyiv, is hit, 30% damage within 10 km.",
+      "cur": "As reported: 3 sites within 25 km, 70% damage.",
+      "esc": "Spreads to 45 km, 95% damage."
      },
-     "trend": "easing",
-     "likely": "de",
+     "trend": "rising",
+     "likely": "esc",
      "at": [
       30.52,
-      50.44
+      50.45
      ],
      "months": [
       "2025-11",
       "2026-06",
       "2026-08",
       "2026-09",
-      "2026-10"
+      "2026-10",
+      "2026-11"
      ],
-     "place": "Kyiv, Ukraine",
-     "t": "2026-10-07T00:00:00Z",
-     "z": 335.1,
+     "place": "Kyiv, Kyiv City, Ukraine",
+     "t": "2026-11-22T00:00:00Z",
+     "z": 139.2,
      "matched": [
       "Kyiv CHP-5 power station",
       "Kiev",
       "Kyiv"
-     ]
+     ],
+     "view": "warinfra"
     },
     {
      "cat": "flood",
@@ -3503,7 +3011,8 @@
      "z": 40,
      "matched": [
       "Hadjret En Nouss power plant"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "storm",
@@ -3593,7 +3102,8 @@
       "Exxonmobil Beaumont Refinery",
       "Sabine power station",
       "ExxonMobil Beaumont Refinery power station"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "fire",
@@ -3666,7 +3176,8 @@
      "z": 6.26,
      "matched": [
       "Hwange power station"
-     ]
+     ],
+     "view": "fire"
     },
     {
      "cat": "quake",
@@ -3745,37 +3256,23 @@
       "Puerto Cabello",
       "Venterminals",
       "Valencia (city)"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "conflict",
-     "label": "Missile strikes near Dhahran",
-     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 22 more within 75 km. In the news: Saudi aramco in Houthi crosshairs as missile attacks threaten Kingdoms energy hub.",
-     "url": "https://www.geo.tv/latest/686388-saudi-aramco-in-houthi-crosshairs-as-missile-attacks-threaten-kingdoms-energy-hub",
+     "label": "Strikes near Kabul",
+     "why": "Kabul (≈3.3 M people) within 25 km. In the news: Afghanistan says 400 people killed in Pakistan strike on Kabul hospital.",
+     "url": "https://www.fortmorgantimes.com/2026/03/16/afghanistan-pakistan-hospital-strike/",
      "shocks": [
       [
        "zone",
        [
-        50.14,
-        26.3,
-        75
+        69.18,
+        34.52,
+        25
        ],
-       0.7
-      ],
-      [
-       "cable",
-       "al-khobar-saudi-arabia",
-       1
-      ],
-      [
-       "cable",
-       "amwaj-island-bahrain",
-       1
-      ],
-      [
-       "cable",
-       "manama-bahrain",
-       1
+       0.65
       ]
      ],
      "levels": {
@@ -3783,98 +3280,59 @@
        [
         "zone",
         [
-         50.14,
-         26.3,
-         15
+         69.18,
+         34.52,
+         10
         ],
-        0.3
+        0.25
        ]
       ],
       "cur": [
        [
         "zone",
         [
-         50.14,
-         26.3,
-         75
+         69.18,
+         34.52,
+         25
         ],
-        0.7
-       ],
-       [
-        "cable",
-        "al-khobar-saudi-arabia",
-        1
-       ],
-       [
-        "cable",
-        "amwaj-island-bahrain",
-        1
-       ],
-       [
-        "cable",
-        "manama-bahrain",
-        1
+        0.65
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         50.14,
-         26.3,
-         135
+         69.18,
+         34.52,
+         45
         ],
-        0.95
-       ],
-       [
-        "cable",
-        "al-khobar-saudi-arabia",
-        1
-       ],
-       [
-        "cable",
-        "amwaj-island-bahrain",
-        1
-       ],
-       [
-        "cable",
-        "manama-bahrain",
-        1
+        0.9
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Al Dammam power plant, is hit, 30% damage within 15 km.",
-      "cur": "As reported: 25 sites within 75 km, 70% damage. Nearby cables cut.",
-      "esc": "Spreads to 135 km, 95% damage, reaching 11 more sites (Ain dar Oil Field (Saudi Arabia), SATORP Saudi Aramco Total Jubail Refinery …). Nearby cables cut."
+      "de": "Calms down: only the nearest site, Kabul, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 1 site within 25 km, 65% damage.",
+      "esc": "Spreads to 45 km, 90% damage."
      },
-     "trend": "rising",
-     "likely": "esc",
+     "trend": "easing",
+     "likely": "de",
      "at": [
-      50.14,
-      26.3
+      69.18,
+      34.52
      ],
      "months": [
-      "2026-04",
-      "2026-07",
-      "2026-10"
+      "2026-01",
+      "2026-02",
+      "2026-03"
      ],
-     "place": "Dhahran, Ash Sharqiyah, Saudi Arabia",
-     "t": "2026-10-13T00:00:00Z",
-     "z": 219.6,
+     "place": "Kabul, Kabol, Afghanistan",
+     "t": "2026-03-01T00:00:00Z",
+     "z": 675.3,
      "matched": [
-      "Ras  Tannurah",
-      "Abqaiq Oil Field (Saudi Arabia)",
-      "Saudi Aramco Ras Tanura Refinery",
-      "Qatif Oil Field (Saudi Arabia)",
-      "Khuff Gas Field (Bahrain)",
-      "Bahrain Petroleum Company Refinery",
-      "Sitrah",
-      "Bahrain Hidd FLNG Terminal",
-      "Al Khobar, Saudi Arabia",
-      "Amwaj Island, Bahrain",
-      "Manama, Bahrain"
-     ]
+      "Kabul"
+     ],
+     "view": "security"
     },
     {
      "cat": "flood",
@@ -3952,7 +3410,8 @@
       "Teotleco Oil and Gas Field (Chiapas; Tabasco, Mexico) +12",
       "Ángel Albino Corzo (Peñitas)",
       "Manuel Moreno Torres (Chicoasén)"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "storm",
@@ -4031,19 +3490,20 @@
       "Nishihara",
       "Yoshinoura thermal power plant",
       "Nakagusuku LNG Terminal"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "fire",
-     "label": "Wildfire in Bosnia and Herzegovina",
-     "why": "Gacko Thermal Power Plant within 30 km; about 5,314 hectares burnt (NASA EONET).",
-     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1031787",
+     "label": "Wildfire in Australia",
+     "why": "Gove within 30 km; about 6,211 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033618",
      "shocks": [
       [
        "zone",
        [
-        18.46,
-        43.06,
+        136.86,
+        -12.35,
         15
        ],
        0.3
@@ -4054,8 +3514,8 @@
        [
         "zone",
         [
-         18.46,
-         43.06,
+         136.86,
+         -12.35,
          10
         ],
         0.15
@@ -4065,8 +3525,8 @@
        [
         "zone",
         [
-         18.46,
-         43.06,
+         136.86,
+         -12.35,
          15
         ],
         0.3
@@ -4076,8 +3536,8 @@
        [
         "zone",
         [
-         18.46,
-         43.06,
+         136.86,
+         -12.35,
          25
         ],
         0.55
@@ -4092,19 +3552,20 @@
      "trend": "steady",
      "likely": "cur",
      "at": [
-      18.46,
-      43.06
+      136.86,
+      -12.35
      ],
      "months": [
-      "2026-08",
-      "2026-09"
+      "2026-09",
+      "2026-10"
      ],
-     "place": "Wildfire in Bosnia and Herzegovina",
-     "t": "2026-09-03T19:00:00Z",
-     "z": 5.314,
+     "place": "Wildfire in Australia",
+     "t": "2026-10-31T19:00:00Z",
+     "z": 6.211,
      "matched": [
-      "Gacko Thermal Power Plant"
-     ]
+      "Gove"
+     ],
+     "view": "fire"
     },
     {
      "cat": "quake",
@@ -4251,22 +3712,38 @@
      "z": 108.0,
      "matched": [
       "Ohira"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "conflict",
-     "label": "Fighting near Kabul",
-     "why": "Kabul (≈3.3 M people) within 25 km. In the news: Pakistan bombards Kabul other cities as clashes with Afghanistan intensify.",
-     "url": "https://www.firstpost.com/world/pakistan-bombards-kabul-other-cities-as-clashes-with-afghanistan-intensify-13984185.html",
+     "label": "Missile strikes near Dhahran",
+     "why": "Saudi Aramco Ras Tanura Refinery, Bahrain Petroleum Company Refinery, Bahrain Hidd FLNG Terminal and 22 more within 75 km. In the news: Saudi aramco in Houthi crosshairs as missile attacks threaten Kingdoms energy hub.",
+     "url": "https://www.geo.tv/latest/686388-saudi-aramco-in-houthi-crosshairs-as-missile-attacks-threaten-kingdoms-energy-hub",
      "shocks": [
       [
        "zone",
        [
-        69.18,
-        34.52,
-        25
+        50.14,
+        26.3,
+        75
        ],
-       0.65
+       0.7
+      ],
+      [
+       "cable",
+       "al-khobar-saudi-arabia",
+       1
+      ],
+      [
+       "cable",
+       "amwaj-island-bahrain",
+       1
+      ],
+      [
+       "cable",
+       "manama-bahrain",
+       1
       ]
      ],
      "levels": {
@@ -4274,57 +3751,99 @@
        [
         "zone",
         [
-         69.18,
-         34.52,
-         10
+         50.14,
+         26.3,
+         15
         ],
-        0.25
+        0.3
        ]
       ],
       "cur": [
        [
         "zone",
         [
-         69.18,
-         34.52,
-         25
+         50.14,
+         26.3,
+         75
         ],
-        0.65
+        0.7
+       ],
+       [
+        "cable",
+        "al-khobar-saudi-arabia",
+        1
+       ],
+       [
+        "cable",
+        "amwaj-island-bahrain",
+        1
+       ],
+       [
+        "cable",
+        "manama-bahrain",
+        1
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         69.18,
-         34.52,
-         45
+         50.14,
+         26.3,
+         135
         ],
-        0.9
+        0.95
+       ],
+       [
+        "cable",
+        "al-khobar-saudi-arabia",
+        1
+       ],
+       [
+        "cable",
+        "amwaj-island-bahrain",
+        1
+       ],
+       [
+        "cable",
+        "manama-bahrain",
+        1
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Kabul, is hit, 25% damage within 10 km.",
-      "cur": "As reported: 1 site within 25 km, 65% damage.",
-      "esc": "Spreads to 45 km, 90% damage."
+      "de": "Calms down: only the nearest site, Al Dammam power plant, is hit, 30% damage within 15 km.",
+      "cur": "As reported: 25 sites within 75 km, 70% damage. Nearby cables cut.",
+      "esc": "Spreads to 135 km, 95% damage, reaching 11 more sites (Ain dar Oil Field (Saudi Arabia), SATORP Saudi Aramco Total Jubail Refinery …). Nearby cables cut."
      },
-     "trend": "steady",
-     "likely": "cur",
+     "trend": "rising",
+     "likely": "esc",
      "at": [
-      69.18,
-      34.52
+      50.14,
+      26.3
      ],
      "months": [
-      "2026-01",
-      "2026-02"
+      "2026-04",
+      "2026-07",
+      "2026-10"
      ],
-     "place": "Kabul, Kabol, Afghanistan",
-     "t": "2026-02-27T00:00:00Z",
-     "z": 593.4,
+     "place": "Dhahran, Ash Sharqiyah, Saudi Arabia",
+     "t": "2026-10-13T00:00:00Z",
+     "z": 219.6,
      "matched": [
-      "Kabul"
-     ]
+      "Ras  Tannurah",
+      "Abqaiq Oil Field (Saudi Arabia)",
+      "Saudi Aramco Ras Tanura Refinery",
+      "Qatif Oil Field (Saudi Arabia)",
+      "Khuff Gas Field (Bahrain)",
+      "Bahrain Petroleum Company Refinery",
+      "Sitrah",
+      "Bahrain Hidd FLNG Terminal",
+      "Al Khobar, Saudi Arabia",
+      "Amwaj Island, Bahrain",
+      "Manama, Bahrain"
+     ],
+     "view": "cablesnavy"
     },
     {
      "cat": "flood",
@@ -4455,22 +3974,23 @@
       "Paz Oil Ashdod Refinery",
       "Zomet power station",
       "Eshkol power station"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "storm",
-     "label": "Tropical Cyclone Gezani",
-     "why": "Antananarivo (city), Toamasina within 150 km; winds up to 70 knots (NASA EONET).",
-     "url": "https://www.metoc.navy.mil/jtwc/products/sh2126.tcw",
+     "label": "Tropical Cyclone Arnab",
+     "why": "ONGC Tatipaka Refinery, Konaseema Combined Cycle power plant, Machilipatnam and more within 150 km; winds up to 100 knots (NASA EONET).",
+     "url": "https://www.metoc.navy.mil/jtwc/products/io0226.tcw",
      "shocks": [
       [
        "zone",
        [
-        48.3,
-        -18.2,
+        81.6,
+        16.4,
         150
        ],
-       0.35
+       0.5
       ]
      ],
      "levels": {
@@ -4478,70 +3998,77 @@
        [
         "zone",
         [
-         48.3,
-         -18.2,
+         81.6,
+         16.4,
          90
         ],
-        0.2
+        0.25
        ]
       ],
       "cur": [
        [
         "zone",
         [
-         48.3,
-         -18.2,
+         81.6,
+         16.4,
          150
         ],
-        0.35
+        0.5
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         48.3,
-         -18.2,
+         81.6,
+         16.4,
          200
         ],
-        0.6
+        0.75
        ]
       ]
      },
      "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 20% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 35% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 60% damage."
+      "de": "Lighter than feared: 90 km around the storm's landfall, 25% damage, repaired fast.",
+      "cur": "As reported: 150 km around the storm's landfall, 50% damage.",
+      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 75% damage."
      },
      "trend": "steady",
      "likely": "cur",
      "at": [
-      48.3,
-      -18.2
+      81.6,
+      16.4
      ],
      "months": [
-      "2026-02"
+      "2026-10"
      ],
-     "place": "Tropical Cyclone Gezani",
-     "t": "2026-02-11T00:00:00Z",
-     "z": 70.0,
+     "place": "Tropical Cyclone Arnab",
+     "t": "2026-10-27T18:00:00Z",
+     "z": 100.0,
      "matched": [
-      "Antananarivo (city)",
-      "Toamasina"
-     ]
+      "ONGC Tatipaka Refinery",
+      "Konaseema Combined Cycle power plant",
+      "Machilipatnam",
+      "GREL Combined Cycle power plant (Rajahmundry)",
+      "Vemagiri Combined Cycle power plant",
+      "Jegurupadu Combined Cycle power plant",
+      "Cluster 2 Oil and Gas Field (India)",
+      "Gautami Combined Cycle power plant"
+     ],
+     "view": "disasters"
     },
     {
      "cat": "fire",
-     "label": "Wildfire Ross, Palo Pinto, Texas",
-     "why": "R W Miller power station within 30 km; about 32,400 hectares burnt (NASA EONET).",
-     "url": "https://irwin.doi.gov/observer/incidents/2026-TXTXS-267549",
+     "label": "Wildfire in Bosnia and Herzegovina",
+     "why": "Gacko Thermal Power Plant within 30 km; about 5,314 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1031787",
      "shocks": [
       [
        "zone",
        [
-        -98.34,
-        32.76,
-        25
+        18.46,
+        43.06,
+        15
        ],
        0.3
       ]
@@ -4551,9 +4078,9 @@
        [
         "zone",
         [
-         -98.34,
-         32.76,
-         15
+         18.46,
+         43.06,
+         10
         ],
         0.15
        ]
@@ -4562,9 +4089,9 @@
        [
         "zone",
         [
-         -98.34,
-         32.76,
-         25
+         18.46,
+         43.06,
+         15
         ],
         0.3
        ]
@@ -4573,34 +4100,36 @@
        [
         "zone",
         [
-         -98.34,
-         32.76,
-         40
+         18.46,
+         43.06,
+         25
         ],
         0.55
        ]
       ]
      },
      "lv": {
-      "de": "Lighter than feared: 15 km around the fire, 15% damage, repaired fast.",
-      "cur": "As reported: 25 km around the fire, 30% damage.",
-      "esc": "Worse: wind drives the fire further, to 40 km at 55% damage."
+      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 15 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
      },
      "trend": "steady",
      "likely": "cur",
      "at": [
-      -98.34,
-      32.76
+      18.46,
+      43.06
      ],
      "months": [
-      "2026-08"
+      "2026-08",
+      "2026-09"
      ],
-     "place": "Wildfire Ross, Palo Pinto, Texas",
-     "t": "2026-08-24T14:12:00Z",
-     "z": 32.400000000000006,
+     "place": "Wildfire in Bosnia and Herzegovina",
+     "t": "2026-09-03T19:00:00Z",
+     "z": 5.314,
      "matched": [
-      "R W Miller power station"
-     ]
+      "Gacko Thermal Power Plant"
+     ],
+     "view": "fire"
     },
     {
      "cat": "quake",
@@ -4677,13 +4206,14 @@
       "Puerto Cabello",
       "Puerto Borburata",
       "Valencia (city)"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "conflict",
-     "label": "Drone strikes near Tripoli",
-     "why": "NOC Zawia Refinery, Mina Tarabulus (Tripoli) (oil port), Az Zawiya (oil port) and 6 more within 60 km. In the news: Drone strike sparks massive blaze at Libyas zawiya refinery.",
-     "url": "https://www.wsls.com/news/world/2026/08/11/drone-strike-sparks-massive-blaze-at-libyas-zawiya-refinery/",
+     "label": "Attacks near Tripoli",
+     "why": "NOC Zawia Refinery, Mina Tarabulus (Tripoli) (oil port), Az Zawiya (oil port) and 6 more within 60 km. In the news: Russia-Ukraine war spreads to Africa as ships attacked.",
+     "url": "https://www.premiumtimesng.com/foreign/world-foreign/927377-russia-ukraine-war-spreads-to-africa-as-ships-attacked.html",
      "shocks": [
       [
        "zone",
@@ -4692,7 +4222,12 @@
         32.89,
         60
        ],
-       0.55
+       0.65
+      ],
+      [
+       "cable",
+       "tripoli-libya",
+       1
       ]
      ],
      "levels": {
@@ -4704,7 +4239,7 @@
          32.89,
          10
         ],
-        0.2
+        0.25
        ]
       ],
       "cur": [
@@ -4715,7 +4250,12 @@
          32.89,
          60
         ],
-        0.55
+        0.65
+       ],
+       [
+        "cable",
+        "tripoli-libya",
+        1
        ]
       ],
       "esc": [
@@ -4726,27 +4266,33 @@
          32.89,
          110
         ],
-        0.8
+        0.9
+       ],
+       [
+        "cable",
+        "tripoli-libya",
+        1
        ]
       ]
      },
      "lv": {
-      "de": "Calms down: only the nearest site, Tripoli, is hit, 20% damage within 10 km.",
-      "cur": "As reported: 9 sites within 60 km, 55% damage.",
-      "esc": "Spreads to 110 km, 80% damage, reaching 1 more site (Bahr Es Salam (Structures B&C) Oil and Gas Field (Libya))."
+      "de": "Calms down: only the nearest site, Tripoli, is hit, 25% damage within 10 km.",
+      "cur": "As reported: 9 sites within 60 km, 65% damage. Nearby cables cut.",
+      "esc": "Spreads to 110 km, 90% damage, reaching 1 more site (Bahr Es Salam (Structures B&C) Oil and Gas Field (Libya)). Nearby cables cut."
      },
-     "trend": "rising",
-     "likely": "esc",
+     "trend": "easing",
+     "likely": "de",
      "at": [
       13.18,
       32.89
      ],
      "months": [
-      "2026-08"
+      "2026-08",
+      "2026-11"
      ],
      "place": "Tripoli, Tarabulus, Libya",
-     "t": "2026-08-11T00:00:00Z",
-     "z": 322.2,
+     "t": "2026-11-23T00:00:00Z",
+     "z": 163.7,
      "matched": [
       "Mina Tarabulus (Tripoli)",
       "Az Zawiya",
@@ -4757,7 +4303,8 @@
       "West Tripoli Thermal power station",
       "Al Zawiya power station",
       "Tripoli, Libya"
-     ]
+     ],
+     "view": "cablesnavy"
     },
     {
      "cat": "flood",
@@ -4832,22 +4379,23 @@
       "Dai Ninh",
       "Ham Thuan - Da Mi",
       "Dong Nai 4"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "storm",
-     "label": "Tropical Cyclone 01B",
-     "why": "Vishakhapatnam, HPCL Visakh Refinery, Vishakhapatnam (city) and more within 150 km; winds up to 45 knots (NASA EONET).",
-     "url": "https://www.metoc.navy.mil/jtwc/products/io0126.tcw",
+     "label": "Tropical Cyclone Gezani",
+     "why": "Antananarivo (city), Toamasina within 150 km; winds up to 70 knots (NASA EONET).",
+     "url": "https://www.metoc.navy.mil/jtwc/products/sh2126.tcw",
      "shocks": [
       [
        "zone",
        [
-        84,
-        17.8,
+        48.3,
+        -18.2,
         150
        ],
-       0.2
+       0.35
       ]
      ],
      "levels": {
@@ -4855,74 +4403,71 @@
        [
         "zone",
         [
-         84,
-         17.8,
+         48.3,
+         -18.2,
          90
         ],
-        0.1
+        0.2
        ]
       ],
       "cur": [
        [
         "zone",
         [
-         84,
-         17.8,
+         48.3,
+         -18.2,
          150
         ],
-        0.2
+        0.35
        ]
       ],
       "esc": [
        [
         "zone",
         [
-         84,
-         17.8,
+         48.3,
+         -18.2,
          200
         ],
-        0.45
+        0.6
        ]
       ]
      },
      "lv": {
-      "de": "Lighter than feared: 90 km around the storm's landfall, 10% damage, repaired fast.",
-      "cur": "As reported: 150 km around the storm's landfall, 20% damage.",
-      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 45% damage."
+      "de": "Lighter than feared: 90 km around the storm's landfall, 20% damage, repaired fast.",
+      "cur": "As reported: 150 km around the storm's landfall, 35% damage.",
+      "esc": "Worse: storm surge and inland flooding spread the damage, to 200 km at 60% damage."
      },
      "trend": "steady",
      "likely": "cur",
      "at": [
-      84,
-      17.8
+      48.3,
+      -18.2
      ],
      "months": [
-      "2026-09"
+      "2026-02"
      ],
-     "place": "Tropical Cyclone 01B",
-     "t": "2026-09-23T12:00:00Z",
-     "z": 45.0,
+     "place": "Tropical Cyclone Gezani",
+     "t": "2026-02-11T00:00:00Z",
+     "z": 70.0,
      "matched": [
-      "Vishakhapatnam",
-      "HPCL Visakh Refinery",
-      "Vishakhapatnam (city)",
-      "Vizag Steel Plant power station",
-      "Vizag Thermal Power Plant",
-      "Simhadri power station"
-     ]
+      "Antananarivo (city)",
+      "Toamasina"
+     ],
+     "view": "disasters"
     },
     {
      "cat": "fire",
-     "label": "Wildfire in Türkiye",
-     "why": "Erzin power station within 30 km; about 7,417 hectares burnt (NASA EONET).",
-     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1031706",
+     "label": "Wildfire Ross, Palo Pinto, Texas",
+     "why": "R W Miller power station within 30 km; about 32,400 hectares burnt (NASA EONET).",
+     "url": "https://irwin.doi.gov/observer/incidents/2026-TXTXS-267549",
      "shocks": [
       [
        "zone",
        [
-        36.08,
-        37.15,
-        15
+        -98.34,
+        32.76,
+        25
        ],
        0.3
       ]
@@ -4932,9 +4477,9 @@
        [
         "zone",
         [
-         36.08,
-         37.15,
-         10
+         -98.34,
+         32.76,
+         15
         ],
         0.15
        ]
@@ -4943,9 +4488,9 @@
        [
         "zone",
         [
-         36.08,
-         37.15,
-         15
+         -98.34,
+         32.76,
+         25
         ],
         0.3
        ]
@@ -4954,34 +4499,35 @@
        [
         "zone",
         [
-         36.08,
-         37.15,
-         25
+         -98.34,
+         32.76,
+         40
         ],
         0.55
        ]
       ]
      },
      "lv": {
-      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
-      "cur": "As reported: 15 km around the fire, 30% damage.",
-      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
+      "de": "Lighter than feared: 15 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 25 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 40 km at 55% damage."
      },
      "trend": "steady",
      "likely": "cur",
      "at": [
-      36.08,
-      37.15
+      -98.34,
+      32.76
      ],
      "months": [
       "2026-08"
      ],
-     "place": "Wildfire in Türkiye",
-     "t": "2026-08-29T19:00:00Z",
-     "z": 7.417,
+     "place": "Wildfire Ross, Palo Pinto, Texas",
+     "t": "2026-08-24T14:12:00Z",
+     "z": 32.400000000000006,
      "matched": [
-      "Erzin power station"
-     ]
+      "R W Miller power station"
+     ],
+     "view": "fire"
     },
     {
      "cat": "quake",
@@ -5053,7 +4599,8 @@
      "z": 108.0,
      "matched": [
       "Davao San Miguel power station"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "conflict",
@@ -5128,7 +4675,8 @@
       "Kamskaya HPP",
       "Perm CHP-9 power station",
       "Perm GRES power station"
-     ]
+     ],
+     "view": "warinfra"
     },
     {
      "cat": "flood",
@@ -5205,19 +4753,20 @@
       "Nashpa Oil and Gas Field (Pakistan) +4",
       "Mardankhel Oil and Gas Field (Pakistan) +1",
       "Mela Oil and Gas Field (Pakistan)"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "storm",
-     "label": "Tropical Storm Melissa",
-     "why": "Port Kaiser, Montego Bay LNG Terminal, Rocky Point and more within 150 km; winds up to 160 knots (NASA EONET).",
-     "url": "https://www.nhc.noaa.gov/archive/2025/MELISSA.shtml",
+     "label": "Hurricane Simon",
+     "why": "Manzanillo (Manuel Álvarez Moreno) power station, Manzanillo, Manzanillo (Mexico) LNG Terminal within 150 km; winds up to 135 knots (NASA EONET).",
+     "url": "https://www.metoc.navy.mil/jtwc/products/ep2026.tcw",
      "shocks": [
       [
        "zone",
        [
-        -77.9,
-        17.9,
+        -105,
+        18.4,
         150
        ],
        0.7
@@ -5228,8 +4777,8 @@
        [
         "zone",
         [
-         -77.9,
-         17.9,
+         -105,
+         18.4,
          90
         ],
         0.35
@@ -5239,8 +4788,8 @@
        [
         "zone",
         [
-         -77.9,
-         17.9,
+         -105,
+         18.4,
          150
         ],
         0.7
@@ -5250,8 +4799,8 @@
        [
         "zone",
         [
-         -77.9,
-         17.9,
+         -105,
+         18.4,
          200
         ],
         0.95
@@ -5266,37 +4815,34 @@
      "trend": "steady",
      "likely": "cur",
      "at": [
-      -77.9,
-      17.9
+      -105,
+      18.4
      ],
      "months": [
-      "2025-10"
+      "2026-10"
      ],
-     "place": "Tropical Storm Melissa",
-     "t": "2025-10-28T15:00:00Z",
-     "z": 160.0,
+     "place": "Hurricane Simon",
+     "t": "2026-10-11T06:00:00Z",
+     "z": 135.0,
      "matched": [
-      "Port Kaiser",
-      "Montego Bay LNG Terminal",
-      "Rocky Point",
-      "Port Esquivel",
-      "Old Harbour FSRU",
-      "Petrojam Kingston Refinery",
-      "Kingston"
-     ]
+      "Manzanillo (Manuel Álvarez Moreno) power station",
+      "Manzanillo",
+      "Manzanillo (Mexico) LNG Terminal"
+     ],
+     "view": "disasters"
     },
     {
      "cat": "fire",
-     "label": "Wildfire in Australia",
-     "why": "Gove within 30 km; about 7,369 hectares burnt (NASA EONET).",
-     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1032175",
+     "label": "Wildfire in India",
+     "why": "Parichha power station within 30 km; about 14,188 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1033959",
      "shocks": [
       [
        "zone",
        [
-        136.64,
-        -12.35,
-        15
+        78.89,
+        25.72,
+        25
        ],
        0.3
       ]
@@ -5306,9 +4852,9 @@
        [
         "zone",
         [
-         136.64,
-         -12.35,
-         10
+         78.89,
+         25.72,
+         15
         ],
         0.15
        ]
@@ -5317,9 +4863,9 @@
        [
         "zone",
         [
-         136.64,
-         -12.35,
-         15
+         78.89,
+         25.72,
+         25
         ],
         0.3
        ]
@@ -5328,34 +4874,35 @@
        [
         "zone",
         [
-         136.64,
-         -12.35,
-         25
+         78.89,
+         25.72,
+         40
         ],
         0.55
        ]
       ]
      },
      "lv": {
-      "de": "Lighter than feared: 10 km around the fire, 15% damage, repaired fast.",
-      "cur": "As reported: 15 km around the fire, 30% damage.",
-      "esc": "Worse: wind drives the fire further, to 25 km at 55% damage."
+      "de": "Lighter than feared: 15 km around the fire, 15% damage, repaired fast.",
+      "cur": "As reported: 25 km around the fire, 30% damage.",
+      "esc": "Worse: wind drives the fire further, to 40 km at 55% damage."
      },
      "trend": "steady",
      "likely": "cur",
      "at": [
-      136.64,
-      -12.35
+      78.89,
+      25.72
      ],
      "months": [
-      "2026-09"
+      "2026-11"
      ],
-     "place": "Wildfire in Australia",
-     "t": "2026-09-11T19:00:00Z",
-     "z": 7.369,
+     "place": "Wildfire in India",
+     "t": "2026-11-12T19:00:00Z",
+     "z": 14.188,
      "matched": [
-      "Gove"
-     ]
+      "Parichha power station"
+     ],
+     "view": "fire"
     },
     {
      "cat": "quake",
@@ -5434,7 +4981,8 @@
       "Higashi-Dori",
       "Hachinohe LNG Terminal",
       "Hachinohe thermal power station"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "conflict",
@@ -5512,7 +5060,8 @@
       "Eumseong power station",
       "Gunsan CC power station",
       "Daejeon"
-     ]
+     ],
+     "view": "warinfra"
     },
     {
      "cat": "flood",
@@ -5585,7 +5134,8 @@
      "z": 40,
      "matched": [
       "Nairobi (city)"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "storm",
@@ -5664,19 +5214,20 @@
       "Gorgon LNG Terminal — T1",
       "Gorgon LNG Terminal — T2",
       "Gorgon LNG Terminal — T3"
-     ]
+     ],
+     "view": "disasters"
     },
     {
      "cat": "fire",
-     "label": "Wildfire in Russian Federation",
-     "why": "Termokarstovoye Oil and Gas Field (Yamalo-Nenets Autonomous Okrug, Russia) within 30 km; about 6,126 hectares burnt (NASA EONET).",
-     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1030659",
+     "label": "Wildfire in Türkiye",
+     "why": "Erzin power station within 30 km; about 7,417 hectares burnt (NASA EONET).",
+     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1031706",
      "shocks": [
       [
        "zone",
        [
-        82.95,
-        65.31,
+        36.08,
+        37.15,
         15
        ],
        0.3
@@ -5687,8 +5238,8 @@
        [
         "zone",
         [
-         82.95,
-         65.31,
+         36.08,
+         37.15,
          10
         ],
         0.15
@@ -5698,8 +5249,8 @@
        [
         "zone",
         [
-         82.95,
-         65.31,
+         36.08,
+         37.15,
          15
         ],
         0.3
@@ -5709,8 +5260,8 @@
        [
         "zone",
         [
-         82.95,
-         65.31,
+         36.08,
+         37.15,
          25
         ],
         0.55
@@ -5725,18 +5276,19 @@
      "trend": "steady",
      "likely": "cur",
      "at": [
-      82.95,
-      65.31
+      36.08,
+      37.15
      ],
      "months": [
       "2026-08"
      ],
-     "place": "Wildfire in Russian Federation",
-     "t": "2026-08-14T19:00:00Z",
-     "z": 6.126,
+     "place": "Wildfire in Türkiye",
+     "t": "2026-08-29T19:00:00Z",
+     "z": 7.417,
      "matched": [
-      "Termokarstovoye Oil and Gas Field (Yamalo-Nenets Autonomous Okrug, Russia)"
-     ]
+      "Erzin power station"
+     ],
+     "view": "fire"
     },
     {
      "cat": "quake",
@@ -5808,7 +5360,8 @@
      "z": 67.0,
      "matched": [
       "Ofunato"
-     ]
+     ],
+     "view": "disasters"
     }
    ]
   }
